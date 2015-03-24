@@ -492,7 +492,7 @@ vaultageApp.controller('SafeCtrl', ['$scope', '$http', '$filter', '$location', '
 
             $scope.columns.compactAll();
 
-            url = "./ajax/saveAll.php/"+$scope.user.username+"/"+$scope.user.passwordHash+"/do"; //do is just for obfuscation
+            url = "./ajax/core.php/"+$scope.user.username+"/"+$scope.user.passwordHash+"/do"; //do is just for obfuscation
 
             var raw = JSON.stringify($scope.user.notes);
             var cipher = CryptoJS.AES.encrypt(raw, $scope.user.passwordHash, { format: JsonFormatter });
@@ -538,7 +538,7 @@ vaultageApp.controller('SafeCtrl', ['$scope', '$http', '$filter', '$location', '
             $('#loadAll').html('...');
             $scope.user.notes = [];          
 
-            url = "./ajax/getLast.php/"+$scope.user.username+"/"+$scope.user.passwordHash+"/do"; //do is just for obfuscation
+            url = "./ajax/core.php/"+$scope.user.username+"/"+$scope.user.passwordHash+"/do"; //do is just for obfuscation
             var responsePromise = $http.get(url);
 
             responsePromise.success(function(answer, status, headers, config)
