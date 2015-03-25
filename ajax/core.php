@@ -19,9 +19,8 @@ function outputToJSON($data)
  */
 function auth()
 {
-	$method  = $_SERVER['REQUEST_METHOD'];
-	$request = explode("/", substr(@$_SERVER['PATH_INFO'], 1));
-	if(AUTH_USER != $request[0] || AUTH_PWD_SHA1 != $request[0])
+	$requestParams = @$_SERVER['PATH_INFO'];
+	if(strcmp($requestParams,"/".AUTH_USER."/".AUTH_PWD_SHA1."/do") !== 0)
 	{
 		outputToJSON(array('error' => true, 'desc' => 'auth failed')); //leaks info but it should be OK in this setting
 	}
@@ -56,7 +55,6 @@ function getLastCipher($db)
 	$req = $db->prepare($query);
 	$queryResult = $req->execute();
 	$data = $req->fetchAll();
-
 	if(!$queryResult)
 	{
 		outputToJSON(array('error' => true, 'desc' => 'cannot fetch cipher'));
@@ -69,7 +67,7 @@ function getLastCipher($db)
  * Will NOT save if the cipher is the empty string "" or empty array "[]". rather, will die with the
  * JSON {'error' : true, 'desc' : 'will not erase'}
  */
-function writeNewCipher($newData)
+function writeNewCipher($db, $newData)
 {
 	//filters
 	if(empty($newData) || $newData == '[]')
@@ -94,10 +92,10 @@ function writeNewCipher($newData)
 //main
 auth();
 $db = dbSetup();
-$data = getLastCipher();
+$data = getLastCipher($db);
 if(isset($_POST['data']))
 {
-	writeNewCipher($_POST['data']);
+	writeNewCipher($db, $_POST['data']);
 }
 outputToJSON(array('error' => false, 'data' => $data[0][0]));
 
