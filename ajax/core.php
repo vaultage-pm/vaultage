@@ -89,13 +89,21 @@ function writeNewCipher($db, $newData)
 	$res = $req->execute($params);
 }
 
+function backup($data)
+{
+	$res = mail(BACKUP_EMAIL, BACKUP_SUBJECT, $corpus);
+}
+
 //main
 auth();
 $db = dbSetup();
 $data = getLastCipher($db);
+
 if(isset($_POST['data']))
 {
 	writeNewCipher($db, $_POST['data']);
+	$data = getLastCipher($db);
+	backup($data[0][0]);
 }
 outputToJSON(array('error' => false, 'data' => $data[0][0]));
 
