@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Ludovic Barman">
+    <title>Vaultage | Document Safe</title>
+  </head> 
+
+  <body>
+    <table>
+  <tr>
+    <td>Status</td>
+    <td><div id="status">...</div></td>
+  </tr>
+  <tr>
+    <td>Username</td>
+    <td><input type="text" id="username" value="lbarman" /></td>
+  </tr>
+  <tr>
+    <td>Password</td>
+    <td><input type="password" id="rawPassword" value="your password" /></td>
+  </tr>
+  <tr>
+    <td>SHA1 of Password</td>
+    <td><div id="sha1">SHA1</div></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><input type="button" id="send" value="Send" /></td>
+  </tr>
+</table>
+<div id="plain">Plain</div>
+  </body>
+
+    <script src="../lib/cryptojs.core.min.js"></script>
+    <script src="../lib/cryptojs.enc-utf16.min.js"></script>
+    <script src="../lib/cryptojs.enc-base64.min.js"></script>
+    <script src="../lib/cryptojs.sha1.min.js"></script>
+    <script src="../lib/cryptojs.aes.min.js"></script>
+    <script src="../lib/jquery-2.1.1.js"></script>
+    <script src="../lib/jquery.base64.js"></script>
+
+<script type="text/javascript">
+
+  $("#send").click(function(){
+            $('#status').html('Loading...');
+
+            url = "../ajax/core.php/"+$("#username").val()+"/"+$('#sha1').html()+"/do"; //do is just for obfuscation
+
+            $.get( url, function( answer ) {
+              try
+                {
+                     try
+                      {
+                        var cipher = answer.data.replace(/!\n/g, '').replace(/\s/g, '');
+                        var plain = CryptoJS.AES.decrypt(cipher, $('#sha1').html(), { format: JsonFormatter }).toString(CryptoJS.enc.Utf8);
+                        var notes = JSON.parse(plain);
+
+                        var text = ""
+                        for (var i = 0; i < notes.length; i++) {
+                            text += "<p><b>"+notes[i].title+"</b> "+notes[i].login+" @ "+notes[i].url+", <em>"+notes[i].content+"</em></p>"
+                        }
+                        $('#plain').html(text);
+                      }
+                      catch(e)
+                      {
+                        $('#plain').html('Can\'t decrypt; ' + e);
+                      }
+                    $('#status').html('Done.');
+                }
+                catch(e)
+                {
+                    $('#status').html('Wrong password or DB link inactive.');
+                }
+            });
+  });
+
+var JsonFormatter = {
+        parse: function (jsonStr) {
+
+            // parse json string
+            var jsonObj = JSON.parse(jsonStr);
+
+            // extract ciphertext from json object, and create cipher params object
+            var cipherParams = CryptoJS.lib.CipherParams.create({
+                ciphertext: CryptoJS.enc.Base64.parse(jsonObj.ct)
+            });
+
+            // optionally extract iv and salt
+            if (jsonObj.iv) {
+                cipherParams.iv = CryptoJS.enc.Hex.parse(jsonObj.iv)
+            }
+            if (jsonObj.s) {
+                cipherParams.salt = CryptoJS.enc.Hex.parse(jsonObj.s)
+            }
+
+            return cipherParams;
+        }
+    };
+
+
+
+
+$('#rawPassword').on('keyup', function(){
+  var raw = $('#rawPassword').val();
+  var sha1 = CryptoJS.SHA1(raw);
+  var passHash = sha1.toString(CryptoJS.enc.Base64);
+  $('#sha1').html(passHash);
+});
+</script>
+</html>
