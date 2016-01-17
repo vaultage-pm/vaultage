@@ -3,8 +3,8 @@
  * this is the main controller for "calepinage", doing all the tilding logic
  */
 
-vaultageApp.controller('SafeCtrl', ['$scope', '$http', '$filter', '$location', '$rootScope', '$document', '$cookies', '$cookieStore',
-  function ($scope,$http, $filter, $location, $rootScope, $document, $cookies, $cookieStore) {
+vaultageApp.controller('SafeCtrl', ['$scope', '$http', '$filter', '$location', '$rootScope', '$document', '$cookies', '$cookieStore', '$timeout',
+  function ($scope,$http, $filter, $location, $rootScope, $document, $cookies, $cookieStore, $timeout) {
 
     $scope.user = 
     {
@@ -13,7 +13,8 @@ vaultageApp.controller('SafeCtrl', ['$scope', '$http', '$filter', '$location', '
         tags        : ['#lb', '#john', '#jcb', '#sbuttet', '#people'],
         columns     : ['Common', 'Server', 'Licences', 'Keys', 'Paper'],
         notes       : [],
-        notesFromServerJson : ''
+        notesFromServerJson : '',
+        notesFiltered : []
     }
 
     $scope.constants =
@@ -249,20 +250,34 @@ vaultageApp.controller('SafeCtrl', ['$scope', '$http', '$filter', '$location', '
 
         searchKey : '',
 
+        debounced : false,
+
         getSearchResult : function()
+        {
+            if($scope.notes.debounced != false)
+            {
+                $timeout.cancel($scope.notes.debounced);
+            }
+            debounced = $timeout(function(){$scope.notes.getSearchResultAux()}, 2000);
+        },
+
+        getSearchResultAux : function()
         {
             //$scope.selected.noteSelected = -1;
 
             if($scope.notes.searchKey == "")
-                return [];
+                $scope.user.notesFiltered = [];
 
             notesMatching = $scope.user.notes.filter(function (el){
                 var title = (el.title == undefined) ? '' : el.title.toLowerCase();
                 var url = (el.url == undefined) ? '' : el.url.toLowerCase();
                 var login = (el.login == undefined) ? '' : el.login.toLowerCase();
-                return (title.indexOf($scope.notes.searchKey) != -1) || (url.indexOf($scope.notes.searchKey) != -1) || (login.indexOf($scope.notes.searchKey) != -1);
+                var searchKey = $scope.notes.searchKey.toLowerCase();
+                return (title.indexOf(searchKey) != -1) || (url.indexOf(searchKey) != -1) || (login.indexOf(searchKey) != -1);
             })
-            return notesMatching;
+            $scope.user.notesFiltered = notesMatching;
+            
+            $scope.safeApply();
         },
 
 

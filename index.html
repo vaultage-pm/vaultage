@@ -44,12 +44,12 @@
             
                 <div class="input-group">
                   <span class="input-group-addon" id="basic-addon1">Search</span>
-                  <input id="searchTextBox" type="text" class="form-control" placeholder="keyword" aria-describedby="basic-addon1" data-ng-model="notes.searchKey">
+                  <input id="searchTextBox" type="text" class="form-control" placeholder="keyword" aria-describedby="basic-addon1" data-ng-model="notes.searchKey" ng-keypress="notes.getSearchResult()">
                 </div>  
 
-                <div data-ng-if="notes.searchKey != '' && notes.getSearchResult().length==0" class="no-res">No results</div>
+                <div data-ng-if="notes.searchKey != '' && user.notesFiltered.length==0" class="no-res">No results</div>
 
-            <div data-ng-repeat="note in notes.getSearchResult() track by note.id">
+            <div data-ng-repeat="note in user.notesFiltered track by note.id">
               <div id="note{{note.id}}" data-dynamic="noteToHtml(note, true)"></div>
             </div>
 
