@@ -57,9 +57,26 @@
 .entry .id{
   width: 30px
 }
-.entry .highlight{
+.highlight1{
   color:white;
 }
+
+.highlight2{
+  color:#F92672;
+}
+
+.highlight3{
+  color:#AE81FF;
+}
+
+.highlight4{
+  color:#66D9EF;
+}
+
+.highlight5{
+  color:#3E7ED9;
+}
+
 
 .entry .title {
   background-color: rgb(51, 51, 51);

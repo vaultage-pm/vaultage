@@ -56,28 +56,53 @@ jQuery(document).ready(function($) {
 
         } else if (command.lastIndexOf("get", 0) === 0) {
 
+            var searchKeys = command.replace("get ", "").toLowerCase();
             if (!isAuth) {
-                term.echo("You should auth first");
+                term.echo("You should <i>auth</i> first.");
+            } else if (searchKeys == "" || searchKeys == "get") {
+                term.echo("Syntax : <i>get</i> SEARCH_TERM");
             } else {
 
                 if (notes.length == 0) {
                     term.echo("You have 0 entries. You should <i>pull</i> entries, or <i>gen</i> one.");
                 }
 
-                var searchKey = command.replace("get ", "").toLowerCase();
-                term.echo("Searching for \"" + searchKey + "\"");
+                var searchKeysParts = searchKeys.split(" ")
+
+                var searchString = []
+                var i = 1
+                 _.each(searchKeysParts, function(searchKey) {
+                    searchString.push('<span class="highlight'+i+'">' + searchKey + '</span>')
+                    i++
+                 });
+
+                term.echo("Searching for " + searchString.join(", ") + "");
 
                 var filtered = _.filter(notes, function(el) {
                     var title = (el.title == undefined) ? '' : el.title.toLowerCase();
                     var url = (el.url == undefined) ? '' : el.url.toLowerCase();
                     var login = (el.login == undefined) ? '' : el.login.toLowerCase();
 
-                    return (title.indexOf(searchKey) != -1) || (url.indexOf(searchKey) != -1) || (login.indexOf(searchKey) != -1);
+                    var matchedOne = false
+
+                    _.each(searchKeysParts, function(searchKey){
+                      var s = searchKey.toLowerCase().trim()
+                      matchedOne = matchedOne || (title.indexOf(s) != -1) || (url.indexOf(s) != -1) || (login.indexOf(s) != -1);
+                    })
+
+                    return matchedOne;
                 });
 
                 _.each(filtered, function(obj) {
                     var s = '<span class="entry"><span class="id">(' + obj.id + ')</span> <span class="title">' + obj.title + "</span> -> <span class=\"login\">" + obj.login + "</span> @ <span class=\"url\">" + obj.url + "</span> : <span class=\"content\">" + obj.content + "</span></span>";
-                    var s2 = s.replace(new RegExp(searchKey, 'gim'), '<span class="highlight">' + searchKey + '</span>');
+
+                    var s2 = s
+                    var i = 1
+                    _.each(searchKeysParts, function(searchKey){
+                      s2 = s2.replace(new RegExp(searchKey, 'gim'), '<span class="highlight'+i+'">' + searchKey + '</span>');
+                      i++
+                    });
+
                     term.echo(s2)
                 })
             }
@@ -85,7 +110,7 @@ jQuery(document).ready(function($) {
         } else if (command.lastIndexOf("rm", 0) === 0) {
 
             if (!isAuth) {
-                term.echo("You should auth first");
+                term.echo("You should <i>auth</i> first.");
             } else {
                 var searchKey = command.replace("rm ", "").toLowerCase();
                 term.echo("Removing ID \"" + searchKey + "\"");
@@ -129,7 +154,7 @@ jQuery(document).ready(function($) {
         } else if (command == "gen") {
 
             if (!isAuth) {
-                term.echo("You should auth first");
+                term.echo("You should <i>auth</i> first.");
             } else {
                 term.push(function(title, term) {
                     term.push(function(login, term) {
@@ -155,7 +180,7 @@ jQuery(document).ready(function($) {
         } else if (command == "push") {
 
             if (!isAuth) {
-                term.echo("You should auth first");
+                term.echo("You should <i>auth</i> first.");
             } else {
                 saveCipher(notes.length, term);
             }
@@ -163,7 +188,7 @@ jQuery(document).ready(function($) {
         } else if (command == "pull") {
 
             if (!isAuth) {
-                term.echo("You should auth first");
+                term.echo("You should <i>auth</i> first.");
             } else {
                 getCipher(username, localPassword, remotePassword, term);
             }
@@ -171,7 +196,7 @@ jQuery(document).ready(function($) {
         } else if (command == "saveauth") {
 
             if (!isAuth) {
-                term.echo("You should auth first");
+                term.echo("You should <i>auth</i> first.");
             } else {
                 Cookies.set('username', username, {
                     expires: 7
@@ -184,7 +209,7 @@ jQuery(document).ready(function($) {
         } else if (command == "pwd") {
 
             if (!isAuth) {
-                term.echo("You should auth first");
+                term.echo("You should <i>auth</i> first.");
             } else {
                 term.set_mask('*').push(function(localPass1) {
                     term.set_mask('*').push(function(localPass2) {
