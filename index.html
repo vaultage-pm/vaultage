@@ -1,173 +1,375 @@
-<!DOCTYPE html>
-<html lang="en" data-ng-app="TaskApp">
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="Ludovic Barman">
-    <link rel="icon" type="image/png" href="./img/vaultage.png">
-    <title>Vaultage | Document Safe</title>
-    <!-- Bootstrap core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/vaultage.css" rel="stylesheet">
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <meta charset="utf-8" />
+    <title>Vaultage 2.0</title>
+    <meta name="author" content="Ludovic Barman"/>
+    <meta name="Description" content="An online password manager with local encryption."/>
+    <script src="./js/jquery-1.7.1.min.js"></script>
+    <script src="./js/jquery.mousewheel-min.js"></script>
+    <script src="./js/jquery.terminal-min.js"></script>
+    <script src="./lib/cryptojs.core.min.js"></script>
+    <script src="./lib/cryptojs.enc-utf16.min.js"></script>
+    <script src="./lib/cryptojs.enc-base64.min.js"></script>
+    <script src="./lib/cryptojs.sha1.min.js"></script>
+    <script src="./lib/cryptojs.aes.min.js"></script>
+    <script src="./lib/jquery.base64.js"></script>
+    <script src="./lib/underscore-min.js"></script>
+    <script src="./lib/js.cookie.js"></script>
+    <script src="./lib/pwdGen.js"></script>
+    <link href="./css/jquery.terminal.css" rel="stylesheet"/>
+    <link href="./css/main.css" rel="stylesheet"/>
   </head>
-  <body data-ng-controller="SafeCtrl">
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container"  data-ng-click="selected.select(-1)">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="#">{{constants.title}}</a>
-        </div>
-        <p id="nosync" class="nav navbar-nav" data-ng-if="elementsOutOfSync"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> There are out-of-sync elements</p>
-        <div class="navbar-form navbar-right">
+<body>
 
-          <button id="saveAll" type="submit" class="btn btn-info" data-ng-click="ajax.saveAll()">Save</button>
-          <button id="loadAll" type="submit" class="btn btn-info" data-ng-click="ajax.loadAll()">Load</button>
-        </div>
-        <ul class="nav nav-pills nav navbar-nav navbar-right">
-          <li role="presentation" class="active"><a href="#" data-ng-click="filters.select('all')" class="tag_menu tag_default {{filters.getActiveForTag('all')}}">All</a></li>
-          <li role="presentation" data-ng-repeat="tag in user.tags"><a href="#" data-ng-click="filters.select(tag)" class="tag_menu {{text.getClassesForTags(tag)}} {{filters.getActiveForTag(tag)}}">{{tag}}</a></li>
-        </ul>
-      </div>
-    </nav>
-    <div class="spacer"></div>
-    <div class="container">
-      <!-- Example row of columns -->
-      <div class="row">
-      <div class="column col-md-2">
-          <div class="innercol panel panel-default">
-            
-                <div class="input-group">
-                  <span class="input-group-addon" id="basic-addon1">Search</span>
-                  <input id="searchTextBox" type="text" class="form-control" placeholder="keyword" aria-describedby="basic-addon1" data-ng-model="notes.searchKey" ng-keypress="notes.getSearchResult()">
-                </div>  
+<script>
+jQuery(document).ready(function($) {
+    var id = 1;
 
-                <div data-ng-if="notes.searchKey != '' && user.notesFiltered.length==0" class="no-res">No results</div>
+    $('body').terminal(function(command, term) {
+        if (command == 'auth') {
 
-            <div data-ng-repeat="note in user.notesFiltered track by note.id">
-              <div id="note{{note.id}}" data-dynamic="noteToHtml(note, true)"></div>
-            </div>
+            term.push(function(user, term) {
+                term.set_mask('*').push(function(remotePass) {
+                    term.set_mask('*').push(function(localPass) {
 
-          </div>
-        </div>
+                        _localPasswordSha1 = CryptoJS.SHA1(localPass);
+                        var _localPasswordHash = _localPasswordSha1.toString(CryptoJS.enc.Base64);
 
-        <div data-ng-repeat="(column_id, column) in user.columns" class="column col-md-2">
-          <div class="innercol panel panel-default">
+                        _remotePasswordSha1 = CryptoJS.SHA1(remotePass);
+                        var _remotePasswordHash = _remotePasswordSha1.toString(CryptoJS.enc.Base64);
 
-            <div class="add">
-              <button type="submit" data-ng-click="notes.create(column_id)" class="btn btn-info">Add new</button>
-            </div>
-
-            
-            <h2>{{column}}</h2>
-
-            <div class="thumbnail dropZone" data-drop="true" data-jqyoui-droppable="{onDrop:'drag.noteDropped(column_id, -1)'}"></div>
-            <div data-ng-repeat="note in notes.getNotes(column_id) track by note.id">
-              <div id="note{{note.id}}" data-dynamic="noteToHtml(note, false)" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" data-jqyoui-draggable="{animate:true, onStart: 'drag.noteDragged(note.id, note.order)', onStop: 'drag.stopped(note.id, note.order)'}"></div>
-              <div class="thumbnail dropZone" data-drop="true" data-jqyoui-droppable="{onDrop:'drag.noteDropped(column_id, note.order+1)'}"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Modal -->
-      <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <form>
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-body" data-ng-if="modal.modalMode=='edit'">
-                <div class="input-group" id="tags_line" data-dynamic="notes.currentEditTags()"></div>
-                <div class="input-group">
-                  <span class="input-group-addon" id="basic-addon1" style="width:75px">Title</span>
-                  <input id="editTextBox" type="text" class="form-control" placeholder="Title #Hashtag..." aria-describedby="basic-addon1" data-ng-model="user.notes[notes.currentEdit].title">
-                </div><div class="input-group">
-                  <span class="input-group-addon" id="basic-addon1" style="width:75px">Url</span>
-                  <input id="editUrlTextBox" type="text" class="form-control" placeholder="Url" aria-describedby="basic-addon1" data-ng-model="user.notes[notes.currentEdit].url">
-                </div><div class="input-group">
-                  <span class="input-group-addon" id="basic-addon1" style="width:75px">Login</span>
-                  <input id="editTitleTextBox" type="text" class="form-control" placeholder="Login" aria-describedby="basic-addon1" data-ng-model="user.notes[notes.currentEdit].login">
-                </div>
-                <div class="input-group">
-                  <span class="input-group-addon" id="basic-addon1">Password / Secret</span>
-                  <textarea id="editContentTextBox" type="text" class="form-control" placeholder="Content..." aria-describedby="basic-addon1" data-ng-model="user.notes[notes.currentEdit].content"></textarea>
-                </div>
-                <div class="input-group">
-                  <span class="input-group-addon" id="basic-addon1">Last edited on : </span>
-                  <input id="editDateTextBox" disabled="disabled" type="text" class="form-control" aria-describedby="basic-addon1" value="{{timestampToStr(user.notes[notes.currentEdit].lastupdate)}}">
-                </div>
-                <div class="input-group">
-                  <span class="input-group-addon" id="basic-addon1">Random password generator : </span>
-                  <input id="showRndPwdTextBox" type="text" class="form-control" aria-describedby="basic-addon1" ng-model="randomPassword.lastGenerated" style="width:60%">
-                  <input type="button" class="btn btn-primary" style="width:20%" data-ng-click="randomPassword.reGenerate()" value="New" />
-                  <input type="button" class="btn btn-primary" style="width:20%" data-ng-click="randomPassword.use()" value="Use" />
-                </div>
-              </div>
-              <div class="modal-body" data-ng-if="modal.modalMode=='password'">
-                <div class="input-group">
-                  <span class="input-group-addon" id="basic-addon2">Password :</span>
-                  <input id="passwordTextBox" type="password" class="form-control" placeholder="Content..." aria-describedby="basic-addon1" data-ng-model="user.password">
-                </div>
-              </div>
-              <div class="modal-footer">
-                <input type="submit" class="btn btn-primary" data-ng-enter="" data-ng-click="modal.closed()" data-dismiss="modal" value="Save" />
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
-      <!-- /container -->
-      <div id="logoDrop"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span></div>
-    </div>
-    <!-- LIBRARIES
-      ================================================== -->
-    <!-- Crypto JS -->
-    <script src="lib/cryptojs.core.min.js"></script>
-    <script src="lib/cryptojs.enc-utf16.min.js"></script>
-    <script src="lib/cryptojs.enc-base64.min.js"></script>
-    <script src="lib/cryptojs.sha1.min.js"></script>
-    <script src="lib/cryptojs.aes.min.js"></script>
-    <!-- Jquery & bootstrap -->
-    <script src="lib/jquery-2.1.1.js"></script>
-    <script src="lib/jquery-ui.js"></script>
-    <script src="lib/jquery.base64.js"></script>
-    <script src="lib/bootstrap.min.js"></script>
-    <!-- Angular -->
-    <script src="lib/angular.js"></script>
-    <script src="lib/ui-bootstrap.js"></script>
-    <script src="lib/angular-animate.js"></script>
-    <script src="lib/angular-dragdrop.js"></script>
-    <script src="lib/angular-cookies.min.js"></script>
-    <script src="lib/angular-route.js"></script>
-
-    <!-- CUSTOM SCRIPTS
-      ================================================== -->
-    <script src="js/timestampToStr.js"></script>
-    <script src="js/pwdGen.js"></script>
-    <script type="text/javascript">
-      $(function() {
-        follow = false;
-
-        $(document).on('mousemove', function(e){
-          if(follow)
-          {
-            $('#logoDrop').css({
-               left:  e.pageX,
-               top:   e.pageY
+                        getCipher(user, _localPasswordHash, _remotePasswordHash, term);
+                        term.pop().set_mask(false);
+                        term.pop().set_mask(false);
+                        term.pop();
+                    }, {
+                        prompt: 'local password: '
+                    });
+                }, {
+                    prompt: 'remote password: '
+                });
+            }, {
+                name: 'auth',
+                prompt: 'user : '
             });
-          }
-        });
 
-        $("body").css('background-image', "url('img/bg/Elegant_Background-"+Math.floor((Math.random() * 3) + 1)+".jpg')");
-      });
-    </script>
+        } else if (command.lastIndexOf("get", 0) === 0) {
 
-    <!-- ANGULAR CODE
-      ================================================== -->
-    <script src="js/app.js"></script>
-    <script src="controllers/SafeCtrl.js"></script>
-  </body>
-</html>
+            if (!isAuth) {
+                term.echo("You should auth first");
+            } else {
+
+                if (notes.length == 0) {
+                    term.echo("You have 0 entries. You should <i>pull</i> entries, or <i>gen</i> one.");
+                }
+
+                var searchKey = command.replace("get ", "").toLowerCase();
+                term.echo("Searching for \"" + searchKey + "\"");
+
+                var filtered = _.filter(notes, function(el) {
+                    var title = (el.title == undefined) ? '' : el.title.toLowerCase();
+                    var url = (el.url == undefined) ? '' : el.url.toLowerCase();
+                    var login = (el.login == undefined) ? '' : el.login.toLowerCase();
+
+                    return (title.indexOf(searchKey) != -1) || (url.indexOf(searchKey) != -1) || (login.indexOf(searchKey) != -1);
+                });
+
+                _.each(filtered, function(obj) {
+                    var s = '<span class="entry"><span class="id">(' + obj.id + ')</span> <span class="title">' + obj.title + "</span> -> <span class=\"login\">" + obj.login + "</span> @ <span class=\"url\">" + obj.url + "</span> : <span class=\"content\">" + obj.content + "</span></span>";
+                    var s2 = s.replace(new RegExp(searchKey, 'gim'), '<span class="highlight">' + searchKey + '</span>');
+                    term.echo(s2)
+                })
+            }
+
+        } else if (command.lastIndexOf("rm", 0) === 0) {
+
+            if (!isAuth) {
+                term.echo("You should auth first");
+            } else {
+                var searchKey = command.replace("rm ", "").toLowerCase();
+                term.echo("Removing ID \"" + searchKey + "\"");
+
+                var filtered = _.filter(notes, function(el) {
+                    var id = (el.id == undefined) ? '' : (el.id + '');
+                    return (id.indexOf(searchKey) != -1);
+                });
+
+                _.each(filtered, function(obj) {
+                    term.echo('Entry ' + obj.id + ' found : ' + obj.title + " -> " + obj.login + " @ " + obj.url + " : " + obj.content)
+
+                    newNotes = _.filter(notes, function(el) {
+                        return (el.id != searchKey);
+                    });
+
+                    term.echo('Going to remove ' + (notes.length - newNotes.length) + ' entries.')
+
+                    var history = term.history();
+                    history.disable();
+                    term.push(function(command) {
+                        if (command.match(/^(y|yes)$/i)) {
+
+                            oldNotesLength = notes.length;
+                            notes = newNotes;
+                            saveCipher(oldNotesLength, term);
+
+                            term.pop();
+                            history.enable();
+                        } else if (command.match(/^(n|no)$/i)) {
+                            term.pop();
+                            history.enable();
+                        }
+                    }, {
+                        prompt: 'Are you sure? '
+                    });
+
+                })
+            }
+
+        } else if (command == "gen") {
+
+            if (!isAuth) {
+                term.echo("You should auth first");
+            } else {
+                term.push(function(title, term) {
+                    term.push(function(login, term) {
+                        term.push(function(url, term) {
+                            addEntry(title, login, url, term);
+                            term.pop();
+                            term.pop();
+                            term.pop();
+                        }, {
+                            name: 'gen',
+                            prompt: 'url : '
+                        });
+                    }, {
+                        name: 'gen',
+                        prompt: 'login : '
+                    });
+                }, {
+                    name: 'gen',
+                    prompt: 'title : '
+                });
+            }
+
+        } else if (command == "push") {
+
+            if (!isAuth) {
+                term.echo("You should auth first");
+            } else {
+                saveCipher(notes.length, term);
+            }
+
+        } else if (command == "pull") {
+
+            if (!isAuth) {
+                term.echo("You should auth first");
+            } else {
+                getCipher(username, localPassword, remotePassword, term);
+            }
+
+        } else if (command == "saveauth") {
+
+            if (!isAuth) {
+                term.echo("You should auth first");
+            } else {
+                Cookies.set('username', username, {
+                    expires: 7
+                });
+                Cookies.set('remotePassword', remotePassword, {
+                    expires: 7
+                });
+            }
+
+        } else if (command == "pwd") {
+
+            if (!isAuth) {
+                term.echo("You should auth first");
+            } else {
+                term.set_mask('*').push(function(localPass1) {
+                    term.set_mask('*').push(function(localPass2) {
+
+                        if (localPass1 == localPass2) {
+                            term.echo("Changing local password... ");
+                            saveCipher(notes.length, term);
+                            term.echo("New local password saved.");
+                        } else {
+                            term.echo("Passwords don't match, aborting.");
+                        }
+                        term.pop().set_mask(false);
+                        term.pop().set_mask(false);
+                    }, {
+                        prompt: 'new local password (repeat): '
+                    });
+                }, {
+                    prompt: 'new local password: '
+                });
+            }
+
+        } else if (command == "loadauth") {
+
+            if (Cookies.get('username') == undefined || Cookies.get('remotePassword') == undefined) {
+                term.echo("Could not load cookies, please re-auth.");
+            } else {
+                username = Cookies.get('username')
+                remotePassword = Cookies.get('remotePassword')
+                term.set_mask('*').push(function(localPass) {
+
+                    _localPasswordSha1 = CryptoJS.SHA1(localPass);
+                    localPassword = _localPasswordSha1.toString(CryptoJS.enc.Base64);
+                    isAuth = true;
+                    term.pop().set_mask(false);
+                }, {
+                    prompt: 'local password: '
+                });
+            }
+
+        } else if (command == "clear") {
+
+            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
+
+        } else if (command == "logout") {
+
+            username = ""
+            remotePassword = ""
+            localPassword = ""
+            isAuth = false
+
+        } else if (command == "clearauth") {
+
+            Cookies.remove('username');
+            Cookies.remove('remotePassword');
+
+        } else if (command == 'help') {
+            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
+
+        } else {
+            term.echo('unknow command "' + command + '"');
+            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
+        }
+    }, {
+        greetings: "Vaultage v2.0 <br />*************<br />available commands : <i>auth</i>, <i>get TERM</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.<br />",
+        onBlur: function() {
+            // prevent loosing focus
+            return false;
+        }
+    });
+});
+
+var isAuth = false;
+var notes = [];
+var username = ""
+var remotePassword = ""
+var localPassword = ""
+
+function addEntry(title, login, url, term) {
+
+    var pwd = generatePassword(15, false, true, true).join('');
+
+    var nextFreeId = _.max(notes, function(el) {
+        return el.id
+    }).id + 1
+
+    newEntry = {
+        id: nextFreeId,
+        column: -1,
+        title: title,
+        url: url,
+        login: login,
+        content: pwd,
+        order: -1,
+        lastupdate: Date.now()
+    };
+
+    oldNotesLength = notes.length;
+    notes.push(newEntry);
+
+    saveCipher(oldNotesLength, term);
+}
+
+function getCipher(_username, _localPasswordHash, _remotePasswordHash, term) {
+
+    url = "./ajax/core.php/" + _username + "/" + _remotePasswordHash + "/do"; //do is just for obfuscation
+
+    $.get(url, function(answer) {
+        if (answer.error != undefined && answer.error == true) {
+            term.echo('Wrong username / remote password (or DB link inactive).');
+
+            isAuth = false;
+            remotePassword = "";
+            localPassword = "";
+        } else {
+            try {
+                try {
+                    var cipher = answer.data.replace(/!\n/g, '').replace(/\s/g, '');
+                    var plain = CryptoJS.AES.decrypt(cipher, _localPasswordHash, {
+                        format: JsonFormatter
+                    }).toString(CryptoJS.enc.Utf8);
+                    notes = JSON.parse(plain);
+                    term.echo("Pull success, retrieved " + notes.length + " entries.");
+
+                    username = _username;
+                    remotePassword = _remotePasswordHash;
+                    localPassword = _localPasswordHash;
+                    isAuth = true;
+
+                } catch (e) {
+                    term.echo('Can\'t decrypt; Wrong local password.');
+
+                    isAuth = false;
+                    remotePassword = "";
+                    localPassword = "";
+
+                }
+            } catch (e) {
+                term.echo('Wrong username / remote password (or DB link inactive).');
+
+                isAuth = false;
+                remotePassword = "";
+                localPassword = "";
+            }
+        }
+    });
+}
+
+function saveCipher(oldNodeLength, term) {
+    url = "./ajax/core.php/" + username + "/" + remotePassword + "/do"; //do is just for obfuscation
+
+    var raw = JSON.stringify(notes);
+    var cipher = CryptoJS.AES.encrypt(raw, localPassword, {
+        format: JsonFormatter
+    });
+    var data = cipher.toString();
+    $.post(url, {
+        'data': data
+    }, function(answer, status, headers, config) {
+        if (answer.error != undefined && answer.error == true) {
+            term.echo('Wrong username / remote password (or DB link inactive).');
+
+            isAuth = false;
+            remotePassword = "";
+            localPassword = "";
+        } else {
+            try {
+                if (answer.data.indexOf('"ct"') != -1) {
+                    var cipher = answer.data;
+                    var plain = CryptoJS.AES.decrypt(cipher, localPassword, {
+                        format: JsonFormatter
+                    }).toString(CryptoJS.enc.Utf8);
+
+                    notes = JSON.parse(plain);
+                    term.echo("Push success, went from " + oldNodeLength + " to " + notes.length + " entries.");
+                } else {
+                    notes = answer.data;
+                }
+            } catch (e) {
+                isAuth = false;
+                remotePassword = "";
+                localPassword = "";
+                $cookies.passwordHash = '';
+            }
+        }
+    });
+}
+</script>
+</body>

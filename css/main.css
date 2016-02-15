@@ -1,0 +1,70 @@
+@keyframes blink {
+  0% { opacity: 1; }
+  25% { opacity: 0; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@-webkit-keyframes blink {
+  0% { opacity: 1; }
+  25% { opacity: 0; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@-ms-keyframes blink {
+  0% { opacity: 1; }
+  25% { opacity: 0; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@-moz-keyframes blink {
+  0% { opacity: 1; }
+  25% { opacity: 0; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.prompt, .command {
+  color: #0c0;
+  text-shadow: 0 0 3px rgba(0,100,0,50);
+}
+.cursor {
+  background: #0c0;
+  animation: blink 1s linear infinite;
+  -webkit-animation: blink 1s infinite linear;
+  -ms-animation: blink 1s infinite linear;
+  -moz-animation: blink 1s infinite linear;
+  -webkit-box-shadow: 0 0 5px rgba(0,100,0,50);
+  -moz-box-shadow: 0 0 5px rgba(0,100,0,50);
+  -ms-box-shadow: 0 0 5px rgba(0,100,0,50);
+  -o-box-shadow: 0 0 5px rgba(0,100,0,50);
+  box-shadow: 0 0 5px rgba(0,100,0,50);
+}
+* {
+ color: #0c0;
+ font-family: Consolas;
+ font-size: 13px;
+ font-weight: normal;
+}
+
+.command div, .cmd {
+  font-weight: bold;
+  padding:3px;
+}
+
+.cmd span {
+  font-weight: bold;
+}
+
+.entry .id{
+  width: 30px
+}
+.entry .highlight{
+  color:white;
+}
+
+.entry .title {
+  background-color: rgb(51, 51, 51);
+  padding:0px;
+  padding-left:6px;
+  padding-right:6px;
+ font-weight: bold;
+}
