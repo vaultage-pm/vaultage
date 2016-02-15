@@ -20,12 +20,20 @@
     <td><input type="text" id="username" value="lbarman" /></td>
   </tr>
   <tr>
-    <td>Password</td>
-    <td><input type="password" id="rawPassword" value="your password" /></td>
+    <td>Remote Password</td>
+    <td><input type="password" id="rawRemPassword" value="your password" /></td>
   </tr>
   <tr>
-    <td>SHA1 of Password</td>
-    <td><div id="sha1">SHA1</div></td>
+    <td>SHA1 of Remote Password</td>
+    <td><div id="sha1Remote">SHA1</div></td>
+  </tr>
+  <tr>
+    <td>Local Password</td>
+    <td><input type="password" id="rawLocPassword" value="your password" /></td>
+  </tr>
+  <tr>
+    <td>SHA1 of Local Password</td>
+    <td><div id="sha1Local">SHA1</div></td>
   </tr>
   <tr>
     <td></td>
@@ -48,7 +56,7 @@
   $("#send").click(function(){
             $('#status').html('Loading...');
 
-            url = "../ajax/core.php/"+$("#username").val()+"/"+$('#sha1').html()+"/do"; //do is just for obfuscation
+            url = "../ajax/core.php/"+$("#username").val()+"/"+$('#sha1Remote').html()+"/do"; //do is just for obfuscation
 
             $.get( url, function( answer ) {
               try
@@ -56,7 +64,7 @@
                      try
                       {
                         var cipher = answer.data.replace(/!\n/g, '').replace(/\s/g, '');
-                        var plain = CryptoJS.AES.decrypt(cipher, $('#sha1').html(), { format: JsonFormatter }).toString(CryptoJS.enc.Utf8);
+                        var plain = CryptoJS.AES.decrypt(cipher, $('#sha1Local').html(), { format: JsonFormatter }).toString(CryptoJS.enc.Utf8);
                         var notes = JSON.parse(plain);
 
                         var text = ""
@@ -103,12 +111,18 @@ var JsonFormatter = {
 
 
 
-
-$('#rawPassword').on('keyup', function(){
-  var raw = $('#rawPassword').val();
+$('#rawRemPassword').on('keyup', function(){
+  var raw = $('#rawRemPassword').val();
   var sha1 = CryptoJS.SHA1(raw);
   var passHash = sha1.toString(CryptoJS.enc.Base64);
-  $('#sha1').html(passHash);
+  $('#sha1Remote').html(passHash);
+});
+
+$('#rawLocPassword').on('keyup', function(){
+  var raw = $('#rawLocPassword').val();
+  var sha1 = CryptoJS.SHA1(raw);
+  var passHash = sha1.toString(CryptoJS.enc.Base64);
+  $('#sha1Local').html(passHash);
 });
 </script>
 </html>
