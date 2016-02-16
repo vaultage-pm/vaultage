@@ -3,8 +3,8 @@ A password manager with client-side encryption. (previously inspired from trello
 
 ## requirements
 
-web server with javascript and php
-mysql
+1. (HTTPS) web server with javascript and php
+2. mysql
 
 ## setup
 
