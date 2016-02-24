@@ -159,7 +159,7 @@ jQuery(document).ready(function($) {
                 term.push(function(title, term) {
                     term.push(function(login, term) {
                         term.push(function(url, term) {
-                            addEntry(title, login, url, term);
+                            genEntry(title, login, url, term);
                             term.pop();
                             term.pop();
                             term.pop();
@@ -173,6 +173,39 @@ jQuery(document).ready(function($) {
                     });
                 }, {
                     name: 'gen',
+                    prompt: 'title : '
+                });
+            }
+
+
+        } else if (command == "create") {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                term.push(function(title, term) {
+                    term.push(function(login, term) {
+                        term.push(function(url, term) {
+                            term.push(function(pwd, term) {
+                                addEntry(title, login, url, term, pwd);
+                                term.pop();
+                                term.pop();
+                                term.pop();
+                                term.pop();
+                            }, {
+                                name: 'create',
+                                prompt: 'password : '
+                            });
+                        }, {
+                            name: 'create',
+                            prompt: 'url : '
+                        });
+                    }, {
+                        name: 'create',
+                        prompt: 'login : '
+                    });
+                }, {
+                    name: 'create',
                     prompt: 'title : '
                 });
             }
@@ -266,14 +299,14 @@ jQuery(document).ready(function($) {
             Cookies.remove('remotePassword');
 
         } else if (command == 'help') {
-            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
+            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>create</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
 
         } else {
             term.echo('unknow command "' + command + '"');
-            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
+            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>create</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
         }
     }, {
-        greetings: "Vaultage v2.0 <br />*************<br />available commands : <i>auth</i>, <i>get TERM</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.<br />",
+        greetings: "Vaultage v2.0 <br />*************<br />available commands : <i>auth</i>, <i>get TERM</i>, <i>create</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.<br />",
         onBlur: function() {
             // prevent loosing focus
             return false;
@@ -287,9 +320,7 @@ var username = ""
 var remotePassword = ""
 var localPassword = ""
 
-function addEntry(title, login, url, term) {
-
-    var pwd = generatePassword(15, false, true, true).join('');
+function addEntry(title, login, url, term, pwd) {
 
     var nextFreeId = _.max(notes, function(el) {
         return el.id
@@ -310,6 +341,12 @@ function addEntry(title, login, url, term) {
     notes.push(newEntry);
 
     saveCipher(oldNotesLength, term);
+}
+
+function genEntry(title, login, url, term) {
+
+    var pwd = generatePassword(15, false, true, true).join('');
+    addEntry(title, login, url, term, pwd);
 }
 
 function getCipher(_username, _localPasswordHash, _remotePasswordHash, term) {
