@@ -93,7 +93,26 @@ jQuery(document).ready(function($) {
                     return matchedOne;
                 });
 
-                _.each(filtered, function(obj) {
+                //this could be done in one step with the above function
+                var sorted = _.sortBy(filtered, function(el) { 
+                    var title = (el.title == undefined) ? '' : el.title.toLowerCase();
+                    var url = (el.url == undefined) ? '' : el.url.toLowerCase();
+                    var login = (el.login == undefined) ? '' : el.login.toLowerCase();
+
+                    var numMatched = 0
+
+                    _.each(searchKeysParts, function(searchKey){
+                      var s = searchKey.toLowerCase().trim()
+
+                      numMatched += countOccurrences(title, s, false)
+                      numMatched += countOccurrences(url, s, false)
+                      numMatched += countOccurrences(login, s, false)
+                    });
+
+                    return 1000 - numMatched; //ugly trick to reverse the order easily
+                } );
+
+                _.each(sorted, function(obj) {
                     var s = '<span class="entry"><span class="id">(' + obj.id + ')</span> <span class="title">' + obj.title + "</span> -> <span class=\"login\">" + obj.login + "</span> @ <span class=\"url\">" + obj.url + "</span> : <span class=\"content\">" + obj.content + "</span></span>";
 
                     var s2 = s
@@ -433,5 +452,32 @@ function saveCipher(oldNodeLength, term) {
         }
     });
 }
+
+/** Function count the occurrences of substring in a string;
+ * @param {String} string   Required. The string;
+ * @param {String} subString    Required. The string to search for;
+ * @param {Boolean} allowOverlapping    Optional. Default: false;
+ * @author Vitim.us http://stackoverflow.com/questions/4009756/how-to-count-string-occurrence-in-string/7924240#7924240
+ */
+function countOccurrences(string, subString, allowOverlapping) {
+
+    string += "";
+    subString += "";
+    if (subString.length <= 0) return (string.length + 1);
+
+    var n = 0,
+        pos = 0,
+        step = allowOverlapping ? 1 : subString.length;
+
+    while (true) {
+        pos = string.indexOf(subString, pos);
+        if (pos >= 0) {
+            ++n;
+            pos += step;
+        } else break;
+    }
+    return n;
+}
+
 </script>
 </body>
