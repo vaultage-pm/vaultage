@@ -197,7 +197,7 @@ jQuery(document).ready(function($) {
             }
 
 
-        } else if (command == "create") {
+        } else if (command == "new") {
 
             if (!isAuth) {
                 term.echo("You should <i>auth</i> first.");
@@ -212,19 +212,19 @@ jQuery(document).ready(function($) {
                                 term.pop();
                                 term.pop();
                             }, {
-                                name: 'create',
+                                name: 'new',
                                 prompt: 'password : '
                             });
                         }, {
-                            name: 'create',
+                            name: 'new',
                             prompt: 'url : '
                         });
                     }, {
-                        name: 'create',
+                        name: 'new',
                         prompt: 'login : '
                     });
                 }, {
-                    name: 'create',
+                    name: 'new',
                     prompt: 'title : '
                 });
             }
@@ -318,14 +318,14 @@ jQuery(document).ready(function($) {
             Cookies.remove('remotePassword');
 
         } else if (command == 'help') {
-            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>create</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
+            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
 
         } else {
             term.echo('unknow command "' + command + '"');
-            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>create</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
+            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
         }
     }, {
-        greetings: "Vaultage v2.0 <br />*************<br />available commands : <i>auth</i>, <i>get TERM</i>, <i>create</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.<br />",
+        greetings: "Vaultage v2.0 <br />*************<br />available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.<br />",
         onBlur: function() {
             // prevent loosing focus
             return false;
