@@ -62,7 +62,6 @@
  * NOTE: json-rpc don't need promises and delegate resume/pause because only
  *       exec can call it and exec call interpreter that work with resume/pause
  */
-
 /* jshint ignore:start */
 (function(ctx) {
     var sprintf = function() {
@@ -828,7 +827,9 @@
         }
         storage_key += 'commands';
         var data = $.Storage.get(storage_key);
-        data = data ? $.parseJSON(data) : [];
+        data = [] //data ? $.parseJSON(data) : [];
+        console.log("History load")
+        console.log(data)
         var pos = data.length-1;
         $.extend(this, {
             append: function(item) {
@@ -844,6 +845,8 @@
                 }
             },
             data: function() {
+                    console.log("Get data");
+                    console.log(data);
                 return data;
             },
             reset: function() {
@@ -859,6 +862,8 @@
                 return pos;
             },
             current: function() {
+                    console.log("Current returing "+data[pos] + " from pos "+pos);
+                    console.log(data);
                 return data[pos];
             },
             next: function() {
@@ -866,6 +871,8 @@
                     ++pos;
                 }
                 if (pos !== -1) {
+                    console.log("Next returing "+data[pos] + " from pos "+pos);
+                    console.log(data);
                     return data[pos];
                 }
             },
@@ -875,6 +882,8 @@
                     --pos;
                 }
                 if (old !== -1) {
+                    console.log("PRevious returing "+data[pos] + " from pos "+pos);
+                    console.log(data);
                     return data[pos];
                 }
             },
@@ -1403,12 +1412,14 @@
                 } else if (history && (e.which === 38 && !e.ctrlKey) ||
                            (e.which === 80 && e.ctrlKey)) {
                     //UP ARROW or CTRL+P
+                    /*
                     if (first_up_history) {
                         last_command = command;
                         self.set(history.current());
                     } else {
                         self.set(history.previous());
-                    }
+                    }*/
+                    self.set("Coucou ma poule");
                     first_up_history = false;
                 } else if (history && (e.which === 40 && !e.ctrlKey) ||
                            (e.which === 78 && e.ctrlKey)) {
@@ -1603,6 +1614,8 @@
         // ---------------------------------------------------------------------
         $.extend(self, {
             name: function(string) {
+                console.log("Setting name to "+string);
+                console.trace();
                 if (string !== undefined) {
                     name = string;
                     var enabled = history && history.enabled() || !history;

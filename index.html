@@ -23,6 +23,7 @@
 <body>
 
 <script>
+globalKeyUpValue = "";
 jQuery(document).ready(function($) {
     var id = 1;
 
@@ -206,7 +207,7 @@ jQuery(document).ready(function($) {
                     term.push(function(login, term) {
                         term.push(function(url, term) {
                             term.push(function(pwd, term) {
-                                addEntry(title, login, url, term, pwd);
+                                addEntry(title, login, url, pwd, term);
                                 term.pop();
                                 term.pop();
                                 term.pop();
@@ -227,6 +228,79 @@ jQuery(document).ready(function($) {
                     name: 'new',
                     prompt: 'title : '
                 });
+            }
+
+        } else if (command.lastIndexOf("edit", 0) === 0) {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                var searchKey = command.replace("edit ", "").toLowerCase();
+
+                var filtered = _.filter(notes, function(el) {
+                    var id = (el.id == undefined) ? '' : (el.id + '');
+                    return (id.indexOf(searchKey) != -1);
+                });
+
+                if(filtered.length == 0)
+                {
+                    term.echo("Could not find this ID")
+                }
+                else
+                {
+                    var s = '<span class="entry"><span class="id">(' + filtered[0].id + ')</span> <span class="title">' + filtered[0].title + "</span> -> <span class=\"login\">" + filtered[0].login + "</span> @ <span class=\"url\">" + filtered[0].url + "</span> : <span class=\"content\">" + filtered[0].content + "</span></span>";
+
+                    term.echo("Going to edit the following entry :");
+                    term.echo(s);
+
+                    term.echo("Use KEY UP to edit the previous text, KEY DOWN to clear.");
+                    
+                    globalKeyUpValue = filtered[0].title;
+
+                    term.push(function(title, term) {
+
+                        globalKeyUpValue = filtered[0].login;
+
+                        term.push(function(login, term) {
+
+                            globalKeyUpValue = filtered[0].url;
+
+                            term.push(function(url, term) {
+
+                                globalKeyUpValue = filtered[0].content;
+
+                                term.push(function(pwd, term) {
+
+                                    globalKeyUpValue = "";
+
+                                    editEntry(filtered[0].id, title, login, url, pwd, term)
+
+                                    var s = '<span class="entry"><span class="id">(' + filtered[0].id + ')</span> <span class="title">' + filtered[0].title + "</span> -> <span class=\"login\">" + filtered[0].login + "</span> @ <span class=\"url\">" + filtered[0].url + "</span> : <span class=\"content\">" + filtered[0].content + "</span></span>";
+
+                                    term.echo("The entry #"+filtered[0].id+" is now :");
+                                    term.echo(s);
+
+                                    term.pop();
+                                    term.pop();
+                                    term.pop();
+                                    term.pop();
+                                }, {
+                                    name: 'edit',
+                                    prompt: 'new password : '
+                                });
+                            }, {
+                                name: 'edit',
+                                prompt: 'new url : '
+                            });
+                        }, {
+                            name: 'edit',
+                            prompt: 'new login : '
+                        });
+                    }, {
+                        name: 'edit',
+                        prompt: 'new title : '
+                    });
+                }
             }
 
         } else if (command == "push") {
@@ -303,7 +377,7 @@ jQuery(document).ready(function($) {
 
         } else if (command == "clear") {
 
-            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
+            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
 
         } else if (command == "logout") {
 
@@ -318,14 +392,14 @@ jQuery(document).ready(function($) {
             Cookies.remove('remotePassword');
 
         } else if (command == 'help') {
-            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
+            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>edit ID</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
 
         } else {
             term.echo('unknow command "' + command + '"');
-            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
+            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
         }
     }, {
-        greetings: "Vaultage v2.0 <br />*************<br />available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.<br />",
+        greetings: "Vaultage v2.0 <br />*************<br />available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.<br />",
         onBlur: function() {
             // prevent loosing focus
             return false;
@@ -339,7 +413,34 @@ var username = ""
 var remotePassword = ""
 var localPassword = ""
 
-function addEntry(title, login, url, term, pwd) {
+
+function editEntry(id, title, login, url, pwd, term) {
+
+    var index = 0;
+
+    while (index < notes.length) {
+        var nodeId = (notes[index].id == undefined) ? '' : (notes[index].id + '');
+        if(nodeId == id)
+        {
+            break;
+        }
+        index++
+    }
+
+    if(notes[index] == id)
+    {
+        term.echo("WARNING: editEntry did nothing, ID not found")
+    }
+
+    notes[index].title = title;
+    notes[index].login = login;
+    notes[index].url = url;
+    notes[index].content = pwd;
+
+    saveCipher(notes.length, term);
+}
+
+function addEntry(title, login, url, pwd, term) {
 
     var nextFreeId = _.max(notes, function(el) {
         return el.id
@@ -365,7 +466,7 @@ function addEntry(title, login, url, term, pwd) {
 function genEntry(title, login, url, term) {
 
     var pwd = generatePassword(15, false, true, true).join('');
-    addEntry(title, login, url, term, pwd);
+    addEntry(title, login, url, pwd, term);
 }
 
 function getCipher(_username, _localPasswordHash, _remotePasswordHash, term) {
