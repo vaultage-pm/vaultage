@@ -488,16 +488,29 @@ function getCipher(_username, _localPasswordHash, _remotePasswordHash, term) {
             try {
                 try {
                     var cipher = answer.data.replace(/!\n/g, '').replace(/\s/g, '');
-                    var plain = CryptoJS.AES.decrypt(cipher, _localPasswordHash, {
-                        format: JsonFormatter
-                    }).toString(CryptoJS.enc.Utf8);
-                    notes = JSON.parse(plain);
-                    term.echo("Pull success, retrieved " + notes.length + " entries.");
 
-                    username = _username;
-                    remotePassword = _remotePasswordHash;
-                    localPassword = _localPasswordHash;
-                    isAuth = true;
+                    if(cipher == "")
+                    {
+                        term.echo("Pull success, 0 entries. Future entries will be encrypted with the provided local password.")
+                        notes = [];
+                        username = _username;
+                        remotePassword = _remotePasswordHash;
+                        localPassword = _localPasswordHash;
+                        isAuth = true;
+                    }
+                    else
+                    {
+                        var plain = CryptoJS.AES.decrypt(cipher, _localPasswordHash, {
+                            format: JsonFormatter
+                        }).toString(CryptoJS.enc.Utf8);
+                        notes = JSON.parse(plain);
+                        term.echo("Pull success, retrieved " + notes.length + " entries.");
+
+                        username = _username;
+                        remotePassword = _remotePasswordHash;
+                        localPassword = _localPasswordHash;
+                        isAuth = true;
+                    }
 
                 } catch (e) {
                     term.echo('Can\'t decrypt; Wrong local password.');
