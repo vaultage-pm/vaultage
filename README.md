@@ -15,9 +15,11 @@ A password manager with client-side encryption. (previously inspired from trello
 ## possible commands
 
 - *auth* : authenticate to the mysql server, and *pull*s the information
-- *get* : filter the results, and display the matching password entry
+- *get TERM* : filter the results, and display the matching password entry
+- *new* : creates a new password entry, then *push*es the changes
 - *gen* : creates a new password entry with a random password, and *push*es the changes
-- *rm* : removes the entry ID (which is the number in parenthesis)
+- *edit ID* : edits the entry ID (ID is the number in parenthesis). Use KEY_UP to display the previous content.
+- *rm ID* : removes the entry ID
 - *push* : pushes the current entries to the database
 - *pull* : pulls the entries from the database
 - *clear* : clear the screen
