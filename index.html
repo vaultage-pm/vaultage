@@ -369,6 +369,10 @@ jQuery(document).ready(function($) {
                     _localPasswordSha1 = CryptoJS.SHA1(localPass);
                     localPassword = _localPasswordSha1.toString(CryptoJS.enc.Base64);
                     isAuth = true;
+
+                    //automatic pull
+                    getCipher(username, localPassword, remotePassword, term)
+
                     term.pop().set_mask(false);
                 }, {
                     prompt: 'local password: '
