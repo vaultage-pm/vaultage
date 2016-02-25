@@ -14,18 +14,25 @@ A password manager with client-side encryption. (previously inspired from trello
 
 ## possible commands
 
-- *auth* : authenticate to the mysql server, and *pull*s the information
+- *auth* : authenticate to the mysql server, and *pull*s the entries
+
+common :
+
 - *get TERM* : filter the results, and display the matching password entry
 - *new* : creates a new password entry, then *push*es the changes
 - *gen* : creates a new password entry with a random password, and *push*es the changes
 - *edit ID* : edits the entry ID (ID is the number in parenthesis). Use KEY_UP to display the previous content.
 - *rm ID* : removes the entry ID
+
+less common :
+
 - *push* : pushes the current entries to the database
 - *pull* : pulls the entries from the database
 - *clear* : clear the screen
 - *logout* : clear all the in-memory authentication information
 
 cookies: 
+
 - *saveauth* : saves the username and the remote password in a cookie. _does not save the local password_ by design.
-- *loadauth* : loads the username and the remote password from the cookie, and asks for the local password. Use as quicker an alternative to *auth*
+- *loadauth* : loads the username and the remote password from the cookie, and asks for the local password. Use as quicker an alternative to *auth*. Also *pull*s the entries
 - *clearauth* : removes all authentication cookies
