@@ -519,7 +519,7 @@ function getCipher(_username, _localPasswordHash, _remotePasswordHash, term) {
                 try {
                     var cipher = answer.data.replace(/!\n/g, '').replace(/\s/g, '');
 
-                    if(data == undefined || cipher == undefined || cipher == "")
+                    if(answer.data == undefined || answer.data == "" || cipher == undefined || cipher == "")
                     {
                         term.echo("Pull success, 0 entries. Future entries will be encrypted with the provided local password.")
                         notes = [];
