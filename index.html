@@ -152,6 +152,11 @@ jQuery(document).ready(function($) {
 
                     term.echo(s)
                 })
+
+                //blur after 30 sec
+                setTimeout( function(){ 
+                    $(".content").addClass("blurred")
+                  }, 10000);
             }
 
         } else if (command.lastIndexOf("rm", 0) === 0) {
