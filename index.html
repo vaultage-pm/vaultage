@@ -509,6 +509,11 @@ function addEntry(title, login, url, pwd, term) {
         return el.id
     }).id + 1
 
+    //very first ID
+    if(notes.length == 0) {
+        nextFreeId = 1
+    }
+
     newEntry = {
         id: nextFreeId,
         column: -1,
