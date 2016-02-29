@@ -51,7 +51,7 @@ function dbSetup()
  */
 function getLastCipher($db)
 {
-	$query = "SELECT data FROM vaultage_data ORDER BY last_update DESC LIMIT 1";
+	$query = "SELECT data, last_hash FROM vaultage_data ORDER BY last_update DESC LIMIT 1";
 	$req = $db->prepare($query);
 	$queryResult = $req->execute();
 	$data = $req->fetchAll();
@@ -67,7 +67,7 @@ function getLastCipher($db)
  * Will NOT save if the cipher is the empty string "" or empty array "[]". rather, will die with the
  * JSON {'error' : true, 'desc' : 'will not erase'}
  */
-function writeNewCipher($db, $newData)
+function writeNewCipher($db, $newData, $last_hash, $new_hash, $force)
 {
 	//filters
 	if(empty($newData) || $newData == '[]')
@@ -75,15 +75,24 @@ function writeNewCipher($db, $newData)
 		outputToJSON(array('error' => true, 'desc' => 'will not erase'));
 	}
 
+	//check last hash
+	$last = getLastCipher($db);
+	if(!$force && $last_hash != $last[0]['last_hash'] && $last[0]['last_hash'] != "INIT")
+	{
+		outputToJSON(array('error' => true, 'non_fast_forward' => true, 'desc' => 'last hash given '.$last_hash.' not matching real last hash '.$last[0]['last_hash']));
+	}
+
 	//actual query
 	$params = array(
 		':data' => $newData,
+		':hash' => $new_hash,
 		':datetime' => date("Y-m-d H:i:s")
 	);
 
 	$query = "UPDATE vaultage_data SET
 							`last_update` =:datetime,
-							`data`       =:data";
+							`data`       =:data, 
+							`last_hash`       =:hash";
 
 	$req = $db->prepare($query);
 	$res = $req->execute($params);
@@ -108,9 +117,9 @@ auth();
 $db = dbSetup();
 $data = getLastCipher($db);
 
-if(isset($_POST['data']))
+if(isset($_POST['data']) && isset($_POST['last_hash']) && isset($_POST['new_hash']))
 {
-	writeNewCipher($db, $_POST['data']);
+	writeNewCipher($db, $_POST['data'], $_POST['last_hash'], $_POST['new_hash'], ($_POST['force'] === "true"));
 	$data = getLastCipher($db);
 	backup($data[0][0]);
 }

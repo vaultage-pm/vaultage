@@ -187,8 +187,10 @@ jQuery(document).ready(function($) {
                         if (command.match(/^(y|yes)$/i)) {
 
                             oldNotesLength = notes.length;
+                            oldHash = hash(JSON.stringify(notes));
+
                             notes = newNotes;
-                            saveCipher(oldNotesLength, term);
+                            saveCipher(oldNotesLength, oldHash, false, term);
 
                             term.pop();
                             history.enable();
@@ -335,12 +337,20 @@ jQuery(document).ready(function($) {
                 }
             }
 
+        } else if (command == "push --force") {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                saveCipher(notes.length, hash(JSON.stringify(notes)), true, term);
+            }
+
         } else if (command == "push") {
 
             if (!isAuth) {
                 term.echo("You should <i>auth</i> first.");
             } else {
-                saveCipher(notes.length, term);
+                saveCipher(notes.length, hash(JSON.stringify(notes)), false, term);
             }
 
         } else if (command == "pull") {
@@ -374,7 +384,7 @@ jQuery(document).ready(function($) {
 
                         if (localPass1 == localPass2) {
                             term.echo("Changing local password... ");
-                            saveCipher(notes.length, term);
+                            saveCipher(notes.length, hash(JSON.stringify(notes)), false, term);
                             term.echo("New local password saved.");
                         } else {
                             term.echo("Passwords don't match, aborting.");
@@ -468,12 +478,14 @@ function editEntry(id, title, login, url, pwd, term) {
         term.echo("WARNING: editEntry did nothing, ID not found")
     }
 
+    oldHash = hash(JSON.stringify(notes));
+
     notes[index].title = title;
     notes[index].login = login;
     notes[index].url = url;
     notes[index].content = pwd;
 
-    saveCipher(notes.length, term);
+    saveCipher(notes.length, oldHash, false, term);
 
 
     var s = '<span class="entry"><span class="id">(' + notes[index].id + ')</span> <span class="title">' + notes[index].title + "</span> -> <span class=\"login\">" + notes[index].login + "</span> @ <span class=\"url\">" + notes[index].url + "</span> : <span class=\"content\">" + notes[index].content + "</span></span>";
@@ -504,10 +516,12 @@ function addEntry(title, login, url, pwd, term) {
         lastupdate: Date.now()
     };
 
+    oldHash = hash(JSON.stringify(notes));
     oldNotesLength = notes.length;
+
     notes.push(newEntry);
 
-    saveCipher(oldNotesLength, term);
+    saveCipher(oldNotesLength, oldHash, false, term);
 
     var s = '<span class="entry"><span class="id">(' + newEntry.id + ')</span> <span class="title">' + newEntry.title + "</span> -> <span class=\"login\">" + newEntry.login + "</span> @ <span class=\"url\">" + newEntry.url + "</span> : <span class=\"content\">" + newEntry.content + "</span></span>";
 
@@ -527,6 +541,7 @@ function getCipher(_username, _localPasswordHash, _remotePasswordHash, term) {
 
     $.get(url, function(answer) {
         if (answer.error != undefined && answer.error == true) {
+            
             term.echo('Wrong username / remote password (or DB link inactive).');
 
             isAuth = false;
@@ -534,40 +549,40 @@ function getCipher(_username, _localPasswordHash, _remotePasswordHash, term) {
             localPassword = "";
         } else {
             try {
-                try {
-                    var cipher = answer.data.replace(/!\n/g, '').replace(/\s/g, '');
+                    try {
+                        var cipher = answer.data.replace(/!\n/g, '').replace(/\s/g, '');
 
-                    if(answer.data == undefined || answer.data == "" || cipher == undefined || cipher == "")
-                    {
-                        term.echo("Pull success, 0 entries. Future entries will be encrypted with the provided local password.")
-                        notes = [];
-                        username = _username;
-                        remotePassword = _remotePasswordHash;
-                        localPassword = _localPasswordHash;
-                        isAuth = true;
+                        if(answer.data == undefined || answer.data == "" || cipher == undefined || cipher == "")
+                        {
+                            term.echo("Pull success, 0 entries. Future entries will be encrypted with the provided local password.")
+                            notes = [];
+                            username = _username;
+                            remotePassword = _remotePasswordHash;
+                            localPassword = _localPasswordHash;
+                            isAuth = true;
+                        }
+                        else
+                        {
+                            var plain = CryptoJS.AES.decrypt(cipher, _localPasswordHash, {
+                                format: JsonFormatter
+                            }).toString(CryptoJS.enc.Utf8);
+                            notes = JSON.parse(plain);
+                            term.echo("Pull success, retrieved " + notes.length + " entries.");
+
+                            username = _username;
+                            remotePassword = _remotePasswordHash;
+                            localPassword = _localPasswordHash;
+                            isAuth = true;
+                        }
+
+                    } catch (e) {
+                        term.echo('Can\'t decrypt; Wrong local password.');
+
+                        isAuth = false;
+                        remotePassword = "";
+                        localPassword = "";
+
                     }
-                    else
-                    {
-                        var plain = CryptoJS.AES.decrypt(cipher, _localPasswordHash, {
-                            format: JsonFormatter
-                        }).toString(CryptoJS.enc.Utf8);
-                        notes = JSON.parse(plain);
-                        term.echo("Pull success, retrieved " + notes.length + " entries.");
-
-                        username = _username;
-                        remotePassword = _remotePasswordHash;
-                        localPassword = _localPasswordHash;
-                        isAuth = true;
-                    }
-
-                } catch (e) {
-                    term.echo('Can\'t decrypt; Wrong local password.');
-
-                    isAuth = false;
-                    remotePassword = "";
-                    localPassword = "";
-
-                }
             } catch (e) {
                 term.echo('Wrong username / remote password (or DB link inactive).');
 
@@ -606,7 +621,7 @@ function highlight(terms, baseString) {
     return baseString
 }
 
-function saveCipher(oldNodeLength, term) {
+function saveCipher(oldNodeLength, oldEntriesHash, force, term) {
     url = "./ajax/core.php/" + username + "/" + remotePassword + "/do"; //do is just for obfuscation
 
     var raw = JSON.stringify(notes);
@@ -615,14 +630,23 @@ function saveCipher(oldNodeLength, term) {
     });
     var data = cipher.toString();
     $.post(url, {
-        'data': data
+        'data': data, 
+        'last_hash' : oldEntriesHash,
+        'new_hash' : hash(raw),
+        'force' : force
     }, function(answer, status, headers, config) {
         if (answer.error != undefined && answer.error == true) {
+            if(answer.non_fast_forward == true) {
+                term.echo("Cannot push : the server's information is newer than the one being pushed. Please pull (it will remove your non-previously-pushed changes) and retry. Message : <i>Non-fast-forward</i>")
+            }
+            else
+            {
             term.echo('Wrong username / remote password (or DB link inactive).');
 
-            isAuth = false;
-            remotePassword = "";
-            localPassword = "";
+                isAuth = false;
+                remotePassword = "";
+                localPassword = "";
+            }
         } else {
             try {
                 if (answer.data.indexOf('"ct"') != -1) {
@@ -644,6 +668,11 @@ function saveCipher(oldNodeLength, term) {
             }
         }
     });
+}
+
+function hash(s) {
+    var s2 = CryptoJS.SHA1(s);
+    return s2.toString(CryptoJS.enc.Base64);
 }
 
 /** Function count the occurrences of substring in a string;

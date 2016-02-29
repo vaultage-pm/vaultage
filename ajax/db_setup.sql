@@ -25,7 +25,8 @@ USE `vaultage`;
 CREATE TABLE IF NOT EXISTS `vaultage_data` (
 `id` int(11) NOT NULL,
   `last_update` datetime NOT NULL,
-  `data` text CHARACTER SET utf8 NOT NULL
+  `data` text CHARACTER SET utf8 NOT NULL,
+  `last_hash` varchar(32) NOT NULL
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
 
 --
@@ -50,4 +51,4 @@ MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
 
 
 INSERT INTO `vaultage_data` (`id`, `last_update`, `data`) VALUES
-(3, '0000-00-00 00:00:00', '');
+(3, '0000-00-00 00:00:00', '', 'INIT');
