@@ -149,27 +149,27 @@ jQuery(document).ready(function($) {
 
                     var i = 1
                     _.each(searchKeysParts, function(searchKey){
-                      _id = _id.replace(new RegExp(searchKey, 'gim'), '<span class="highlight'+i+'">' + searchKey + '</span>');
+                      _id = _id.replace(new RegExp("("+searchKey+")", 'gim'), '<span class="highlight'+i+'">$1</span>');
                       i++
                     });
                     var i = 1
                     _.each(searchKeysParts, function(searchKey){
-                      _title = _title.replace(new RegExp(searchKey, 'gim'), '<span class="highlight'+i+'">' + searchKey + '</span>');
+                      _title = _title.replace(new RegExp("("+searchKey+")", 'gim'), '<span class="highlight'+i+'">$1</span>');
                       i++
                     });
                     var i = 1
                     _.each(searchKeysParts, function(searchKey){
-                      _login = _login.replace(new RegExp(searchKey, 'gim'), '<span class="highlight'+i+'">' + searchKey + '</span>');
+                      _login = _login.replace(new RegExp("("+searchKey+")", 'gim'), '<span class="highlight'+i+'">$1</span>');
                       i++
                     });
                     var i = 1
                     _.each(searchKeysParts, function(searchKey){
-                      _url = _url.replace(new RegExp(searchKey, 'gim'), '<span class="highlight'+i+'">' + searchKey + '</span>');
+                      _url = _url.replace(new RegExp("("+searchKey+")", 'gim'), '<span class="highlight'+i+'">$1</span>');
                       i++
                     });
                     var i = 1
                     _.each(searchKeysParts, function(searchKey){
-                      _pwd = _pwd.replace(new RegExp(searchKey, 'gim'), '<span class="highlight'+i+'">' + searchKey + '</span>');
+                      _pwd = _pwd.replace(new RegExp("("+searchKey+")", 'gim'), '<span class="highlight'+i+'">$1</span>');
                       i++
                     });
 
