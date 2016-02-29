@@ -141,37 +141,11 @@ jQuery(document).ready(function($) {
 
                 _.each(sorted, function(obj) {
 
-                    var _id = ("" + obj.id)
-                    var _title = obj.title
-                    var _login = obj.login
-                    var _url = obj.url
-                    var _pwd = obj.content
-
-                    var i = 1
-                    _.each(searchKeysParts, function(searchKey){
-                      _id = _id.replace(new RegExp("("+searchKey+")", 'gim'), '<span class="highlight'+i+'">$1</span>');
-                      i++
-                    });
-                    var i = 1
-                    _.each(searchKeysParts, function(searchKey){
-                      _title = _title.replace(new RegExp("("+searchKey+")", 'gim'), '<span class="highlight'+i+'">$1</span>');
-                      i++
-                    });
-                    var i = 1
-                    _.each(searchKeysParts, function(searchKey){
-                      _login = _login.replace(new RegExp("("+searchKey+")", 'gim'), '<span class="highlight'+i+'">$1</span>');
-                      i++
-                    });
-                    var i = 1
-                    _.each(searchKeysParts, function(searchKey){
-                      _url = _url.replace(new RegExp("("+searchKey+")", 'gim'), '<span class="highlight'+i+'">$1</span>');
-                      i++
-                    });
-                    var i = 1
-                    _.each(searchKeysParts, function(searchKey){
-                      _pwd = _pwd.replace(new RegExp("("+searchKey+")", 'gim'), '<span class="highlight'+i+'">$1</span>');
-                      i++
-                    });
+                    var _id = highlight(searchKeysParts, "" + obj.id)
+                    var _title = highlight(searchKeysParts, obj.title)
+                    var _login = highlight(searchKeysParts, obj.login)
+                    var _url = highlight(searchKeysParts, obj.url)
+                    var _pwd = highlight(searchKeysParts, obj.content)
 
 
                     var s = '<span class="entry"><span class="id">(' +_id + ')</span> <span class="title">' + _title + "</span> -> <span class=\"login\">" + _login + "</span> @ <span class=\"url\">" + _url + "</span> : <span class=\"content\">" + _pwd + "</span></span>";
@@ -598,6 +572,33 @@ function getCipher(_username, _localPasswordHash, _remotePasswordHash, term) {
             }
         }
     });
+}
+
+function highlight(terms, baseString) {
+
+    /*
+    var signs = ['¢', '°', '§', '~', '¨', '=', '£']
+
+    var i = 1
+    var first = true
+    _.each(terms, function(term){
+        baseString = baseString.replace(new RegExp("("+term+")", 'gim'), ""+signs[i % signs.length]+'$1¬');
+        i++
+    });
+
+    for(i = 0; i<signs.length; i++)    {
+        baseString = baseString.replace(new RegExp(signs[i], 'gim'), '<span class="highlight'+(i+1)+'">');
+        console.log("Replacing "+signs[i]+" with "+'<span class="highlight'+(i+1)+'">')
+    }
+    baseString = baseString.replace(new RegExp('¬', 'gim'), '</span>');
+    */
+    var i = 1
+    _.each(terms, function(term){
+        baseString = baseString.replace(new RegExp("("+term+")", 'gim'), '<span class="highlight'+i+'">$1</span>');
+        i++
+    });
+
+    return baseString
 }
 
 function saveCipher(oldNodeLength, term) {
