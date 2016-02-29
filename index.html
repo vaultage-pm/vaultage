@@ -472,6 +472,12 @@ function editEntry(id, title, login, url, pwd, term) {
     notes[index].content = pwd;
 
     saveCipher(notes.length, term);
+
+
+    var s = '<span class="entry"><span class="id">(' + notes[index].id + ')</span> <span class="title">' + notes[index].title + "</span> -> <span class=\"login\">" + notes[index].login + "</span> @ <span class=\"url\">" + notes[index].url + "</span> : <span class=\"content\">" + notes[index].content + "</span></span>";
+
+    term.echo("Entry is now : ")
+    term.echo(s)
 }
 
 function addEntry(title, login, url, pwd, term) {
@@ -495,6 +501,11 @@ function addEntry(title, login, url, pwd, term) {
     notes.push(newEntry);
 
     saveCipher(oldNotesLength, term);
+
+    var s = '<span class="entry"><span class="id">(' + newEntry.id + ')</span> <span class="title">' + newEntry.title + "</span> -> <span class=\"login\">" + newEntry.login + "</span> @ <span class=\"url\">" + newEntry.url + "</span> : <span class=\"content\">" + newEntry.content + "</span></span>";
+
+    term.echo("New entry is : ")
+    term.echo(s)
 }
 
 function genEntry(title, login, url, term) {
