@@ -47,3 +47,7 @@ ALTER TABLE `vaultage_data`
 --
 ALTER TABLE `vaultage_data`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+
+
+INSERT INTO `vaultage_data` (`id`, `last_update`, `data`) VALUES
+(3, '0000-00-00 00:00:00', '');
