@@ -65,8 +65,15 @@ jQuery(document).ready(function($) {
             } else {
 
                 if (notes.length == 0) {
-                    term.echo("You have 0 entries. You should <i>pull</i> entries, or <i>gen</i> one.");
+                    term.echo("You have 0 entries. You should <i>pull</i> entries, or use <i>new</i>, <i>gen</i>.");
                 }
+                var op = "and"
+
+                if (searchKeys.lastIndexOf("-or ", 0) === 0) {
+                    op = "or"
+                    searchKeys = searchKeys.replace("-or ", "")
+                }
+
 
                 var searchKeysParts = searchKeys.split(" ")
 
@@ -77,7 +84,11 @@ jQuery(document).ready(function($) {
                     i++
                  });
 
-                term.echo("Searching for " + searchString.join(", ") + "");
+                if (op == "and") {
+                    term.echo("Searching for " + searchString.join(" AND ") + "");
+                }else{
+                    term.echo("Searching for " + searchString.join(" OR ") + "");
+                }
 
                 var filtered = _.filter(notes, function(el) {
                     var id = (el.id == undefined) ? '' : ("" + el.id).toLowerCase();
@@ -85,14 +96,26 @@ jQuery(document).ready(function($) {
                     var url = (el.url == undefined) ? '' : el.url.toLowerCase();
                     var login = (el.login == undefined) ? '' : el.login.toLowerCase();
 
-                    var matchedOne = false
+                    if (op == "or") {
+                        var matchedOne = false
 
-                    _.each(searchKeysParts, function(searchKey){
-                      var s = searchKey.toLowerCase().trim()
-                      matchedOne = matchedOne || (id.indexOf(s) != -1) || (title.indexOf(s) != -1) || (url.indexOf(s) != -1) || (login.indexOf(s) != -1);
-                    })
+                        _.each(searchKeysParts, function(searchKey){
+                          var s = searchKey.toLowerCase().trim()
+                          matchedOne = matchedOne || (id.indexOf(s) != -1) || (title.indexOf(s) != -1) || (url.indexOf(s) != -1) || (login.indexOf(s) != -1);
+                        })
 
-                    return matchedOne;
+                        return matchedOne;
+                    } else {
+                        //op == "and"
+                        var matchedAll = true
+
+                        _.each(searchKeysParts, function(searchKey){
+                          var s = searchKey.toLowerCase().trim()
+                          matchedAll = matchedAll && ((id.indexOf(s) != -1) || (title.indexOf(s) != -1) || (url.indexOf(s) != -1) || (login.indexOf(s) != -1));
+                        })
+
+                        return matchedAll;
+                    }
                 });
 
                 //this could be done in one step with the above function
