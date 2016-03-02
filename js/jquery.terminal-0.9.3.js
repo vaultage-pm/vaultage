@@ -2554,7 +2554,7 @@
         historySize: 60,
         maskChar: '*',
         checkArity: true,
-        raw: false,
+        raw: true,
         exceptionHandler: null,
         cancelableAjax: true,
         globalToken: false,
