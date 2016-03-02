@@ -103,3 +103,8 @@
   padding-right:6px;
  font-weight: bold;
 }
+
+.hidden{
+  visibility: hidden;
+  color: black;
+}

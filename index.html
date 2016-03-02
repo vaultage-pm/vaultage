@@ -116,14 +116,14 @@ jQuery(document).ready(function($) {
 
             term.echo(" ");
             term.echo(" ************************************************* ");
-            term.echo("                   _ _                   ");
-            term.echo("                  | | |                  ");
-            term.echo(" __   ____ _ _   _| | |_ __ _  __ _  ___ ");
-            term.echo(" \\ \\ / / _` | | | | | __/ _` |/ _` |/ _ \\");
-            term.echo("  \\ V / (_| | |_| | | || (_| | (_| |  __/");
-            term.echo("   \\_/ \\__,_|\\__,_|_|\\__\\__,_|\\__, |\\___|");
-            term.echo("                               __/ |     ");
-            term.echo("                              |___/      ");
+            term.echo(space(19)+"_ _                   ");
+            term.echo(space(18)+"| | |                  ");
+            term.echo(space(1)+"__"+space(3)+"____ _ _"+space(3)+"_| | |_ __ _"+space(2)+"__ _"+space(2)+"___ ");
+            term.echo(space(1)+"\\ \\ / / _` | | | | | __/ _` |/ _` |/ _ \\");
+            term.echo(space(2)+"\\ V / (_| | |_| | | || (_| | (_| |"+space(2)+"__/");
+            term.echo(space(3)+"\\_/ \\__,_|\\__,_|_|\\__\\__,_|\\__, |\\___|");
+            term.echo(space(31)+"__/ |     ");
+            term.echo(space(30)+"|___/      ");
             term.echo(" ");
             term.echo(" Author : Ludovic Barman");
             term.echo(" Github : <a href=\"https://github.com/lbarman/vaultage/\">github.com/lbarman/vaultage</a>");
@@ -137,7 +137,8 @@ jQuery(document).ready(function($) {
             term.echo(" Security technologies used : <a href=\"https://code.google.com/archive/p/crypto-js/\">CryptoJS</a>, using SHA1 as a hash function, and AES (160bits).");
             term.echo(" Plaintext passwords never leave your computer's memory. ");
             term.echo(" ");
-            term.echo(" Trouble getting started ? use the <i>man</i> command ! (<i>help</i> is an alias)");
+            term.echo(" Trouble getting started ?");
+            term.echo(" ");
             term.echo(" Typical workflow : ");
             term.echo(" 1. <i>auth</i>, or <i>loadauth</i>");
             term.echo(" 2. <i>new</i>, or <i>gen</i>");
@@ -145,6 +146,8 @@ jQuery(document).ready(function($) {
             term.echo(" 4. maybe <i>edit</i>, or <i>rm</i>");
             term.echo(" 5. <i>saveauth</i>");
             term.echo(" 6. <i>logout</i>");
+            term.echo(" ");
+            term.echo(" Further questions on a command ? use the <i>man COMMAND</i> ! (<i>help COMMAND</i> is an alias)");
             term.echo(" ");
             term.echo(" ************************************************* ");
             term.echo(" ");
@@ -776,6 +779,16 @@ function saveCipher(oldNodeLength, oldEntriesHash, force, term) {
             }
         }
     });
+}
+
+function space(n) {
+    s="";
+    i = 0;
+    while( i < n ) {
+        s = s + "<span class=\"hidden\">.</span>"
+        i += 1
+    }
+    return s
 }
 
 function hash(s) {
