@@ -14,7 +14,7 @@ Plaintext passwords never leave your computer's memory.
 
 ## Live demo
 
- ![-> access the live demo](https://demo.lbarman.ch/vaultage/)
+ [-> access the live demo](https://demo.lbarman.ch/vaultage/)
 
 - username : __demo__
 - remote password : __demo1__
