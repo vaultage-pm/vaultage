@@ -1,5 +1,7 @@
-# vaultage
+# Vaultage
 A password manager with client-side encryption. (previously inspired from trello, and [clearwater](https://github.com/lbarman/clearwater), now build in console for speed).
+
+![Vaultage demo](https://raw.githubusercontent.com/lbarman/vaultage/master/demo.png "Vaultage demo")
 
 ## requirements
 
