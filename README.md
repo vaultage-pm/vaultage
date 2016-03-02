@@ -12,9 +12,21 @@ It is in-browser, and can be accessed from all your devices; the password are en
 Security technologies used : <a href=\"https://code.google.com/archive/p/crypto-js/\">CryptoJS</a>, using SHA1 as a hash function, and AES (160bits).
 Plaintext passwords never leave your computer's memory. 
 
-## Demo
+## Live demo
 
-![Vaultage demo](https://raw.githubusercontent.com/lbarman/vaultage/master/demo.png "Vaultage demo")
+ ![-> access the live demo](https://demo.lbarman.ch/vaultage/)
+
+- username : __demo__
+- remote password : __demo1__
+- local password : __demo2__
+
+Database is reset at 00:00 CET
+
+## Examples
+
+![Vaultage demo 1](https://raw.githubusercontent.com/lbarman/vaultage/master/demo.png "Vaultage demo 1")
+
+![Vaultage demo 2](https://raw.githubusercontent.com/lbarman/vaultage/master/demo2.png "Vaultage demo 2")
 
 ## Requirements
 
@@ -45,6 +57,7 @@ less common :
 - *pull* : pulls the entries from the database
 - *clear* : clear the screen
 - *logout* : clear all the in-memory authentication information
+- *pwd* : to change your local password. Once done, the next *push* will use the next password.
 
 cookies: 
 
