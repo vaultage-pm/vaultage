@@ -112,6 +112,43 @@ jQuery(document).ready(function($) {
                 term.echo("you can get additional information by typing <i>help CMD</i>, e.g. <i>help loadauth</i> (<i>man CMD</i> is an alias)");
             }
 
+        } else if (command == 'welcome') {
+
+            term.echo(" ");
+            term.echo(" ************************************************* ");
+            term.echo("                   _ _                   ");
+            term.echo("                  | | |                  ");
+            term.echo(" __   ____ _ _   _| | |_ __ _  __ _  ___ ");
+            term.echo(" \\ \\ / / _` | | | | | __/ _` |/ _` |/ _ \\");
+            term.echo("  \\ V / (_| | |_| | | || (_| | (_| |  __/");
+            term.echo("   \\_/ \\__,_|\\__,_|_|\\__\\__,_|\\__, |\\___|");
+            term.echo("                               __/ |     ");
+            term.echo("                              |___/      ");
+            term.echo(" ");
+            term.echo(" Author : Ludovic Barman");
+            term.echo(" Github : <a href=\"https://github.com/lbarman/vaultage/\">github.com/lbarman/vaultage</a>");
+            term.echo(" ");
+            term.echo(" Vaultage is a password manager.");
+            term.echo(" It is in-browser, and can be accessed from all your devices.");
+            term.echo(" The password are encrypted/decrypted in your browser : no plaintext goes through the network.");
+            term.echo(" It is self-hosted : install it securely on your own server (see on github).");
+            term.echo(" It is open-source : please report any bugs on github; I'll do my best to fix them.");
+            term.echo(" ");
+            term.echo(" Security technologies used : <a href=\"https://code.google.com/archive/p/crypto-js/\">CryptoJS</a>, using SHA1 as a hash function, and AES (160bits).");
+            term.echo(" Plaintext passwords never leave your computer's memory. ");
+            term.echo(" ");
+            term.echo(" Trouble getting started ? use the <i>man</i> command ! (<i>help</i> is an alias)");
+            term.echo(" Typical workflow : ");
+            term.echo(" 1. <i>auth</i>, or <i>loadauth</i>");
+            term.echo(" 2. <i>new</i>, or <i>gen</i>");
+            term.echo(" 3. <i>get TERM</i>, where TERM is one of your password's login, title, url, etc.");
+            term.echo(" 4. maybe <i>edit</i>, or <i>rm</i>");
+            term.echo(" 5. <i>saveauth</i>");
+            term.echo(" 6. <i>logout</i>");
+            term.echo(" ");
+            term.echo(" ************************************************* ");
+            term.echo(" ");
+
         } else if (command == 'auth') {
 
             term.push(function(user, term) {
@@ -523,7 +560,7 @@ jQuery(document).ready(function($) {
             term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
         }
     }, {
-        greetings: "Vaultage v2.0 <br />*************<br />available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.<br />",
+        greetings: "Vaultage v2.0 <br />*************<br />available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.<br />*************<br /><span class=\"welcome\">New here ? type <i>welcome</i></span>",
         onBlur: function() {
             // prevent loosing focus
             return false;
