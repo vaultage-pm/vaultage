@@ -103,12 +103,18 @@ jQuery(document).ready(function($) {
                 term.echo("Tries to read the username, and remote password from the cookie Will prompt for the local password.")
                 term.echo("If this command succeed, you will be AUTHENTICATED (also <i>loadauth</i>).")
 
-            }else if (manPage == "clearauth") {
+            } else if (manPage == "clearauth") {
 
                 term.echo("Removes vaultage's cookie.")
 
+            }else if (manPage == "pwd") {
+
+                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
+                term.echo("Will prompt to change local password.")
+                term.echo("Will also try to <i>push</i> the changes to the server afterwards.")
+
             } else {
-                term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>edit ID</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
+                term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>edit ID</i>, <i>gen</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>, <i>pwd</i>.")
                 term.echo("you can get additional information by typing <i>help CMD</i>, e.g. <i>help loadauth</i> (<i>man CMD</i> is an alias)");
             }
 
@@ -544,7 +550,7 @@ jQuery(document).ready(function($) {
 
         } else if (command == "clear") {
 
-            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
+            term.clear();
 
         } else if (command == "logout") {
 
@@ -560,10 +566,10 @@ jQuery(document).ready(function($) {
 
         }  else {
             term.echo('unknow command "' + command + '"');
-            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.")
+            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>, <i>pwd</i>.")
         }
     }, {
-        greetings: "Vaultage v2.0 <br />*************<br />available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>.<br />*************<br /><span class=\"welcome\">New here ? type <i>welcome</i></span>",
+        greetings: "Vaultage v2.0 <br />*************<br />available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>, <i>pwd</i>.<br />*************<br /><span class=\"welcome\">New here ? type <i>welcome</i></span>",
         onBlur: function() {
             // prevent loosing focus
             return false;
