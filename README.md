@@ -20,6 +20,8 @@ Plaintext passwords never leave your computer's memory.
 - remote password : __demo1__
 - local password : __demo2__
 
+Trouble beginning? First *auth*, then *ls*. Try to *get Github*, then *gen* a new password, and *get* it.
+
 Database is reset at 00:00 CET
 
 ## Examples
