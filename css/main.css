@@ -40,7 +40,7 @@
 }
 * {
  color: #0c0;
- font-family: Consolas;
+ font-family: Consolas, "Courier New", Courier, monospace;
  font-size: 13px;
  font-weight: normal;
 }
