@@ -404,10 +404,12 @@ jQuery(document).ready(function($) {
                 term.echo("You should <i>auth</i> first.");
             } else {
                 Cookies.set('username', username, {
-                    expires: 7
+                    expires: 7,
+                    secure: true
                 });
                 Cookies.set('remotePassword', remotePassword, {
-                    expires: 7
+                    expires: 7,
+                    secure: true
                 });
             }
 
@@ -424,11 +426,15 @@ jQuery(document).ready(function($) {
                 }else {
                     term.echo("Saving cooking for "+days+" days");
 
+                    days = parseInt(days)
+
                     Cookies.set('username', username, {
-                        expires: days
+                        expires: days,
+                        secure: true
                     });
                     Cookies.set('remotePassword', remotePassword, {
-                        expires: days
+                        expires: days,
+                        secure: true
                     });
                 }
 
