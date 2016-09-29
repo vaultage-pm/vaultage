@@ -5,6 +5,7 @@
     <title>Vaultage 2.0</title>
     <meta name="author" content="Ludovic Barman"/>
     <meta name="Description" content="An online password manager with local encryption."/>
+    <script src="https://cdn.jsdelivr.net/clipboard.js/1.5.12/clipboard.min.js"></script>
     <script src="./js/jquery-1.7.1.min.js"></script>
     <script src="./js/jquery.mousewheel-min.js"></script>
     <script src="./js/jquery.terminal-min.js"></script>
@@ -909,6 +910,8 @@ function search(command, term) {
                 term.echo(s)
             }
         })
+
+        new Clipboard('.content');
     }
 }
 </script>
