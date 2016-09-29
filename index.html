@@ -99,8 +99,8 @@ jQuery(document).ready(function($) {
             } else if (manPage == "saveauth") {
 
                 term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>).")
-                term.echo("Saves the username, remote password in a cookie.")
                 term.echo("Usage: saveauth[ NUMBER=7], where NUMBER is the number of days to store the cookie.")
+                term.echo("Saves the username, remote password in a cookie.")
                 term.echo("You may use <i>loadauth</i> afterwards.")
 
             } else if (manPage == "loadauth") {
@@ -464,7 +464,33 @@ jQuery(document).ready(function($) {
         } else if (command == "loadauth") {
 
             if (Cookies.get('username') == undefined || Cookies.get('remotePassword') == undefined) {
-                term.echo("Could not load cookies, please re-auth.");
+                term.echo("Could not load cookies, going to re-auth.");
+
+                term.push(function(user, term) {
+                    term.set_mask('*').push(function(remotePass) {
+                        term.set_mask('*').push(function(localPass) {
+
+                            _localPasswordSha1 = CryptoJS.SHA1(localPass);
+                            var _localPasswordHash = _localPasswordSha1.toString(CryptoJS.enc.Base64);
+
+                            _remotePasswordSha1 = CryptoJS.SHA1(remotePass);
+                            var _remotePasswordHash = _remotePasswordSha1.toString(CryptoJS.enc.Base64);
+
+                            getCipher(user, _localPasswordHash, _remotePasswordHash, term);
+                            term.pop().set_mask(false);
+                            term.pop().set_mask(false);
+                            term.pop();
+                        }, {
+                            prompt: 'local password: '
+                        });
+                    }, {
+                        prompt: 'remote password: '
+                    });
+                }, {
+                    name: 'auth',
+                    prompt: 'user : '
+                });
+
             } else {
                 username = Cookies.get('username')
                 remotePassword = Cookies.get('remotePassword')
