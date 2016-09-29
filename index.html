@@ -100,6 +100,7 @@ jQuery(document).ready(function($) {
 
                 term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>).")
                 term.echo("Saves the username, remote password in a cookie.")
+                term.echo("Usage: saveauth[ NUMBER=7], where NUMBER is the number of days to store the cookie.")
                 term.echo("You may use <i>loadauth</i> afterwards.")
 
             } else if (manPage == "loadauth") {
@@ -409,6 +410,31 @@ jQuery(document).ready(function($) {
                     expires: 7
                 });
             }
+
+        //if saveauth XXX
+        } else if (command.lastIndexOf("saveauth", 0) === 0) {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                var days = command.replace("saveauth ", "").toLowerCase();
+
+                if(!jQuery.isNumeric(days)) {
+                    term.echo("Syntax : saveauth[ NUMBER=7]");
+                }else {
+                    term.echo("Saving cooking for "+days+" days");
+
+                    Cookies.set('username', username, {
+                        expires: days
+                    });
+                    Cookies.set('remotePassword', remotePassword, {
+                        expires: days
+                    });
+                }
+
+
+            }
+
 
         } else if (command == "pwd") {
 
