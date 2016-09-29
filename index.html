@@ -887,7 +887,7 @@ function search(command, term) {
 
             if (nofilter) {
 
-                var s = '<span class="entry"><span class="id">(' + obj.id + ')</span> <span class="title">' + obj.title + "</span> -> <span class=\"login\">" + obj.login + "</span> @ <span class=\"url\">" + obj.url + "</span> : <span class=\"content\">" + obj.content + "</span></span>";
+                var s = '<span class="entry"><span class="id">(' + obj.id + ')</span> <span class="title">' + obj.title + "</span> -> <span class=\"login\">" + obj.login + "</span> @ <span class=\"url\">" + obj.url + "</span> : <span class=\"content blurred\">" + obj.content + "</span></span>";
 
                 term.echo(s)
 
@@ -899,16 +899,11 @@ function search(command, term) {
                 var _pwd = highlight(searchKeysParts, obj.content)
 
 
-                var s = '<span class="entry"><span class="id">(' + _id + ')</span> <span class="title">' + _title + "</span> -> <span class=\"login\">" + _login + "</span> @ <span class=\"url\">" + _url + "</span> : <span class=\"content\">" + _pwd + "</span></span>";
+                var s = '<span class="entry"><span class="id">(' + _id + ')</span> <span class="title">' + _title + "</span> -> <span class=\"login\">" + _login + "</span> @ <span class=\"url\">" + _url + "</span> : <span class=\"content blurred\">" + _pwd + "</span></span>";
 
                 term.echo(s)
             }
         })
-
-        //blur after 30 sec
-        setTimeout(function() {
-            $(".content").addClass("blurred")
-        }, 10000);
     }
 }
 </script>
