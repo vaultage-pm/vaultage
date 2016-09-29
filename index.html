@@ -19,6 +19,8 @@
     <script src="./lib/pwdGen.js"></script>
     <link href="./css/jquery.terminal.css" rel="stylesheet"/>
     <link href="./css/main.css" rel="stylesheet"/>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <!--[if IE]><link rel="shortcut icon" type="image/x-icon" href="favicon.ico" /><![endif]-->
   </head>
 <body>
 
@@ -207,7 +209,7 @@ jQuery(document).ready(function($) {
                 var searchKey = command.replace("rm ", "").toLowerCase();
                 term.echo("Removing ID \"" + searchKey + "\"");
 
-                var filtered = _.filter(notes, function(el) {
+                var filtered = _.filter(notesc, function(el) {
                     var id = (el.id == undefined) ? '' : (el.id + '');
                     return (id.indexOf(searchKey) != -1);
                 });
