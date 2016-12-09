@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `vaultage_data` (
 `id` int(11) NOT NULL,
   `last_update` datetime NOT NULL,
   `data` text CHARACTER SET utf8 NOT NULL,
-  `last_hash` varchar(32) NOT NULL
+  `last_hash` varchar(64) NOT NULL
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
 
 --
