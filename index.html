@@ -174,11 +174,8 @@ jQuery(document).ready(function($) {
                 term.set_mask('*').push(function(remotePass) {
                     term.set_mask('*').push(function(localPass) {
 
-                        _localPasswordSha1 = CryptoJS.SHA1(localPass);
-                        var _localPasswordHash = _localPasswordSha1.toString(CryptoJS.enc.Base64);
-
-                        _remotePasswordSha1 = CryptoJS.SHA1(remotePass);
-                        var _remotePasswordHash = _remotePasswordSha1.toString(CryptoJS.enc.Base64);
+                        var _localPasswordHash = hash(localPass);
+                        var _remotePasswordHash = hash(remotePass);
 
                         getCipher(user, _localPasswordHash, _remotePasswordHash, term);
                         term.pop().set_mask(false);
@@ -480,11 +477,8 @@ jQuery(document).ready(function($) {
                     term.set_mask('*').push(function(remotePass) {
                         term.set_mask('*').push(function(localPass) {
 
-                            _localPasswordSha1 = CryptoJS.SHA1(localPass);
-                            var _localPasswordHash = _localPasswordSha1.toString(CryptoJS.enc.Base64);
-
-                            _remotePasswordSha1 = CryptoJS.SHA1(remotePass);
-                            var _remotePasswordHash = _remotePasswordSha1.toString(CryptoJS.enc.Base64);
+                            var _localPasswordHash = hash(localPass);
+                            var _remotePasswordHash = hash(remotePass);
 
                             getCipher(user, _localPasswordHash, _remotePasswordHash, term);
                             term.pop().set_mask(false);
@@ -506,8 +500,7 @@ jQuery(document).ready(function($) {
                 remotePassword = Cookies.get('remotePassword')
                 term.set_mask('*').push(function(localPass) {
 
-                    _localPasswordSha1 = CryptoJS.SHA1(localPass);
-                    localPassword = _localPasswordSha1.toString(CryptoJS.enc.Base64);
+                    localPassword = hash(localPass);
                     isAuth = true;
 
                     //automatic pull
