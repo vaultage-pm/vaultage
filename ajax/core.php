@@ -20,7 +20,7 @@ function outputToJSON($data)
 function auth()
 {
 	$requestParams = @$_SERVER['PATH_INFO'];
-	if(strcmp($requestParams,"/".AUTH_USER."/".AUTH_PWD_SHA1."/do") !== 0)
+	if(strcmp($requestParams,"/".AUTH_USER."/".AUTH_PWD_SHA256."/do") !== 0)
 	{
 		outputToJSON(array('error' => true, 'desc' => 'auth failed')); //leaks info but it should be OK in this setting
 	}
