@@ -759,8 +759,14 @@ function space(n) {
 }
 
 function hash(s) {
+    var bitArray = sjcl.hash.sha256.hash(s);  
+    var digest_sha256 = sjcl.codec.hex.fromBits(bitArray);
+    return digest_sha256;
+
+    /*
     var s2 = CryptoJS.SHA1(s);
     return s2.toString(CryptoJS.enc.Base64);
+    */
 }
 
 /** Function count the occurrences of substring in a string;
