@@ -9,7 +9,7 @@ Vaultage is a password manager.
 
 It is in-browser, and can be accessed from all your devices; the password are encrypted/decrypted in your browser : no plaintext goes through the network. It is self-hosted : install it securely on your own server, and it is open-source : please report any bugs on here; I'll do my best to fix them.
 
-Security technologies used : <a href=\"https://code.google.com/archive/p/crypto-js/\">CryptoJS</a>, using SHA1 as a hash function, and AES (160bits).
+Security technologies used : <a href=\"https://code.google.com/archive/p/crypto-js/\">CryptoJS</a>, and the <a href="https://bitwiseshiftleft.github.io/">Stanford Javascript Crypto Library</a>, using SHA256 as a hash function, and AES (256bits).
 Plaintext passwords never leave your computer's memory. 
 
 ## Live demo
