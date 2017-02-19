@@ -24,7 +24,7 @@
     <td><input type="password" id="rawRemPassword" value="your password" /></td>
   </tr>
   <tr>
-    <td>SHA1 of Remote Password</td>
+    <td>SHA256 of Remote Password</td>
     <td><div id="sha1Remote">SHA1</div></td>
   </tr>
   <tr>
@@ -32,7 +32,7 @@
     <td><input type="password" id="rawLocPassword" value="your password" /></td>
   </tr>
   <tr>
-    <td>SHA1 of Local Password</td>
+    <td>SHA256 of Local Password</td>
     <td><div id="sha1Local">SHA1</div></td>
   </tr>
   <tr>
@@ -50,6 +50,8 @@
     <script src="../lib/cryptojs.aes.min.js"></script>
     <script src="../lib/jquery-2.1.1.js"></script>
     <script src="../lib/jquery.base64.js"></script>
+    <script src="./lib/sjcl.js"></script>
+
 
 <script type="text/javascript">
 
@@ -110,19 +112,23 @@ var JsonFormatter = {
     };
 
 
+function hash(s) {
+    var bitArray = sjcl.hash.sha256.hash(s);  
+    var digest_sha256 = sjcl.codec.hex.fromBits(bitArray);
+    return digest_sha256;
+
+    /*
+    var s2 = CryptoJS.SHA1(s);
+    return s2.toString(CryptoJS.enc.Base64);
+    */
+}
 
 $('#rawRemPassword').on('keyup', function(){
-  var raw = $('#rawRemPassword').val();
-  var sha1 = CryptoJS.SHA1(raw);
-  var passHash = sha1.toString(CryptoJS.enc.Base64);
-  $('#sha1Remote').html(passHash);
+  $('#sha1Remote').html(hash(raw));
 });
 
 $('#rawLocPassword').on('keyup', function(){
-  var raw = $('#rawLocPassword').val();
-  var sha1 = CryptoJS.SHA1(raw);
-  var passHash = sha1.toString(CryptoJS.enc.Base64);
-  $('#sha1Local').html(passHash);
+  $('#sha1Remote').html(hash(raw));
 });
 </script>
 </html>
