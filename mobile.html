@@ -13,7 +13,7 @@
     <table>
   <tr>
     <td>Status</td>
-    <td><div id="status">...</div></td>
+    <td><div id="status">Please type your passwords.</div></td>
   </tr>
   <tr>
     <td>Username</td>
@@ -25,7 +25,7 @@
   </tr>
   <tr>
     <td>SHA256 of Remote Password</td>
-    <td><div id="sha1Remote">SHA1</div></td>
+    <td><div id="sha256Remote">[SHA256</div></td>
   </tr>
   <tr>
     <td>Local Password</td>
@@ -33,7 +33,7 @@
   </tr>
   <tr>
     <td>SHA256 of Local Password</td>
-    <td><div id="sha1Local">SHA1</div></td>
+    <td><div id="sha256Local">[SHA256]</div></td>
   </tr>
   <tr>
     <td></td>
@@ -41,24 +41,23 @@
   </tr>
 </table>
 <div id="plain">Plain</div>
-  </body>
 
-    <script src="../lib/cryptojs.core.min.js"></script>
-    <script src="../lib/cryptojs.enc-utf16.min.js"></script>
-    <script src="../lib/cryptojs.enc-base64.min.js"></script>
-    <script src="../lib/cryptojs.sha1.min.js"></script>
-    <script src="../lib/cryptojs.aes.min.js"></script>
-    <script src="../lib/jquery-2.1.1.js"></script>
-    <script src="../lib/jquery.base64.js"></script>
-    <script src="./lib/sjcl.js"></script>
+    <script type="text/javascript" src="./lib/cryptojs.core.min.js"></script>
+    <script type="text/javascript" src="./lib/cryptojs.enc-utf16.min.js"></script>
+    <script type="text/javascript" src="./lib/cryptojs.enc-base64.min.js"></script>
+    <script type="text/javascript" src="./lib/cryptojs.sha1.min.js"></script>
+    <script type="text/javascript" src="./lib/cryptojs.aes.min.js"></script>
+    <script type="text/javascript" src="./lib/jquery-2.1.1.js"></script>
+    <script type="text/javascript" src="./lib/jquery.base64.js"></script>
+    <script type="text/javascript" src="./lib/sjcl.js"></script>
 
 
 <script type="text/javascript">
 
   $("#send").click(function(){
-            $('#status').html('Loading...');
+            $('#status').html('Fetching data...');
 
-            url = "../ajax/core.php/"+$("#username").val()+"/"+$('#sha1Remote').html()+"/do"; //do is just for obfuscation
+            url = "./ajax/core.php/"+$("#username").val()+"/"+$('#sha1Remote').html()+"/do"; //do is just for obfuscation
 
             $.get( url, function( answer ) {
               try
@@ -66,7 +65,7 @@
                      try
                       {
                         var cipher = answer.data.replace(/!\n/g, '').replace(/\s/g, '');
-                        var plain = CryptoJS.AES.decrypt(cipher, $('#sha1Local').html(), { format: JsonFormatter }).toString(CryptoJS.enc.Utf8);
+                        var plain = CryptoJS.AES.decrypt(cipher, $('#sha256Local').html(), { format: JsonFormatter }).toString(CryptoJS.enc.Utf8);
                         var notes = JSON.parse(plain);
 
                         var text = ""
@@ -124,11 +123,14 @@ function hash(s) {
 }
 
 $('#rawRemPassword').on('keyup', function(){
-  $('#sha1Remote').html(hash(raw));
+  var raw = $('#rawRemPassword').val();
+  $('#sha256Remote').html(hash(raw));
 });
 
 $('#rawLocPassword').on('keyup', function(){
-  $('#sha1Remote').html(hash(raw));
+  var raw = $('#rawLocPassword').val();
+  $('#sha256Local').html(hash(raw));
 });
 </script>
+  </body>
 </html>
