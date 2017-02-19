@@ -57,7 +57,7 @@
   $("#send").click(function(){
             $('#status').html('Fetching data...');
 
-            url = "./ajax/core.php/"+$("#username").val()+"/"+$('#sha1Remote').html()+"/do"; //do is just for obfuscation
+            url = "./ajax/core.php/"+$("#username").val()+"/"+$('#sha256Remote').html()+"/do"; //do is just for obfuscation
 
             $.get( url, function( answer ) {
               try
