@@ -778,7 +778,10 @@ function saveCipher(oldNodeLength, oldEntriesHash, force, term) {
                 isAuth = false;
                 remotePassword = "";
                 localPassword = "";
-                $cookies.passwordHash = '';
+                Cookies.set('remotePassword', '', {
+                    expires: days,
+                    secure: true
+                });
             }
         }
     });
