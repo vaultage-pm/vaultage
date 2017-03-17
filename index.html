@@ -516,6 +516,29 @@ jQuery(document).ready(function($) {
                             var _remotePasswordHash = hash(remotePass);
 
                             getCipher(user, _localPasswordHash, _remotePasswordHash, term);
+
+                            term.push(function(command) {
+                                if (command.match(/^(y|yes)$/i)) {
+
+                                    Cookies.set('username', username, {
+                                        expires: 7,
+                                        secure: true
+                                    });
+                                    Cookies.set('remotePassword', remotePassword, {
+                                        expires: 7,
+                                        secure: true
+                                    });
+
+                                    term.pop();
+                                    history.enable();
+                                } else if (command.match(/^(n|no)$/i)) {
+                                    term.pop();
+                                    history.enable();
+                                }
+                            }, {
+                                prompt: 'Would you like to store the authentication token in your cookies? (say "no" on a public computer) '
+                            });
+
                             term.pop().set_mask(false);
                             term.pop().set_mask(false);
                             term.pop();
