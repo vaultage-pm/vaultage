@@ -68,14 +68,19 @@ jQuery(document).ready(function($) {
 
             } else if (manPage == "edit") {
 
-                term.echo("Usage 1 : <i>edit ID</i>. Will start an interactive process to edit the contents of an entry.")
+                term.echo("Usage : <i>edit ID</i>. Will start an interactive process to edit the contents of an entry.")
                 term.echo("IMPORTANT: by default, you need to fill the new fields again; the prompt is blank; use KEY_UP to redisplay the previous value of the field, and edit it.")
                 term.echo("Will also try to <i>push</i> the changes to the server afterwards.")
 
             } else if (manPage == "rm") {
 
-                term.echo("Usage 1 : <i>rm ID</i>. Will start an interactive process to remove an entry.")
+                term.echo("Usage : <i>rm ID</i>. Will start an interactive process to remove an entry.")
                 term.echo("Will also try to <i>push</i> the changes to the server afterwards.")
+
+            } else if (manPage == "rotate") {
+
+                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
+                term.echo("Usage : <i>rotate ID</i>. Will generate a new random password for the entry ID.")
 
             } else if (manPage == "push") {
 
@@ -208,7 +213,7 @@ jQuery(document).ready(function($) {
                 var searchKey = command.replace("rm ", "").toLowerCase();
                 term.echo("Removing ID \"" + searchKey + "\"");
 
-                var filtered = _.filter(notesc, function(el) {
+                var filtered = _.filter(notes, function(el) {
                     var id = (el.id == undefined) ? '' : (el.id + '');
                     return (id.indexOf(searchKey) != -1);
                 });
@@ -372,6 +377,36 @@ jQuery(document).ready(function($) {
                         name: 'edit',
                         prompt: 'new title : '
                     });
+                }
+            }
+
+        } else if (command.lastIndexOf("rotate", 0) === 0) {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                var searchKey = command.replace("rotate ", "").toLowerCase();
+
+                var filtered = _.filter(notes, function(el) {
+                    var id = (el.id == undefined) ? '' : (el.id + '');
+                    return (id.indexOf(searchKey) != -1);
+                });
+
+                if (filtered.length == 0) {
+                    term.echo("Could not find this ID")
+                } else {
+                    var s = '<span class="entry"><span class="id">(' + filtered[0].id + ')</span> <span class="title">' + filtered[0].title + "</span> -> <span class=\"login\">" + filtered[0].login + "</span> @ <span class=\"url\">" + filtered[0].url + "</span> : <span class=\"content\">" + filtered[0].content + "</span></span>";
+
+                    term.echo("Going to rotate the following entry :");
+                    term.echo(s);
+
+                    var newPwd = generatePassword(15, false, true, true).join('');
+                    editEntry(filtered[0].id, filtered[0].title, filtered[0].login, filtered[0].url, newPwd, filtered[0].content)
+
+                    var s = '<span class="entry"><span class="id">(' + filtered[0].id + ')</span> <span class="title">' + filtered[0].title + "</span> -> <span class=\"login\">" + filtered[0].login + "</span> @ <span class=\"url\">" + filtered[0].url + "</span> : <span class=\"content\">" + filtered[0].content + "</span></span>";
+
+                    term.echo("The entry #" + filtered[0].id + " is now :");
+                    term.echo(s);
                 }
             }
 
