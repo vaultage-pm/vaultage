@@ -957,7 +957,7 @@ function search(command, term) {
         _.each(sorted, function(obj) {
 
             reUse = reUseTable[obj.content]
-            reUseText = '<span class="reUse'.(reUse == 1 ? '1' : 'X').'">re-used '+reUse+' times</span>'
+            reUseText = '<span class="reUse' + (reUse == 1 ? '1' : 'X') + '">re-used '+reUse+' times</span>'
 
             if (nofilter) {
 
