@@ -533,12 +533,8 @@ jQuery(document).ready(function($) {
                                         secure: true
                                     });
 
-                                    term.pop();
-                                    history.enable();
-                                } else if (command.match(/^(n|no)$/i)) {
-                                    term.pop();
-                                    history.enable();
                                 }
+                                term.pop();
                             }, {
                                 prompt: 'Would you like to store the authentication token in your cookies? (say "no" on a public computer) '
                             });
