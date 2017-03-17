@@ -27,12 +27,14 @@
 <body>
 
 <script>
+termHook = 0;
 globalKeyUpValue = "";
 jQuery(document).ready(function($) {
     var id = 1;
 
     $('body').terminal(function(command, term) {
 
+        termHook = term;
         if (command.lastIndexOf("man", 0) === 0 || command.lastIndexOf("help", 0) === 0) {
 
             var manPage = command.replace("man ", "").replace("help ", "").toLowerCase();
@@ -614,7 +616,7 @@ function editEntry(id, title, login, url, pwd, term) {
         index++
     }
 
-    if (notes[index] == id) {
+    if (notes[index].id != id) {
         term.echo("WARNING: editEntry did nothing, ID not found")
     }
 
@@ -971,6 +973,37 @@ function search(command, term) {
 
         new Clipboard('.content');
     }
+}
+function addUsage(id){
+    global termHook;
+
+    var index = 0;
+
+    while (index < notes.length) {
+        var nodeId = (notes[index].id == undefined) ? '' : (notes[index].id + '');
+        if (nodeId == id) {
+            break;
+        }
+        index++
+    }
+
+    if (notes[index].id != id) {
+        termHook.echo("WARNING: editEntry did nothing, ID not found")
+    }
+
+
+    oldNotesLength = notes.length;
+    oldHash = hash(JSON.stringify(notes));
+
+
+    if (typeof notes[index].usageCount === "undefined"){
+        console.log("Undefined")
+        notes[index].usageCount = 0
+    }
+    notes[index].usageCount++
+    console.log(notes[index].usageCount)
+
+    saveCipher(oldNodeLength, oldHash, false, termHook);
 }
 </script>
 </body>
