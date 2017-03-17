@@ -910,13 +910,14 @@ function search(command, term) {
             var title = (el.title == undefined) ? '' : el.title.toLowerCase();
             var url = (el.url == undefined) ? '' : el.url.toLowerCase();
             var login = (el.login == undefined) ? '' : el.login.toLowerCase();
+            var pwd = (el.content == undefined) ? '' : el.content.toLowerCase();
 
             if (op == "or") {
                 var matchedOne = false
 
                 _.each(searchKeysParts, function(searchKey) {
                     var s = searchKey.toLowerCase().trim()
-                    matchedOne = matchedOne || (id.indexOf(s) != -1) || (title.indexOf(s) != -1) || (url.indexOf(s) != -1) || (login.indexOf(s) != -1);
+                    matchedOne = matchedOne || (id.indexOf(s) != -1) || (title.indexOf(s) != -1) || (url.indexOf(s) != -1) || (login.indexOf(s) != -1) || (pwd.indexOf(s) != -1);
                 })
 
                 return matchedOne;
@@ -926,7 +927,7 @@ function search(command, term) {
 
                 _.each(searchKeysParts, function(searchKey) {
                     var s = searchKey.toLowerCase().trim()
-                    matchedAll = matchedAll && ((id.indexOf(s) != -1) || (title.indexOf(s) != -1) || (url.indexOf(s) != -1) || (login.indexOf(s) != -1));
+                    matchedAll = matchedAll && ((id.indexOf(s) != -1) || (title.indexOf(s) != -1) || (url.indexOf(s) != -1) || (login.indexOf(s) != -1) || (pwd.indexOf(s) != -1));
                 })
 
                 return matchedAll;
