@@ -961,7 +961,7 @@ function search(command, term) {
 
             if (nofilter) {
 
-                var s = '<span class="entry"><span class="id">(' + obj.id + ')</span> <span class="title">' + obj.title + "</span> -> <span class=\"login\">" + obj.login + "</span> @ <span class=\"url\">" + obj.url + "</span> : <span class=\"content blurred\" ondblclick=\"addUsage("+obj.id+")\">" + obj.content + "</span> ".reUseText."</span>";
+                var s = '<span class="entry"><span class="id">(' + obj.id + ')</span> <span class="title">' + obj.title + "</span> -> <span class=\"login\">" + obj.login + "</span> @ <span class=\"url\">" + obj.url + "</span> : <span class=\"content blurred\" ondblclick=\"addUsage("+obj.id+")\">" + obj.content + "</span> " + reUseText + "</span>";
 
                 term.echo(s)
 
@@ -973,7 +973,7 @@ function search(command, term) {
                 var _pwd = highlight(searchKeysParts, obj.content)
 
 
-                var s = '<span class="entry"><span class="id">(' + _id + ')</span> <span class="title">' + _title + "</span> -> <span class=\"login\">" + _login + "</span> @ <span class=\"url\">" + _url + "</span> : <span class=\"content blurred\" ondblclick=\"addUsage("+_id+")\">" + _pwd + "</span> ".reUseText."</span>";
+                var s = '<span class="entry"><span class="id">(' + _id + ')</span> <span class="title">' + _title + "</span> -> <span class=\"login\">" + _login + "</span> @ <span class=\"url\">" + _url + "</span> : <span class=\"content blurred\" ondblclick=\"addUsage("+_id+")\">" + _pwd + "</span> " + reUseText + "</span>";
 
                 term.echo(s)
             }
