@@ -774,6 +774,7 @@ function saveCipher(oldNodeLength, oldEntriesHash, force, term) {
                     notes = answer.data;
                 }
             } catch (e) {
+                console.log(e);
                 isAuth = false;
                 remotePassword = "";
                 localPassword = "";
