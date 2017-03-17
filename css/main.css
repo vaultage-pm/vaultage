@@ -110,9 +110,13 @@
 }
 
 .reUse1 {
-  color: grey;
+  display: none;
 }
 
 .reUseX {
   color: red;
+}
+
+.usage{
+  color: grey;
 }
