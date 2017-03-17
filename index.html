@@ -711,6 +711,11 @@ function getCipher(_username, _localPasswordHash, _remotePasswordHash, term) {
                         isAuth = true;
                     }
 
+                    //compute reuse table
+                    _.each(notes, function(note){
+                        addToReuseTable(note.content);
+                    })
+
                 } catch (e) {
                     term.echo('Can\'t decrypt; Wrong local password.');
 
@@ -1004,6 +1009,14 @@ function addUsage(id){
     console.log(notes[index])
 
     saveCipher(oldNotesLength, oldHash, false, termHook);
+}
+
+reUseTable = new Object()
+function addToReuseTable(pwd){
+    if (typeof reUseTable[pwd] === "undefined"){
+        reUseTable[pwd] = 0;
+    }
+    reUseTable[pwd]++;
 }
 </script>
 </body>
