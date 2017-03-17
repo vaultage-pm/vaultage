@@ -517,6 +517,10 @@ jQuery(document).ready(function($) {
 
                             getCipher(user, _localPasswordHash, _remotePasswordHash, term);
 
+                            term.pop().set_mask(false);
+                            term.pop().set_mask(false);
+                            term.pop();
+
                             term.push(function(command) {
                                 if (command.match(/^(y|yes)$/i)) {
 
@@ -538,10 +542,6 @@ jQuery(document).ready(function($) {
                             }, {
                                 prompt: 'Would you like to store the authentication token in your cookies? (say "no" on a public computer) '
                             });
-
-                            term.pop().set_mask(false);
-                            term.pop().set_mask(false);
-                            term.pop();
                         }, {
                             prompt: 'local password: '
                         });
