@@ -994,14 +994,16 @@ function addUsage(id){
     oldHash = hash(JSON.stringify(notes));
 
 
+    console.log(notes[index])
     if (typeof notes[index].usageCount === "undefined"){
         console.log("Undefined")
         notes[index].usageCount = 0
     }
     notes[index].usageCount++
     console.log(notes[index].usageCount)
+    console.log(notes[index])
 
-    saveCipher(oldNodeLength, oldHash, false, termHook);
+    saveCipher(oldNotesLength, oldHash, false, termHook);
 }
 </script>
 </body>
