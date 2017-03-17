@@ -354,7 +354,7 @@ jQuery(document).ready(function($) {
 
                                     editEntry(filtered[0].id, title, login, url, pwd, term)
 
-                                    var s = '<span class="entry"><span class="id">(' + filtered[0].id + ')</span> <span class="title">' + filtered[0].title + "</span> -> <span class=\"login\">" + filtered[0].login + "</span> @ <span class=\"url\">" + filtered[0].url + "</span> : <span class=\"content\">" + filtered[0].content + "</span></span>";
+                                    var s = '<span class="entry"><span class="id">(' + filtered[0].id + ')</span> <span class="title">' + filtered[0].title + "</span> -> <span class=\"login\">" + filtered[0].login + "</span> @ <span class=\"url\">" + filtered[0].url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+filtered[0].id+")\">" + filtered[0].content + "</span></span>";
 
                                     term.echo("The entry #" + filtered[0].id + " is now :");
                                     term.echo(s);
@@ -405,7 +405,7 @@ jQuery(document).ready(function($) {
                     var newPwd = generatePassword(15, false, true, true).join('');
                     editEntry(filtered[0].id, filtered[0].title, filtered[0].login, filtered[0].url, newPwd, term)
 
-                    var s = '<span class="entry"><span class="id">(' + filtered[0].id + ')</span> <span class="title">' + filtered[0].title + "</span> -> <span class=\"login\">" + filtered[0].login + "</span> @ <span class=\"url\">" + filtered[0].url + "</span> : <span class=\"content\">" + filtered[0].content + "</span></span>";
+                    var s = '<span class="entry"><span class="id">(' + filtered[0].id + ')</span> <span class="title">' + filtered[0].title + "</span> -> <span class=\"login\">" + filtered[0].login + "</span> @ <span class=\"url\">" + filtered[0].url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+filtered[0].id+")\">" + filtered[0].content + "</span></span>";
 
                     term.echo("The entry #" + filtered[0].id + " is now :");
                     term.echo(s);
@@ -630,7 +630,7 @@ function editEntry(id, title, login, url, pwd, term) {
     saveCipher(notes.length, oldHash, false, term);
 
 
-    var s = '<span class="entry"><span class="id">(' + notes[index].id + ')</span> <span class="title">' + notes[index].title + "</span> -> <span class=\"login\">" + notes[index].login + "</span> @ <span class=\"url\">" + notes[index].url + "</span> : <span class=\"content\">" + notes[index].content + "</span></span>";
+    var s = '<span class="entry"><span class="id">(' + notes[index].id + ')</span> <span class="title">' + notes[index].title + "</span> -> <span class=\"login\">" + notes[index].login + "</span> @ <span class=\"url\">" + notes[index].url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+notes[index].id+")\">" + notes[index].content + "</span></span>";
 }
 
 function addEntry(title, login, url, pwd, term) {
@@ -662,7 +662,7 @@ function addEntry(title, login, url, pwd, term) {
 
     saveCipher(oldNotesLength, oldHash, false, term);
 
-    var s = '<span class="entry"><span class="id">(' + newEntry.id + ')</span> <span class="title">' + newEntry.title + "</span> -> <span class=\"login\">" + newEntry.login + "</span> @ <span class=\"url\">" + newEntry.url + "</span> : <span class=\"content\">" + newEntry.content + "</span></span>";
+    var s = '<span class="entry"><span class="id">(' + newEntry.id + ')</span> <span class="title">' + newEntry.title + "</span> -> <span class=\"login\">" + newEntry.login + "</span> @ <span class=\"url\">" + newEntry.url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+newEntry.id+")\">" + newEntry.content + "</span></span>";
 
     term.echo("New entry is : ")
     term.echo(s)
@@ -953,7 +953,7 @@ function search(command, term) {
 
             if (nofilter) {
 
-                var s = '<span class="entry"><span class="id">(' + obj.id + ')</span> <span class="title">' + obj.title + "</span> -> <span class=\"login\">" + obj.login + "</span> @ <span class=\"url\">" + obj.url + "</span> : <span class=\"content blurred\">" + obj.content + "</span></span>";
+                var s = '<span class="entry"><span class="id">(' + obj.id + ')</span> <span class="title">' + obj.title + "</span> -> <span class=\"login\">" + obj.login + "</span> @ <span class=\"url\">" + obj.url + "</span> : <span class=\"content blurred\" ondblclick=\"addUsage("+obj.id+")\">" + obj.content + "</span></span>";
 
                 term.echo(s)
 
@@ -965,7 +965,7 @@ function search(command, term) {
                 var _pwd = highlight(searchKeysParts, obj.content)
 
 
-                var s = '<span class="entry"><span class="id">(' + _id + ')</span> <span class="title">' + _title + "</span> -> <span class=\"login\">" + _login + "</span> @ <span class=\"url\">" + _url + "</span> : <span class=\"content blurred\">" + _pwd + "</span></span>";
+                var s = '<span class="entry"><span class="id">(' + _id + ')</span> <span class="title">' + _title + "</span> -> <span class=\"login\">" + _login + "</span> @ <span class=\"url\">" + _url + "</span> : <span class=\"content blurred\" ondblclick=\"addUsage("+_id+")\">" + _pwd + "</span></span>";
 
                 term.echo(s)
             }
