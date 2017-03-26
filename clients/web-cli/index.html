@@ -27,6 +27,8 @@
 <body>
 
 <script>
+var API_URL = './api/index.php/';
+
 termHook = 0;
 globalKeyUpValue = "";
 jQuery(document).ready(function($) {
@@ -676,7 +678,7 @@ function genEntry(title, login, url, term) {
 
 function getCipher(_username, _localPasswordHash, _remotePasswordHash, term) {
 
-    url = "./ajax/core.php/" + _username + "/" + _remotePasswordHash + "/do"; //do is just for obfuscation
+    url = API_URL + _username + "/" + _remotePasswordHash + "/do"; //do is just for obfuscation
 
     $.get(url, function(answer) {
         if (answer.error != undefined && answer.error == true) {
@@ -763,7 +765,7 @@ function highlight(terms, baseString) {
 }
 
 function saveCipher(oldNodeLength, oldEntriesHash, force, term) {
-    url = "./ajax/core.php/" + username + "/" + remotePassword + "/do"; //do is just for obfuscation
+    url = API_URL + username + "/" + remotePassword + "/do"; //do is just for obfuscation
 
     var raw = JSON.stringify(notes);
     var cipher = CryptoJS.AES.encrypt(raw, localPassword, {
