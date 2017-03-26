@@ -1,6 +1,6 @@
 <?php
 
-require("config.php");
+require("../config.php");
 
 /*
  * Sets the correct headers, and outputs the JSON {'error' : false, 'data' => $data}
@@ -22,7 +22,7 @@ function auth()
 	$requestParams = @$_SERVER['PATH_INFO'];
 	if(strcmp($requestParams,"/".AUTH_USER."/".AUTH_PWD_SHA256."/do") !== 0)
 	{
-		outputToJSON(array('error' => true, 'desc' => 'auth failed')); //leaks info but it should be OK in this setting
+		outputToJSON(array('error' => true, 'desc' => 'auth failed', 'url' => $requestParams)); //leaks info but it should be OK in this setting
 	}
 }
 
@@ -40,13 +40,13 @@ function dbSetup()
 		$db = new PDO('mysql:host=' . DEFAULT_DB_HOST . ';dbname=' . DEFAULT_DB_SELECTED, DEFAULT_DB_USER, DEFAULT_DB_USER_PASSWORD, $pdo_options);
 	}
 	 catch (Exception $e) {
-		outputToJSON(array('error' => true, 'desc' => 'cannot connect to the BDD'));
+		 outputToJSON(array('error' => true, 'desc' => 'cannot connect to the DB'));
 	}
 	return $db;
 }
 
 /*
- * Fetches the latest cipher text from the BDD
+ * Fetches the latest cipher text from the DB
  * EXCEPTION : may die() with the JSON {'error' : true, 'desc' : 'cannot fetch cipher'} if something goes wrong
  */
 function getLastCipher($db)
