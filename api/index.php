@@ -22,7 +22,7 @@ function auth()
 	$requestParams = @$_SERVER['PATH_INFO'];
 	if(strcmp($requestParams,"/".AUTH_USER."/".AUTH_PWD_SHA256."/do") !== 0)
 	{
-		outputToJSON(array('error' => true, 'desc' => 'auth failed', 'url' => $requestParams)); //leaks info but it should be OK in this setting
+		outputToJSON(array('error' => true, 'desc' => 'auth failed')); //leaks info but it should be OK in this setting
 	}
 }
 
@@ -39,8 +39,8 @@ function dbSetup()
 		$pdo_options[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET CHARACTER SET utf8";
 		$db = new PDO('mysql:host=' . DEFAULT_DB_HOST . ';dbname=' . DEFAULT_DB_SELECTED, DEFAULT_DB_USER, DEFAULT_DB_USER_PASSWORD, $pdo_options);
 	}
-	 catch (Exception $e) {
-		 outputToJSON(array('error' => true, 'desc' => 'cannot connect to the DB'));
+	catch (Exception $e) {
+		outputToJSON(array('error' => true, 'desc' => 'cannot connect to the DB'));
 	}
 	return $db;
 }
