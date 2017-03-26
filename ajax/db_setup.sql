@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Client :  localhost
--- Généré le :  Mar 16 Février 2016 à 05:19
+-- GÃ©nÃ©rÃ© le :  Mar 16 FÃ©vrier 2016 Ã  05:19
 -- Version du serveur :  5.5.44-MariaDB-1ubuntu0.14.10.1
 -- Version de PHP :  5.5.12-2ubuntu4.6
 
@@ -11,7 +11,7 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
 --
--- Base de données :  `vaultage`
+-- Base de donnÃ©es :  `vaultage`
 --
 CREATE DATABASE IF NOT EXISTS `vaultage` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
 USE `vaultage`;
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `vaultage_data` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
 
 --
--- Index pour les tables exportées
+-- Index pour les tables exportÃ©es
 --
 
 --
@@ -40,7 +40,7 @@ ALTER TABLE `vaultage_data`
  ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT pour les tables exportées
+-- AUTO_INCREMENT pour les tables exportÃ©es
 --
 
 --
@@ -50,5 +50,5 @@ ALTER TABLE `vaultage_data`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
 
 
-INSERT INTO `vaultage_data` (`id`, `last_update`, `data`) VALUES
+INSERT INTO `vaultage_data` (`id`, `last_update`, `data`, `last_hash`) VALUES
 (3, '0000-00-00 00:00:00', '', 'INIT');
