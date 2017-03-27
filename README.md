@@ -1,5 +1,5 @@
 # Vaultage
-A web-based, self-hosted password manager with client-side encryption. (previously inspired from trello, and [clearwater](https://github.com/lbarman/clearwater), now build in console for speed).
+A web-based, self-hosted password manager with client-side encryption.
 
 ### Description
 
