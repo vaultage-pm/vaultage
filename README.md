@@ -20,7 +20,7 @@ Plaintext passwords never leave your computer's memory.
 - remote password : __demo1__
 - local password : __demo2__
 
-Trouble beginning? First *auth*, then *ls*. Try to *get Github*, then *gen* a new password, and *get* it.
+Trouble beginning? First `auth`, then `ls`. Try to `get Github`, then `gen` a new password, and `get` it.
 
 Database is reset at 00:00 CET
 
@@ -43,33 +43,35 @@ Database is reset at 00:00 CET
 
 ## Docker setup
 
-Or, instead of the above setup, you can directly spawn a docker container. See [https://github.com/lbarman/vaultage/tree/master/resources/docker-nginx]
+Or, instead of the above setup, you can directly spawn a docker container. See the [Docker README](https://github.com/lbarman/vaultage/tree/master/resources/docker-nginx).
 
 ## Possible commands
 
-- *auth* : authenticate to the mysql server, and *pull*s the entries
+- `auth` : authenticate to the mysql server, and `pull`s the entries
+- `la` : alias for `loadauth`, the one I use everyday to login
 
 common :
 
-- *get TERM* : filter the results, and display the matching password entry (supports multi-terms; find all entries matching all terms. use *get -or TERM1 TERM2" to get every entry matching any terms
-- *new* : creates a new password entry, then *push*es the changes
-- *gen* : creates a new password entry with a random password, and *push*es the changes
-- *edit ID* : edits the entry ID (ID is the number in parenthesis). Use KEY_UP to display the previous content.
-- *rm ID* : removes the entry ID
+- `get TERM` : filter the results, and display the matching password entry (supports multi-terms; find all entries matching all terms. use `get -or TERM1 TERM2` to get every entry matching any terms
+- `new` : creates a new password entry, then `push`es the changes
+- `gen` : creates a new password entry with a random password, and `push`es the changes
+- `edit ID` : edits the entry ID (ID is the number in parenthesis). Use KEY_UP to display the previous content.
+- `rm ID` : removes the entry ID
+- `rotate ID` : re-generates a new password for entry ID, keeping all other fields the same
 
 less common :
 
-- *push* : pushes the current entries to the database. Check that no overwrite is done; use *push --force* with caution.
-- *pull* : pulls the entries from the database
-- *clear* : clear the screen
-- *logout* : clear all the in-memory authentication information
-- *pwd* : to change your local password. Once done, the next *push* will use the next password.
+- `push` : pushes the current entries to the database. Check that no overwrite is done; use `push --force` with caution.
+- `pull` : pulls the entries from the database
+- `clear` : clear the screen
+- `logout` : clear all the in-memory authentication information
+- `pwd` : to change your local password. Once done, the next `push` will use the new password.
 
 cookies: 
 
-- *saveauth* : saves the username and the remote password in a cookie. _does not save the local password_ by design.
-- *loadauth* : loads the username and the remote password from the cookie, and asks for the local password. Use as quicker an alternative to *auth*. Also *pull*s the entries
-- *clearauth* : removes all authentication cookies
+- `saveauth` : saves the username and the remote password in a cookie. _does not save the local password_ by design.
+- `loadauth` : loads the username and the remote password from the cookie, and asks for the local password. Use as quicker an alternative to `auth`. Also `pull`s the entries
+- `clearauth` : removes all authentication cookies
 
 ## Email backups
 
