@@ -77,7 +77,7 @@ cookies:
 
 If you server supports it, you can enable email backup; every time a change is made, the database content (it's a ciphertext) is sent to your email. This way, if something goes wrong, you always have intermediate version of your password database. You can either plug it back in the database, or you can decrypt it with a little javascript (my own ["urgence decryptor" script](https://lbarman.ch/server/aes.html) ).
 
-To enable it, fill in the information in *ajax/config.php*
+To enable it, fill in the information in `config.php`
 
 ## Contributors
 
