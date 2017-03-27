@@ -37,9 +37,13 @@ Database is reset at 00:00 CET
 
 ## Setup
 
-1. create the database, using ajax/db_setup.sql
-2. move ajax/config.default.php to ajax/config.php, edit the contents accordingly
-3. upload all contents to your web server
+1. create the database, using `resources/db_setup.sql`
+2. move `config.default.php` to `config.php`, edit the contents accordingly
+3. upload all contents to your web server, serve `clients/web-cli`
+
+## Docker setup
+
+Or, instead of the above setup, you can directly spawn a docker container. See [https://github.com/lbarman/vaultage/tree/master/resources/docker-nginx]
 
 ## Possible commands
 
@@ -72,3 +76,7 @@ cookies:
 If you server supports it, you can enable email backup; every time a change is made, the database content (it's a ciphertext) is sent to your email. This way, if something goes wrong, you always have intermediate version of your password database. You can either plug it back in the database, or you can decrypt it with a little javascript (my own ["urgence decryptor" script](https://lbarman.ch/server/aes.html) ).
 
 To enable it, fill in the information in *ajax/config.php*
+
+## Contributors
+
+Thanks to [hmil](github.com/hmil) for his security audit, PR for structure + Docker setup
