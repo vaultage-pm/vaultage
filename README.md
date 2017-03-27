@@ -26,9 +26,9 @@ Database is reset at 00:00 CET
 
 ## Examples
 
-![Vaultage demo 1](https://raw.githubusercontent.com/lbarman/vaultage/master/demo.png "Vaultage demo 1")
+![Vaultage demo 1](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot1.png "Vaultage demo 1")
 
-![Vaultage demo 2](https://raw.githubusercontent.com/lbarman/vaultage/master/demo2.png "Vaultage demo 2")
+![Vaultage demo 2](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot2.png "Vaultage demo 2")
 
 ## Requirements
 
