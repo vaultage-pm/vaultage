@@ -1,0 +1,29 @@
+{
+  "name": "vaultage-browser-sdk",
+  "version": "2.0.0-dev",
+  "description": "SDK to write JavaScript clients for the Vaultage password manager",
+  "main": "vaultage.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lbarman/vaultage.git"
+  },
+  "contributors": [
+    "Ludovic Barman (https://github.com/lbarman)",
+    "Hadrien Milano (https://github.com/hmil)"
+  ],
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/lbarman/vaultage/issues"
+  },
+  "homepage": "https://github.com/lbarman/vaultage#readme",
+  "dependencies": {
+    "crypto-js": "^3.1.9-1",
+    "jsdoc": "^3.4.3",
+    "jshint": "^2.9.4",
+    "webpack": "^2.3.2",
+    "xhr": "^2.4.0"
+  }
+}

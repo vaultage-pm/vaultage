@@ -1,6 +1,6 @@
 <?php
 
-require("../config.php");
+require("../../config.php");
 
 /*
  * Sets the correct headers, and outputs the JSON {'error' : false, 'data' => $data}
