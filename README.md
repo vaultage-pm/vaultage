@@ -37,9 +37,10 @@ Database is reset at 00:00 CET
 
 ## Setup
 
+0. Run `make` in the root directory (requires nodeJS) #TODO: create pre-built package for each release to skip this step
 1. create the database, using `resources/db_setup.sql`
 2. move `config.default.php` to `config.php`, edit the contents accordingly
-3. upload all contents to your web server, serve `clients/web-cli`
+3. upload all contents to your web server, serve `public/`
 
 ## Docker setup
 

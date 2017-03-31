@@ -9,16 +9,11 @@
     <script src="./js/jquery-1.7.1.min.js"></script>
     <script src="./js/jquery.mousewheel-min.js"></script>
     <script src="./js/jquery.terminal-min.js"></script>
-    <script src="./lib/cryptojs.core.min.js"></script>
-    <script src="./lib/cryptojs.enc-utf16.min.js"></script>
-    <script src="./lib/cryptojs.enc-base64.min.js"></script>
-    <script src="./lib/cryptojs.sha1.min.js"></script>
-    <script src="./lib/cryptojs.aes.min.js"></script>
     <script src="./lib/jquery.base64.js"></script>
-    <script src="./lib/sjcl.js"></script>
     <script src="./lib/underscore-min.js"></script>
     <script src="./lib/js.cookie.js"></script>
     <script src="./lib/pwdGen.js"></script>
+    <script src="./deps/vaultage.js"></script>
     <link href="./css/jquery.terminal.css" rel="stylesheet"/>
     <link href="./css/main.css" rel="stylesheet"/>
     <link rel="icon" type="image/png" href="favicon.png" />
@@ -28,6 +23,8 @@
 
 <script>
 var API_URL = './api/index.php/';
+
+var vault = new Vaultage();
 
 termHook = 0;
 globalKeyUpValue = "";
@@ -182,11 +179,18 @@ jQuery(document).ready(function($) {
             term.push(function(user, term) {
                 term.set_mask('*').push(function(remotePass) {
                     term.set_mask('*').push(function(localPass) {
-
-                        var _localPasswordHash = hash(localPass);
-                        var _remotePasswordHash = hash(remotePass);
-
-                        getCipher(user, _localPasswordHash, _remotePasswordHash, term);
+                        vault.auth(API_URL, user, localPass, remotePass, term, function(err) {
+                            if (err) {
+                                return term.echo(err);
+                            }
+                            
+                            var nb_entries = vault.getNbEntries();
+                            if (nb_entries !== 0) {
+                                term.echo('Pull success, retrieved ' + nb_entries + ' entries.');
+                            } else {
+                                term.echo('Pull success, 0 entries. Future entries will be encrypted with the provided local password.');
+                            }
+                        });
                         term.pop().set_mask(false);
                         term.pop().set_mask(false);
                         term.pop();

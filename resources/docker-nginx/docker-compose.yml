@@ -11,7 +11,7 @@ services:
       context: ./php
       dockerfile: Dockerfile
     volumes:
-      - "${VAULTAGE_DIR}:/var/www/vaultage"
+      - "${VAULTAGE_DIR}:/var/www/vaultage:ro"
     links:
       - mysql:db
   nginx:
@@ -19,8 +19,7 @@ services:
     ports:
       - ${VAULTAGE_PORT}:80
     volumes:
-      - "./nginx:/etc/nginx/conf.d"
-      - "${VAULTAGE_DIR}/api:/var/www/vaultage/api"
-      - "${VAULTAGE_DIR}/clients/web-cli:/var/www/vaultage/web-cli"
+      - "./nginx:/etc/nginx/conf.d:ro"
+      - "${VAULTAGE_DIR}/public:/var/www/vaultage:ro"
     links:
       - php:php
