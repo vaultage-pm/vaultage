@@ -12,9 +12,16 @@ module.exports = {
         loader: 'ts-loader',
         exclude: /node_modules/,
       },
+      {
+        test: /crypto/,
+        loader: 'ignore-me'
+      }
     ]
   },
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
+    "alias": {
+      "request": "xhr"
+    }
   },
 };

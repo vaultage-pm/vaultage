@@ -175,10 +175,11 @@ jQuery(document).ready(function($) {
             term.echo(" ");
 
         } else if (command == 'auth') {
-            promptValues(['user', 'remote password', 'local password'], function(user, remotePass, localPass) {
-                vault.auth(API_URL, user, localPass, remotePass, function(err) {
+            promptValues(['user', 'password'], function(user, password) {
+                vault.auth(API_URL, user, password, function(err) {
                     if (err) {
                         console.error(err);
+                        console.log(err.cause);
                         return term.echo(err);
                     }
                     
@@ -501,12 +502,14 @@ jQuery(document).ready(function($) {
             if (Cookies.get('username') == undefined || Cookies.get('remotePassword') == undefined) {
                 term.echo("Could not load cookies, going to re-auth.");
 
-                promptValues(['user', 'remote password', 'local password'], function(user, remotePass, localPass) {
-                    vault.auth(API_URL, user, localPass, remotePass, function(err) {
+                promptValues(['user', 'password'], function(user, password) {
+                    vault.auth(API_URL, user, password, function(err) {
                         term.echo('Would you like to store the authentication token in your cookies? (say "no" on a public computer) ');
                         term.push(function(command, term) {
                             if (command.match(/^(y|yes)$/i)) {
-
+                                // TODO:
+                                // This is no longer relevant and should eventually be replaced by
+                                // token-based server-side authentication
                                 Cookies.set('username', username, {
                                     expires: 7,
                                     secure: true
