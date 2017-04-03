@@ -8,7 +8,8 @@ export enum ERROR_CODE {
     NOT_AUTHENTICATED = 1,
     BAD_REMOTE_CREDS,
     CANNOT_DECRYPT,
-    NETWORK_ERROR
+    NETWORK_ERROR,
+    NOT_FAST_FORWARD
 };
 
 /**
@@ -45,7 +46,8 @@ export class VaultDB {
     private static VERSION: number = 0;
 
     public constructor(
-            private _entries: VaultDBEntry[]) {
+            private _entries: VaultDBEntry[],
+            private _revision: number = 0) {
     }
 
     public static serialize(db: VaultDB): string {
@@ -55,7 +57,8 @@ export class VaultDB {
 
         let serialized = JSON.stringify({
             entries: db._entries,
-            v: VaultDB.VERSION
+            v: VaultDB.VERSION,
+            r: db._revision
         });
 
         const amountToPad = expectedLength - serialized.length;
@@ -71,11 +74,21 @@ export class VaultDB {
 
     public static deserialize(ser: string): VaultDB {
         const data = JSON.parse(ser);
-        return new VaultDB(data.entries);
+        return new VaultDB(data.entries, data._revision);
     }
 
+    /**
+     * Returns the number of entries in this DB.
+     */
     public size() {
         return this._entries.length;
+    }
+
+    /**
+     * Bumps the revision number of this DB.
+     */
+    public newRevision() {
+        this._revision ++;
     }
 }
 
@@ -177,7 +190,7 @@ export abstract class Crypto {
 export class Vault {
     private _creds: (Credentials|undefined);
     private _db: (VaultDB|undefined);
-    private _lastHash: (string|undefined);
+    private _lastFingerprint: (string|null) = null;
 
 
     /**
@@ -208,12 +221,32 @@ export class Vault {
     }
 
     /**
+     * Saves the Vault on the server.
+     * 
+     * The vault must be authenticated before this method can be called.
+     * 
+     * @param {function} cb Callback invoked with (err: VaultageError, this) on completion. err is null if no error occured.
+     */
+    public save(cb: (err: (VaultageError|null), vault: Vault) => void): void {
+        if (!this._creds || !this._db) {
+            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'), this);
+        } else {
+            // Bumping the revision on each push ensures that there are no two identical consecutive fingerprints
+            // (in short we are pretending that we updated something even if we didn't)
+            this._db.newRevision();
+            this._pushCipher(this._creds, (err) => cb(err, this));
+        }
+    }
+
+
+
+    /**
      * Un-authenticates this vault
      */
     public unauth(): void {
         this._creds = undefined;
         this._db = undefined;
-        this._lastHash = undefined;
+        this._lastFingerprint = null;
     }
 
     /**
@@ -271,7 +304,7 @@ export class Vault {
             url: makeURL(creds.serverURL, creds.username, creds.remoteKey)
         }, (err: any, resp: any) => {
             if (err) {
-                return cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, err.toString()));
+                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
             }
 
             let body = JSON.parse(resp.body);
@@ -286,7 +319,7 @@ export class Vault {
                 try {
                     let plain = Crypto.decrypt(creds.localKey, cipher);
                     this._db = VaultDB.deserialize(plain);
-                    this._lastHash = Crypto.getFingerprint(plain);
+                    this._lastFingerprint = Crypto.getFingerprint(plain);
                 } catch (e) {
                     cb(new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occured while decrypting the cipher', e));
                     return;
@@ -303,22 +336,35 @@ export class Vault {
         if (this._db == undefined) {
             return cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
         }
+
         let plain = VaultDB.serialize(this._db);
         let cipher = Crypto.encrypt(creds.localKey, plain);
+        let fingerprint = Crypto.getFingerprint(plain);
         request({
             method: 'POST',
             url: makeURL(creds.serverURL, creds.username, creds.remoteKey),
-            body: JSON.stringify({
+            body: urlencode({
                 'data': cipher,
-                'last_hash': this._lastHash,
-                'new_hash': Crypto.getFingerprint(plain)
-            })
+                'last_hash': this._lastFingerprint,
+                'new_hash': fingerprint
+            }),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
         }, (err: any, resp: any) => {
             if (err) {
-                cb(err);
+                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err));
             }
-            console.log("What we got: ");
-            console.log(resp);
+            let body = JSON.parse(resp.body);
+            if (body.error != null && body.error === true) {
+                if (body.non_fast_forward == true) {
+                    return cb(new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, 'The server has a newer version of the DB'));
+                } else {
+                    return cb(new VaultageError(ERROR_CODE.BAD_REMOTE_CREDS, 'Wrong username / remote password (or DB link inactive).'));
+                }
+            }
+            this._lastFingerprint = fingerprint;
+            cb(null);
         });
     }
 }
@@ -327,7 +373,16 @@ export class Vault {
 // Utility functions
 
 function makeURL(serverURL: string, username: string, remotePwdHash: string) {
-    return serverURL + username + '/' + remotePwdHash + '/do'; //do is just for obfuscation
+    return serverURL + '/' + username + '/' + remotePwdHash + '/do'; //do is just for obfuscation
+}
+
+function urlencode(data: any): string {
+    let ret: string[] = [];
+    let keys = Object.keys(data);
+    for (var key of keys) {
+        ret.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+    }
+    return ret.join('&');
 }
 
 
@@ -345,7 +400,7 @@ function makeURL(serverURL: string, username: string, remotePwdHash: string) {
  * Higher is harder. 
  * The harder, the longer it takes to brute-force but also the longer it takes to log in.
  */
-export var PBKF2_DIFFICULTY = 8182;
+export var PBKF2_DIFFICULTY = 32768;
 /**
  * The local and remote keys use a salt that is derived from the username.
  * 
