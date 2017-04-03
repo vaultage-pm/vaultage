@@ -1,6 +1,6 @@
 {
   "name": "vaultage-browser-sdk",
-  "version": "2.0.0-dev",
+  "version": "3.0.0-dev",
   "description": "SDK to write JavaScript clients for the Vaultage password manager",
   "main": "vaultage.js",
   "scripts": {
@@ -20,10 +20,12 @@
   },
   "homepage": "https://github.com/lbarman/vaultage#readme",
   "dependencies": {
-    "crypto-js": "^3.1.9-1",
     "jsdoc": "^3.4.3",
     "jshint": "^2.9.4",
+    "sha.js": "^2.4.8",
     "webpack": "^2.3.2",
-    "xhr": "^2.4.0"
+    "xhr": "^2.4.0",
+    "ts-loader": "^2.0.3",
+    "typescript": "^2.2.2"
   }
 }

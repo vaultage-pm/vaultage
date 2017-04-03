@@ -1,8 +1,0 @@
-{
-  "esversion": 5,
-  "eqnull": true,
-  "quotmark": true,
-  "undef": true,
-  "unused": true,
-  "node": true
-}

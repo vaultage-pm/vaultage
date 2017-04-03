@@ -2,16 +2,13 @@ BIN = dist/vaultage.js
 
 WEBPACK_FLAGS = --output-library Vaultage
 
-all: $(BIN) doc
+all: $(BIN)
 
-$(BIN): node_modules vaultage.js
-	node_modules/.bin/webpack $(WEBPACK_FLAGS) vaultage.js $(BIN)
-
-doc: vaultage.js
-	node_modules/.bin/jsdoc -d doc vaultage.js
+$(BIN): node_modules vaultage.ts
+	node_modules/.bin/webpack
 
 clean:
-	rm -r dist/ node_modules/ doc/
+	rm -r dist/ node_modules/
 
 node_modules:
 	npm install

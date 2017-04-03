@@ -24,7 +24,7 @@
 <script>
 var API_URL = './api/index.php/';
 
-var vault = new Vaultage();
+var vault = new vaultage.Vault();
 
 termHook = 0;
 globalKeyUpValue = "";
@@ -175,36 +175,21 @@ jQuery(document).ready(function($) {
             term.echo(" ");
 
         } else if (command == 'auth') {
-
-            term.push(function(user, term) {
-                term.set_mask('*').push(function(remotePass) {
-                    term.set_mask('*').push(function(localPass) {
-                        vault.auth(API_URL, user, localPass, remotePass, term, function(err) {
-                            if (err) {
-                                return term.echo(err);
-                            }
-                            
-                            var nb_entries = vault.getNbEntries();
-                            if (nb_entries !== 0) {
-                                term.echo('Pull success, retrieved ' + nb_entries + ' entries.');
-                            } else {
-                                term.echo('Pull success, 0 entries. Future entries will be encrypted with the provided local password.');
-                            }
-                        });
-                        term.pop().set_mask(false);
-                        term.pop().set_mask(false);
-                        term.pop();
-                    }, {
-                        prompt: 'local password: '
-                    });
-                }, {
-                    prompt: 'remote password: '
+            promptValues(['user', 'remote password', 'local password'], function(user, remotePass, localPass) {
+                vault.auth(API_URL, user, localPass, remotePass, function(err) {
+                    if (err) {
+                        console.error(err);
+                        return term.echo(err);
+                    }
+                    
+                    var nb_entries = vault.getNbEntries();
+                    if (nb_entries !== 0) {
+                        term.echo('Pull success, retrieved ' + nb_entries + ' entries.');
+                    } else {
+                        term.echo('Pull success, 0 entries. Future entries will be encrypted with the provided local password.');
+                    }
                 });
-            }, {
-                name: 'auth',
-                prompt: 'user : '
             });
-
         } else if (command.lastIndexOf("get", 0) === 0) {
 
             search(command, term);
@@ -435,13 +420,13 @@ jQuery(document).ready(function($) {
             }
 
         } else if (command == "pull") {
-
-            if (!isAuth) {
-                term.echo("You should <i>auth</i> first.");
-            } else {
-                getCipher(username, localPassword, remotePassword, term);
-            }
-
+            vault.refresh(function(err, vault) {
+                if (!err) {
+                    term.echo("Pull success, retrieved " + vault.getNbEntries() + " entries.");
+                } else {
+                    handleVaultageError(err);
+                }
+            });
         } else if (command == "saveauth") {
 
             if (!isAuth) {
@@ -516,47 +501,28 @@ jQuery(document).ready(function($) {
             if (Cookies.get('username') == undefined || Cookies.get('remotePassword') == undefined) {
                 term.echo("Could not load cookies, going to re-auth.");
 
-                term.push(function(user, term) {
-                    term.set_mask('*').push(function(remotePass) {
-                        term.set_mask('*').push(function(localPass) {
+                promptValues(['user', 'remote password', 'local password'], function(user, remotePass, localPass) {
+                    vault.auth(API_URL, user, localPass, remotePass, function(err) {
+                        term.echo('Would you like to store the authentication token in your cookies? (say "no" on a public computer) ');
+                        term.push(function(command, term) {
+                            if (command.match(/^(y|yes)$/i)) {
 
-                            var _localPasswordHash = hash(localPass);
-                            var _remotePasswordHash = hash(remotePass);
+                                Cookies.set('username', username, {
+                                    expires: 7,
+                                    secure: true
+                                });
+                                Cookies.set('remotePassword', remotePassword, {
+                                    expires: 7,
+                                    secure: true
+                                });
 
-                            getCipher(user, _localPasswordHash, _remotePasswordHash, term);
-
-                            term.pop().set_mask(false);
-                            term.pop().set_mask(false);
+                            }
                             term.pop();
-
-                            term.push(function(command) {
-                                if (command.match(/^(y|yes)$/i)) {
-
-                                    Cookies.set('username', username, {
-                                        expires: 7,
-                                        secure: true
-                                    });
-                                    Cookies.set('remotePassword', remotePassword, {
-                                        expires: 7,
-                                        secure: true
-                                    });
-
-                                }
-                                term.pop();
-                            }, {
-                                prompt: 'Would you like to store the authentication token in your cookies? (say "no" on a public computer) '
-                            });
                         }, {
-                            prompt: 'local password: '
+                            prompt: '(y/N) '
                         });
-                    }, {
-                        prompt: 'remote password: '
                     });
-                }, {
-                    name: 'auth',
-                    prompt: 'user : '
                 });
-
             } else {
                 username = Cookies.get('username')
                 remotePassword = Cookies.get('remotePassword')
@@ -580,10 +546,8 @@ jQuery(document).ready(function($) {
 
         } else if (command == "logout") {
 
-            username = ""
-            remotePassword = ""
-            localPassword = ""
-            isAuth = false
+            vault.unauth();
+            term.echo('logged out');
 
         } else if (command == "clearauth") {
 
@@ -594,6 +558,41 @@ jQuery(document).ready(function($) {
             term.echo('unknow command "' + command + '"');
             term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>ls</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>, <i>pwd</i>.")
         }
+
+        function handleVaultageError(err) {
+            if (err) {
+                if (err.code == vaultage.ERROR_CODE.NOT_AUTHENTICATED) {
+                    term.echo('You should <i>auth</i> first.');
+                } else {
+                    term.echo(err);
+                }
+            }
+        };
+
+        function promptValues(names, cb) {
+            var i = 0;
+            var values = [];
+            term.push(function(data, term) {
+                if (i < names.length) {
+                    i++;
+                    values.push(data);
+                    if (i === names.length) {
+                        term.pop();
+                        cb.apply(this, values);
+                    } else {
+                        if (/(password)/.test(names[i])) {
+                            term.set_mask('*');
+                        } else {
+                            term.set_mask(false);
+                        }
+                        term.set_prompt(names[i] + ': ');
+                    }
+                }
+            }, {
+                prompt: names[0] + ': '
+            });
+        };
+
     }, {
         greetings: "Vaultage v2.0 <br />*************<br />available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>ls</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>, <i>pwd</i>.<br />*************<br /><span class=\"welcome\">New here ? type <i>welcome</i></span>",
         onBlur: function() {
