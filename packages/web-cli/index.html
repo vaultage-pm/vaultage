@@ -276,37 +276,14 @@ jQuery(document).ready(function($) {
 
 
         } else if (command == "new") {
-
-            if (!isAuth) {
+            if (!vault.isAuth()) {
                 term.echo("You should <i>auth</i> first.");
             } else {
-                term.push(function(title, term) {
-                    term.push(function(login, term) {
-                        term.push(function(url, term) {
-                            term.push(function(pwd, term) {
-                                addEntry(title, login, url, pwd, term);
-                                term.pop();
-                                term.pop();
-                                term.pop();
-                                term.pop();
-                            }, {
-                                name: 'new',
-                                prompt: 'password : '
-                            });
-                        }, {
-                            name: 'new',
-                            prompt: 'url : '
-                        });
-                    }, {
-                        name: 'new',
-                        prompt: 'login : '
-                    });
-                }, {
-                    name: 'new',
-                    prompt: 'title : '
+                promptValues(['title', 'login', 'url', 'password'],
+                function(title, login, url, password) {
+                    addEntry(title, login, url, password, term);
                 });
             }
-
         } else if (command.lastIndexOf("edit", 0) === 0) {
 
             if (!isAuth) {
@@ -632,39 +609,24 @@ function editEntry(id, title, login, url, pwd, term) {
     var s = '<span class="entry"><span class="id">(' + notes[index].id + ')</span> <span class="title">' + notes[index].title + "</span> -> <span class=\"login\">" + notes[index].login + "</span> @ <span class=\"url\">" + notes[index].url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+notes[index].id+")\">" + notes[index].content + "</span></span>";
 }
 
-function addEntry(title, login, url, pwd, term) {
+function addEntry(title, login, url, password, term) {
 
-    var nextFreeId = _.max(notes, function(el) {
-        return el.id
-    }).id + 1
+    var oldNotesLength = vault.getNbEntries();
 
-    //very first ID
-    if (notes.length == 0) {
-        nextFreeId = 1
-    }
-
-    newEntry = {
-        id: nextFreeId,
-        column: -1,
+    vault.addEntry({
         title: title,
-        url: url,
         login: login,
-        content: pwd,
-        order: -1,
-        lastupdate: Date.now()
-    };
-
-    oldHash = hash(JSON.stringify(notes));
-    oldNotesLength = notes.length;
-
-    notes.push(newEntry);
+        url: url,
+        password: password
+    });
 
     saveCipher(oldNotesLength, term);
 
+/*  Not sure this is still needed:
     var s = '<span class="entry"><span class="id">(' + newEntry.id + ')</span> <span class="title">' + newEntry.title + "</span> -> <span class=\"login\">" + newEntry.login + "</span> @ <span class=\"url\">" + newEntry.url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+newEntry.id+")\">" + newEntry.content + "</span></span>";
 
     term.echo("New entry is : ")
-    term.echo(s)
+    term.echo(s)*/
 }
 
 function genEntry(title, login, url, term) {

@@ -9,6 +9,7 @@
     "module": "commonjs",
     "target": "es5",
     "allowJs": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "noImplicitReturns": true
   }
 }
