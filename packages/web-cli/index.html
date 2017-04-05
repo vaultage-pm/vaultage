@@ -9,8 +9,9 @@
     <script src="./js/jquery-1.7.1.min.js"></script>
     <script src="./js/jquery.mousewheel-min.js"></script>
     <script src="./js/jquery.terminal-min.js"></script>
+    <script src="./js/manpages.js"></script>
     <script src="./lib/jquery.base64.js"></script>
-    <script src="./lib/underscore-min.js"></script>
+    <script src="./lib/lodash.js"></script>
     <script src="./lib/js.cookie.js"></script>
     <script src="./lib/pwdGen.js"></script>
     <script src="./deps/vaultage.js"></script>
@@ -27,7 +28,7 @@ var API_URL = './api/index.php';
 var vault = new vaultage.Vault();
 
 termHook = 0;
-globalKeyUpValue = "";
+// globalKeyUpValue = "";
 jQuery(document).ready(function($) {
     var id = 1;
 
@@ -36,143 +37,60 @@ jQuery(document).ready(function($) {
         termHook = term;
         if (command.lastIndexOf("man", 0) === 0 || command.lastIndexOf("help", 0) === 0) {
 
-            var manPage = command.replace("man ", "").replace("help ", "").toLowerCase();
+            var pageName = command.replace("man ", "").replace("help ", "").toLowerCase();
+            var manPage = MANPAGES[pageName]; // Defined in manpages.js
 
-            if(manPage == "auth") {
-
-                term.echo("Will prompt for credentials : user name, remote password (used to secure the database access), local password (used to encrypt the local content)");
-                term.echo("If this command succeed, you will be AUTHENTICATED (also <i>loadauth</i>).")
-
-            } else if (manPage == "get") {
-
-                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
-                term.echo("Usage 1 : <i>get TERM</i>. Will display the entries matching TERM (searches in ID, title, login, url, and password fields.")
-                term.echo("Usage 2 : <i>get TERM1 [TERM2 [TERM3 [...]]]</i>. Will display the entries matching <b>all</b> terms.")
-                term.echo("Usage 3 : <i>get <b>-or</b> TERM [TERM2 [TERM3 [...]]]</i>. Will display the entries matching <b>any</b> of the terms.")
-
-            } else if (manPage == "ls") {
-
-                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
-                term.echo("Equivalent of <i>get *</i>. Will display all entries.")
-
-            } else if (manPage == "new") {
-
-                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
-                term.echo("Will create a new password entry. Fields to be filled : title, login, url, password.")
-                term.echo("Will also try to <i>push</i> the changes to the server afterwards.")
-
-            } else if (manPage == "gen") {
-
-                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
-                term.echo("Will create a new password entry, and generates a new password automatically for it. Fields to be filled : title, login, url.")
-                term.echo("Will also try to <i>push</i> the changes to the server afterwards.")
-
-            } else if (manPage == "edit") {
-
-                term.echo("Usage : <i>edit ID</i>. Will start an interactive process to edit the contents of an entry.")
-                term.echo("IMPORTANT: by default, you need to fill the new fields again; the prompt is blank; use KEY_UP to redisplay the previous value of the field, and edit it.")
-                term.echo("Will also try to <i>push</i> the changes to the server afterwards.")
-
-            } else if (manPage == "rm") {
-
-                term.echo("Usage : <i>rm ID</i>. Will start an interactive process to remove an entry.")
-                term.echo("Will also try to <i>push</i> the changes to the server afterwards.")
-
-            } else if (manPage == "rotate") {
-
-                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
-                term.echo("Usage : <i>rotate ID</i>. Will generate a new random password for the entry ID.")
-
-            } else if (manPage == "push") {
-
-                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
-                term.echo("Will try to upload the current local content to the database, after encrypting it locally.")
-                term.echo("Can fail if your push is <i>non-fast-forward</i>, i.e. the database version of the data is newer than yours.")
-                term.echo("You can always <i>push --force</i> which ignores any verification, and overwrites the database content.")
-
-            } else if (manPage == "pull") {
-
-                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
-                term.echo("Will download the database content and replace local content with it, after decrypting it locally.")
-                term.echo("Warning : you may lose local non-pushed data (push is automatic after any operation).")
-
-            } else if (manPage == "clear") {
-
-                term.echo("Clears the screen.")
-
-            } else if (manPage == "logout") {
-
-                term.echo("Remove in-memory login information (username, remote password, local password).")
-                term.echo("After running <i>logout</i>, you will no longer be AUTHENTICATED.")
-                term.echo("Does not deletes any cookie's login information.")
-
-            } else if (manPage == "saveauth") {
-
-                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>).")
-                term.echo("Usage: saveauth[ NUMBER=7], where NUMBER is the number of days to store the cookie.")
-                term.echo("Saves the username, remote password in a cookie.")
-                term.echo("You may use <i>loadauth</i> afterwards.")
-
-            } else if (manPage == "loadauth") {
-
-                term.echo("Prerequisite: you need to possess a cookie generated by <i>saveauth</i>.")
-                term.echo("Tries to read the username, and remote password from the cookie Will prompt for the local password.")
-                term.echo("If this command succeed, you will be AUTHENTICATED (also <i>loadauth</i>).")
-
-            } else if (manPage == "clearauth") {
-
-                term.echo("Removes vaultage's cookie.")
-
-            }else if (manPage == "pwd") {
-
-                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
-                term.echo("Will prompt to change local password.")
-                term.echo("Will also try to <i>push</i> the changes to the server afterwards.")
-
+            if (manPage) {
+                term.echo(manPage);
             } else {
-                term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>edit ID</i>, <i>gen</i>, <i>rm ID</i>, <i>ls</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>, <i>pwd</i>.")
+                var commands = [];
+                var pageNames = Object.keys(MANPAGES);
+                for (var i in pageNames) {
+                    commands.push('<i>' + pageNames[i] + '</i>');
+                }
+                term.echo("available commands : " + commands.join(', ') + ".")
                 term.echo("you can get additional information by typing <i>help CMD</i>, e.g. <i>help loadauth</i> (<i>man CMD</i> is an alias)");
             }
 
         } else if (command == 'welcome') {
 
-            term.echo(" ");
-            term.echo(" ************************************************* ");
-            term.echo(space(19)+"_ _                   ");
-            term.echo(space(18)+"| | |                  ");
-            term.echo(space(1)+"__"+space(3)+"____ _ _"+space(3)+"_| | |_ __ _"+space(2)+"__ _"+space(2)+"___ ");
-            term.echo(space(1)+"\\ \\ / / _` | | | | | __/ _` |/ _` |/ _ \\");
-            term.echo(space(2)+"\\ V / (_| | |_| | | || (_| | (_| |"+space(2)+"__/");
-            term.echo(space(3)+"\\_/ \\__,_|\\__,_|_|\\__\\__,_|\\__, |\\___|");
-            term.echo(space(31)+"__/ |     ");
-            term.echo(space(30)+"|___/      ");
-            term.echo(" ");
-            term.echo(" Author : Ludovic Barman");
-            term.echo(" Github : <a href=\"https://github.com/lbarman/vaultage/\">github.com/lbarman/vaultage</a>");
-            term.echo(" ");
-            term.echo(" Vaultage is a password manager.");
-            term.echo(" It is in-browser, and can be accessed from all your devices.");
-            term.echo(" The password are encrypted/decrypted in your browser : no plaintext goes through the network.");
-            term.echo(" It is self-hosted : install it securely on your own server (see on github).");
-            term.echo(" It is open-source : please report any bugs on github; I'll do my best to fix them.");
-            term.echo(" ");
-            term.echo(" Security technologies used : <a href=\"https://code.google.com/archive/p/crypto-js/\">CryptoJS</a> and the <a href=\"https://bitwiseshiftleft.github.io/\">Stanford Javascript Crypto Library</a>, using SHA256 as a hash function, and AES (256bits).");
-            term.echo(" Plaintext passwords never leave your computer's memory. ");
-            term.echo(" ");
-            term.echo(" Trouble getting started ?");
-            term.echo(" ");
-            term.echo(" Typical workflow : ");
-            term.echo(" 1. <i>auth</i>, or <i>loadauth</i>");
-            term.echo(" 2. <i>new</i>, or <i>gen</i>");
-            term.echo(" 3. <i>get TERM</i>, where TERM is one of your password's login, title, url, etc.");
-            term.echo(" 4. maybe <i>edit</i>, or <i>rm</i>");
-            term.echo(" 5. <i>saveauth</i>");
-            term.echo(" 6. <i>logout</i>");
-            term.echo(" ");
-            term.echo(" Further questions on a command ? use the <i>man COMMAND</i> ! (<i>help COMMAND</i> is an alias)");
-            term.echo(" ");
-            term.echo(" ************************************************* ");
-            term.echo(" ");
+            term.echo("<pre>" +
+            " ************************************************* \n" +
+            "                   _ _                             \n" +
+            "                  | | |                            \n" +
+            " __   ____ _ _   _| | |_ __ _  __ _  ___           \n" +
+            " \\ \\ / / _` | | | | | __/ _` |/ _` |/ _ \\       \n" +
+            "  \\ V / (_| | |_| | | || (_| | (_| |  __/         \n" +
+            "   \\_/ \\__,_|\\__,_|_|\\__\\__,_|\\__, |\\___|   \n" +
+            "                               __/ |               \n" +
+            "                              |___/                \n" +
+            "\n" +
+            " Author : Ludovic Barman\n" +
+            " Github : <a href=\"https://github.com/lbarman/vaultage/\">github.com/lbarman/vaultage</a>\n" +
+            " \n" +
+            " Vaultage is a password manager.\n" +
+            " It is in-browser, and can be accessed from all your devices.\n" +
+            " The password are encrypted/decrypted in your browser : no plaintext goes through the network.\n" +
+            " It is self-hosted : install it securely on your own server (see on github).\n" +
+            " It is open-source : please report any bugs on github; I'll do my best to fix them.\n" +
+            " \n" +
+            " Security technologies used : <a href=\"https://code.google.com/archive/p/crypto-js/\">CryptoJS</a> and the <a href=\"https://bitwiseshiftleft.github.io/\">Stanford Javascript Crypto Library</a>, using SHA256 as a hash function, and AES (256bits).\n" +
+            " Plaintext passwords never leave your computer's memory. \n" +
+            " \n" +
+            " Trouble getting started ?\n" +
+            " \n" +
+            " Typical workflow : \n" +
+            " 1. <i>auth</i>, or <i>loadauth</i>\n" +
+            " 2. <i>new</i>, or <i>gen</i>\n" +
+            " 3. <i>get TERM</i>, where TERM is one of your password's login, title, url, etc.\n" +
+            " 4. maybe <i>edit</i>, or <i>rm</i>\n" +
+            " 5. <i>saveauth</i>\n" +
+            " 6. <i>logout</i>\n" +
+            " \n" +
+            " Further questions on a command ? use the <i>man COMMAND</i> ! (<i>help COMMAND</i> is an alias)\n" +
+            " \n" +
+            " ************************************************* \n" +
+            "</pre>");
 
         } else if (command == 'auth') {
             promptValues(['user', 'password'], function(user, password) {
@@ -204,48 +122,28 @@ jQuery(document).ready(function($) {
 
         } else if (command.lastIndexOf("rm", 0) === 0) {
 
-            if (!isAuth) {
+            if (!vault.isAuth()) {
                 term.echo("You should <i>auth</i> first.");
             } else {
                 var searchKey = command.replace("rm ", "").toLowerCase();
                 term.echo("Removing ID \"" + searchKey + "\"");
+                var entry = vault.getEntry(searchKey);
+                term.echo('Going to remove entry "' + (entry.title) + '".');
+                term.push(function(command) {
+                    if (command.match(/^(y|yes)$/i)) {
 
-                var filtered = _.filter(notes, function(el) {
-                    var id = (el.id == undefined) ? '' : (el.id + '');
-                    return (id.indexOf(searchKey) != -1);
+                        vault.remove(entry.id);
+                        saveCipher(oldNotesLength, term);
+
+                        term.pop();
+                        history.enable();
+                    } else if (command.match(/^(n|no)$/i)) {
+                        term.pop();
+                        history.enable();
+                    }
+                }, {
+                    prompt: 'Are you sure? '
                 });
-
-                _.each(filtered, function(obj) {
-                    term.echo('Entry ' + obj.id + ' found : ' + obj.title + " -> " + obj.login + " @ " + obj.url + " : " + obj.content)
-
-                    newNotes = _.filter(notes, function(el) {
-                        return (el.id != searchKey);
-                    });
-
-                    term.echo('Going to remove ' + (notes.length - newNotes.length) + ' entries.')
-
-                    var history = term.history();
-                    history.disable();
-                    term.push(function(command) {
-                        if (command.match(/^(y|yes)$/i)) {
-
-                            oldNotesLength = notes.length;
-                            oldHash = hash(JSON.stringify(notes));
-
-                            notes = newNotes;
-                            saveCipher(oldNotesLength, term);
-
-                            term.pop();
-                            history.enable();
-                        } else if (command.match(/^(n|no)$/i)) {
-                            term.pop();
-                            history.enable();
-                        }
-                    }, {
-                        prompt: 'Are you sure? '
-                    });
-
-                })
             }
 
         } else if (command == "gen") {
@@ -286,72 +184,40 @@ jQuery(document).ready(function($) {
             }
         } else if (command.lastIndexOf("edit", 0) === 0) {
 
-            if (!isAuth) {
+            if (!vault.isAuth()) {
                 term.echo("You should <i>auth</i> first.");
             } else {
                 var searchKey = command.replace("edit ", "").toLowerCase();
-
-                var filtered = _.filter(notes, function(el) {
-                    var id = (el.id == undefined) ? '' : (el.id + '');
-                    return (id.indexOf(searchKey) != -1);
-                });
-
-                if (filtered.length == 0) {
-                    term.echo("Could not find this ID")
-                } else {
-                    var s = '<span class="entry"><span class="id">(' + filtered[0].id + ')</span> <span class="title">' + filtered[0].title + "</span> -> <span class=\"login\">" + filtered[0].login + "</span> @ <span class=\"url\">" + filtered[0].url + "</span> : <span class=\"content\">" + filtered[0].content + "</span></span>";
-
-                    term.echo("Going to edit the following entry :");
-                    term.echo(s);
-
-                    term.echo("Use KEY UP to edit the previous text, KEY DOWN to clear.");
-
-                    globalKeyUpValue = filtered[0].title;
-
-                    term.push(function(title, term) {
-
-                        globalKeyUpValue = filtered[0].login;
-
-                        term.push(function(login, term) {
-
-                            globalKeyUpValue = filtered[0].url;
-
-                            term.push(function(url, term) {
-
-                                globalKeyUpValue = filtered[0].content;
-
-                                term.push(function(pwd, term) {
-
-                                    globalKeyUpValue = "";
-
-                                    editEntry(filtered[0].id, title, login, url, pwd, term)
-
-                                    var s = '<span class="entry"><span class="id">(' + filtered[0].id + ')</span> <span class="title">' + filtered[0].title + "</span> -> <span class=\"login\">" + filtered[0].login + "</span> @ <span class=\"url\">" + filtered[0].url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+filtered[0].id+")\">" + filtered[0].content + "</span></span>";
-
-                                    term.echo("The entry #" + filtered[0].id + " is now :");
-                                    term.echo(s);
-
-                                    term.pop();
-                                    term.pop();
-                                    term.pop();
-                                    term.pop();
-                                }, {
-                                    name: 'edit',
-                                    prompt: 'new password : '
-                                });
-                            }, {
-                                name: 'edit',
-                                prompt: 'new url : '
-                            });
-                        }, {
-                            name: 'edit',
-                            prompt: 'new login : '
-                        });
-                    }, {
-                        name: 'edit',
-                        prompt: 'new title : '
-                    });
+                var entry;
+                try {
+                    entry = vault.getEntry(searchKey);
+                } catch(e) {
+                    if (e.code === vaultage.ERROR_CODE.NO_SUCH_ENTRY) {
+                        term.echo("Could not find this ID");
+                    } else {
+                        term.echo('Unexpected error ' + e);
+                    }
+                    return;
                 }
+
+                var s = '<span class="entry"><span class="id">(' + entry.id + ')</span> <span class="title">' + entry.title + "</span> -> <span class=\"login\">" + entry.login + "</span> @ <span class=\"url\">" + entry.url + "</span> : <span class=\"content\">" + entry.password + "</span></span>";
+
+                term.echo("Going to edit the following entry :");
+                term.echo(s);
+
+                term.echo("(leave blank to keep previous value)");
+
+                promptValues(['title (' + entry.title + ')', 'login (' + entry.login + ')', 'url (' + entry.url + ')', 'password (****)'], 
+                        function(title, login, url, password) {
+                    globalKeyUpValue = "";
+
+                    entry = editEntry(entry.id, title, login, url, password, term);
+
+                    var s = '<span class="entry"><span class="id">(' + entry.id + ')</span> <span class="title">' + title + "</span> -> <span class=\"login\">" + login + "</span> @ <span class=\"url\">" + url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+entry.id+")\">" + password + "</span></span>";
+
+                    term.echo("The entry #" + entry.id + " is now :");
+                    term.echo(s);
+                });
             }
 
         } else if (command.lastIndexOf("rotate", 0) === 0) {
@@ -580,33 +446,18 @@ function handleVaultageError(err, term) {
     }
 };
 
-function editEntry(id, title, login, url, pwd, term) {
+function editEntry(id, title, login, url, password, term) {
 
-    var index = 0;
-
-    while (index < notes.length) {
-        var nodeId = (notes[index].id == undefined) ? '' : (notes[index].id + '');
-        if (nodeId == id) {
-            break;
-        }
-        index++
-    }
-
-    if (notes[index].id != id) {
-        term.echo("WARNING: editEntry did nothing, ID not found")
-    }
-
-    oldHash = hash(JSON.stringify(notes));
-
-    notes[index].title = title;
-    notes[index].login = login;
-    notes[index].url = url;
-    notes[index].content = pwd;
+    var updated = vault.updateEntry(id, {
+        title: title,
+        login: login,
+        url: url,
+        password: password
+    });
 
     saveCipher(notes.length, term);
 
-
-    var s = '<span class="entry"><span class="id">(' + notes[index].id + ')</span> <span class="title">' + notes[index].title + "</span> -> <span class=\"login\">" + notes[index].login + "</span> @ <span class=\"url\">" + notes[index].url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+notes[index].id+")\">" + notes[index].content + "</span></span>";
+    return updated;
 }
 
 function addEntry(title, login, url, password, term) {
@@ -676,27 +527,6 @@ function saveCipher(oldNodeLength, term) {
     });
 }
 
-function space(n) {
-    s="";
-    i = 0;
-    while( i < n ) {
-        s = s + "<span class=\"hidden\">.</span>"
-        i += 1
-    }
-    return s
-}
-
-function hash(s) {
-    var bitArray = sjcl.hash.sha256.hash(s);  
-    var digest_sha256 = sjcl.codec.hex.fromBits(bitArray);
-    return digest_sha256;
-
-    /*
-    var s2 = CryptoJS.SHA1(s);
-    return s2.toString(CryptoJS.enc.Base64);
-    */
-}
-
 /** Function count the occurrences of substring in a string;
  * @param {String} string   Required. The string;
  * @param {String} subString    Required. The string to search for;
@@ -725,16 +555,16 @@ function countOccurrences(string, subString, allowOverlapping) {
 
 function search(command, term) {
 
-    var searchKeys = command.replace("get ", "").toLowerCase();
-    if (!isAuth) {
+     if (!vault.isAuth()) {
         term.echo("You should <i>auth</i> first.");
     } else if (searchKeys == "" || searchKeys == "get") {
         term.echo("Syntax : <i>get</i> SEARCH_TERM");
     } else {
 
-        if (notes.length == 0) {
-            term.echo("You have 0 entries. You should <i>pull</i> entries, or use <i>new</i>, <i>gen</i>.");
-        }
+        var searchKeys = command.replace("get ", "").toLowerCase();
+        var filtered;
+        var matcher = _.property('id');
+        var nofilter = false;
         var op = "and"
 
         if (searchKeys.lastIndexOf("-or ", 0) === 0) {
@@ -742,59 +572,26 @@ function search(command, term) {
             searchKeys = searchKeys.replace("-or ", "")
         }
 
-        var nofilter = false;
         if (searchKeys == "*") {
             nofilter = true;
-        }
-
-
-        var searchKeysParts = searchKeys.split(" ")
-
-        var searchString = []
-        var i = 1
-        _.each(searchKeysParts, function(searchKey) {
-            searchString.push('<span class="highlight' + i + '">' + searchKey + '</span>')
-            i++
-        });
-
-        if (op == "and") {
-            term.echo("Searching for " + searchString.join(" AND ") + "");
+            filtered = vault.findEntries("");
         } else {
-            term.echo("Searching for " + searchString.join(" OR ") + "");
+            var searchKeysParts = searchKeys.split(" ");
+            for (var i in searchKeysParts) {
+                let matchSet = vault.findEntries(searchKeysParts[i]);
+
+                if (filtered == null) {
+                    filtered = matchSet;
+                } else if (op === 'and') {
+                    filtered = _.intersectionBy(matchSet, filtered, matchSet, matcher);
+                } else {
+                    filtered = _.unionBy(matchSet, filtered, matchSet, matcher);
+                }
+            }
         }
 
-        var filtered = _.filter(notes, function(el) {
-
-            if(nofilter) {
-                return true;
-            }
-
-            var id = (el.id == undefined) ? '' : ("" + el.id).toLowerCase();
-            var title = (el.title == undefined) ? '' : el.title.toLowerCase();
-            var url = (el.url == undefined) ? '' : el.url.toLowerCase();
-            var login = (el.login == undefined) ? '' : el.login.toLowerCase();
-            var pwd = (el.content == undefined) ? '' : el.content.toLowerCase();
-
-            if (op == "or") {
-                var matchedOne = false
-
-                _.each(searchKeysParts, function(searchKey) {
-                    var s = searchKey.toLowerCase().trim()
-                    matchedOne = matchedOne || (id.indexOf(s) != -1) || (title.indexOf(s) != -1) || (url.indexOf(s) != -1) || (login.indexOf(s) != -1) || (pwd.indexOf(s) != -1);
-                })
-
-                return matchedOne;
-            } else {
-                //op == "and"
-                var matchedAll = true
-
-                _.each(searchKeysParts, function(searchKey) {
-                    var s = searchKey.toLowerCase().trim()
-                    matchedAll = matchedAll && ((id.indexOf(s) != -1) || (title.indexOf(s) != -1) || (url.indexOf(s) != -1) || (login.indexOf(s) != -1) || (pwd.indexOf(s) != -1));
-                })
-
-                return matchedAll;
-            }
+        filtered = _.uniq(filtered || [], function(item) {
+            return item.id;
         });
 
         //this could be done in one step with the above function
@@ -831,16 +628,16 @@ function search(command, term) {
 
             if (nofilter) {
 
-                var s = '<span class="entry"><span class="id">(' + obj.id + ')</span> <span class="title">' + obj.title + "</span> -> <span class=\"login\">" + obj.login + "</span> @ <span class=\"url\">" + obj.url + "</span> : <span class=\"content blurred\" ondblclick=\"addUsage("+obj.id+")\">" + obj.content + "</span> " + reUseText + "</span> " + countText + "</span>";
+                var s = '<span class="entry"><span class="id">(' + obj.id + ')</span> <span class="title">' + obj.title + "</span> -> <span class=\"login\">" + obj.login + "</span> @ <span class=\"url\">" + obj.url + "</span> : <span class=\"content blurred\" ondblclick=\"addUsage("+obj.id+")\">" + obj.password + "</span> " + reUseText + "</span> " + countText + "</span>";
 
                 term.echo(s)
 
             } else {
-                var _id = highlight(searchKeysParts, "" + obj.id)
+                var _id = highlight(searchKeysParts, obj.id)
                 var _title = highlight(searchKeysParts, obj.title)
                 var _login = highlight(searchKeysParts, obj.login)
                 var _url = highlight(searchKeysParts, obj.url)
-                var _pwd = highlight(searchKeysParts, obj.content)
+                var _pwd = highlight(searchKeysParts, obj.password)
 
 
                 var s = '<span class="entry"><span class="id">(' + _id + ')</span> <span class="title">' + _title + "</span> -> <span class=\"login\">" + _login + "</span> @ <span class=\"url\">" + _url + "</span> : <span class=\"content blurred\" ondblclick=\"addUsage("+_id+")\">" + _pwd + "</span> " + reUseText + "</span> " + countText + "</span>";

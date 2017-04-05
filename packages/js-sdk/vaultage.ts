@@ -16,13 +16,6 @@ export enum ERROR_CODE {
 
 type GUID = string;
 
-interface VaultDBQuery {
-    id?: string;
-    title?: string;
-    url?: string;
-    login?: string;
-}
-
 interface VaultDBEntryAttrs {
     title?: string;
     url?: string;
@@ -47,6 +40,9 @@ interface Credentials {
     username: string;
 }
 
+/**
+ * Utilities for performing queries in the DB
+ */
 abstract class QueryUtils {
 
     public static stringContains(entry: string, criteria?: string): boolean {
@@ -199,16 +195,16 @@ export class VaultDB {
         return deepCopy(entry);
     }
 
-    public find(attrs: VaultDBQuery): VaultDBEntry[] {
+    public find(query: string): VaultDBEntry[] {
         let keys = Object.keys(this._entries);
         let resultSet: VaultDBEntry[] = [];
 
         for (let key of keys) {
             let entry = this._entries[key];
-            if (    QueryUtils.stringContains(entry.login       , attrs.login) &&
-                    QueryUtils.stringContains(entry.id          , attrs.id) &&
-                    QueryUtils.stringContains(entry.title       , attrs.title) &&
-                    QueryUtils.stringContains(entry.url         , attrs.url)) {
+            if (    QueryUtils.stringContains(entry.login, query) ||
+                    QueryUtils.stringContains(entry.id, query) ||
+                    QueryUtils.stringContains(entry.title, query) ||
+                    QueryUtils.stringContains(entry.url, query)) {
                 resultSet.push(deepCopy(entry));
             }
         }
@@ -303,13 +299,26 @@ export abstract class Crypto {
     /**
      * Computes the fingerprint of a plaintext.
      * 
-     * Used to prove to our past-self that we have access to the latest vault's plaintext
-     * and challenge our future-self to do the same.
+     * Used to prove to our past-self that we have access to the local key and the latest
+     * vault's plaintext and and challenge our future-self to do the same.
      * 
-     * @param plain what we want to hash
+     * @param plain the serialized vault's plaintext
+     * @param localKey the local key
+     * @param username the username is needed to salt the fingerprint
      */
-    public static getFingerprint(plain: string): string {
-        return sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(FINGERPRINT_SALT + plain));
+    public static getFingerprint(plain: string, localKey: string): string {
+        // We want to achieve two results:
+        // 1. Ensure that we don't push old content over some newer content
+        // 2. Prevent unauthorized pushes even if the remote key was compromized
+        //
+        // For 1, we need to fingerprint the plaintext of the DB as well as the local key.
+        // Without the local key we could not detect when the local key changed and 
+        // might overwrite a DB that was re-encrypted with a new local password.
+        //
+        // The localKey is already derived from the username, some per-deployment salt and
+        // the master password so using it as a salt here should be enough to show that we know
+        // all of the above information.
+        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(plain, localKey, PBKF2_DIFFICULTY));
     }
 }
 
@@ -423,6 +432,42 @@ export class Vault {
     }
 
     /**
+     * Returns the set of entries matching the specified query
+     * @param query attribute substrings to match
+     */
+    public findEntries(query: string): VaultDBEntry[] {
+        if (!this._db) {
+            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
+        }
+        return this._db.find(query);
+    }
+
+    /**
+     * Edits an entry in the vault.
+     * 
+     * @param id Id of the entry to edit
+     * @param attrs new set of attributes. undefined values are ignored (the entry keeps its previous value)
+     * @returns an updated version of the entry
+     */
+    public updateEntry(id: string, attrs: VaultDBEntryAttrs): VaultDBEntry {
+        if (!this._db) {
+            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
+        }
+        this._db.update(id, attrs);
+        return this._db.get(id);
+    }
+
+    /**
+     * Returns an entry by its id
+     */
+    public getEntry(id: string): VaultDBEntry {
+        if (!this._db) {
+            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
+        }
+        return this._db.get(id);
+    }
+
+    /**
      * Checks whether this instance has had a successful authentication since the last deauthentication.
      * 
      * @return {boolean} true if there was a successful authentication
@@ -465,7 +510,7 @@ export class Vault {
                 try {
                     let plain = Crypto.decrypt(creds.localKey, cipher);
                     this._db = VaultDB.deserialize(plain);
-                    this._lastFingerprint = Crypto.getFingerprint(plain);
+                    this._lastFingerprint = Crypto.getFingerprint(plain, creds.localKey);
                 } catch (e) {
                     cb(new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occured while decrypting the cipher', e));
                     return;
@@ -485,7 +530,7 @@ export class Vault {
 
         let plain = VaultDB.serialize(this._db);
         let cipher = Crypto.encrypt(creds.localKey, plain);
-        let fingerprint = Crypto.getFingerprint(plain);
+        let fingerprint = Crypto.getFingerprint(plain, creds.localKey);
         request({
             method: 'POST',
             url: makeURL(creds.serverURL, creds.username, creds.remoteKey),
