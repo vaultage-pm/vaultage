@@ -5,6 +5,9 @@ date_default_timezone_set('Europe/Zurich');
 
 require("../../config.php");
 
+// Regexp defining a legal username
+define("USERNAME_PATTERN", "[a-zA-Z0-9_-]+");
+
 /*
  * Sets the correct headers, and outputs the JSON {'error' : false, 'data' => $data}
  */
@@ -20,12 +23,27 @@ function outputToJSON($data)
  * Checks that the url contains really the chain /user/password/do
  * To be used on top of SSL of course.
  */
-function auth()
+function auth($db)
 {
 	$requestParams = @$_SERVER['PATH_INFO'];
-	if(strcmp($requestParams,"/".AUTH_USER."/".AUTH_PWD_SHA256."/do") !== 0)
-	{
-		outputToJSON(array('error' => true, 'desc' => 'auth failed')); //leaks info but it should be OK in this setting
+	if (preg_match('#/('.USERNAME_PATTERN.')/([0-9a-fA-F]+)/do#', $requestParams, $matches)) {
+		$username = $matches[1];
+		$remote_key = $matches[2];
+		// TODO: hash the remote key
+		$query = "SELECT id FROM vaultage_users WHERE remote_key=:remote_key AND username=:username";
+		$params = array(
+			':remote_key' => $remote_key,
+			':username' => $username
+		);
+		$req = $db->prepare($query);
+		$queryResult = $req->execute($params);
+		$data = $req->fetchAll();
+		if (count($data) != 1) {
+			outputToJSON(array('error' => true, 'desc' => 'auth failed'));
+		}
+		return $data[0]['id'];
+	} else {
+		outputToJSON(array('error' => true, 'desc' => 'auth failed'));
 	}
 }
 
@@ -52,11 +70,14 @@ function dbSetup()
  * Fetches the latest cipher text from the DB
  * EXCEPTION : may die() with the JSON {'error' : true, 'desc' : 'cannot fetch cipher'} if something goes wrong
  */
-function getLastCipher($db)
+function getLastCipher($db, $user_id)
 {
-	$query = "SELECT data, last_hash FROM vaultage_data ORDER BY last_update DESC LIMIT 1";
+	$query = "SELECT data, last_hash FROM vaultage_data WHERE user_id=:user_id ORDER BY last_update DESC LIMIT 1";
+	$params = array(
+		':user_id' => $user_id
+	);
 	$req = $db->prepare($query);
-	$queryResult = $req->execute();
+	$queryResult = $req->execute($params);
 	$data = $req->fetchAll();
 	if(!$queryResult)
 	{
@@ -70,7 +91,7 @@ function getLastCipher($db)
  * Will NOT save if the cipher is the empty string "" or empty array "[]". rather, will die with the
  * JSON {'error' : true, 'desc' : 'will not erase'}
  */
-function writeNewCipher($db, $newData, $last_hash, $new_hash, $force)
+function writeNewCipher($db, $newData, $last_hash, $new_hash, $user_id, $last)
 {
 	//filters
 	if(empty($newData) || $newData == '[]')
@@ -79,23 +100,20 @@ function writeNewCipher($db, $newData, $last_hash, $new_hash, $force)
 	}
 
 	//check last hash
-	$last = getLastCipher($db);
-	if(!$force && $last_hash != $last[0]['last_hash'] && $last[0]['last_hash'] != "INIT")
+	if(isset($last[0]) && $last_hash != $last[0]['last_hash'])
 	{
-		outputToJSON(array('error' => true, 'non_fast_forward' => true, 'desc' => 'last hash given '.$last_hash.' not matching real last hash '.$last[0]['last_hash']));
+		outputToJSON(array('error' => true, 'not_fast_forward' => true));
 	}
 
 	//actual query
 	$params = array(
 		':data' => $newData,
 		':hash' => $new_hash,
-		':datetime' => date("Y-m-d H:i:s")
+		':user_id' => $user_id
 	);
 
-	$query = "UPDATE vaultage_data SET
-							`last_update` =:datetime,
-							`data`       =:data, 
-							`last_hash`       =:hash";
+	$query = "INSERT INTO vaultage_data (`user_id`, `last_update`, `data`, `last_hash`) VALUES
+							(:user_id, NULL, :data, :hash)";
 
 	$req = $db->prepare($query);
 	$res = $req->execute($params);
@@ -116,14 +134,14 @@ function backup($data)
 }
 
 //main
-auth();
 $db = dbSetup();
-$data = getLastCipher($db);
+$user_id = auth($db);
+$data = getLastCipher($db, $user_id);
 
 if(isset($_POST['data']) && isset($_POST['last_hash']) && isset($_POST['new_hash']))
 {
-	writeNewCipher($db, $_POST['data'], $_POST['last_hash'], $_POST['new_hash'], ($_POST['force'] === "true"));
-	$data = getLastCipher($db);
+	writeNewCipher($db, $_POST['data'], $_POST['last_hash'], $_POST['new_hash'], $user_id, $data);
+	$data = getLastCipher($db, $user_id);
 	backup($data[0][0]);
 }
 outputToJSON(array('error' => false, 'data' => $data[0][0]));

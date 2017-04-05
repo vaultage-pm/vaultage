@@ -548,7 +548,7 @@ export class Vault {
             }
             let body = JSON.parse(resp.body);
             if (body.error != null && body.error === true) {
-                if (body.non_fast_forward == true) {
+                if (body.not_fast_forward === true) {
                     return cb(new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, 'The server has a newer version of the DB'));
                 } else {
                     return cb(new VaultageError(ERROR_CODE.BAD_REMOTE_CREDS, 'Wrong username / remote password (or DB link inactive).'));

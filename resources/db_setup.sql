@@ -1,55 +1,49 @@
--- phpMyAdmin SQL Dump
--- version 4.2.6deb1
--- http://www.phpmyadmin.net
 --
--- Client :  localhost
--- Généré le :  Mar 16 Février 2016 à 05:19
--- Version du serveur :  5.5.44-MariaDB-1ubuntu0.14.10.1
--- Version de PHP :  5.5.12-2ubuntu4.6
+-- SQL setup script for the Vaultage password manager
+--
+-- authors: https://github.com/{lbarman,hmil}
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
 
---
--- Base de données :  `vaultage`
---
 CREATE DATABASE IF NOT EXISTS `vaultage` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
 USE `vaultage`;
 
--- --------------------------------------------------------
-
 --
--- Structure de la table `vaultage_data`
+-- Wiping the DB clean
 --
-
 DROP TABLE `vaultage_data`;
+DROP TABLE `vaultage_users`;
+
+--
+-- The user account table
+--
+CREATE TABLE `vaultage_users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(64) NOT NULL,
+  `remote_key` varchar(64) NOT NULL,
+  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY ( id )
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
+--
+-- The cipher table
+--
 CREATE TABLE `vaultage_data` (
-`id` int(11) NOT NULL,
-  `last_update` datetime NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `data` text CHARACTER SET utf8 NOT NULL,
-  `last_hash` varchar(64) NOT NULL
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+  `last_hash` varchar(64) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  PRIMARY KEY ( id ), 
+  FOREIGN KEY (user_id) REFERENCES vaultage_users(id) 
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
 
 --
--- Index pour les tables exportées
+-- Default data
 --
 
---
--- Index pour la table `vaultage_data`
---
-ALTER TABLE `vaultage_data`
- ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT pour les tables exportées
---
-
---
--- AUTO_INCREMENT pour la table `vaultage_data`
---
-ALTER TABLE `vaultage_data`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
-
-INSERT INTO `vaultage_data` (`id`, `last_update`, `data`, `last_hash`) VALUES
-(3, '0000-00-00 00:00:00', '', 'INIT');
+-- Adds the demo user (demo/demo1)
+INSERT INTO `vaultage_users` (`id`, `username`, `remote_key`, `updated`) VALUES (NULL, 'demo', 'cdb529335fc9d645c5e85cb3e4d180ab2695bbb46cc10e2226b5d086df9afaa2', NULL);
