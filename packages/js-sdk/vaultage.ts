@@ -9,8 +9,46 @@ export enum ERROR_CODE {
     BAD_REMOTE_CREDS,
     CANNOT_DECRYPT,
     NETWORK_ERROR,
-    NOT_FAST_FORWARD
+    NOT_FAST_FORWARD,
+    DUPLICATE_ENTRY,
+    NO_SUCH_ENTRY
 };
+
+type GUID = string;
+
+interface VaultDBEntryAttrs {
+    title?: string;
+    url?: string;
+    login?: string;
+    password?: string;
+}
+
+interface VaultDBEntry {
+    title: string,
+    url: string,
+    login: string,
+    password: string,
+    id: GUID,
+    created: string,
+    updated: string
+}
+
+interface Credentials {
+    localKey: string;
+    remoteKey: string;
+    serverURL: string;
+    username: string;
+}
+
+/**
+ * Utilities for performing queries in the DB
+ */
+abstract class QueryUtils {
+
+    public static stringContains(entry: string, criteria?: string): boolean {
+        return criteria == null || entry.indexOf(criteria) !== -1;
+    }
+}
 
 /**
  * Class for errors coming from the Vaultage lib.
@@ -46,17 +84,17 @@ export class VaultDB {
     private static VERSION: number = 0;
 
     public constructor(
-            private _entries: VaultDBEntry[],
+            private _entries: { [key: string]: VaultDBEntry },
             private _revision: number = 0) {
     }
 
     public static serialize(db: VaultDB): string {
-        const entries: string[] = [];
-        const n_entries = db._entries.length;
+        const entries = db.getAll();
+        const n_entries = entries.length;
         const expectedLength = n_entries * BYTES_PER_ENTRY + MIN_DB_LENGTH;
 
         let serialized = JSON.stringify({
-            entries: db._entries,
+            entries: entries,
             v: VaultDB.VERSION,
             r: db._revision
         });
@@ -74,34 +112,130 @@ export class VaultDB {
 
     public static deserialize(ser: string): VaultDB {
         const data = JSON.parse(ser);
-        return new VaultDB(data.entries, data._revision);
+        const entries: {
+            [key: string]: VaultDBEntry
+        } = {};
+
+        for (var entry of data.entries) {
+            if (entries[entry.id] != null) {
+                throw new VaultageError(ERROR_CODE.DUPLICATE_ENTRY, 'Duplicate entry with id: ' + entry.id + ' in vault.');
+            }
+            entries[entry.id] = entry;
+        }
+
+        return new VaultDB(entries, data._revision);
+    }
+
+    public add(attrs: VaultDBEntryAttrs): void {
+        let checkedAttrs = {
+            title: '',
+            url: '',
+            login: '',
+            password: ''
+        };
+        checkedAttrs = checkParams(attrs, checkedAttrs);
+        let currentDate = (new Date()).toUTCString();
+        let entry: VaultDBEntry = {
+            id: guid(),
+            title: checkedAttrs.title,
+            url: checkedAttrs.url,
+            login: checkedAttrs.login,
+            password: checkedAttrs.password,
+            created: currentDate,
+            updated: currentDate
+        };
+        this._entries[entry.id] = entry;
+        this.newRevision();
+    }
+
+    public remove(id: string): void {
+        if (this._entries[id] == null) {
+            throw new VaultageError(ERROR_CODE.NO_SUCH_ENTRY, 'No entry with id "' + id + '"');
+        }
+        delete this._entries[id];
+        this.newRevision();
+    }
+
+    public update(entry: VaultDBEntry): void;
+    public update(id: string, attrs: VaultDBEntryAttrs): void;
+    public update(id: (string | VaultDBEntry), attrs?: VaultDBEntryAttrs): void {
+        if (typeof id !== 'string') {
+            attrs = {
+                title: '',
+                url: '',
+                login: '',
+                password: ''
+            };
+            attrs = checkParams(id, attrs);
+            id = id.id;
+        }
+
+        // This is only needed due to typescript's inability to correlate the input
+        // arguments based on the prototypes. In practice this branch is never taken.
+        if (attrs == null) attrs = {};
+
+        let currentDate = (new Date()).toUTCString();
+        let entry = this.get(id);
+
+        if (attrs.login) entry.login = attrs.login;
+        if (attrs.password) entry.password = attrs.password;
+        if (attrs.title) entry.title = attrs.title;
+        if (attrs.url) entry.url = attrs.url;
+        entry.updated = currentDate;
+
+        this._entries[entry.id] = entry;
+        this.newRevision();
+    }
+
+    public get(id: string): VaultDBEntry {
+        let entry = this._entries[id];
+        if (entry == null) {
+            throw new VaultageError(ERROR_CODE.NO_SUCH_ENTRY, 'No entry with id "' + id + '"');
+        }
+        return deepCopy(entry);
+    }
+
+    public find(query: string): VaultDBEntry[] {
+        let keys = Object.keys(this._entries);
+        let resultSet: VaultDBEntry[] = [];
+
+        for (let key of keys) {
+            let entry = this._entries[key];
+            if (    QueryUtils.stringContains(entry.login, query) ||
+                    QueryUtils.stringContains(entry.id, query) ||
+                    QueryUtils.stringContains(entry.title, query) ||
+                    QueryUtils.stringContains(entry.url, query)) {
+                resultSet.push(deepCopy(entry));
+            }
+        }
+
+        return resultSet;
+    }
+
+    public getAll(): VaultDBEntry[] {
+        const entries: VaultDBEntry[] = [];
+        const keys = Object.keys(this._entries);
+        for (var key of keys) {
+            entries.push(deepCopy(this._entries[key]));
+        }
+        return entries;
     }
 
     /**
      * Returns the number of entries in this DB.
      */
-    public size() {
-        return this._entries.length;
+    public size(): number {
+        return Object.keys(this._entries).length;
     }
 
     /**
      * Bumps the revision number of this DB.
      */
-    public newRevision() {
+    public newRevision(): void {
         this._revision ++;
     }
 }
 
-interface VaultDBEntry {
-
-}
-
-interface Credentials {
-    localKey: string;
-    remoteKey: string;
-    serverURL: string;
-    username: string;
-}
 
 /**
  * Handles the crypto stuff
@@ -165,13 +299,26 @@ export abstract class Crypto {
     /**
      * Computes the fingerprint of a plaintext.
      * 
-     * Used to prove to our past-self that we have access to the latest vault's plaintext
-     * and challenge our future-self to do the same.
+     * Used to prove to our past-self that we have access to the local key and the latest
+     * vault's plaintext and and challenge our future-self to do the same.
      * 
-     * @param plain what we want to hash
+     * @param plain the serialized vault's plaintext
+     * @param localKey the local key
+     * @param username the username is needed to salt the fingerprint
      */
-    public static getFingerprint(plain: string): string {
-        return sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(FINGERPRINT_SALT + plain));
+    public static getFingerprint(plain: string, localKey: string): string {
+        // We want to achieve two results:
+        // 1. Ensure that we don't push old content over some newer content
+        // 2. Prevent unauthorized pushes even if the remote key was compromized
+        //
+        // For 1, we need to fingerprint the plaintext of the DB as well as the local key.
+        // Without the local key we could not detect when the local key changed and 
+        // might overwrite a DB that was re-encrypted with a new local password.
+        //
+        // The localKey is already derived from the username, some per-deployment salt and
+        // the master password so using it as a salt here should be enough to show that we know
+        // all of the above information.
+        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(plain, localKey, PBKF2_DIFFICULTY));
     }
 }
 
@@ -238,8 +385,6 @@ export class Vault {
         }
     }
 
-
-
     /**
      * Un-authenticates this vault
      */
@@ -274,6 +419,52 @@ export class Vault {
             throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
         }
         return this._db.size();
+    }
+
+    /**
+     * Adds a new entry in the db
+     */
+    public addEntry(attrs: VaultDBEntryAttrs): void {
+        if (!this._db) {
+            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
+        }
+        this._db.add(attrs);
+    }
+
+    /**
+     * Returns the set of entries matching the specified query
+     * @param query attribute substrings to match
+     */
+    public findEntries(query: string): VaultDBEntry[] {
+        if (!this._db) {
+            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
+        }
+        return this._db.find(query);
+    }
+
+    /**
+     * Edits an entry in the vault.
+     * 
+     * @param id Id of the entry to edit
+     * @param attrs new set of attributes. undefined values are ignored (the entry keeps its previous value)
+     * @returns an updated version of the entry
+     */
+    public updateEntry(id: string, attrs: VaultDBEntryAttrs): VaultDBEntry {
+        if (!this._db) {
+            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
+        }
+        this._db.update(id, attrs);
+        return this._db.get(id);
+    }
+
+    /**
+     * Returns an entry by its id
+     */
+    public getEntry(id: string): VaultDBEntry {
+        if (!this._db) {
+            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
+        }
+        return this._db.get(id);
     }
 
     /**
@@ -319,14 +510,14 @@ export class Vault {
                 try {
                     let plain = Crypto.decrypt(creds.localKey, cipher);
                     this._db = VaultDB.deserialize(plain);
-                    this._lastFingerprint = Crypto.getFingerprint(plain);
+                    this._lastFingerprint = Crypto.getFingerprint(plain, creds.localKey);
                 } catch (e) {
                     cb(new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occured while decrypting the cipher', e));
                     return;
                 }
             } else {
                 // Create an empty DB if there is nothing on the server.
-                this._db = new VaultDB([]);
+                this._db = new VaultDB({});
             }
             cb(null);
         });
@@ -339,7 +530,7 @@ export class Vault {
 
         let plain = VaultDB.serialize(this._db);
         let cipher = Crypto.encrypt(creds.localKey, plain);
-        let fingerprint = Crypto.getFingerprint(plain);
+        let fingerprint = Crypto.getFingerprint(plain, creds.localKey);
         request({
             method: 'POST',
             url: makeURL(creds.serverURL, creds.username, creds.remoteKey),
@@ -372,7 +563,7 @@ export class Vault {
 
 // Utility functions
 
-function makeURL(serverURL: string, username: string, remotePwdHash: string) {
+function makeURL(serverURL: string, username: string, remotePwdHash: string): string {
     return serverURL + '/' + username + '/' + remotePwdHash + '/do'; //do is just for obfuscation
 }
 
@@ -383,6 +574,48 @@ function urlencode(data: any): string {
         ret.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
     }
     return ret.join('&');
+}
+
+/**
+ * Asserts that data has at least all the properties of ref and returns an object containing the keys of
+ * ref with the non-null values of data.
+ * 
+ * This can be used to convert object with optional properties into objects with non-null properties
+ * at runtime.
+ * 
+ * @param data object to be checked
+ * @param ref The reference whose keys are used for checking
+ */
+function checkParams<T>(data: any, ref: T): T {
+    let ret: any = {};
+    let properties = Object.keys(ref);
+    for (var prop of properties) {
+        if (data[prop] == null) {
+            throw new Error('Missing property: ' + prop);
+        }
+        ret[prop] = data[prop];
+    }
+    return ret;
+}
+
+/**
+ * Creates a good-enough probably unique id.
+ */
+function guid(): GUID {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
+
+
+function deepCopy<T>(source: T): T {
+    // Probably one of the most inefficient way to perform a deep copy but at least it guarantees isolation,
+    // is short and easy to understand, and works as long as we dont mess with non-primitive types
+    return JSON.parse(JSON.stringify(source));
 }
 
 
@@ -432,4 +665,4 @@ export var BYTES_PER_ENTRY = 512;
  * Minimum length of the serialized vault.
  * Accounts for the overhead of the JSON skeleton when computing the padding needed.
  */
-export var MIN_DB_LENGTH = VaultDB.serialize(new VaultDB([])).length;
+export var MIN_DB_LENGTH = VaultDB.serialize(new VaultDB({})).length;
