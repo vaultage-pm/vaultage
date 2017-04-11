@@ -1,5 +1,9 @@
 {
+  "files": [
+    "vaultage.ts"
+  ],
   "compilerOptions": {
+    "outDir": "dist/js",
     "noImplicitAny": false,
     "strictNullChecks": true,
     "module": "commonjs",

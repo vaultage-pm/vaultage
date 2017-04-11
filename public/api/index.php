@@ -1,5 +1,8 @@
 <?php
 
+// By convention, force the system timezone to Swiss time
+date_default_timezone_set('Europe/Zurich');
+
 require("../../config.php");
 
 /*

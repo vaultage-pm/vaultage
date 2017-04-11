@@ -10,6 +10,7 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
+
 --
 -- Base de données :  `vaultage`
 --
@@ -22,7 +23,8 @@ USE `vaultage`;
 -- Structure de la table `vaultage_data`
 --
 
-CREATE TABLE IF NOT EXISTS `vaultage_data` (
+DROP TABLE `vaultage_data`;
+CREATE TABLE `vaultage_data` (
 `id` int(11) NOT NULL,
   `last_update` datetime NOT NULL,
   `data` text CHARACTER SET utf8 NOT NULL,
@@ -48,7 +50,6 @@ ALTER TABLE `vaultage_data`
 --
 ALTER TABLE `vaultage_data`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
-
 
 INSERT INTO `vaultage_data` (`id`, `last_update`, `data`, `last_hash`) VALUES
 (3, '0000-00-00 00:00:00', '', 'INIT');

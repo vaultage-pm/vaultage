@@ -13,4 +13,7 @@ clean:
 node_modules:
 	npm install
 
-.PHONY: clean
+tsc:
+	node_modules/.bin/tsc -p .
+
+.PHONY: clean tsc

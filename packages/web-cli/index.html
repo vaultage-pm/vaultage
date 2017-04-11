@@ -22,7 +22,7 @@
 <body>
 
 <script>
-var API_URL = './api/index.php/';
+var API_URL = './api/index.php';
 
 var vault = new vaultage.Vault();
 
@@ -175,20 +175,24 @@ jQuery(document).ready(function($) {
             term.echo(" ");
 
         } else if (command == 'auth') {
-            promptValues(['user', 'remote password', 'local password'], function(user, remotePass, localPass) {
-                vault.auth(API_URL, user, localPass, remotePass, function(err) {
-                    if (err) {
-                        console.error(err);
-                        return term.echo(err);
-                    }
-                    
-                    var nb_entries = vault.getNbEntries();
-                    if (nb_entries !== 0) {
-                        term.echo('Pull success, retrieved ' + nb_entries + ' entries.');
-                    } else {
-                        term.echo('Pull success, 0 entries. Future entries will be encrypted with the provided local password.');
-                    }
-                });
+            promptValues(['user', 'password'], function(user, password) {
+                term.echo('Trying to authenticate...');
+                setTimeout(function() {
+                    vault.auth(API_URL, user, password, function(err) {
+                        if (err) {
+                            console.error(err);
+                            console.log(err.cause);
+                            return term.echo(err);
+                        }
+                        
+                        var nb_entries = vault.getNbEntries();
+                        if (nb_entries !== 0) {
+                            term.echo('Pull success, retrieved ' + nb_entries + ' entries.');
+                        } else {
+                            term.echo('Pull success, 0 entries. Future entries will be encrypted with the provided local password.');
+                        }
+                    });
+                }, 0);
             });
         } else if (command.lastIndexOf("get", 0) === 0) {
 
@@ -229,7 +233,7 @@ jQuery(document).ready(function($) {
                             oldHash = hash(JSON.stringify(notes));
 
                             notes = newNotes;
-                            saveCipher(oldNotesLength, oldHash, false, term);
+                            saveCipher(oldNotesLength, term);
 
                             term.pop();
                             history.enable();
@@ -403,28 +407,14 @@ jQuery(document).ready(function($) {
                 }
             }
 
-        } else if (command == "push --force") {
-
-            if (!isAuth) {
-                term.echo("You should <i>auth</i> first.");
-            } else {
-                saveCipher(notes.length, hash(JSON.stringify(notes)), true, term);
-            }
-
         } else if (command == "push") {
-
-            if (!isAuth) {
-                term.echo("You should <i>auth</i> first.");
-            } else {
-                saveCipher(notes.length, hash(JSON.stringify(notes)), false, term);
-            }
-
+            saveCipher(notes.length, term);
         } else if (command == "pull") {
             vault.refresh(function(err, vault) {
                 if (!err) {
                     term.echo("Pull success, retrieved " + vault.getNbEntries() + " entries.");
                 } else {
-                    handleVaultageError(err);
+                    handleVaultageError(err, term);
                 }
             });
         } else if (command == "saveauth") {
@@ -481,7 +471,7 @@ jQuery(document).ready(function($) {
 
                         if (localPass1 == localPass2) {
                             term.echo("Changing local password... ");
-                            saveCipher(notes.length, hash(JSON.stringify(notes)), false, term);
+                            saveCipher(notes.length, term);
                             term.echo("New local password saved.");
                         } else {
                             term.echo("Passwords don't match, aborting.");
@@ -498,15 +488,19 @@ jQuery(document).ready(function($) {
 
         } else if (command == "loadauth" || command == "la") {
 
-            if (Cookies.get('username') == undefined || Cookies.get('remotePassword') == undefined) {
+            term.echo('Unavailable.\nThis feature needs to be refactored using server-side token distribution.');
+
+            /*if (Cookies.get('username') == undefined || Cookies.get('remotePassword') == undefined) {
                 term.echo("Could not load cookies, going to re-auth.");
 
-                promptValues(['user', 'remote password', 'local password'], function(user, remotePass, localPass) {
-                    vault.auth(API_URL, user, localPass, remotePass, function(err) {
+                promptValues(['user', 'password'], function(user, password) {
+                    vault.auth(API_URL, user, password, function(err) {
                         term.echo('Would you like to store the authentication token in your cookies? (say "no" on a public computer) ');
                         term.push(function(command, term) {
                             if (command.match(/^(y|yes)$/i)) {
-
+                                // TODO:
+                                // This is no longer relevant and should eventually be replaced by
+                                // token-based server-side authentication
                                 Cookies.set('username', username, {
                                     expires: 7,
                                     secure: true
@@ -539,7 +533,7 @@ jQuery(document).ready(function($) {
                     prompt: 'local password: '
                 });
             }
-
+*/
         } else if (command == "clear") {
 
             term.clear();
@@ -558,16 +552,6 @@ jQuery(document).ready(function($) {
             term.echo('unknow command "' + command + '"');
             term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>ls</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>, <i>pwd</i>.")
         }
-
-        function handleVaultageError(err) {
-            if (err) {
-                if (err.code == vaultage.ERROR_CODE.NOT_AUTHENTICATED) {
-                    term.echo('You should <i>auth</i> first.');
-                } else {
-                    term.echo(err);
-                }
-            }
-        };
 
         function promptValues(names, cb) {
             var i = 0;
@@ -594,7 +578,7 @@ jQuery(document).ready(function($) {
         };
 
     }, {
-        greetings: "Vaultage v2.0 <br />*************<br />available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>ls</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>, <i>pwd</i>.<br />*************<br /><span class=\"welcome\">New here ? type <i>welcome</i></span>",
+        greetings: "Vaultage v3.0-dev <br />*************<br />available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>ls</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>, <i>pwd</i>.<br />*************<br /><span class=\"welcome\">New here ? type <i>welcome</i></span>",
         onBlur: function() {
             // prevent loosing focus
             return false;
@@ -608,6 +592,16 @@ var username = ""
 var remotePassword = ""
 var localPassword = ""
 
+
+function handleVaultageError(err, term) {
+    if (err) {
+        if (err.code == vaultage.ERROR_CODE.NOT_AUTHENTICATED) {
+            term.echo('You should <i>auth</i> first.');
+        } else {
+            term.echo(err);
+        }
+    }
+};
 
 function editEntry(id, title, login, url, pwd, term) {
 
@@ -632,7 +626,7 @@ function editEntry(id, title, login, url, pwd, term) {
     notes[index].url = url;
     notes[index].content = pwd;
 
-    saveCipher(notes.length, oldHash, false, term);
+    saveCipher(notes.length, term);
 
 
     var s = '<span class="entry"><span class="id">(' + notes[index].id + ')</span> <span class="title">' + notes[index].title + "</span> -> <span class=\"login\">" + notes[index].login + "</span> @ <span class=\"url\">" + notes[index].url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+notes[index].id+")\">" + notes[index].content + "</span></span>";
@@ -665,7 +659,7 @@ function addEntry(title, login, url, pwd, term) {
 
     notes.push(newEntry);
 
-    saveCipher(oldNotesLength, oldHash, false, term);
+    saveCipher(oldNotesLength, term);
 
     var s = '<span class="entry"><span class="id">(' + newEntry.id + ')</span> <span class="title">' + newEntry.title + "</span> -> <span class=\"login\">" + newEntry.login + "</span> @ <span class=\"url\">" + newEntry.url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+newEntry.id+")\">" + newEntry.content + "</span></span>";
 
@@ -677,67 +671,6 @@ function genEntry(title, login, url, term) {
 
     var pwd = generatePassword(15, false, true, true).join('');
     addEntry(title, login, url, pwd, term);
-}
-
-function getCipher(_username, _localPasswordHash, _remotePasswordHash, term) {
-
-    url = API_URL + _username + "/" + _remotePasswordHash + "/do"; //do is just for obfuscation
-
-    $.get(url, function(answer) {
-        if (answer.error != undefined && answer.error == true) {
-
-            term.echo('Wrong username / remote password (or DB link inactive).');
-
-            isAuth = false;
-            remotePassword = "";
-            localPassword = "";
-        } else {
-            try {
-                try {
-                    var cipher = answer.data.replace(/!\n/g, '').replace(/\s/g, '');
-
-                    if (answer.data == undefined || answer.data == "" || cipher == undefined || cipher == "") {
-                        term.echo("Pull success, 0 entries. Future entries will be encrypted with the provided local password.")
-                        notes = [];
-                        username = _username;
-                        remotePassword = _remotePasswordHash;
-                        localPassword = _localPasswordHash;
-                        isAuth = true;
-                    } else {
-                        var plain = CryptoJS.AES.decrypt(cipher, _localPasswordHash, {
-                            format: JsonFormatter
-                        }).toString(CryptoJS.enc.Utf8);
-                        notes = JSON.parse(plain);
-                        term.echo("Pull success, retrieved " + notes.length + " entries.");
-
-                        username = _username;
-                        remotePassword = _remotePasswordHash;
-                        localPassword = _localPasswordHash;
-                        isAuth = true;
-                    }
-
-                    //compute reuse table
-                    _.each(notes, function(note){
-                        addToReuseTable(note.content);
-                    })
-
-                } catch (e) {
-                    term.echo('Can\'t decrypt; Wrong local password.');
-
-                    isAuth = false;
-                    remotePassword = "";
-                    localPassword = "";
-
-                }
-            } catch (e) {
-                term.echo('Wrong username / remote password (or DB link inactive).');
-
-                isAuth = false;
-                remotePassword = "";
-                localPassword = "";
-            }
-        }
-    });
 }
 
 function highlight(terms, baseString) {
@@ -767,53 +700,16 @@ function highlight(terms, baseString) {
     return baseString
 }
 
-function saveCipher(oldNodeLength, oldEntriesHash, force, term) {
-    url = API_URL + username + "/" + remotePassword + "/do"; //do is just for obfuscation
-
-    var raw = JSON.stringify(notes);
-    var cipher = CryptoJS.AES.encrypt(raw, localPassword, {
-        format: JsonFormatter
-    });
-    var data = cipher.toString();
-    $.post(url, {
-        'data': data,
-        'last_hash': oldEntriesHash,
-        'new_hash': hash(raw),
-        'force': force
-    }, function(answer, status, headers, config) {
-        if (answer.error != undefined && answer.error == true) {
-            if (answer.non_fast_forward == true) {
-                term.echo("Cannot push : the server's information is newer than the one being pushed. Please pull (it will remove your non-previously-pushed changes) and retry. You could also <i>push --force</i>, but be careful, you might lose data.")
+function saveCipher(oldNodeLength, term) {
+    vault.save(function(err) {
+        if (err) {
+            if (err.code === vaultage.ERROR_CODE.NOT_FAST_FORWARD) {
+                term.echo("Cannot push : the server's information is newer than the one being pushed. Please pull (it will remove your non-previously-pushed changes) and retry.");
             } else {
-                term.echo('Wrong username / remote password (or DB link inactive).');
-
-                isAuth = false;
-                remotePassword = "";
-                localPassword = "";
+                handleVaultageError(err, term)
             }
         } else {
-            try {
-                if (answer.data.indexOf('"ct"') != -1) {
-                    var cipher = answer.data;
-                    var plain = CryptoJS.AES.decrypt(cipher, localPassword, {
-                        format: JsonFormatter
-                    }).toString(CryptoJS.enc.Utf8);
-
-                    notes = JSON.parse(plain);
-                    term.echo("Push success, went from " + oldNodeLength + " to " + notes.length + " entries.");
-                } else {
-                    notes = answer.data;
-                }
-            } catch (e) {
-                console.log(e);
-                isAuth = false;
-                remotePassword = "";
-                localPassword = "";
-                Cookies.set('remotePassword', '', {
-                    expires: days,
-                    secure: true
-                });
-            }
+            term.echo("Push success, went from " + oldNodeLength + " to " + vault.getNbEntries() + " entries.");
         }
     });
 }
@@ -1023,7 +919,7 @@ function addUsage(id){
     console.log(notes[index].usageCount)
     console.log(notes[index])
 
-    saveCipher(oldNotesLength, oldHash, false, termHook);
+    saveCipher(oldNotesLength, termHook);
 }
 
 reUseTable = new Object()
