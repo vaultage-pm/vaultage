@@ -381,7 +381,7 @@ export class Vault {
             // Bumping the revision on each push ensures that there are no two identical consecutive fingerprints
             // (in short we are pretending that we updated something even if we didn't)
             this._db.newRevision();
-            this._pushCipher(this._creds, (err) => cb(err, this));
+            this._pushCipher(this._creds, null, (err) => cb(err, this));
         }
     }
 
@@ -401,11 +401,44 @@ export class Vault {
      * 
      * @param {function} cb Callback invoked with (err: VaultageError, this) on completion. err is null if no error occured.
      */
-    public refresh(cb: (err: (VaultageError|null), vault: Vault) => void) {
+    public refresh(cb: (err: (VaultageError|null), vault: Vault) => void): void {
         if (!this._creds) {
             cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'), this);
         } else {
             this._pullCipher(this._creds, (err) => cb(err, this));
+        }
+    }
+
+    /**
+     * Changes this vault's master password. 
+     * 
+     * The change is synced with the server immediately and
+     * this operation fails if it could not sync with the server.
+     * 
+     * @param newPassword The new master password
+     * @param cb Callback invoked on completion.
+     */
+    public updateMasterPassword(newPassword: string, cb: (err: (VaultageError|null), vault: Vault) => void): void {
+        if (!this._creds || !this._db) {
+            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated'), this);
+        } else {
+            let localKey = Crypto.deriveLocalKey(this._creds.username, newPassword);
+            let remoteKey = Crypto.deriveRemoteKey(this._creds.username, newPassword);
+            let creds = deepCopy(this._creds);
+            creds.localKey = localKey;
+
+            this._db.newRevision();
+            this._pushCipher(creds, remoteKey, (err) => {
+                if (!err) {
+                    if (!this._creds) {
+                        cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'), this);
+                    } else {
+                        creds.remoteKey = remoteKey;
+                        this._setCredentials(creds);
+                    }
+                }
+                cb(err, this)
+            });
         }
     }
 
@@ -523,7 +556,7 @@ export class Vault {
         });
     }
 
-    private _pushCipher(creds: Credentials, cb: (err: (VaultageError|null)) => void): void {
+    private _pushCipher(creds: Credentials, newRemoteKey: (string|null), cb: (err: (VaultageError|null)) => void): void {
         if (this._db == undefined) {
             return cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
         }
@@ -535,6 +568,7 @@ export class Vault {
             method: 'POST',
             url: makeURL(creds.serverURL, creds.username, creds.remoteKey),
             body: urlencode({
+                'update_key': newRemoteKey,
                 'data': cipher,
                 'last_hash': this._lastFingerprint,
                 'new_hash': fingerprint
@@ -571,7 +605,9 @@ function urlencode(data: any): string {
     let ret: string[] = [];
     let keys = Object.keys(data);
     for (var key of keys) {
-        ret.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+        if (data[key] != null) {
+            ret.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+        }
     }
     return ret.join('&');
 }

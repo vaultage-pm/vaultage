@@ -95,7 +95,8 @@ jQuery(document).ready(function($) {
         } else if (command == 'auth') {
             promptValues(['user', 'password'], function(user, password) {
                 term.echo('Trying to authenticate...');
-                setTimeout(function() {
+                // Defer because the key derivation is blocking the main thread
+                defer(function() {
                     vault.auth(API_URL, user, password, function(err) {
                         if (err) {
                             console.error(err);
@@ -110,7 +111,7 @@ jQuery(document).ready(function($) {
                             term.echo('Pull success, 0 entries. Future entries will be encrypted with the provided local password.');
                         }
                     });
-                }, 0);
+                });
             });
         } else if (command.lastIndexOf("get", 0) === 0) {
 
@@ -213,7 +214,7 @@ jQuery(document).ready(function($) {
 
                     entry = editEntry(entry.id, title, login, url, password, term);
 
-                    var s = '<span class="entry"><span class="id">(' + entry.id + ')</span> <span class="title">' + title + "</span> -> <span class=\"login\">" + login + "</span> @ <span class=\"url\">" + url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+entry.id+")\">" + password + "</span></span>";
+                    var s = '<span class="entry"><span class="id">(' + entry.id + ')</span> <span class="title">' + entry.title + "</span> -> <span class=\"login\">" + entry.login + "</span> @ <span class=\"url\">" + entry.url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+entry.id+")\">" + entry.password + "</span></span>";
 
                     term.echo("The entry #" + entry.id + " is now :");
                     term.echo(s);
@@ -306,26 +307,27 @@ jQuery(document).ready(function($) {
 
         } else if (command == "pwd") {
 
-            if (!isAuth) {
+            if (!vault.isAuth()) {
                 term.echo("You should <i>auth</i> first.");
             } else {
-                term.set_mask('*').push(function(localPass1) {
-                    term.set_mask('*').push(function(localPass2) {
-
-                        if (localPass1 == localPass2) {
-                            term.echo("Changing local password... ");
-                            saveCipher(notes.length, term);
-                            term.echo("New local password saved.");
-                        } else {
-                            term.echo("Passwords don't match, aborting.");
-                        }
-                        term.pop().set_mask(false);
-                        term.pop().set_mask(false);
-                    }, {
-                        prompt: 'new local password (repeat): '
+                promptValues(['new master password', 'new master password (repeat)'], 
+                        function(pass1, pass2) {
+                    if (pass1 !== pass2) {
+                        term.echo("Passwords don't match, aborting.");
+                        return;
+                    }
+                    term.echo("Attempting to update the master password...");
+                    // Defer because the key derivation is blocking the main thread
+                    defer(function() {
+                        vault.updateMasterPassword(pass1, function(err) {
+                            if (err) {
+                                term.echo("Failed to update the master password");
+                                term.echo(err);
+                            } else {
+                                term.echo("Update successful!");
+                            }
+                        });
                     });
-                }, {
-                    prompt: 'new local password: '
                 });
             }
 
@@ -399,18 +401,21 @@ jQuery(document).ready(function($) {
         function promptValues(names, cb) {
             var i = 0;
             var values = [];
+            if (/password/.test(names[i])) {
+                term.set_mask('*');
+            }
             term.push(function(data, term) {
                 if (i < names.length) {
                     i++;
                     values.push(data);
+                    term.set_mask(false);
                     if (i === names.length) {
                         term.pop();
+                        term.set_mask(false); // Just in case first param was a password
                         cb.apply(this, values);
                     } else {
-                        if (/(password)/.test(names[i])) {
+                        if (/password/.test(names[i])) {
                             term.set_mask('*');
-                        } else {
-                            term.set_mask(false);
                         }
                         term.set_prompt(names[i] + ': ');
                     }
@@ -435,6 +440,9 @@ var username = ""
 var remotePassword = ""
 var localPassword = ""
 
+function defer(cb) {
+    setTimeout(cb, 0);
+}
 
 function handleVaultageError(err, term) {
     if (err) {

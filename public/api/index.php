@@ -8,6 +8,11 @@ require("../../config.php");
 // Regexp defining a legal username
 define("USERNAME_PATTERN", "[a-zA-Z0-9_-]+");
 
+function hash_remote_key($pwd, $salt)
+{
+	return hash('sha256', $salt.$pwd);
+}
+
 /*
  * Sets the correct headers, and outputs the JSON {'error' : false, 'data' => $data}
  */
@@ -30,18 +35,21 @@ function auth($db)
 		$username = $matches[1];
 		$remote_key = $matches[2];
 		// TODO: hash the remote key
-		$query = "SELECT id FROM vaultage_users WHERE remote_key=:remote_key AND username=:username";
+		$query = "SELECT id, remote_key, salt FROM vaultage_users WHERE username=:username";
 		$params = array(
-			':remote_key' => $remote_key,
 			':username' => $username
 		);
 		$req = $db->prepare($query);
 		$queryResult = $req->execute($params);
 		$data = $req->fetchAll();
-		if (count($data) != 1) {
-			outputToJSON(array('error' => true, 'desc' => 'auth failed'));
+		if (count($data) == 1) {
+			$user = $data[0];
+			$hashed = hash_remote_key($remote_key, $user['salt']);
+			if ($hashed == $user['remote_key']) {
+				return $user;
+			}
 		}
-		return $data[0]['id'];
+		outputToJSON(array('error' => true, 'desc' => 'auth failed'));
 	} else {
 		outputToJSON(array('error' => true, 'desc' => 'auth failed'));
 	}
@@ -120,6 +128,24 @@ function writeNewCipher($db, $newData, $last_hash, $new_hash, $user_id, $last)
 }
 
 /*
+ * Updates that user's remote key.
+ * TODO: This should be combined in an SQL transaction with the cipher update
+ * to avoid leaving the DB in an inconsistent state in case only one of the
+ * queries worked.
+ */
+function updateKey($db, $new_key, $user)
+{
+	$params = array(
+		':user_id' => $user['id'],
+		':remote_key' => hash_remote_key($new_key, $user['salt'])
+	);
+	$query = "UPDATE vaultage_users SET remote_key=:remote_key WHERE id=:user_id";
+
+	$req = $db->prepare($query);
+	$res = $req->execute($params);
+}
+
+/*
  * This will send a backup by mail if the option is enabled
  */
 function backup($data)
@@ -135,13 +161,16 @@ function backup($data)
 
 //main
 $db = dbSetup();
-$user_id = auth($db);
-$data = getLastCipher($db, $user_id);
+$user = auth($db);
+$data = getLastCipher($db, $user['id']);
 
-if(isset($_POST['data']) && isset($_POST['last_hash']) && isset($_POST['new_hash']))
+if(isset($_POST['data']) && isset($_POST['new_hash']))
 {
-	writeNewCipher($db, $_POST['data'], $_POST['last_hash'], $_POST['new_hash'], $user_id, $data);
-	$data = getLastCipher($db, $user_id);
+	writeNewCipher($db, $_POST['data'], $_POST['last_hash'], $_POST['new_hash'], $user['id'], $data);
+	if (isset($_POST['update_key']) && $_POST['update_key'] != null) {
+		updateKey($db, $_POST['update_key'], $user);
+	}
+	$data = getLastCipher($db, $user['id']);
 	backup($data[0][0]);
 }
 outputToJSON(array('error' => false, 'data' => $data[0][0]));

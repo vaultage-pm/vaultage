@@ -21,6 +21,7 @@ DROP TABLE `vaultage_users`;
 --
 CREATE TABLE `vaultage_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `salt` varchar(32) NOT NULL,
   `username` varchar(64) NOT NULL,
   `remote_key` varchar(64) NOT NULL,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -46,4 +47,4 @@ CREATE TABLE `vaultage_data` (
 --
 
 -- Adds the demo user (demo/demo1)
-INSERT INTO `vaultage_users` (`id`, `username`, `remote_key`, `updated`) VALUES (NULL, 'demo', 'cdb529335fc9d645c5e85cb3e4d180ab2695bbb46cc10e2226b5d086df9afaa2', NULL);
+INSERT INTO `vaultage_users` (`id`, `username`, `salt`, `remote_key`, `updated`) VALUES (NULL, 'demo', 'pass_le_sel', '88402adaf2d9741497c7c19a6fde80b2113cf4da70816da7dc1590fd7da229f2', NULL);
