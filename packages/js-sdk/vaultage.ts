@@ -542,7 +542,7 @@ export class Vault {
 
     private _pullCipher(creds: Credentials, cb: (err: (VaultageError|null)) => void): void {
         request({
-            url: makeURL(creds.serverURL, creds.username, creds.remoteKey)
+            url: makeURL(creds.serverURL, creds.username, creds.remoteKey, 'pull')
         }, (err: any, resp: any) => {
             if (err) {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
@@ -581,9 +581,10 @@ export class Vault {
         let plain = VaultDB.serialize(this._db);
         let cipher = Crypto.encrypt(creds.localKey, plain);
         let fingerprint = Crypto.getFingerprint(plain, creds.localKey);
+        let action = newRemoteKey == null ? 'push' : 'changekey';
         request({
             method: 'POST',
-            url: makeURL(creds.serverURL, creds.username, creds.remoteKey),
+            url: makeURL(creds.serverURL, creds.username, creds.remoteKey, action),
             body: urlencode({
                 'update_key': newRemoteKey,
                 'data': cipher,
@@ -614,8 +615,8 @@ export class Vault {
 
 // Utility functions
 
-function makeURL(serverURL: string, username: string, remotePwdHash: string): string {
-    return serverURL + '/' + username + '/' + remotePwdHash + '/do'; //do is just for obfuscation
+function makeURL(serverURL: string, username: string, remotePwdHash: string, action: string): string {
+    return serverURL + '/' + username + '/' + remotePwdHash + '/' + action; //do is just for obfuscation
 }
 
 function urlencode(data: any): string {

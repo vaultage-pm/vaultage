@@ -1,22 +1,23 @@
 PKG_DIR=packages
-PACKAGES=$(PKG_DIR)/js-sdk $(PKG_DIR)/web-cli $(PKG_DIR)/chrome-ext
+PACKAGES=js-sdk web-cli chrome-ext
+
+BUILDPKGS = $(addprefix $(PKG_DIR)/, $(PACKAGES))
 CLEANPKGS = $(PACKAGES:%=clean-%)
 
-all: $(PACKAGES) dist-cli
+all: $(BUILDPKGS) dist-cli
 
-$(PACKAGES):
+$(BUILDPKGS):
 	$(MAKE) -C $@
 
 $(CLEANPKGS):
 	$(MAKE) -C $(@:clean-%=%) clean
 
-dist-cli: clean-web-cli
+dist-cli: clean-public
 	cp -r packages/web-cli public/
 
-clean: clean-web-cli $(CLEANPKGS)
+clean: clean-public $(CLEANPKGS)
 
-
-clean-web-cli:
+clean-public:
 	rm -rf public/web-cli
 
-.PHONY: clean-web-cli clean all $(PACKAGES) $(CLEANPKGS)
+.PHONY: clean-public clean all $(BUILDPKGS) $(CLEANPKGS)

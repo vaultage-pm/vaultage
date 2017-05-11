@@ -1,7 +1,7 @@
 Vaultage chrome extension
 =========================
 
-This package contains a chrome extension for the Vaultage password manager.
+A chrome extension for the Vaultage password manager.
 
 ## Development
 
