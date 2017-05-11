@@ -1,3 +1,4 @@
+import { ClipboardService } from './services/clipboardService';
 import { SiteFormComponent } from './components/siteForm';
 import { NavigationService } from './services/navigationService';
 import { VaultService } from './services/vaultService';
@@ -18,3 +19,4 @@ appModule.component('sitesList', SitesListComponent);
 appModule.component('siteForm', SiteFormComponent);
 appModule.service('vault', VaultService);
 appModule.service('navigation', NavigationService);
+appModule.service('clipboard', ClipboardService);

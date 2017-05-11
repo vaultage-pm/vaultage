@@ -1,3 +1,4 @@
+import { ClipboardService } from '../services/clipboardService';
 import { NavigationService } from '../services/navigationService';
 import { VaultService } from '../services/vaultService';
 import { VaultDBEntry } from '../../../js-sdk/vaultage';
@@ -14,6 +15,7 @@ class SitesListController implements ng.IController {
     constructor(
             private navigation: NavigationService,
             private vault: VaultService,
+            private clipboard: ClipboardService,
             private $mdDialog: ng.material.IDialogService,
             $scope: ISitesListScope) {
         $scope.controller = this;
@@ -52,6 +54,14 @@ class SitesListController implements ng.IController {
 
     public mainItemAction(site: VaultDBEntry): void {
         chrome.tabs.create({url: site.url });
+    }
+
+    public copyPassword(site: VaultDBEntry): void {
+        this.clipboard.copy(site.password);
+    }
+
+    public copyUsername(site: VaultDBEntry): void {
+        this.clipboard.copy(site.login);
     }
 }
 
