@@ -12,12 +12,15 @@ DEPS += icon.png
 
 SRC = src/*.ts src/*/*.ts
 
+SDK_DIR = ../js-sdk
+SDK = $(SDK_DIR)/dist/vaultage.js
+
 DIST_DEPS = $(addprefix dist/, $(DEPS))
 DIST_BINS = $(addprefix dist/, $(BINS))
 
 all: $(DIST_BINS) $(DIST_DEPS)
 
-$(DIST_BINS): node_modules $(SRC) webpack.config.js
+$(DIST_BINS): $(SDK) node_modules $(SRC) webpack.config.js
 	node_modules/.bin/webpack
 
 clean:
@@ -28,5 +31,8 @@ $(DIST_DEPS): node_modules $(DEPS)
 
 node_modules: package.json
 	npm install
+
+$(SDK):
+	make -C $(SDK_DIR)
 
 .PHONY: clean
