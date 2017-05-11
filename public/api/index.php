@@ -5,6 +5,14 @@ date_default_timezone_set('Europe/Zurich');
 
 require("../../config.php");
 
+// Regexp defining a legal username
+define("USERNAME_PATTERN", "[a-zA-Z0-9_-]+");
+
+function hash_remote_key($pwd, $salt)
+{
+	return hash('sha256', $salt.$pwd);
+}
+
 /*
  * Sets the correct headers, and outputs the JSON {'error' : false, 'data' => $data}
  */
@@ -20,12 +28,30 @@ function outputToJSON($data)
  * Checks that the url contains really the chain /user/password/do
  * To be used on top of SSL of course.
  */
-function auth()
+function auth($db)
 {
 	$requestParams = @$_SERVER['PATH_INFO'];
-	if(strcmp($requestParams,"/".AUTH_USER."/".AUTH_PWD_SHA256."/do") !== 0)
-	{
-		outputToJSON(array('error' => true, 'desc' => 'auth failed')); //leaks info but it should be OK in this setting
+	if (preg_match('#/('.USERNAME_PATTERN.')/([0-9a-fA-F]+)/do#', $requestParams, $matches)) {
+		$username = $matches[1];
+		$remote_key = $matches[2];
+		// TODO: hash the remote key
+		$query = "SELECT id, remote_key, salt FROM vaultage_users WHERE username=:username";
+		$params = array(
+			':username' => $username
+		);
+		$req = $db->prepare($query);
+		$queryResult = $req->execute($params);
+		$data = $req->fetchAll();
+		if (count($data) == 1) {
+			$user = $data[0];
+			$hashed = hash_remote_key($remote_key, $user['salt']);
+			if ($hashed == $user['remote_key']) {
+				return $user;
+			}
+		}
+		outputToJSON(array('error' => true, 'desc' => 'auth failed'));
+	} else {
+		outputToJSON(array('error' => true, 'desc' => 'auth failed'));
 	}
 }
 
@@ -52,11 +78,14 @@ function dbSetup()
  * Fetches the latest cipher text from the DB
  * EXCEPTION : may die() with the JSON {'error' : true, 'desc' : 'cannot fetch cipher'} if something goes wrong
  */
-function getLastCipher($db)
+function getLastCipher($db, $user_id)
 {
-	$query = "SELECT data, last_hash FROM vaultage_data ORDER BY last_update DESC LIMIT 1";
+	$query = "SELECT data, last_hash FROM vaultage_data WHERE user_id=:user_id ORDER BY last_update DESC LIMIT 1";
+	$params = array(
+		':user_id' => $user_id
+	);
 	$req = $db->prepare($query);
-	$queryResult = $req->execute();
+	$queryResult = $req->execute($params);
 	$data = $req->fetchAll();
 	if(!$queryResult)
 	{
@@ -70,7 +99,7 @@ function getLastCipher($db)
  * Will NOT save if the cipher is the empty string "" or empty array "[]". rather, will die with the
  * JSON {'error' : true, 'desc' : 'will not erase'}
  */
-function writeNewCipher($db, $newData, $last_hash, $new_hash, $force)
+function writeNewCipher($db, $newData, $last_hash, $new_hash, $user_id, $last)
 {
 	//filters
 	if(empty($newData) || $newData == '[]')
@@ -79,23 +108,38 @@ function writeNewCipher($db, $newData, $last_hash, $new_hash, $force)
 	}
 
 	//check last hash
-	$last = getLastCipher($db);
-	if(!$force && $last_hash != $last[0]['last_hash'] && $last[0]['last_hash'] != "INIT")
+	if(isset($last[0]) && $last_hash != $last[0]['last_hash'])
 	{
-		outputToJSON(array('error' => true, 'non_fast_forward' => true, 'desc' => 'last hash given '.$last_hash.' not matching real last hash '.$last[0]['last_hash']));
+		outputToJSON(array('error' => true, 'not_fast_forward' => true));
 	}
 
 	//actual query
 	$params = array(
 		':data' => $newData,
 		':hash' => $new_hash,
-		':datetime' => date("Y-m-d H:i:s")
+		':user_id' => $user_id
 	);
 
-	$query = "UPDATE vaultage_data SET
-							`last_update` =:datetime,
-							`data`       =:data, 
-							`last_hash`       =:hash";
+	$query = "INSERT INTO vaultage_data (`user_id`, `last_update`, `data`, `last_hash`) VALUES
+							(:user_id, NULL, :data, :hash)";
+
+	$req = $db->prepare($query);
+	$res = $req->execute($params);
+}
+
+/*
+ * Updates that user's remote key.
+ * TODO: This should be combined in an SQL transaction with the cipher update
+ * to avoid leaving the DB in an inconsistent state in case only one of the
+ * queries worked.
+ */
+function updateKey($db, $new_key, $user)
+{
+	$params = array(
+		':user_id' => $user['id'],
+		':remote_key' => hash_remote_key($new_key, $user['salt'])
+	);
+	$query = "UPDATE vaultage_users SET remote_key=:remote_key WHERE id=:user_id";
 
 	$req = $db->prepare($query);
 	$res = $req->execute($params);
@@ -116,14 +160,17 @@ function backup($data)
 }
 
 //main
-auth();
 $db = dbSetup();
-$data = getLastCipher($db);
+$user = auth($db);
+$data = getLastCipher($db, $user['id']);
 
-if(isset($_POST['data']) && isset($_POST['last_hash']) && isset($_POST['new_hash']))
+if(isset($_POST['data']) && isset($_POST['new_hash']))
 {
-	writeNewCipher($db, $_POST['data'], $_POST['last_hash'], $_POST['new_hash'], ($_POST['force'] === "true"));
-	$data = getLastCipher($db);
+	writeNewCipher($db, $_POST['data'], $_POST['last_hash'], $_POST['new_hash'], $user['id'], $data);
+	if (isset($_POST['update_key']) && $_POST['update_key'] != null) {
+		updateKey($db, $_POST['update_key'], $user);
+	}
+	$data = getLastCipher($db, $user['id']);
 	backup($data[0][0]);
 }
 outputToJSON(array('error' => false, 'data' => $data[0][0]));
