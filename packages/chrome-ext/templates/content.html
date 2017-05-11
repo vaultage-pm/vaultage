@@ -1,0 +1,3 @@
+<login-screen ng-if="controller.getCurrentPage() === 'login'"></login-screen>
+<sites-list ng-if="controller.getCurrentPage() === 'home'" ></sites-list>
+<site-form ng-if="controller.getCurrentPage() === 'site-form'" site-id="controller.getPageData('id')"></site-form>

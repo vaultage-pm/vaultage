@@ -1,5 +1,5 @@
 PKG_DIR=packages
-PACKAGES=$(PKG_DIR)/js-sdk $(PKG_DIR)/web-cli
+PACKAGES=$(PKG_DIR)/js-sdk $(PKG_DIR)/web-cli $(PKG_DIR)/chrome-ext
 CLEANPKGS = $(PACKAGES:%=clean-%)
 
 all: $(PACKAGES) dist-cli

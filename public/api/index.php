@@ -8,6 +8,9 @@ require("../../config.php");
 // Regexp defining a legal username
 define("USERNAME_PATTERN", "[a-zA-Z0-9_-]+");
 
+header('Access-Control-Allow-Origin: *');
+header('Cache-Control: no-cache, must-revalidate, no-store, private');
+
 function hash_remote_key($pwd, $salt)
 {
 	return hash('sha256', $salt.$pwd);
@@ -18,7 +21,6 @@ function hash_remote_key($pwd, $salt)
  */
 function outputToJSON($data)
 {
-	header('Cache-Control: no-cache, must-revalidate');
 	header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 	header('Content-Type: application/json; charset=utf-8');
 	die(json_encode($data));
@@ -34,7 +36,6 @@ function auth($db)
 	if (preg_match('#/('.USERNAME_PATTERN.')/([0-9a-fA-F]+)/do#', $requestParams, $matches)) {
 		$username = $matches[1];
 		$remote_key = $matches[2];
-		// TODO: hash the remote key
 		$query = "SELECT id, remote_key, salt FROM vaultage_users WHERE username=:username";
 		$params = array(
 			':username' => $username
