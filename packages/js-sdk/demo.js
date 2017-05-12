@@ -32,3 +32,13 @@ var decDB = vaultage.VaultDB.deserialize(dec);
 console.log(decDB);
 console.log('Fingerprint: ' + decFP);
 
+if(fp == decFP){
+    console.log("Test1 : Fingerprints match, OK")
+} else {
+    console.log("Test1 : Fingerprints match, FAIL")
+}
+if(plain == dec){
+    console.log("Test2 : Databases match, OK")
+} else {
+    console.log("Test2 : Databases match, FAIL")
+}
