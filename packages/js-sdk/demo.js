@@ -11,7 +11,7 @@ console.log('My local key is: ' + key + '\n');
 
 var db = new vaultage.VaultDB([{ hello: 'world' }]);
 var plain = vaultage.VaultDB.serialize(db);
-var fp = vaultage.Crypto.getFingerprint(plain);
+var fp = vaultage.Crypto.getFingerprint(plain, key);
 
 console.log('Here is what the db looks like initially: ');
 console.log(db);
@@ -26,7 +26,7 @@ console.log(enc);
 console.log('\n\nAnd now let\'s get back the original:');
 
 var dec = vaultage.Crypto.decrypt(key, enc);
-var decFP = vaultage.Crypto.getFingerprint(dec);
+var decFP = vaultage.Crypto.getFingerprint(dec, key);
 var decDB = vaultage.VaultDB.deserialize(dec);
 
 console.log(decDB);
