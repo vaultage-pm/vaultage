@@ -14,16 +14,16 @@ export enum ERROR_CODE {
     NO_SUCH_ENTRY
 };
 
-type GUID = string;
+export type GUID = string;
 
-interface VaultDBEntryAttrs {
+export interface VaultDBEntryAttrs {
     title?: string;
     url?: string;
     login?: string;
     password?: string;
 }
 
-interface VaultDBEntry {
+export interface VaultDBEntry {
     title: string,
     url: string,
     login: string,
@@ -33,7 +33,7 @@ interface VaultDBEntry {
     updated: string
 }
 
-interface Credentials {
+export interface Credentials {
     localKey: string;
     remoteKey: string;
     serverURL: string;
@@ -58,7 +58,7 @@ abstract class QueryUtils {
  * @member {string} message Human readable error message. Do not rely on this when processing the error.
  * @member {?Error} cause Exception causing this error
  */
-class VaultageError extends Error{
+export class VaultageError extends Error{
     constructor(
         public readonly code: ERROR_CODE,
         public readonly message: string,
@@ -465,6 +465,16 @@ export class Vault {
     }
 
     /**
+     * Deletes an entry
+     */
+    public removeEntry(id: string): void {
+        if (!this._db) {
+            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
+        }
+        this._db.remove(id);
+    }
+
+    /**
      * Returns the set of entries matching the specified query
      * @param query attribute substrings to match
      */
@@ -473,6 +483,13 @@ export class Vault {
             throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
         }
         return this._db.find(query);
+    }
+
+    /**
+     * Returns the set of all entries in the DB
+     */
+    public getAllEntries(): VaultDBEntry[] {
+        return this.findEntries('');
     }
 
     /**
