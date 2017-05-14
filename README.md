@@ -26,7 +26,7 @@ Authors : Ludovic Barman, Hadrien Milano
 
 Read the [Technical document](TECHNICAL_DOC.md)
 
-## Installation
+## Install
 
 Read the [Install document](INSTALL.md)
 
