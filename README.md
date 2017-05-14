@@ -5,19 +5,28 @@ A self-hosted password manager with client-side encryption.
 
 Vaultage is a password manager.
 
-It is **in-browser**, and can be accessed from **all your devices**.
-The password are encrypted/decrypted **locally** : the server only stores a ciphertext.
-It is **self-hosted** : install it securely on your own server.
+It is **in-browser**, and can be accessed from **all your devices**. The password are encrypted/decrypted **locally** : the server only stores a ciphertext.
+It is self-hosted, and can be installed securely on your own server.
 
 There's a **web-interface**, a **chrome extension**, and even a **docker image** to get started quickly.
 
 Authors : Ludovic Barman, Hadrien Milano
 
+## Web Interface
+
+![Vaultage demo 1](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot1.png "Vaultage demo 1")
+
+![Vaultage demo 2](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot2.png "Vaultage demo 2")
+
+## Chrome Extension
+
+![Vaultage demo 1](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot1.png "Vaultage demo 1")
+
 ## What's in the box ?
 
 Read the [Technical document](TECHNICAL_DOC.md)
 
-## Getting Started
+## Installation
 
 Read the [Install document](INSTALL.md)
 
@@ -32,12 +41,6 @@ Read the [Install document](INSTALL.md)
 Trouble beginning? First `auth`, then `ls`. Try to `get Github`, then `gen` a new password, and `get` it.
 
 Database is reset at 00:00 CET
-
-## Web Interface
-
-![Vaultage demo 1](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot1.png "Vaultage demo 1")
-
-![Vaultage demo 2](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot2.png "Vaultage demo 2")
 
 ## Web Interface Commands
 
@@ -67,6 +70,3 @@ cookies:
 - `loadauth` : loads the username and the remote password from the cookie, and asks for the local password. Use as quicker an alternative to `auth`. Also `pull`s the entries
 - `clearauth` : removes all authentication cookies
 
-## Chrome Extension
-
-![Vaultage demo 1](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot1.png "Vaultage demo 1")
