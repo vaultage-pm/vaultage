@@ -1,22 +1,22 @@
 # Vaultage : Technical Document
 
-The purpose of this document is to show to precisely enumerate the assumptions, the encryption primitives and keys used.
+The purpose of this document is to precisely enumerate the assumptions, the encryption primitives and the keys used.
 
-## Thread model
+## Threat model
 
-1) Your computer is assumed to be *trusted*. Vaultage's passwords are decrypted locally, hence any malware on your computer could steal the passwords, as it is the case for any password manager, or without password manager. The only conclusion to take from this is : *Do not log in on Vaultage from a cybercafe, or any untrusted computer*.
+1) Your computer is assumed to be **trusted**. Vaultage's passwords are decrypted locally, hence any malware on your computer could steal the passwords, as it is the case for any password manager, or without password manager. The only conclusion to take from this is : **Do not log in on Vaultage from a cybercafe, or any untrusted computer**.
 
-2) The server storing the passwords is *untrusted*. Vaultage's database is encrypted before being sent, hence only a ciphertext is stored in the server. Yet, the server does the authentication: a compromised server might learnt the **remote password**, but not the content of the database. Hence, pick a unique remote password.
+2) The server storing the passwords is **untrusted**. Vaultage's database is encrypted before being sent, hence only a ciphertext is stored in the server. Yet, the server does the authentication: a compromised server might learnt the **remote password**, but not the content of the database. Hence, pick a unique remote password.
 
 3) We assume there is an authenticated, encrypted channel between you and the server. This is the case if the server uses HTTPS, and certificates are correctly generated.
 
 ## Key derivation procedure
 
-The user own a **master password**. Locally, he inputs it to the javascript client, which derives two passwords : **remote password** and **local password**.
+The user own a **master password**. Locally, he inputs it to the javascript client, which derives two passwords : the **remote password** and the **local password**.
 
-1) the **remote password** is used to authenticate the client to the server. The server will not serve the ciphertext to an unauthenticated client.
+1) the **remote password** is used to authenticate the client to the server. The server will not send the ciphertext to an unauthenticated client, nor accept updates from an unauthenticated client.
 
-2) the **local password** is used to decrypt *locally* the database. It never leaves your computer's memory.
+2) the **local password** is used to decrypt **locally** the database. It never leaves the client computer's memory.
 
 ```
 Master Password
@@ -38,6 +38,8 @@ Master Password
 
 ```
 
+The master password is never stored.
+
 ## Authentication with the server
 
 The first step is the establishement of the TLS connection. With HSTS and key pinning, this could authenticate the server to the client. In any case, this creates a confidential channel.
@@ -50,12 +52,11 @@ CLIENT                                         WEBSERVER
                     TLS HANDSHAKE
     <------------------------------------------>
 
-            (Username, Remote Password)
+            Username, Remote Password
     -------------------------------------------> Credential validation
+                                                IF failure : answer 401 Unauthorized
 
-                                                IF failure : answer 400 Unauthorized
-
-                (Database Ciphertext)
+                Database Ciphertext
     <-------------------------------------------
 
 ```
@@ -67,7 +68,7 @@ The client decrypts the *database ciphertext* using AES-CCM and the *local passw
 ```
 CLIENT                                         WEBSERVER
 
-Database Ciphertext
+Database Ciphertext                            (does nothing, decryption is local)
         |
         |      Local Password
         v           |
@@ -83,15 +84,15 @@ Database Ciphertext
 
 ## Local Update, then Push
 
-The decrypted database is just an javascript object with all the information. It is possibly modified by the client, then the new version is *push*'ed to the server.
+The decrypted database is just an javascript object with all the information. It is possibly modified by the client, then the new version is pushed to the server.
 
-To avoid unwanted deletions, the client sends along the hash of the previously-received decrypted database. If this hash does not match what is stored on the server, the server refuses the update. This prevents sending an empty ciphertext (in case there the previous *pull* failed), and prevents an attacker who learnt **remote password**, but not **local password**, from *push*ing updates.
+To avoid unwanted deletions, the client sends along the hash of the previously-received decrypted database. If this hash does not match what is stored on the server, the server refuses the update. This prevents sending an empty ciphertext (in case there the previous pulling of ciphertext failed, for some reason), and prevents an attacker who learnt **remote password** but not **local password** (e.g. by performing a MitM), from pushing updates to the real server.
 
 ```
 CLIENT                                         WEBSERVER
 
                                                 Stores Ciphertext, Hash
-                    PULL( Ciphertext )
+                     Ciphertext
     <-------------------------------------------
 Decrypts to D
 
@@ -101,17 +102,16 @@ Updates D -> D'
 
   ...
 
-  PUSH( Username, Remote Password, Encryption(D'), Hash(D), Hash(D') )
+ Username, Remote Password, Encryption(D'), Hash(D), Hash(D')
     ------------------------------------------->
 
                                             Checks Username, Remote Password
-                                            If invalid, return 400
+                                            If invalid, return 401
 
                                             Checks if Hash(D) != Hash
-                                            If not, refuse update, return 400
+                                            If not, refuse update, return 401
 
-                                            Stores Encryption(D') as the new 
-                                                                    Ciphertext
+                                            Stores Encryption(D') as the new Ciphertext
                                             Stores Hash(D') as the new Hash
 
 ```
@@ -128,6 +128,8 @@ ____________________          _________________          __________________
 |__________________|          |_______________|          |________________|
 
 ```
+
+This also prevents deleting changes in the case where two Vaultage clients are open on the same account (e.g, a mobile phone and a computer), and those two clients perform a push (not necessarily at the same time). With this technique, the second client will receive an alert "Cannot push, please pull the new database first".
 
 ## Passwords, Keys and Salts
 
@@ -147,3 +149,13 @@ Local  Password (secret, stored in memory)
 In particular, the client only stores the two salts, and the server only stores the authentication credentials.
 
 The master key is never stored. The remote and local passwords on the client side are only stored in memory.
+
+The only exception is when the client uses cookies to make the authentication faster; in that case, the Username is also stored client-side in a cookie. No password is stored in the cookie.
+
+## Primitives and keysizes
+
+Encryption : AES-CCM, 256 bits
+
+Key Derivation: PBKDF2, with HMAC-SHA256, and 32768 Iterations
+
+Hash function : SHA256
