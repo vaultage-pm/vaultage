@@ -24,6 +24,7 @@ CREATE TABLE `vaultage_users` (
   `salt` varchar(32) NOT NULL,
   `username` varchar(64) NOT NULL,
   `remote_key` varchar(64) NOT NULL,
+  `tfa_secret` varchar(128) DEFAULT NULL,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY ( id )
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
