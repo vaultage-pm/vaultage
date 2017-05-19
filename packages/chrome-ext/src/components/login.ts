@@ -1,3 +1,4 @@
+import { ErrorHandlerService } from '../services/errorHandlerService';
 import { VaultService } from '../services/vaultService';
 import * as ng from 'angular';
 
@@ -14,7 +15,8 @@ class LoginController implements ng.IController {
 
     constructor(
             $scope: ILoginScope,
-            private vault: VaultService) {
+            private errorHandler: ErrorHandlerService,
+            private vaultService: VaultService) {
         $scope.controller = this;
     }
 
@@ -24,9 +26,11 @@ class LoginController implements ng.IController {
         }
         let url = 'http://' + this.host + '/api/index.php';
         this.isLoading = true;
-        this.vault.login(url, this.username, this.password,(err) => {
+        this.vaultService.login(url, this.username, this.password, (err) => {
             this.isLoading = false;
-            if (err) throw err; // TODO: proper error handling
+            if (err) {
+                this.errorHandler.handleVaultageError(err, () => this.logIn());
+            }
         });
     }
 }

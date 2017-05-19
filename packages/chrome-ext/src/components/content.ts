@@ -11,7 +11,7 @@ class ContentController implements ng.IController {
     constructor(
             $scope: IContentScope,
             private navigation: NavigationService,
-            public vault: VaultService) {
+            public vaultService: VaultService) {
         $scope.controller = this;
     }
 

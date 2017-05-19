@@ -1,3 +1,4 @@
+import { ErrorHandlerService } from '../services/errorHandlerService';
 import { NavigationService } from '../services/navigationService';
 import { VaultageError, VaultDBEntryAttrs } from '../../../js-sdk/vaultage';
 import { VaultService } from '../services/vaultService';
@@ -15,12 +16,13 @@ class SiteFormController implements ng.IController {
     private siteId: string | undefined;
 
     constructor(
-            private vault: VaultService,
+            private errorHandler: ErrorHandlerService,
+            private vaultService: VaultService,
             private navigation: NavigationService,
             $scope: ISiteFormScope) {
         $scope.controller = this;
         if (this.siteId != null) {
-            let entry = this.vault.getVault().getEntry(this.siteId);
+            let entry = this.vaultService.getVault().getEntry(this.siteId);
             if (entry != null) {
                 this.entry = entry;
             }
@@ -31,16 +33,18 @@ class SiteFormController implements ng.IController {
     public submit(): void {
         this.isLoading = true;
         if (this.siteId == null) { // Create
-            this.vault.create(this.entry, this._submitCb);
+            this.vaultService.create(this.entry, this._submitCb);
         } else { // Update
-            this.vault.update(this.siteId, this.entry, this._submitCb);
+            this.vaultService.update(this.siteId, this.entry, this._submitCb);
         }
     }
 
     private _submitCb = (err: VaultageError | null) => {
         this.isLoading = false;
         this.navigation.goHome();
-        if (err) console.error(err);
+        if (err) {
+            this.errorHandler.handleVaultageError(err, () => this.submit());
+        }
     }
 }
 

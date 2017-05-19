@@ -1,27 +1,43 @@
 import { VaultService } from './vaultService';
 
-type Page = 'home' | 'site-form';
+export type Page = 'home' | 'site-form' | 'tfa-prompt';
 
 interface PageData {
     [key: string]: string;
 }
 
+interface StackedPage {
+    name: Page;
+    data: PageData | null;
+}
+
 export class NavigationService {
 
+    private _publicPages: Page[] = ['tfa-prompt'];
     private _page: Page = 'home';
     private _pageData: PageData | null = null;
 
+    private _stack: StackedPage[] = [];
+
     constructor(
-            private vault: VaultService) {
+            private vaultService: VaultService) {
     }
 
     private _navigate(page: Page, data: PageData | null): void {
+        this._stack.push({
+            name: this._page,
+            data: this._pageData
+        });
         this._page = page;
         this._pageData = data;
     }
+    
+    private _clearStack(): void {
+        this._stack.length = 0;
+    }
 
     public getCurrentPage(): string {
-        if (!this.vault.getVault().isAuth()) {
+        if (this._publicPages.indexOf(this._page) === -1 && !this.vaultService.getVault().isAuth()) {
             return 'login';
         } else {
             return this._page;
@@ -30,6 +46,10 @@ export class NavigationService {
 
     public getPageData(): PageData {
         return JSON.parse(JSON.stringify(this._pageData));
+    }
+
+    public promptForTFA(): void {
+        this._navigate('tfa-prompt', null);
     }
 
     public createSite(): void {
@@ -41,14 +61,19 @@ export class NavigationService {
     }
 
     public canGoBack(): boolean {
-        return this._page != 'home' && this.vault.getVault().isAuth();
+        return this._stack.length > 0;
     }
 
     public goBack(): void {
-        this._navigate('home', null);
+        if (this.canGoBack()) {
+            let stacked = this._stack.splice(-1, 1)[0];
+            this._page = stacked.name;
+            this._pageData = stacked.data;
+        }
     }
 
     public goHome(): void {
         this._navigate('home', null);
+        this._clearStack();
     }
 }

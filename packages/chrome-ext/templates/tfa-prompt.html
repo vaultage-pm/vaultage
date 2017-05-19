@@ -1,0 +1,13 @@
+
+<form ng-submit="controller.submit()" class="md-padding">
+    <h2>2-factor login</h2>
+    <md-input-container>
+        <label>Enter your 2FA token</label>
+        <input type="text" placeholder="XXXXXX" ng-model="controller.token">
+    </md-input-container>
+    <div>
+        <md-button type="submit" class="md-primary md-raised">
+        Submit
+        </md-button>
+    </div>
+</form>

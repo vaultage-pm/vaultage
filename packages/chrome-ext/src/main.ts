@@ -1,3 +1,6 @@
+import { ErrorHandlerService } from './services/errorHandlerService';
+import { TfaPromptService } from './services/tfaPromptService';
+import { TfaPromptComponent } from './components/tfaPrompt';
 import { ClipboardService } from './services/clipboardService';
 import { SiteFormComponent } from './components/siteForm';
 import { NavigationService } from './services/navigationService';
@@ -17,6 +20,9 @@ appModule.component('content', ContentComponent);
 appModule.component('loginScreen', LoginComponent);
 appModule.component('sitesList', SitesListComponent);
 appModule.component('siteForm', SiteFormComponent);
-appModule.service('vault', VaultService);
+appModule.component('tfaPrompt', TfaPromptComponent);
+appModule.service('vaultService', VaultService);
 appModule.service('navigation', NavigationService);
 appModule.service('clipboard', ClipboardService);
+appModule.service('tfaPromptService', TfaPromptService);
+appModule.service('errorHandler', ErrorHandlerService);

@@ -1,5 +1,5 @@
-import { BackgroundPage } from '../interfaces/BackgroundPage';
 import { Vault, VaultageError, VaultDBEntryAttrs } from '../../../js-sdk/vaultage';
+import { BackgroundPage } from '../interfaces/BackgroundPage';
 
 export type VaultServiceCallback = (err: VaultageError | null) => void;
 
