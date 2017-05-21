@@ -3,7 +3,7 @@ services:
   mysql:
     image: mysql
     volumes:
-      - ./mysql/data:/var/lib/mysql
+      - ${MYSQL_DATA_DIR}:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
   php:

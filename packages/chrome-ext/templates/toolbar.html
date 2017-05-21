@@ -1,0 +1,23 @@
+<md-toolbar md-scroll-shrink class="md-hue-2">
+    <div class="md-toolbar-tools">
+
+        <md-button ng-click="controller.goBack()" ng-if="controller.canGoBack()" class="md-icon-button" aria-label="Add password">
+            <md-icon>arrow_back</md-icon>
+        </md-button>
+
+        <h2 flex md-truncate><span ng-if="!controller.isLoggedIn()">Vaultage</span></h2>
+
+        <md-button ng-click="controller.createSite()" ng-if="controller.isLoggedIn()" class="md-icon-button" aria-label="Add password">
+            <md-icon>add_circle_outline</md-icon>
+        </md-button>
+        <md-button ng-click="controller.refresh()" ng-if="controller.isLoggedIn()" class="md-icon-button" aria-label="Refresh">
+            <md-icon>refresh</md-icon>
+        </md-button>
+        <md-button ng-if="controller.isLoggedIn()" class="md-icon-button" aria-label="Settings">
+            <md-icon>settings</md-icon>
+        </md-button>
+        <md-button ng-click="controller.logOut()" ng-if="controller.isLoggedIn()" class="md-icon-button" aria-label="Log out">
+            <md-icon>exit_to_app</md-icon>
+        </md-button>
+    </div>
+</md-toolbar>
