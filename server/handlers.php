@@ -61,7 +61,7 @@ function config_handler() {
 function set_tfa_handler() {
     global $TFA_METHODS;
     $user = auth();
-    if (isset($_POST['method'])) {
+    if (isset($_POST['method']) && isset($TFA_METHODS[$_POST['method']])) {
 
         $method = $TFA_METHODS[$_POST['method']];
 

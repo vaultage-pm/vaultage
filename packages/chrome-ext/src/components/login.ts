@@ -29,7 +29,7 @@ class LoginController implements ng.IController {
         this.vaultService.login(url, this.username, this.password, (err) => {
             this.isLoading = false;
             if (err) {
-                this.errorHandler.handleVaultageError(err, () => this.logIn());
+                return this.errorHandler.handleVaultageError(err, () => this.logIn());
             }
         });
     }

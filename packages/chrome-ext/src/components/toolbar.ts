@@ -20,9 +20,13 @@ class ToolbarController implements ng.IController {
     public refresh(): void {
         this.vaultService.refresh((err) => {
             if (err) {
-                this.errorHandler.handleVaultageError(err, () => this.refresh());
+                return this.errorHandler.handleVaultageError(err, () => this.refresh());
             }
         });
+    }
+
+    public configureTFA(): void {
+        this.navigation.configureTFA();
     }
 
     public logOut(): void {

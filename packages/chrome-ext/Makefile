@@ -1,6 +1,7 @@
 BINS = vaultage-app.js vaultage-background.js
 
 DEPS += node_modules/angular-material/angular-material.js
+DEPS += node_modules/angular/angular.js
 DEPS += node_modules/angular-material/angular-material.css
 DEPS += node_modules/angular-aria/angular-aria.js
 DEPS += node_modules/angular-animate/angular-animate.js

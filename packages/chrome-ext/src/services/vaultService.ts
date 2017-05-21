@@ -1,4 +1,10 @@
-import { Vault, VaultageError, VaultDBEntryAttrs } from '../../../js-sdk/vaultage';
+import {
+    TFAConfirmationData,
+    TFARequestData,
+    Vault,
+    VaultageError,
+    VaultDBEntryAttrs
+} from '../../../js-sdk/vaultage';
 import { BackgroundPage } from '../interfaces/BackgroundPage';
 
 export type VaultServiceCallback = (err: VaultageError | null) => void;
@@ -26,6 +32,26 @@ export class VaultService {
 
 
     // State mutators
+
+    public requestTFASetup(cb: (err: VaultageError | null, data?: TFARequestData) => void): void {
+        try {
+            this.getVault().requestTFASetup((err, _, data) => {
+                this.$rootScope.$apply(() => {
+                    cb(err, data);
+                });
+            });
+        } catch(e) {
+            cb(e);
+        }
+    }
+
+    public confirmTFASetup(data: TFAConfirmationData, cb: VaultServiceCallback): void {
+        try {
+            this.getVault().confirmTFASetup(data, this._vaultAsyncCb(cb));
+        } catch(e) {
+            cb(e);
+        }
+    }
 
     public login(url: string, username: string, password: string, cb: VaultServiceCallback): void {
         try {

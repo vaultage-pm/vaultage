@@ -31,7 +31,7 @@ class TOTP_TFA {
         $totp = $this->create_totp($user['username'], $_SESSION["totp_key"]);
 
         if (!$totp->verify($pin)) {
-            return end_with_json(array('error' => true, 'error' => 'bad pin'));
+            return end_with_json(array('error' => true, 'data' => 'bad pin'));
         }
 
         // Successful confirmation

@@ -48,7 +48,7 @@ class SitesListController implements ng.IController {
     private _deleteItemForSure(entry: VaultDBEntry): void {
         this.vaultService.delete(entry.id, (err) => {
             if (err) {
-                this.errorHandler.handleVaultageError(err, () => this._deleteItemForSure(entry));
+                return this.errorHandler.handleVaultageError(err, () => this._deleteItemForSure(entry));
             }
             console.log('TODO: Show progress and then success');
         });

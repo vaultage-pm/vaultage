@@ -40,11 +40,11 @@ class SiteFormController implements ng.IController {
     }
 
     private _submitCb = (err: VaultageError | null) => {
+        if (err) {
+            return this.errorHandler.handleVaultageError(err, () => this.submit());
+        }
         this.isLoading = false;
         this.navigation.goHome();
-        if (err) {
-            this.errorHandler.handleVaultageError(err, () => this.submit());
-        }
     }
 }
 

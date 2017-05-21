@@ -1,3 +1,4 @@
+import { TfaConfigComponent } from './components/tfaConfig';
 import { ErrorHandlerService } from './services/errorHandlerService';
 import { TfaPromptService } from './services/tfaPromptService';
 import { TfaPromptComponent } from './components/tfaPrompt';
@@ -21,6 +22,7 @@ appModule.component('loginScreen', LoginComponent);
 appModule.component('sitesList', SitesListComponent);
 appModule.component('siteForm', SiteFormComponent);
 appModule.component('tfaPrompt', TfaPromptComponent);
+appModule.component('tfaConfig', TfaConfigComponent);
 appModule.service('vaultService', VaultService);
 appModule.service('navigation', NavigationService);
 appModule.service('clipboard', ClipboardService);

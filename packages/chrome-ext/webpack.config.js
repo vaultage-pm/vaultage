@@ -13,12 +13,13 @@ module.exports = {
         test: /\.tsx?$/,
         loader: 'ts-loader',
         exclude: /node_modules/,
-      },
-      {
-        test: /crypto/,
-        loader: 'ignore-me'
       }
     ]
+  },
+  externals: {
+    fs: true,
+    crypto: true,
+    angular: true
   },
   resolve: {
     extensions: ['.ts', '.js'],
