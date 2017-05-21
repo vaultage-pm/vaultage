@@ -13,9 +13,22 @@
         <md-button ng-click="controller.refresh()" ng-if="controller.isLoggedIn()" class="md-icon-button" aria-label="Refresh">
             <md-icon>refresh</md-icon>
         </md-button>
-        <md-button ng-if="controller.isLoggedIn()" class="md-icon-button" aria-label="Settings">
+        <!--<md-button ng-if="controller.isLoggedIn()" class="md-icon-button" aria-label="Settings">
             <md-icon>settings</md-icon>
-        </md-button>
+        </md-button>-->
+        <md-menu ng-if="controller.isLoggedIn()">
+            <md-button class="md-icon-button" aria-label="Settings" ng-click="$mdMenu.open($event)">
+                <md-icon>settings</md-icon>
+            </md-button>
+            <md-menu-content width="4">
+                <md-menu-item>
+                    <md-button ng-click="controller.configureTFA(site)">
+                        <md-icon md-menu-align-target>security</md-icon>
+                        Two-factor auth
+                    </md-button>
+                </md-menu-item>
+            </md-menu-content>
+        </md-menu>
         <md-button ng-click="controller.logOut()" ng-if="controller.isLoggedIn()" class="md-icon-button" aria-label="Log out">
             <md-icon>exit_to_app</md-icon>
         </md-button>

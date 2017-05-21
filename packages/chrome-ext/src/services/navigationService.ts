@@ -1,6 +1,6 @@
 import { VaultService } from './vaultService';
 
-export type Page = 'home' | 'site-form' | 'tfa-prompt';
+export type Page = 'home' | 'site-form' | 'tfa-prompt' | 'tfa-config';
 
 interface PageData {
     [key: string]: string;
@@ -46,6 +46,10 @@ export class NavigationService {
 
     public getPageData(): PageData {
         return JSON.parse(JSON.stringify(this._pageData));
+    }
+
+    public configureTFA(): void {
+        this._navigate('tfa-config', null);
     }
 
     public promptForTFA(): void {
