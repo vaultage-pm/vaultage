@@ -10,7 +10,7 @@ $(BUILDPKGS):
 	$(MAKE) -C $@
 
 $(CLEANPKGS):
-	$(MAKE) -C $(@:clean-%=%) clean
+	$(MAKE) -C $(addprefix $(PKG_DIR)/, $(@:clean-%=%)) clean
 
 dist-cli: clean-public
 	cp -r packages/web-cli public/
