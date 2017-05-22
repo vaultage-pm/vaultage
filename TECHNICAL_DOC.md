@@ -12,7 +12,7 @@ The purpose of this document is to precisely enumerate the assumptions, the encr
 
 ## Key derivation procedure
 
-The user own a **master password**. Locally, he inputs it to the javascript client, which derives two passwords : the **remote key** and the **local kry**.
+The user own a **master password**. Locally, he inputs it to the javascript client, which derives two passwords : the **remote key** and the **local key**.
 
 1) the **remote key** is used to authenticate the client to the server. The server will not send the ciphertext to an unauthenticated client, nor accept updates from an unauthenticated client.
 
@@ -31,7 +31,7 @@ Master Password -->| SHA512 | --x         Local Password Salt
                    |________|    \           |
                                   \          v
                            32 LSB--\     _________
-                                    \--> | PBKDF2 |  -------> Local Kry
+                                    \--> | PBKDF2 |  -------> Local Key
                                          |________|
        
 
