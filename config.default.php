@@ -9,4 +9,7 @@ define("MAIL_BACKUP_ENABLED", false);
 define("BACKUP_EMAIL", "demo@provider.com");
 define("BACKUP_SUBJECT", "[VAULTAGE] Backup");
 
+# Client-side salts
+define("USERNAME_SALT", "vaultage rocks");
+
 ?>
