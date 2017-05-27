@@ -10,8 +10,7 @@ class LoginController implements ng.IController {
 
     public host: string = 'localhost:8080';
     public username: string = 'demo';
-    public password: string = 'demo2';
-    public tfa_request: string = '';
+    public password: string = 'demo1';
     public isLoading: boolean = false;
 
     constructor(

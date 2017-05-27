@@ -48,4 +48,4 @@ CREATE TABLE `vaultage_data` (
 --
 
 -- Adds the demo user (demo/demo1)
-INSERT INTO `vaultage_users` (`id`, `username`, `salt`, `remote_key`, `updated`) VALUES (NULL, 'demo', 'pass_le_sel', '88402adaf2d9741497c7c19a6fde80b2113cf4da70816da7dc1590fd7da229f2', NULL);
+INSERT INTO `vaultage_users` (`id`, `username`, `salt`, `remote_key`, `updated`) VALUES (NULL, 'demo', 'pass_le_sel', '62823c3c0531dbd4232cf1abf2deb12b7efa9a508a6c4fd69ca6f56d84315278', NULL);
