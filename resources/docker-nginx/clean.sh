@@ -53,7 +53,7 @@ while true; do
             echo -n "Removing the DB config...    "
             rm -f "$f2"
             echo -e "${okMsg}"
-            echo -n "Removing docker's DB data... "
+            echo -n "Removing docker's DB data... (needs sudo) "
             sudo rm -rf "$d"
             echo -e "${okMsg}"
             exit

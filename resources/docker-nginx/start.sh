@@ -66,7 +66,7 @@ db_setup() {
         SALT="$SALT" \
         envsubst < "$REPO_ROOT/resources/db_setup.default.sql" | docker-compose exec mysql mysql -p${MYSQL_ROOT_PASSWORD} 2>/dev/null >/dev/null
 
-    echo -e "${okMsg} The DB setup is finished."
+    echo -e "${okMsg} The DB setup is done."
 }
 
 vaultage_setup() {
@@ -87,7 +87,7 @@ vaultage_setup() {
         USERNAME_SALT="$USERNAME_SALT" \
         envsubst < "$REPO_ROOT/config.default.php" > "$REPO_ROOT/config.php"
 
-    echo -e "${okMsg} The Vaultage setup is finished."
+    echo -e "${okMsg} The Vaultage setup is done."
 }
 
 env_setup() {
@@ -193,6 +193,15 @@ while [ -z "$connected" ]; do
         fi
     fi
 done
+
+echo -e "\n======\n"
+
+webCliDir="$REPO_ROOT/public/web-cli"
+if [ ! -d "$webCliDir" ]; then
+    echo -e "${warningMsg} The web-cli directory ($webCliDir) does not exists. Hence, this docker only runs the server API for Vaultage, but not the web client. This is OK if you only want to use the Chrome extension."
+    echo ""
+    echo -e "If you want to use the web client too; or if you are not sure, please run ${highlightOn}make all${highlightOff} after this setup."
+fi
 
 echo ""
 echo -e "${okMsg} Vaultage is up and running on port ${VAULTAGE_PORT}!"
