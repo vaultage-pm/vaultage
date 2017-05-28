@@ -14,7 +14,8 @@ class App {
         // Route name must match ACTION_PATTERN
         "pull" => pull_handler,
         "push" => push_handler,
-        "changekey" => changekey_handler
+        "changekey" => changekey_handler,
+        "config" => config_handler
     );
 
     function start() {

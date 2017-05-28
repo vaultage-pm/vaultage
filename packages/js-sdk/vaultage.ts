@@ -40,6 +40,10 @@ export interface Credentials {
     username: string;
 }
 
+interface SaltsConfig {
+    USERNAME_SALT: string;
+}
+
 /**
  * Utilities for performing queries in the DB
  */
@@ -53,7 +57,7 @@ abstract class QueryUtils {
 /**
  * Class for errors coming from the Vaultage lib.
  * @constructor
- * 
+ *
  * @member {number} code Code as defined in Vaultage.ERROR_CODES. Rely on this when processing the error.
  * @member {string} message Human readable error message. Do not rely on this when processing the error.
  * @member {?Error} cause Exception causing this error
@@ -77,7 +81,7 @@ export class VaultageError extends Error{
 
 /**
  * Internal class for handling the vault data.
- * 
+ *
  * Exposed solely for debugging purpose.
  */
 export class VaultDB {
@@ -240,24 +244,30 @@ export class VaultDB {
 /**
  * Handles the crypto stuff
  */
-export abstract class Crypto {
+export class Crypto {
 
-    private static hashUsername(username: string): Uint32Array {
-        return sjcl.hash.sha256.hash(username + USERNAME_SALT);
+
+    constructor(
+            private _salts: SaltsConfig) {
+
+    }
+
+    private hashUsername(username: string): Uint32Array {
+        return sjcl.hash.sha256.hash(username + this._salts.USERNAME_SALT);
     }
 
     /**
      * Returns the local key for a given username and master password.
-     * 
+     *
      * API consumers should not use this method
-     * 
+     *
      * @param username The username used to locate the cipher on the server
      * @param masterPassword Plaintext of the master password
      */
-    public static deriveLocalKey(username: string, masterPassword: string): string {
-        let localSalt = Crypto.hashUsername(username).slice(5, 8);
+    public deriveLocalKey(username: string, masterPassword: string): string {
+        let localSalt = this.hashUsername(username).slice(5, 8);
         // We convert the master password to a fixed length using sha256 then use the first half
-        // of that result for creating the local key. 
+        // of that result for creating the local key.
         // Since we use the second half for the remote key and there is no way to derive the first half
         // of a hash given its second half, then **even if** the remote key leaks AND pbkdf2 is found
         // to be reversible, we still cannot find the local key.
@@ -267,14 +277,14 @@ export abstract class Crypto {
 
     /**
      * Returns the remote key for a given username and master password.
-     * 
+     *
      * This method can be used to configure the db with the correct remote key.
-     * 
+     *
      * @param username The username used to locate the cipher on the server
      * @param masterPassword Plaintext of the master password
      */
-    public static deriveRemoteKey(username: string, masterPassword: string): string {
-        let remoteSalt = Crypto.hashUsername(username).slice(0, 4);
+    public deriveRemoteKey(username: string, masterPassword: string): string {
+        let remoteSalt = this.hashUsername(username).slice(0, 4);
         let masterHash = sjcl.hash.sha512.hash(masterPassword);
         let result = sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash.slice(8, 16), remoteSalt, PBKF2_DIFFICULTY));
         console.log(result);
@@ -283,45 +293,45 @@ export abstract class Crypto {
 
     /**
      * Performs the symetric encryption of a plaintext.
-     * 
+     *
      * Used to encrypt the vault's serialized data.
-     * 
+     *
      * @param localKey Local encryption key
      * @param plain The plaintext to encrypt
      */
-    public static encrypt(localKey: string, plain: string): string {
+    public encrypt(localKey: string, plain: string): string {
         return sjcl.encrypt(localKey, plain);
     }
 
     /**
      * Performs the symetric decryption of a plaintext.
-     * 
+     *
      * Used to decrypt the vault's serialized data.
-     * 
+     *
      * @param localKey Local encryption key
      * @param cipher The ciphertext to encrypt
      */
-    public static decrypt(localKey: string, cipher: string): string {
+    public decrypt(localKey: string, cipher: string): string {
         return sjcl.decrypt(localKey, cipher);
     }
 
     /**
      * Computes the fingerprint of a plaintext.
-     * 
+     *
      * Used to prove to our past-self that we have access to the local key and the latest
      * vault's plaintext and and challenge our future-self to do the same.
-     * 
+     *
      * @param plain the serialized vault's plaintext
      * @param localKey the local key
      * @param username the username is needed to salt the fingerprint
      */
-    public static getFingerprint(plain: string, localKey: string): string {
+    public getFingerprint(plain: string, localKey: string): string {
         // We want to achieve two results:
         // 1. Ensure that we don't push old content over some newer content
         // 2. Prevent unauthorized pushes even if the remote key was compromized
         //
         // For 1, we need to fingerprint the plaintext of the DB as well as the local key.
-        // Without the local key we could not detect when the local key changed and 
+        // Without the local key we could not detect when the local key changed and
         // might overwrite a DB that was re-encrypted with a new local password.
         //
         // The localKey is already derived from the username, some per-deployment salt and
@@ -333,12 +343,12 @@ export abstract class Crypto {
 
 /**
  * The vault class.
- * 
+ *
  * @example
  * var vault = new Vault();
  * vault.auth(some_url, some_username, some_pwd, function(err) {
  *   if (err) throw err;
- * 
+ *
  *   var nb_entries = vault.getNbEntries();
  *   console.log('Success! Fetched ' + nb_entries + ' entries.');
  * });
@@ -346,6 +356,7 @@ export abstract class Crypto {
 export class Vault {
     private _creds: (Credentials|undefined);
     private _db: (VaultDB|undefined);
+    private _crypto: (Crypto|undefined) = undefined;
     private _lastFingerprint: (string|null) = null;
 
 
@@ -357,17 +368,35 @@ export class Vault {
      * @param cb Callback invoked on completion. err is null if no error occured.
      */
     public auth(
-            serverURL: string, 
-            username: string, 
+            serverURL: string,
+            username: string,
             masterPassword: string,
             cb: (err: (VaultageError | null), vault: Vault) => void
     ): void {
 
-        let remoteKey = Crypto.deriveRemoteKey(username, masterPassword);
-        // possible optimization: compute the local key while the request is in the air
-        let localKey = Crypto.deriveLocalKey(username, masterPassword);
+        let creds = {
+            serverURL: serverURL,
+            username: username,
+            localKey: 'null',
+            remoteKey: 'null'
+        };
 
-        let creds = {serverURL, username, localKey, remoteKey};
+        if (!this._crypto) {
+            return this._pullConfig(creds, (err) => {
+                if (err) {
+                    return cb(err, this);
+                }
+                // Retry auth with the crypto this time
+                this.auth(serverURL, username, masterPassword, cb);
+            });
+        }
+
+        let remoteKey = this._crypto.deriveRemoteKey(username, masterPassword);
+        // possible optimization: compute the local key while the request is in the air
+        let localKey = this._crypto.deriveLocalKey(username, masterPassword);
+
+        creds.localKey = localKey;
+        creds.remoteKey = remoteKey;
         this._pullCipher(creds, (err) => {
             if (!err) {
                 this._setCredentials(creds);
@@ -378,9 +407,9 @@ export class Vault {
 
     /**
      * Saves the Vault on the server.
-     * 
+     *
      * The vault must be authenticated before this method can be called.
-     * 
+     *
      * @param {function} cb Callback invoked with (err: VaultageError, this) on completion. err is null if no error occured.
      */
     public save(cb: (err: (VaultageError|null), vault: Vault) => void): void {
@@ -405,9 +434,9 @@ export class Vault {
 
     /**
      * Refreshes the local data by pulling the latest cipher from the server.
-     * 
+     *
      * The vault must be authenticated before this method can be called.
-     * 
+     *
      * @param {function} cb Callback invoked with (err: VaultageError, this) on completion. err is null if no error occured.
      */
     public refresh(cb: (err: (VaultageError|null), vault: Vault) => void): void {
@@ -419,20 +448,20 @@ export class Vault {
     }
 
     /**
-     * Changes this vault's master password. 
-     * 
+     * Changes this vault's master password.
+     *
      * The change is synced with the server immediately and
      * this operation fails if it could not sync with the server.
-     * 
+     *
      * @param newPassword The new master password
      * @param cb Callback invoked on completion.
      */
     public updateMasterPassword(newPassword: string, cb: (err: (VaultageError|null), vault: Vault) => void): void {
-        if (!this._creds || !this._db) {
+        if (!this._creds || !this._db || !this._crypto) {
             cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated'), this);
         } else {
-            let localKey = Crypto.deriveLocalKey(this._creds.username, newPassword);
-            let remoteKey = Crypto.deriveRemoteKey(this._creds.username, newPassword);
+            let localKey = this._crypto.deriveLocalKey(this._creds.username, newPassword);
+            let remoteKey = this._crypto.deriveRemoteKey(this._creds.username, newPassword);
             let creds = deepCopy(this._creds);
             creds.localKey = localKey;
 
@@ -503,7 +532,7 @@ export class Vault {
 
     /**
      * Edits an entry in the vault.
-     * 
+     *
      * @param id Id of the entry to edit
      * @param attrs new set of attributes. undefined values are ignored (the entry keeps its previous value)
      * @returns an updated version of the entry
@@ -528,7 +557,7 @@ export class Vault {
 
     /**
      * Checks whether this instance has had a successful authentication since the last deauthentication.
-     * 
+     *
      * @return {boolean} true if there was a successful authentication
      */
     public isAuth() {
@@ -538,6 +567,29 @@ export class Vault {
 
 
     // Private methods
+
+    private _pullConfig(creds: Credentials, cb: (err: (VaultageError|null)) => void): void {
+        request({
+            url: makeURL(creds.serverURL, creds.username, creds.remoteKey, 'config')
+        }, (err: any, resp: any) => {
+            if (err) {
+                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
+            }
+            let body: any;
+            try {
+                body = JSON.parse(resp.body);
+                // Poor man's typechecking of the server response
+                if (!body.salts || body.salts.USERNAME_SALT == null) {
+                    throw "Parse error";
+                }
+            } catch(e) {
+                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response'));
+            }
+
+            this._crypto = new Crypto(body.salts);
+            cb(null);
+        });
+    }
 
     private _setCredentials(creds: Credentials): void {
         // Copy for immutability
@@ -557,39 +609,47 @@ export class Vault {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
             }
 
-            let body = JSON.parse(resp.body);
+            let body: any;
+            try {
+                body = JSON.parse(resp.body);
+            } catch(e) {
+                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response'));
+            }
             if (body.error != null && body.error === true) {
-                cb(new VaultageError(ERROR_CODE.BAD_REMOTE_CREDS, 'Wrong username / remote password (or DB link inactive).'));
-                return;
+                return cb(new VaultageError(ERROR_CODE.BAD_REMOTE_CREDS, 'Wrong username / remote password (or DB link inactive).'));
+            }
+            if (!this._crypto) {
+                return cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
             }
 
             let cipher = (body.data || '').replace(/[^a-z0-9+/:"{},]/ig, '');
 
             if (cipher && body.data) {
                 try {
-                    let plain = Crypto.decrypt(creds.localKey, cipher);
+                    let plain = this._crypto.decrypt(creds.localKey, cipher);
                     this._db = VaultDB.deserialize(plain);
-                    this._lastFingerprint = Crypto.getFingerprint(plain, creds.localKey);
+                    this._lastFingerprint = this._crypto.getFingerprint(plain, creds.localKey);
                 } catch (e) {
-                    cb(new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occured while decrypting the cipher', e));
-                    return;
+                    return cb(new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occured while decrypting the cipher', e));
+
                 }
             } else {
                 // Create an empty DB if there is nothing on the server.
                 this._db = new VaultDB({});
+                this._lastFingerprint = '';
             }
             cb(null);
         });
     }
 
     private _pushCipher(creds: Credentials, newRemoteKey: (string|null), cb: (err: (VaultageError|null)) => void): void {
-        if (this._db == undefined) {
+        if (!this._db || !this._crypto) {
             return cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
         }
 
         let plain = VaultDB.serialize(this._db);
-        let cipher = Crypto.encrypt(creds.localKey, plain);
-        let fingerprint = Crypto.getFingerprint(plain, creds.localKey);
+        let cipher = this._crypto.encrypt(creds.localKey, plain);
+        let fingerprint = this._crypto.getFingerprint(plain, creds.localKey);
         let action = newRemoteKey == null ? 'push' : 'changekey';
         request({
             method: 'POST',
@@ -607,7 +667,13 @@ export class Vault {
             if (err) {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err));
             }
-            let body = JSON.parse(resp.body);
+
+            let body: any;
+            try {
+                body = JSON.parse(resp.body);
+            } catch(e) {
+                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response'));
+            }
             if (body.error != null && body.error === true) {
                 if (body.not_fast_forward === true) {
                     return cb(new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, 'The server has a newer version of the DB'));
@@ -642,10 +708,10 @@ function urlencode(data: any): string {
 /**
  * Asserts that data has at least all the properties of ref and returns an object containing the keys of
  * ref with the non-null values of data.
- * 
+ *
  * This can be used to convert object with optional properties into objects with non-null properties
  * at runtime.
- * 
+ *
  * @param data object to be checked
  * @param ref The reference whose keys are used for checking
  */
@@ -683,7 +749,7 @@ function deepCopy<T>(source: T): T {
 
 
 /*  === Config parameters ===
- * 
+ *
  * These can be tweaked from outside the module like this:
  * ```
  * vaultage.PBKF2_DIFFICULTY = 10000;
@@ -692,35 +758,20 @@ function deepCopy<T>(source: T): T {
 
 /**
  * How hard should the computation to derive the local and remote keys be.
- * 
- * Higher is harder. 
+ *
+ * Higher is harder.
  * The harder, the longer it takes to brute-force but also the longer it takes to log in.
  */
 export var PBKF2_DIFFICULTY = 32768;
 /**
- * The local and remote keys use a salt that is derived from the username.
- * 
- * This salt salts the username before generating the salts...
- * 
- * It should be public and per-deployment. It prevents people having the same username/password
- * combination on different deployments from having the same keys.
- */
-export var USERNAME_SALT = "vaultage rocks";
-/**
- * The fingerprint salt.
- * 
- * Used to salt the db when generating its fingerprint
- */
-export var FINGERPRINT_SALT = "make it unique";
-/**
  * How many bytes should an entry in the vault be.
- * 
+ *
  * When serializing the DB, vaultage adds some padding to make sure the cleartext is
  * at least BYTES_PER_ENTRY * n_entries + constant bytes long.
- * 
+ *
  * This prevents an attacker from guessing the vault's contents by its length but the
  * tradeof is that it reveals how many entries the DB contains.
- * 
+ *
  * If you want to disable padding, set BYTES_PER_ENTRY to 0.
  */
 export var BYTES_PER_ENTRY = 512;

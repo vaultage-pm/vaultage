@@ -23,7 +23,7 @@ CREATE TABLE `vaultage_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `salt` varchar(32) NOT NULL,
   `username` varchar(64) NOT NULL,
-  `remote_key` varchar(64) NOT NULL,
+  `remote_key` varchar(64),
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY ( id )
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
@@ -47,4 +47,4 @@ CREATE TABLE `vaultage_data` (
 --
 
 -- Adds the demo user (demo/demo1)
-INSERT INTO `vaultage_users` (`id`, `username`, `salt`, `remote_key`, `updated`) VALUES (NULL, 'demo', 'pass_le_sel', '62823c3c0531dbd4232cf1abf2deb12b7efa9a508a6c4fd69ca6f56d84315278', NULL);
+INSERT INTO `vaultage_users` (`id`, `username`, `salt`, `remote_key`, `updated`) VALUES (NULL, '${USERNAME}', '${SALT}', NULL, NULL);

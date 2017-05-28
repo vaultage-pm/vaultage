@@ -2,24 +2,25 @@
 
 Turnkey solution to deploy Vaultage with Docker.
 
+## Prerequisite
+
+All you need is `sh`, `docker` and `docker-compose`.
+
 ## Usage
 
-Quickly test this setup locally with:
+Run `./start.sh` to start the container.
 
-```
-cd the/directory/containing/this/README.md
-source ./env
-docker-compose up # Append -d to this command to run in background
-cat ../db_setup.sql | docker-compose exec mysql mysql -p${MYSQL_ROOT_PASSWORD}
-```
+The first time you run `start.sh`, the script will guide you through
+the setup process.
 
-Then navigate to http://localhost:8080
+Once everything is running, navigate to http://localhost:8080 (or whichever port
+you set during the setup).
 
-## Real-world usage
+You can stop the containers with the script `stop.sh`.
 
-In reality, you want to copy this whole directory somewhere else, change the
-values and the access rights of the **very sensitive** `env` file and run the
-above commands.
+## Security tips
 
-You'll also probably want to hide this service behind a firewall and route web-born
-requests through an SSL endpoint.
+TODO
+- firewall
+- anti brute-force
+- protect env file

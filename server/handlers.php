@@ -42,3 +42,16 @@ function changekey_handler() {
         end_with_json(array('error' => true, 'desc' => 'Bad request'));
     }
 }
+
+/**
+ * Transmits configuration to the client.
+ * Note that this handler does not require authentication so the username and
+ * remoteKey portions of the URL can be set to any legal value.
+ */
+function config_handler() {
+    end_with_json(array(
+        'salts' => array(
+            'USERNAME_SALT' => USERNAME_SALT
+        )
+    ));
+}

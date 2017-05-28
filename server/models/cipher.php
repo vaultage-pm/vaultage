@@ -44,7 +44,7 @@ class Cipher {
         $cipher = self::get_last($user_id);
 
         //check last hash
-        if($last_hash != $cipher['last_hash'])
+        if($cipher['last_hash'] != NULL && $last_hash != $cipher['last_hash'])
         {
             end_with_json(array('error' => true, 'not_fast_forward' => true));
         }

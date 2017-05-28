@@ -7,9 +7,9 @@ interface ILoginScope extends ng.IScope {
 
 class LoginController implements ng.IController {
 
-    public host: string = 'localhost:8080';
-    public username: string = 'demo';
-    public password: string = 'demo1';
+    public host: string = '';
+    public username: string = '';
+    public password: string = '';
     public isLoading: boolean = false;
 
     constructor(
