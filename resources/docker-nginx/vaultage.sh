@@ -167,6 +167,9 @@ do_help() {
     echo "start          Starts the docker containers and launches the configuration wizard if necessary."
     echo "stop           Stops the docker containers."
     echo "clean          Removes all data and configuration (Warning: may result in the loss of your vault!)."
+    echo "ssl_on         Enables HTTPS. If certificates are missing, displays a wizard."
+    echo "ssl_off        Disables HTTPS, falling back to HTTP."
+    echo "clean          Removes all data and configuration (Warning: may result in the loss of your vault!)."
     echo "reset-2fa      Removes the 2-factor auth security (use if you lost your token)."
     echo "help           Prints this help message."
 }
