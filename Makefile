@@ -23,6 +23,9 @@ clean-public:
 docker-start:
 	./resources/docker-nginx/start.sh
 
+docker-stop:
+	./resources/docker-nginx/stop.sh
+
 docker-clean-all:
 	./resources/docker-nginx/clean.sh
 
