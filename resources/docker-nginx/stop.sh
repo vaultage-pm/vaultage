@@ -2,6 +2,7 @@
 
 # pretty colored message
 colors="true"
+highlightOff="\033[0m"
 okMsg="\033[32m[ok]${highlightOff}"
 if [ "$colors" = "false" ]; then
     okMsg="[ok]"
@@ -16,4 +17,4 @@ cd "$SCRIPTPATH"
 
 docker-compose down
 
-echo "${okMsg} Vaultage docker stopped."
+echo -e "${okMsg} Vaultage docker stopped."

@@ -33,28 +33,30 @@ echo -e "${redBold}                                  |___/ ${blackNoBold}"
 echo ""
 echo -e "This command will ${redBold}DESTROY${blackNoBold} all config ${redBold}AND${blackNoBold} data in docker, ${redBold}AND${blackNoBold} config.php."
 
-f1=$(readlink -f "$REPO_ROOT/config.php")
-f2="$SCRIPTPATH/env"
-d="$SCRIPTPATH/mysql/data"
+vaultageConfigFile=$(readlink -f "$REPO_ROOT/config.php")
+dockerConfigFile="$SCRIPTPATH/env"
+dockerMysqlDataFolder="$SCRIPTPATH/mysql/data"
 
 echo ""
 echo "Files/Directories to be removed:"
-echo "  $f1"
-echo "  $f2"
-echo "  $d"
+echo "  $vaultageConfigFile"
+echo "  $dockerConfigFile"
+echo "  $dockerMysqlDataFolder"
 
 while true; do
     read -p "Do you wish to continue? [y/N] " yn
     case $yn in
         [Yy]* ) 
             echo -n "Removing Vaultage config...  "
-            rm -f "$f1"
+            rm -f "$vaultageConfigFile"
             echo -e "${okMsg}"
+
             echo -n "Removing the DB config...    "
-            rm -f "$f2"
+            rm -f "$dockerConfigFile"
             echo -e "${okMsg}"
+            
             echo -n "Removing docker's DB data... (needs sudo) "
-            sudo rm -rf "$d"
+            sudo rm -rf "$dockerMysqlDataFolder"
             echo -e "${okMsg}"
             exit
             ;;
