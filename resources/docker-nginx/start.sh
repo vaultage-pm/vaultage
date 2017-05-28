@@ -2,13 +2,14 @@
 
 REPO_ROOT="`pwd`/../.."
 
+# Prevents wrong pwd when calling this script from another dir
 SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
 cd "$SCRIPTPATH"
 
-# Utilities
+# Helpers
 
-contains() {
+strContains() {
     string="$1"
     substring="$2"
     if test "${string#*$substring}" != "$string"
@@ -19,29 +20,29 @@ contains() {
     fi
 }
 
+randomAlphaNumString32() {
+    cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
+}
+
 
 echo ''
 echo '                   _ _                            '
 echo '                  | | |                           '
 echo ' __   ____ _ _   _| | |_ __ _  __ _  ___          '
-echo ' \\ \\ / / _` | | | | | __/ _` |/ _` |/ _ \\      '
-echo '  \\ V / (_| | |_| | | || (_| | (_| |  __/        '
-echo '   \\_/ \\__,_|\\__,_|_|\\__\\__,_|\\__, |\\___|  '
+echo ' \ \ / / _` | | | | | __/ _` |/ _` |/ _ \         '
+echo '  \ V / (_| | |_| | | || (_| | (_| |  __/         '
+echo '   \_/ \__,_|\__,_|_|\__\__,_|\__, |\___|         '
 echo '                               __/ |              '
 echo '                              |___/               '
 echo ''
 echo "Welcome to the Vaultage docker deployment utility!"
 echo ""
 
-random_32() {
-    cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
-}
-
 db_setup() {
-    echo "\n\n ======\n"
+    echo -e "\n\n======\n"
     echo "Setting up the database"
 
-    SALT=`random_32`
+    SALT=`randomAlphaNumString32`
 
     echo "\nPlease chose a username."
     
@@ -59,7 +60,7 @@ db_setup() {
 }
 
 vaultage_setup() {
-echo "\n\n ======\n"
+echo -e "\n\n======\n"
 echo "Generating the Vaultage config...\n"
 
 # Vaultage config settings
@@ -67,7 +68,7 @@ DEFAULT_DB_HOST="db"
 DEFAULT_DB_USER="root"
 DEFAULT_DB_USER_PASSWORD="$MYSQL_ROOT_PASSWORD"
 DEFAULT_DB_SELECTED="vaultage"
-USERNAME_SALT=`random_32`
+USERNAME_SALT=`randomAlphaNumString32`
 
 env DEFAULT_DB_HOST=$DEFAULT_DB_HOST \
     DEFAULT_DB_USER=$DEFAULT_DB_USER \
@@ -79,38 +80,38 @@ env DEFAULT_DB_HOST=$DEFAULT_DB_HOST \
 }
 
 env_setup() {
-echo "\n\n ======\n"
-echo "Docker-specific setup\nPlease fill in the following variables:\n"
+    echo -e "\n\n======\n"
+    echo -e "Docker-specific setup\nPlease fill in the following variables:\n"
 
-echo -n "Mysql root password (leave empty to generate a random password): "
-read MYSQL_ROOT_PASSWORD
-if [ -z "$MYSQL_ROOT_PASSWORD" ]; then
-    MYSQL_ROOT_PASSWORD=`random_32`
-fi
+    echo -n "Mysql root password (leave empty to generate a random password): "
+    read MYSQL_ROOT_PASSWORD
+    if [ -z "$MYSQL_ROOT_PASSWORD" ]; then
+        MYSQL_ROOT_PASSWORD=`randomAlphaNumString32`
+    fi
 
-VAULTAGE_PORT=8080
-echo -n "Web server port ($VAULTAGE_PORT): "
-read tmp
-if [ ! -z "$tmp" ]; then
-    VAULTAGE_PORT = "$tmp"
-fi
+    VAULTAGE_PORT=8080
+    echo -n "Web server port ($VAULTAGE_PORT): "
+    read tmp
+    if [ ! -z "$tmp" ]; then
+        VAULTAGE_PORT = "$tmp"
+    fi
 
-VAULTAGE_DIR="$REPO_ROOT"
-echo -n "Vaultage code directory ($VAULTAGE_DIR): "
-read tmp
-if [ ! -z "$tmp" ]; then
-    VAULTAGE_DIR = "$tmp"
-fi
+    VAULTAGE_DIR="$REPO_ROOT"
+    echo -n "Vaultage root directory ($VAULTAGE_DIR): "
+    read tmp
+    if [ ! -z "$tmp" ]; then
+        VAULTAGE_DIR = "$tmp"
+    fi
 
-MYSQL_DATA_DIR="./mysql/data"
-echo -n "Mysql storage directory ($MYSQL_DATA_DIR): "
-read tmp
-if [ ! -z "$tmp"]; then
-    MYSQL_DATA_DIR = "$tmp"
-fi
+    MYSQL_DATA_DIR="./mysql/data"
+    echo -n "Mysql storage directory ($MYSQL_DATA_DIR): "
+    read tmp
+    if [ ! -z "$tmp"]; then
+        MYSQL_DATA_DIR = "$tmp"
+    fi
 
 
-cat - > ./env <<EOF
+    cat - > ./env <<EOF
 export MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD"
 export VAULTAGE_PORT="$VAULTAGE_PORT"
 export VAULTAGE_DIR="$VAULTAGE_DIR"
@@ -127,7 +128,7 @@ if [ ! -f "$REPO_ROOT/config.php" ]; then
     vaultage_setup
 fi
 
-echo "\n\n ======\n"
+echo -e "\n\n======\n"
 echo "Starting the containers"
 
 docker-compose up -d
@@ -136,16 +137,16 @@ echo -n "Trying to connect to mysql (this may take a minute)"
 while [ -z "$connected" ]; do
     sql_result=`docker-compose exec mysql mysql --database=vaultage -p${MYSQL_ROOT_PASSWORD} -e "SELECT count(*) FROM vaultage_users;"`
 
-    if contains "$sql_result" "ERROR 2002"; then
+    if strContains "$sql_result" "ERROR 2002"; then
         sleep 1
         echo -n "."
-    elif contains "$sql_result" "ERROR 1045"; then
+    elif strContains "$sql_result" "ERROR 1045"; then
         sleep 1
         echo -n "+"
     else
         echo "Success!"
         connected="true"
-        if contains "$sql_result" "ERROR 1049"; then
+        if strContains "$sql_result" "ERROR 1049"; then
             db_setup
         fi
     fi
