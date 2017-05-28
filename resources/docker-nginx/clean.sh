@@ -47,14 +47,14 @@ while true; do
     read -p "Do you wish to continue? [y/N] " yn
     case $yn in
         [Yy]* ) 
-            echo -n "Removing Vaultage config...  "
+            echo -n "Removing Vaultage config...               "
             rm -f "$vaultageConfigFile"
             echo -e "${okMsg}"
 
-            echo -n "Removing the DB config...    "
+            echo -n "Removing the DB config...                 "
             rm -f "$dockerConfigFile"
             echo -e "${okMsg}"
-            
+
             echo -n "Removing docker's DB data... (needs sudo) "
             sudo rm -rf "$dockerMysqlDataFolder"
             echo -e "${okMsg}"
