@@ -33,6 +33,7 @@ REPO_ROOT="`pwd`/../.."
 REPO_ROOT=$(readlink -f "$REPO_ROOT")
 
 ENV_FILE="$SCRIPTPATH/env"
+VAULTAGE_CFG_FILE=$(readlink -f "$REPO_ROOT/config.php")
 
 ###
 # Helpers
@@ -69,8 +70,8 @@ db_setup() {
         read USERNAME
     done
 
-    echo -e "The password will be set the first time you login using this username in the web interface."
-    echo -en "${warningMsg} Please acknowledge by pressing Enter..."
+    echo -e "${warningMsg} The password will be set the first time you login using this username in the web interface."
+    echo -en "Please acknowledge by pressing Enter..."
     read tmp
 
     # replaces the variables in db_setup.default.sql with the env ones
@@ -183,28 +184,28 @@ do_clean () {
     echo ""
     echo -e "This command will ${redBold}DESTROY${blackNoBold} all config ${redBold}AND${blackNoBold} data in docker, ${redBold}AND${blackNoBold} config.php."
 
-    f1=$(readlink -f "$REPO_ROOT/config.php")
-    f2="$ENV_FILE"
-    d="$SCRIPTPATH/mysql/data"
+    # Get MYSQL_DATA_DIR from env file and ignore errors
+    MYSQL_DATA_DIR=""
+    . "$ENV_FILE" >/dev/null 2>/dev/null
 
     echo ""
     echo "Files/Directories to be removed:"
-    echo "  $f1"
-    echo "  $f2"
-    echo "  $d"
+    echo "  $VAULTAGE_CFG_FILE"
+    echo "  $ENV_FILE"
+    echo "  $MYSQL_DATA_DIR"
 
     while true; do
         read -p "Do you wish to continue? [y/N] " yn
         case $yn in
             [Yy]* ) 
                 echo -n "Removing Vaultage config...  "
-                rm -f "$f1"
+                rm -f "$VAULTAGE_CFG_FILE"
                 echo -e "${okMsg}"
                 echo -n "Removing the DB config...    "
-                rm -f "$f2"
+                rm -f "$ENV_FILE"
                 echo -e "${okMsg}"
                 echo -n "Removing docker's DB data... "
-                sudo rm -rf "$d"
+                sudo rm -rf "$MYSQL_DATA_DIR"
                 echo -e "${okMsg}"
                 exit
                 ;;
@@ -286,6 +287,7 @@ do_stop() {
     require_env
     . "$ENV_FILE"
     docker-compose down
+    echo -e "${okMsg} Vaultage docker stopped."
 }
 
 do_reset_2fa() {
