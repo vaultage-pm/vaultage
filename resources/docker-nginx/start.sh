@@ -55,8 +55,8 @@ db_setup() {
         read USERNAME
     done
 
-    echo -e "The password will be set the first time you login using this username in the web interface."
-    echo -en "${warningMsg} Please acknowledge by pressing Enter..."
+    echo -e "${warningMsg} The password will be set the first time you login using this username in the web interface."
+    echo -en "Please acknowledge by pressing Enter..."
     read tmp
 
     # replaces the variables in db_setup.default.sql with the env ones

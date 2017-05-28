@@ -26,7 +26,7 @@ docker-start:
 docker-stop:
 	./resources/docker-nginx/stop.sh
 
-docker-clean-all:
+docker-clean:
 	./resources/docker-nginx/clean.sh
 
-.PHONY: clean-public clean all docker-start $(BUILDPKGS) $(CLEANPKGS)
+.PHONY: clean-public clean all docker-start docker-clean docker-stop $(BUILDPKGS) $(CLEANPKGS)
