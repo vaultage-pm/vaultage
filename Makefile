@@ -21,6 +21,8 @@ clean-public:
 	rm -rf public/web-cli
 
 docker-start:
-	
+
+docker-clean-all:
+	./resources/docker-nginx/clean.sh
 
 .PHONY: clean-public clean all docker-start $(BUILDPKGS) $(CLEANPKGS)
