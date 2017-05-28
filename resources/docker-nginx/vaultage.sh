@@ -166,12 +166,12 @@ do_help() {
     echo "Available commands:"
     echo "start          Starts the docker containers and launches the configuration wizard if necessary."
     echo "stop           Stops the docker containers."
-    echo "clean          Removes all data and configuration (Warning: may result in the loss of your vault!)."
+    echo "wipe           Removes all data and configuration (Warning: may result in the loss of your vault!)."
     echo "reset-2fa      Removes the 2-factor auth security (use if you lost your token)."
     echo "help           Prints this help message."
 }
 
-do_clean () {
+do_wipe () {
     echo -e "${redBold}                          _             "
     echo -e "${redBold}                         (_)            "
     echo -e "${redBold}__      ____ _ _ __ _ __  _ _ __   __ _ "
@@ -186,7 +186,7 @@ do_clean () {
 
     # Get MYSQL_DATA_DIR from env file and ignore errors
     MYSQL_DATA_DIR=""
-    . "$ENV_FILE" >/dev/null 2>/dev/null
+    [ -f "$ENV_FILE" ] && . "$ENV_FILE" 2>/dev/null
 
     echo ""
     echo "Files/Directories to be removed:"
@@ -209,11 +209,10 @@ do_clean () {
                 echo -e "${okMsg}"
                 exit
                 ;;
-            [Nn]* ) 
+            [Nn]*|* ) 
                 echo "Cancelled."
                 exit
                 ;;
-            * ) echo "Please answer yes or no.";;
         esac
     done
 }
@@ -245,7 +244,7 @@ do_start() {
         vaultage_setup
     else
         echo -e "Vaultage configuration file (./config.php) found, using it..." 
-        echo -e "(to clear config, use \"make docker-clean\")"
+        echo -e "(to clear config, use \"make docker wipe\")"
     fi
 
     # start docker via docker-compose
@@ -318,8 +317,8 @@ case "$1" in
     "stop")
         do_stop
     ;;
-    "clean")
-        do_clean
+    "wipe")
+        do_wipe
     ;;
     "reset-2fa")
         do_reset_2fa
