@@ -21,6 +21,7 @@ clean-public:
 	rm -rf public/web-cli
 
 docker-start:
+	./resources/docker-nginx/start.sh
 
 docker-clean-all:
 	./resources/docker-nginx/clean.sh

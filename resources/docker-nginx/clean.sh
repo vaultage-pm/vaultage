@@ -44,7 +44,7 @@ echo "  $f2"
 echo "  $d"
 
 while true; do
-    read -p "Do you wish to continue? [y/N]" yn
+    read -p "Do you wish to continue? [y/N] " yn
     case $yn in
         [Yy]* ) 
             echo -n "Removing Vaultage config...  "
