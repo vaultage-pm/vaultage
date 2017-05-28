@@ -11,7 +11,8 @@ export enum ERROR_CODE {
     NETWORK_ERROR,
     NOT_FAST_FORWARD,
     DUPLICATE_ENTRY,
-    NO_SUCH_ENTRY
+    NO_SUCH_ENTRY,
+    TFA_FAILED
 };
 
 export type GUID = string;
@@ -42,6 +43,19 @@ export interface Credentials {
 
 interface SaltsConfig {
     USERNAME_SALT: string;
+}
+
+export interface TFAConfig {
+    method: string;
+    request: string;
+}
+
+export interface TFARequestData {
+    provisioningURI: string;
+}
+
+export interface TFAConfirmationData {
+    pin: string;
 }
 
 /**
@@ -355,10 +369,71 @@ export class Crypto {
  */
 export class Vault {
     private _creds: (Credentials|undefined);
+    private _tfaConfig: (TFAConfig|undefined);
     private _db: (VaultDB|undefined);
     private _crypto: (Crypto|undefined) = undefined;
     private _lastFingerprint: (string|null) = null;
 
+    /**
+     * Sets a 2-factor auth configuration to be used on each subsequent API call.
+     * 
+     * @param conf the config to be used for the next API calls
+     */
+    public setTFAConfig(conf: TFAConfig) {
+        this._tfaConfig = deepCopy(conf);
+    }
+
+    /**
+     * Clears the local 2-factor auth configuration
+     * 
+     * @see setTFAConfig
+     */
+    public clearTFAConfig() {
+        delete this._tfaConfig;
+    }
+
+
+    /**
+     * Asks the server to configure a new TFA secret.
+     * 
+     * The user should call this function, then configure a terminal with the resulting 2FA
+     * secret and call {@link confirmTFASetup} with a valid 2FA PIN to validate the setup.
+     * 
+     * Failure to call {@link confirmTFASetup} will void the call to {@link requestTFASetup} and
+     * leave no trace on the server.
+     * 
+     * @param cb Callback invoked on completion. err is null if no error occured.
+     */
+    public requestTFASetup(cb: (err: (VaultageError | null), vault: Vault, data?: TFARequestData) => void): void {
+        if (!this._creds) {
+            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'), this);
+        } else {
+            this._setTFA(this._creds, null, (err, data) => {
+                let translatedData = (data == null) ? undefined : {
+                    provisioningURI: data.provisioning_uri
+                };
+                cb(err, this, translatedData);
+            });
+        }
+    }
+
+    /**
+     * Completes the setup of a TFA token.
+     * 
+     * This function should be called with a valid PIN after a successful call to {@link requestTFASetup}
+     * to fininalize the 2FA setup.
+     * 
+     * @param cb Callback invoked on completion. err is null if no error occured.
+     */
+    public confirmTFASetup(data: TFAConfirmationData, cb: (err: (VaultageError | null), vault: Vault) => void): void {
+        if (!this._creds) {
+            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'), this);
+        } else {
+            this._setTFA(this._creds, data, (err) => {
+                cb(err, this);
+            });
+        }
+    }
 
     /**
      * Attempts to pull the cipher and decode it. Saves credentials on success.
@@ -424,9 +499,10 @@ export class Vault {
     }
 
     /**
-     * Un-authenticates this vault
+     * Un-authenticates this vault and clears the TFA configuration.
      */
     public unauth(): void {
+        this.clearTFAConfig();
         this._creds = undefined;
         this._db = undefined;
         this._lastFingerprint = null;
@@ -570,7 +646,7 @@ export class Vault {
 
     private _pullConfig(creds: Credentials, cb: (err: (VaultageError|null)) => void): void {
         request({
-            url: makeURL(creds.serverURL, creds.username, creds.remoteKey, 'config')
+            url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey, 'config')
         }, (err: any, resp: any) => {
             if (err) {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
@@ -603,7 +679,7 @@ export class Vault {
 
     private _pullCipher(creds: Credentials, cb: (err: (VaultageError|null)) => void): void {
         request({
-            url: makeURL(creds.serverURL, creds.username, creds.remoteKey, 'pull')
+            url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey, 'pull')
         }, (err: any, resp: any) => {
             if (err) {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
@@ -615,11 +691,15 @@ export class Vault {
             } catch(e) {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response'));
             }
-            if (body.error != null && body.error === true) {
-                return cb(new VaultageError(ERROR_CODE.BAD_REMOTE_CREDS, 'Wrong username / remote password (or DB link inactive).'));
-            }
             if (!this._crypto) {
                 return cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
+            }
+            if (body.error != null && body.error === true) {
+                if (body.tfa_error) {
+                    return cb(new VaultageError(ERROR_CODE.TFA_FAILED, 'Two-step authentication failed.'));
+                } else {
+                    return cb(new VaultageError(ERROR_CODE.BAD_REMOTE_CREDS, 'Wrong username / remote password (or DB link inactive).'));
+                }
             }
 
             let cipher = (body.data || '').replace(/[^a-z0-9+/:"{},]/ig, '');
@@ -653,7 +733,7 @@ export class Vault {
         let action = newRemoteKey == null ? 'push' : 'changekey';
         request({
             method: 'POST',
-            url: makeURL(creds.serverURL, creds.username, creds.remoteKey, action),
+            url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey, action),
             body: urlencode({
                 'update_key': newRemoteKey,
                 'data': cipher,
@@ -677,6 +757,8 @@ export class Vault {
             if (body.error != null && body.error === true) {
                 if (body.not_fast_forward === true) {
                     return cb(new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, 'The server has a newer version of the DB'));
+                } else if (body.tfa_error) {
+                    cb(new VaultageError(ERROR_CODE.TFA_FAILED, 'Two-step authentication failed.'));
                 } else {
                     return cb(new VaultageError(ERROR_CODE.BAD_REMOTE_CREDS, 'Wrong username / remote password (or DB link inactive).'));
                 }
@@ -685,14 +767,45 @@ export class Vault {
             cb(null);
         });
     }
+
+    private _setTFA(creds: Credentials, confirm: (TFAConfirmationData|null), cb: (err: (VaultageError|null), data?: any) => void): void {
+        request({
+            method: 'POST',
+            url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey, 'settfa'),
+            body: urlencode({
+                method: 'totp',
+                confirm: (confirm) ? confirm.pin : null
+            }),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        }, (err: any, resp: any) => {
+            if (err) {
+                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err));
+            }
+            let body = JSON.parse(resp.body);
+            if (body.error != null && body.error === true) {
+                if (body.tfa_error) {
+                    return cb(new VaultageError(ERROR_CODE.TFA_FAILED, 'Two-step authentication failed.'));
+                } else {
+                    return cb(new VaultageError(ERROR_CODE.BAD_REMOTE_CREDS, 'Wrong username / remote password (or DB link inactive).'));
+                }
+            }
+            cb(null, body.data);
+        });
+    }
+
+    private _makeURL(serverURL: string, username: string, remotePwdHash: string, action: string): string {
+        let url = `${serverURL}/${username}/${remotePwdHash}/${action}`; //do is just for obfuscation
+        if (this._tfaConfig) {
+            url += `?tfa_method=${encodeURIComponent(this._tfaConfig.method)}&tfa_request=${encodeURIComponent(this._tfaConfig.request)}`;
+        }
+        return url;
+    }
 }
 
 
 // Utility functions
-
-function makeURL(serverURL: string, username: string, remotePwdHash: string, action: string): string {
-    return serverURL + '/' + username + '/' + remotePwdHash + '/' + action; //do is just for obfuscation
-}
 
 function urlencode(data: any): string {
     let ret: string[] = [];
