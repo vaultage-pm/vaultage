@@ -1,6 +1,6 @@
 <?php
 
-// require_once(__DIR__ . '/../vendor/autoload.php');
+require_once(__DIR__ . '/../vendor/autoload.php');
 
 // By convention, force the system timezone to Swiss time
 date_default_timezone_set('Europe/Zurich');
@@ -15,7 +15,8 @@ class App {
         "pull" => pull_handler,
         "push" => push_handler,
         "changekey" => changekey_handler,
-        "config" => config_handler
+        "config" => config_handler,
+        "settfa" => set_tfa_handler
     );
 
     function start() {

@@ -1,10 +1,10 @@
 import * as ng from 'angular';
 
-interface IAppScope {
+interface IAppScope extends ng.IScope {
     controller: AppController
 }
 
-class AppController implements ng.IController {
+class AppController {
 
     constructor(
             $scope: IAppScope) {

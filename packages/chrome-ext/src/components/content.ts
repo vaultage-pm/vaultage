@@ -6,12 +6,12 @@ interface IContentScope extends ng.IScope {
     controller: ContentController;
 }
 
-class ContentController implements ng.IController {
+class ContentController {
 
     constructor(
             $scope: IContentScope,
             private navigation: NavigationService,
-            public vault: VaultService) {
+            public vaultService: VaultService) {
         $scope.controller = this;
     }
 

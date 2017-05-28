@@ -1,34 +1,44 @@
+import { ErrorHandlerService } from '../services/errorHandlerService';
 import { NavigationService } from '../services/navigationService';
 import { VaultService } from '../services/vaultService';
 import * as ng from 'angular';
 
-interface IToolbarScope {
+interface IToolbarScope extends ng.IScope {
     controller: ToolbarController
 }
 
-class ToolbarController implements ng.IController {
+class ToolbarController {
 
     constructor(
-            private vault: VaultService,
+            private errorHandler: ErrorHandlerService,
+            private vaultService: VaultService,
             private navigation: NavigationService,
             $scope: IToolbarScope) {
         $scope.controller = this;
     }
 
     public refresh(): void {
-        this.vault.refresh((err) => {
-            if (err) throw err; // TODO: better error handling
+        this.vaultService.refresh((err) => {
+            if (err) {
+                return this.errorHandler.handleVaultageError(err, () => this.refresh());
+            }
         });
     }
 
+    public configureTFA(): void {
+        this.navigation.configureTFA();
+    }
+
     public logOut(): void {
-        this.vault.logout((err) => {
-            if (err) throw err; // TODO: better error handling
+        this.vaultService.logout((err) => {
+            if (err) {
+                this.errorHandler.handleVaultageError(err, () => null);
+            }
         });
     }
 
     public isLoggedIn(): boolean {
-        return this.vault.getVault().isAuth();
+        return this.vaultService.getVault().isAuth();
     }
 
     public createSite(): void {

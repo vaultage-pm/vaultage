@@ -20,10 +20,10 @@
   },
   "homepage": "https://github.com/lbarman/vaultage#readme",
   "dependencies": {
-    "request": "^2.81.0",
-    "ts-loader": "^2.0.3",
-    "typescript": "^2.2.2",
-    "webpack": "^2.3.2",
-    "xhr": "^2.4.0"
+    "request": "2.81.0",
+    "ts-loader": "2.0.3",
+    "typescript": "2.2.2",
+    "webpack": "2.3.2",
+    "xhr": "2.4.0"
   }
 }

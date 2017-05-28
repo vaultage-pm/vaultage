@@ -1,3 +1,4 @@
+import { ErrorHandlerService } from '../services/errorHandlerService';
 import { ClipboardService } from '../services/clipboardService';
 import { NavigationService } from '../services/navigationService';
 import { VaultService } from '../services/vaultService';
@@ -8,13 +9,14 @@ interface ISitesListScope extends ng.IScope {
     controller: SitesListController;
 }
 
-class SitesListController implements ng.IController {
+class SitesListController {
 
     private _cachedList: VaultDBEntry[] = [];
 
     constructor(
+            private errorHandler: ErrorHandlerService,
             private navigation: NavigationService,
-            private vault: VaultService,
+            private vaultService: VaultService,
             private clipboard: ClipboardService,
             private $mdDialog: ng.material.IDialogService,
             $scope: ISitesListScope) {
@@ -26,7 +28,7 @@ class SitesListController implements ng.IController {
     }
 
     public getList(): VaultDBEntry[] {
-        let newList = this.vault.getVault().getAllEntries();
+        let newList = this.vaultService.getVault().getAllEntries();
         if (this._listIsDifferent(newList)) {
             this._cachedList = newList;
         }
@@ -40,11 +42,15 @@ class SitesListController implements ng.IController {
                 .textContent('You are about to delete the entry "' + entry.title + '". Do you want to proceed?')
                 .ok('Yes, delete')
                 .cancel('No jk abort')
-        ).then(() => {
-            this.vault.delete(entry.id, (err) => {
-                if (err) return console.error(err);
-                console.log('TODO: Show progress and then success');
-            });
+        ).then(() => this._deleteItemForSure(entry));
+    }
+
+    private _deleteItemForSure(entry: VaultDBEntry): void {
+        this.vaultService.delete(entry.id, (err) => {
+            if (err) {
+                return this.errorHandler.handleVaultageError(err, () => this._deleteItemForSure(entry));
+            }
+            console.log('TODO: Show progress and then success');
         });
     }
 

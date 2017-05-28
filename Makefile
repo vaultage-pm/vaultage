@@ -10,7 +10,7 @@ $(BUILDPKGS):
 	$(MAKE) -C $@
 
 $(CLEANPKGS):
-	$(MAKE) -C $(@:clean-%=%) clean
+	$(MAKE) -C $(addprefix $(PKG_DIR)/, $(@:clean-%=%)) clean
 
 dist-cli: clean-public
 	cp -r packages/web-cli public/
@@ -20,13 +20,16 @@ clean: clean-public $(CLEANPKGS)
 clean-public:
 	rm -rf public/web-cli
 
-docker-start:
-	./resources/docker-nginx/start.sh
+# Needed to pass arguments to the docker command...
+# If the first argument is "docker"
+ifeq (docker,$(firstword $(MAKECMDGOALS)))
+  # use the rest as arguments for "docker"
+  DOCKER_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  # ...and turn them into do-nothing targets
+  $(eval $(DOCKER_ARGS):;@:)
+endif
 
-docker-stop:
-	./resources/docker-nginx/stop.sh
+docker:
+	./resources/docker-nginx/vaultage.sh $(DOCKER_ARGS)
 
-docker-clean:
-	./resources/docker-nginx/clean.sh
-
-.PHONY: clean-public clean all docker-start docker-clean docker-stop $(BUILDPKGS) $(CLEANPKGS)
+.PHONY: clean-public clean all docker $(BUILDPKGS) $(CLEANPKGS)
