@@ -5,7 +5,7 @@ interface ITfaPromptScope extends ng.IScope {
     controller: TfaPromptController;
 }
 
-class TfaPromptController implements ng.IController {
+class TfaPromptController {
 
     private token: string = "";
 

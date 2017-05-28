@@ -9,7 +9,7 @@ interface ISitesListScope extends ng.IScope {
     controller: SitesListController;
 }
 
-class SitesListController implements ng.IController {
+class SitesListController {
 
     private _cachedList: VaultDBEntry[] = [];
 

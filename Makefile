@@ -20,10 +20,17 @@ clean: clean-public $(CLEANPKGS)
 clean-public:
 	rm -rf public/web-cli
 
-docker-start:
-	./resources/docker-nginx/start.sh
 
-docker-clean-all:
-	./resources/docker-nginx/clean.sh
+# Needed to pass arguments to the docker command...
+# If the first argument is "docker"
+ifeq (docker,$(firstword $(MAKECMDGOALS)))
+  # use the rest as arguments for "docker"
+  DOCKER_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  # ...and turn them into do-nothing targets
+  $(eval $(DOCKER_ARGS):;@:)
+endif
 
-.PHONY: clean-public clean all docker-start $(BUILDPKGS) $(CLEANPKGS)
+docker:
+	./resources/docker-nginx/vaultage.sh $(DOCKER_ARGS)
+
+.PHONY: clean-public clean all docker $(BUILDPKGS) $(CLEANPKGS)

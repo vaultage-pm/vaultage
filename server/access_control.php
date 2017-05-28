@@ -21,7 +21,7 @@ function auth()
         $user = User::get_by_name($username);
         if ($user) {
             if ($user['remote_key'] == NULL) {
-                User::update_key($remote_key, $user);
+                User::update_key($user, $remote_key);
                 return $user;
             }
             $hashed = hash_remote_key($remote_key, $user['salt']);

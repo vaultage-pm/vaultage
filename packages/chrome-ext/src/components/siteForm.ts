@@ -8,7 +8,7 @@ interface ISiteFormScope extends ng.IScope {
     controller: SiteFormController;
 }
 
-class SiteFormController implements ng.IController {
+class SiteFormController {
 
     public isLoading: boolean = false;
     public entry: VaultDBEntryAttrs = {};

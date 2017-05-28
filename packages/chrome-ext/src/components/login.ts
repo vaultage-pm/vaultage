@@ -6,7 +6,7 @@ interface ILoginScope extends ng.IScope {
     controller: LoginController;
 }
 
-class LoginController implements ng.IController {
+class LoginController {
 
     public host: string = '';
     public username: string = '';

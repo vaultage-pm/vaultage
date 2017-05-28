@@ -3,11 +3,11 @@ import { NavigationService } from '../services/navigationService';
 import { VaultService } from '../services/vaultService';
 import * as ng from 'angular';
 
-interface IToolbarScope {
+interface IToolbarScope extends ng.IScope {
     controller: ToolbarController
 }
 
-class ToolbarController implements ng.IController {
+class ToolbarController {
 
     constructor(
             private errorHandler: ErrorHandlerService,

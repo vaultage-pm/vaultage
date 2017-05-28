@@ -6,7 +6,7 @@ interface IContentScope extends ng.IScope {
     controller: ContentController;
 }
 
-class ContentController implements ng.IController {
+class ContentController {
 
     constructor(
             $scope: IContentScope,

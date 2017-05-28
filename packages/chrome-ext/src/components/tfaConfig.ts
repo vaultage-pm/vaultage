@@ -8,7 +8,7 @@ interface ITfaConfigScope extends ng.IScope {
     controller: TfaConfigController;
 }
 
-class TfaConfigController implements ng.IController {
+class TfaConfigController {
 
     public provisioningURI: string = '';
     public provisioningQRCode: string = '';
