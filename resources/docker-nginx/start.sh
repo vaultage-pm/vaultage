@@ -24,59 +24,44 @@ randomAlphaNumString32() {
     cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
 }
 
-
-echo ''
-echo '                   _ _                            '
-echo '                  | | |                           '
-echo ' __   ____ _ _   _| | |_ __ _  __ _  ___          '
-echo ' \ \ / / _` | | | | | __/ _` |/ _` |/ _ \         '
-echo '  \ V / (_| | |_| | | || (_| | (_| |  __/         '
-echo '   \_/ \__,_|\__,_|_|\__\__,_|\__, |\___|         '
-echo '                               __/ |              '
-echo '                              |___/               '
-echo ''
-echo "Welcome to the Vaultage docker deployment utility!"
-echo ""
-
 db_setup() {
     echo -e "\n\n======\n"
-    echo "Setting up the database"
+    echo "Setting up Vaultage's default user"
 
     SALT=`randomAlphaNumString32`
-
-    echo "\nPlease chose a username."
     
-    echo -n "Username: "
+    echo -n "\nPlease chose a username: "
     read USERNAME
 
-    echo "\nYou will not be prompted for a password right now."
-    echo "Your password will be set the first time you log in."
-    echo -n "Press return to acknowledge..."
+    echo -e "The password will be set the first time you login using this username in the web interface."
+    echo -n "Please confirm by pressing Enter..."
     read tmp
 
+    # replaces the variables in db_setup.default.sql with the env ones
     env USERNAME=$USERNAME \
         SALT=$SALT \
         envsubst < "$REPO_ROOT/resources/db_setup.default.sql" | docker-compose exec mysql mysql -p${MYSQL_ROOT_PASSWORD} 2>/dev/null >/dev/null
+
+    echo -e "The setup is now finished."
 }
 
 vaultage_setup() {
-echo -e "\n\n======\n"
-echo "Generating the Vaultage config...\n"
+    echo -e "\n\n======\n"
+    echo -e "Generating the Vaultage config...\n"
 
-# Vaultage config settings
-DEFAULT_DB_HOST="db"
-DEFAULT_DB_USER="root"
-DEFAULT_DB_USER_PASSWORD="$MYSQL_ROOT_PASSWORD"
-DEFAULT_DB_SELECTED="vaultage"
-USERNAME_SALT=`randomAlphaNumString32`
+    # Vaultage config settings
+    DEFAULT_DB_HOST="db"
+    DEFAULT_DB_USER="root"
+    DEFAULT_DB_USER_PASSWORD="$MYSQL_ROOT_PASSWORD"
+    DEFAULT_DB_SELECTED="vaultage"
+    USERNAME_SALT=`randomAlphaNumString32`
 
-env DEFAULT_DB_HOST=$DEFAULT_DB_HOST \
-    DEFAULT_DB_USER=$DEFAULT_DB_USER \
-    DEFAULT_DB_SELECTED=$DEFAULT_DB_SELECTED \
-    DEFAULT_DB_USER_PASSWORD=$DEFAULT_DB_USER_PASSWORD \
-    USERNAME_SALT=$USERNAME_SALT \
-    envsubst < "$REPO_ROOT/config.default.php" > "$REPO_ROOT/config.php"
-
+    env DEFAULT_DB_HOST=$DEFAULT_DB_HOST \
+        DEFAULT_DB_USER=$DEFAULT_DB_USER \
+        DEFAULT_DB_SELECTED=$DEFAULT_DB_SELECTED \
+        DEFAULT_DB_USER_PASSWORD=$DEFAULT_DB_USER_PASSWORD \
+        USERNAME_SALT=$USERNAME_SALT \
+        envsubst < "$REPO_ROOT/config.default.php" > "$REPO_ROOT/config.php"
 }
 
 env_setup() {
@@ -119,6 +104,21 @@ export MYSQL_DATA_DIR="$MYSQL_DATA_DIR"
 EOF
 }
 
+# Entry point of this script
+
+echo ''
+echo '                   _ _                            '
+echo '                  | | |                           '
+echo ' __   ____ _ _   _| | |_ __ _  __ _  ___          '
+echo ' \ \ / / _` | | | | | __/ _` |/ _` |/ _ \         '
+echo '  \ V / (_| | |_| | | || (_| | (_| |  __/         '
+echo '   \_/ \__,_|\__,_|_|\__\__,_|\__, |\___|         '
+echo '                               __/ |              '
+echo '                              |___/               '
+echo ''
+echo "Welcome to the Vaultage docker deployment utility!"
+echo ""
+
 if [ ! -f ./env ]; then
     env_setup
 fi
@@ -129,9 +129,10 @@ if [ ! -f "$REPO_ROOT/config.php" ]; then
 fi
 
 echo -e "\n\n======\n"
-echo "Starting the containers"
+echo "Starting the container via docker-compose..."
+echo -e "(this requires docker and docker-py)\n"
 
-docker-compose up -d
+docker-compose up -dni
 
 echo -n "Trying to connect to mysql (this may take a minute)"
 while [ -z "$connected" ]; do
