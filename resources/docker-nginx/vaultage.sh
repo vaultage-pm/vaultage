@@ -294,7 +294,7 @@ switch_ssl() {
     if [ "$1" == 1 ]; then
         echo -n "Switching on SSL... "
         rm -f "$SCRIPTPATH/nginx/vaultage.conf"
-        ln -s "$SCRIPTPATH/nginx/vaultage.ssl.conf" "$SCRIPTPATH/nginx/vaultage.conf"
+        cp "$SCRIPTPATH/nginx/vaultage.conf.ssl" "$SCRIPTPATH/nginx/vaultage.conf"
         echo -e "${okMsg}"
 
         crt="$SCRIPTPATH/ssl/nginx.crt"
@@ -331,7 +331,7 @@ switch_ssl() {
     else
         echo -n "Switching off SSL... "
         rm -f "$SCRIPTPATH/nginx/vaultage.conf"
-        ln -s "$SCRIPTPATH/nginx/vaultage.nossl.conf" "$SCRIPTPATH/nginx/vaultage.conf"
+        cp "$SCRIPTPATH/nginx/vaultage.conf.nossl" "$SCRIPTPATH/nginx/vaultage.conf"
         echo -e "${okMsg}"
 
         echo -e "You should probably ${highlightOn}make docker stop${highlightOff} and ${highlightOn}make docker start${highlightOff} now."
