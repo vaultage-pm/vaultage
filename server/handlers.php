@@ -45,6 +45,7 @@ function changekey_handler() {
     }
 }
 
+
 /**
  * Transmits configuration to the client.
  * Note that this handler does not require authentication so the username and
