@@ -17,9 +17,10 @@ services:
   nginx:
     image: nginx
     ports:
-      - ${VAULTAGE_PORT}:80
+      - ${VAULTAGE_PORT}:8000
     volumes:
       - "./nginx:/etc/nginx/conf.d:ro"
+      - "./ssl:/etc/ssl:ro"
       - "${VAULTAGE_DIR}/public:/var/www/vaultage:ro"
     links:
       - php:php
