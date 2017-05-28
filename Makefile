@@ -20,7 +20,6 @@ clean: clean-public $(CLEANPKGS)
 clean-public:
 	rm -rf public/web-cli
 
-
 # Needed to pass arguments to the docker command...
 # If the first argument is "docker"
 ifeq (docker,$(firstword $(MAKECMDGOALS)))

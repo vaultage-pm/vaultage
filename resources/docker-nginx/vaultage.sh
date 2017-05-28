@@ -167,6 +167,9 @@ do_help() {
     echo "start          Starts the docker containers and launches the configuration wizard if necessary."
     echo "stop           Stops the docker containers."
     echo "clean          Removes all data and configuration (Warning: may result in the loss of your vault!)."
+    echo "ssl_on         Enables HTTPS. If certificates are missing, displays a wizard."
+    echo "ssl_off        Disables HTTPS, falling back to HTTP."
+    echo "clean          Removes all data and configuration (Warning: may result in the loss of your vault!)."
     echo "reset-2fa      Removes the 2-factor auth security (use if you lost your token)."
     echo "help           Prints this help message."
 }
@@ -290,6 +293,54 @@ do_stop() {
     echo -e "${okMsg} Vaultage docker stopped."
 }
 
+switch_ssl() {
+    if [ "$1" == 1 ]; then
+        echo -n "Switching on SSL... "
+        rm -f "$SCRIPTPATH/nginx/vaultage.conf"
+        cp "$SCRIPTPATH/nginx/vaultage.conf.ssl" "$SCRIPTPATH/nginx/vaultage.conf"
+        echo -e "${okMsg}"
+
+        crt="$SCRIPTPATH/ssl/nginx.crt"
+        key="$SCRIPTPATH/ssl/nginx.key"
+        if [ ! -f "$crt" ] || [ ! -f "$key" ]; then
+            echo -e "${warningMsg} Certificate files not found. You should have the two following certificate files :"
+            echo "  $crt"
+            echo "  $key"
+            echo ""
+            echo "You can either generate those yourself, or use a service like LetsEncrypt/Certbot. In the first case, this script can generate the certificates for you (but they will not be recognized by your browser, which will display a red warning)."
+
+            while true; do
+                read -p "Would you like this script to generate those certificates? [y/n] " yn
+                case $yn in
+                    [Yy]* ) 
+                        echo -e "Please follow the procedure (you can press Enter every time, just put ${highlightOn}localhost${highlightOff} when asked for ${highlightOn}Common/Server Name${highlightOff}):"
+                        openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout "$key" -out "$crt"
+
+                        echo -e "${okMsg} Done generating the certificates."
+                        echo -e "You should probably ${highlightOn}make docker stop${highlightOff} and ${highlightOn}make docker start${highlightOff} now."
+                        break
+                        ;;
+                    * ) 
+                        echo "Doing nothing."
+                        echo -e "${warningMsg} you have to manually create the cerificates above, otherwise Vaultage will not work !"
+                        echo -e "${warningMsg} you will also have to update resources/docker-nginx/nginx/vaultage.ssl.conf and set ${highlightOn}server_name${highlightOff} to the correct value."
+                        exit
+                        ;;
+                esac
+            done
+        else
+            echo -e "You should probably ${highlightOn}make docker stop${highlightOff} and ${highlightOn}make docker start${highlightOff} now."
+        fi
+    else
+        echo -n "Switching off SSL... "
+        rm -f "$SCRIPTPATH/nginx/vaultage.conf"
+        cp "$SCRIPTPATH/nginx/vaultage.conf.nossl" "$SCRIPTPATH/nginx/vaultage.conf"
+        echo -e "${okMsg}"
+
+        echo -e "You should probably ${highlightOn}make docker stop${highlightOff} and ${highlightOn}make docker start${highlightOff} now."
+    fi
+}
+
 do_reset_2fa() {
     require_env
     . "$ENV_FILE"
@@ -320,6 +371,12 @@ case "$1" in
     ;;
     "clean")
         do_clean
+    ;;
+    "ssl_on")
+        switch_ssl 1
+    ;;
+    "ssl_off")
+        switch_ssl 0
     ;;
     "reset-2fa")
         do_reset_2fa
