@@ -1,11 +1,11 @@
 #!/bin/sh
 
-REPO_ROOT="`pwd`/../.."
-
 # Prevents wrong pwd when calling this script from another dir
 SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
 cd "$SCRIPTPATH"
+
+REPO_ROOT="`pwd`/../.."
 
 # Helpers
 
@@ -25,7 +25,7 @@ randomAlphaNumString32() {
 }
 
 db_setup() {
-    echo -e "\n\n======\n"
+    echo -e "\n======\n"
     echo "Setting up Vaultage's default user"
 
     SALT=`randomAlphaNumString32`
@@ -46,7 +46,7 @@ db_setup() {
 }
 
 vaultage_setup() {
-    echo -e "\n\n======\n"
+    echo -e "\n======\n"
     echo -e "Generating the Vaultage config...\n"
 
     # Vaultage config settings
@@ -65,7 +65,7 @@ vaultage_setup() {
 }
 
 env_setup() {
-    echo -e "\n\n======\n"
+    echo -e "\n======\n"
     echo -e "Docker-specific setup\nPlease fill in the following variables:\n"
 
     echo -n "Mysql root password (leave empty to generate a random password): "
@@ -119,20 +119,27 @@ echo ''
 echo "Welcome to the Vaultage docker deployment utility!"
 echo ""
 
+# load the MYSQL config (MYSQL access for Vaultage)
 if [ ! -f ./env ]; then
     env_setup
+else
+    echo -e "MYSQL configuration file (./resources/docker-nginx/env) found, using it..."
+    . ./env
 fi
-. ./env
 
+# load the Vaultage config (Credentials for Vaultage clients)
 if [ ! -f "$REPO_ROOT/config.php" ]; then
     vaultage_setup
+else
+    echo -e "Vaultage configuration file (./config.php) found, using it..." 
+    echo -e "(to clear config, use \"make docker-clean\")"
 fi
 
-echo -e "\n\n======\n"
+echo -e "\n======\n"
 echo "Starting the container via docker-compose..."
 echo -e "(this requires docker and docker-py)\n"
 
-docker-compose up -dni
+docker-compose up -d
 
 echo -n "Trying to connect to mysql (this may take a minute)"
 while [ -z "$connected" ]; do

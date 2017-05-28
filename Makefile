@@ -20,4 +20,7 @@ clean: clean-public $(CLEANPKGS)
 clean-public:
 	rm -rf public/web-cli
 
-.PHONY: clean-public clean all $(BUILDPKGS) $(CLEANPKGS)
+docker-start:
+	
+
+.PHONY: clean-public clean all docker-start $(BUILDPKGS) $(CLEANPKGS)
