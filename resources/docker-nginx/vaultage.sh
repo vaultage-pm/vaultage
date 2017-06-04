@@ -166,10 +166,12 @@ do_help() {
     echo "Available commands:"
     echo "start          Starts the docker containers and launches the configuration wizard if necessary."
     echo "stop           Stops the docker containers."
+    echo "logs [options] Prints container logs (see docker-compose help logs) for available options."
     echo "wipe           Removes all data and configuration (Warning: may result in the loss of your vault!)."
     echo "ssl_on         Enables HTTPS. If certificates are missing, displays a wizard."
     echo "ssl_off        Disables HTTPS, falling back to HTTP."
     echo "reset-2fa      Removes the 2-factor auth security (use if you lost your token)."
+    echo "mysql          Opens a mysql prompt in the DB container."
     echo "help           Prints this help message."
 }
 
@@ -291,6 +293,18 @@ do_stop() {
     echo -e "${okMsg} Vaultage docker stopped."
 }
 
+do_logs() {
+    require_env
+    . "$ENV_FILE"
+    docker-compose logs $@
+}
+
+do_mysql() {
+    require_env
+    . "$ENV_FILE"
+    docker-compose exec mysql mysql --database=vaultage -p${MYSQL_ROOT_PASSWORD}
+}
+
 switch_ssl() {
     if [ "$1" == 1 ]; then
         echo -n "Switching on SSL... "
@@ -360,7 +374,9 @@ if [ $# -lt 1 ]; then
    exit 1
 fi
 
-case "$1" in
+cmd="$1"
+shift;
+case "$cmd" in
     "start")
         do_start
     ;;
@@ -381,6 +397,12 @@ case "$1" in
     ;;
     "user-info")
         do_user_info
+    ;;
+    "log"|"logs")
+        do_logs $@
+    ;;
+    "mysql")
+        do_mysql
     ;;
     "help"|*)
         do_help
