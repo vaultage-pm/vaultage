@@ -21,6 +21,9 @@ function push_handler() {
         Cipher::update($user['id'], $_POST['data'], $_POST['new_hash'], $_POST['last_hash']);
 
         $cipher = Cipher::get_last($user['id']);
+        if ($cipher == null) {
+            end_with_json(array('error' => true, 'desc' => 'cannot fetch cipher'));
+        }
 
         backup($cipher['data']);
         end_with_json(array('error' => false, 'data' => $cipher['data']));
@@ -36,6 +39,9 @@ function changekey_handler() {
         Cipher::update($user['id'], $_POST['data'], $_POST['new_hash'], $_POST['last_hash']);
 
         $cipher = Cipher::get_last($user['id']);
+        if ($cipher == null) {
+            end_with_json(array('error' => true, 'desc' => 'cannot fetch cipher'));
+        }
         User::update_key($user, $_POST['update_key']);
 
         backup($cipher['data']);
