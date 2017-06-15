@@ -52,7 +52,7 @@ class LoginController {
             let protocol = match[1] || 'https://';
             let host = match[2];
             let port = match[3] || ':443';
-            let path = match[4] || '';
+            let path = match[4] || '/';
             if (path.lastIndexOf('/') != path.length - 1) {
                 path += '/';
             }
