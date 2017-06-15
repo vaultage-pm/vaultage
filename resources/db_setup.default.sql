@@ -35,11 +35,11 @@ CREATE TABLE `vaultage_users` (
 CREATE TABLE `vaultage_data` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `data` text CHARACTER SET utf8 NOT NULL,
+  `data` longtext CHARACTER SET utf8 NOT NULL,
   `last_hash` varchar(64) NOT NULL,
   `user_id` int(11) NOT NULL,
   PRIMARY KEY ( id ), 
-  FOREIGN KEY (user_id) REFERENCES vaultage_users(id) 
+  FOREIGN KEY (user_id) REFERENCES vaultage_users(id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
 
 
@@ -47,5 +47,5 @@ CREATE TABLE `vaultage_data` (
 -- Default data
 --
 
--- Adds the demo user (demo/demo1)
+-- Adds the default user
 INSERT INTO `vaultage_users` (`id`, `username`, `salt`, `remote_key`, `updated`) VALUES (NULL, '${USERNAME}', '${SALT}', NULL, NULL);

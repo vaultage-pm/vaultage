@@ -12,7 +12,7 @@ class Cipher {
     static function get_last($user_id)
     {
         global $db;
-        $query = "SELECT data, last_hash FROM vaultage_data WHERE user_id=:user_id ORDER BY last_update DESC LIMIT 1";
+        $query = "SELECT id, data, last_hash FROM vaultage_data WHERE user_id=:user_id ORDER BY last_update DESC LIMIT 1";
         $params = array(
             ':user_id' => $user_id
         );
@@ -21,7 +21,7 @@ class Cipher {
         $data = $req->fetchAll();
         if(!$queryResult || count(data) != 1)
         {
-            end_with_json(array('error' => true, 'desc' => 'cannot fetch cipher'));
+            return null;
         }
         return $data[0];
     } 
@@ -31,7 +31,7 @@ class Cipher {
     * Will NOT save if the cipher is the empty string "" or empty array "[]". rather, will die with the
     * JSON {'error' : true, 'desc' : 'will not erase'}
     */
-    function update($user_id, $newData, $new_hash, $last_hash)
+    static function update($user_id, $newData, $new_hash, $last_hash)
     {
         global $db;
 
@@ -56,11 +56,25 @@ class Cipher {
             ':user_id' => $user_id
         );
 
+        $to_delete = Cipher::get_last($user_id);
+
         $query = "INSERT INTO vaultage_data (`user_id`, `last_update`, `data`, `last_hash`) VALUES
                                 (:user_id, NULL, :data, :hash)";
 
         $req = $db->prepare($query);
         $res = $req->execute($params);
+
+        // Remove previous cipher
+        // We might want to keep an history but for now we don't to avoid overloading
+        // the DB with useless data
+        if ($to_delete != null) {
+            $query = "DELETE FROM vaultage_data WHERE id=:id";
+            $params = array(
+                ':id' => $to_delete['id']
+            );
+            $req = $db->prepare($query);
+            $res = $req->execute($params);
+        }
     }
 
 }
