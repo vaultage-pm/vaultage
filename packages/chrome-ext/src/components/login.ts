@@ -1,6 +1,8 @@
+import { ERROR_CODE } from '../../../js-sdk/vaultage';
 import { StorageService } from '../services/storageService';
 import { ErrorHandlerService } from '../services/errorHandlerService';
 import { VaultService } from '../services/vaultService';
+import { NotificationService } from '../services/notificationService';
 import * as ng from 'angular';
 
 interface ILoginScope extends ng.IScope {
@@ -18,7 +20,8 @@ class LoginController {
             $scope: ILoginScope,
             private errorHandler: ErrorHandlerService,
             private vaultService: VaultService,
-            private storageService: StorageService) {
+            private storageService: StorageService,
+            private notificationService: NotificationService) {
         $scope.controller = this;
     
         let prefs = storageService.getLoginPreferences();
@@ -41,7 +44,11 @@ class LoginController {
         this.vaultService.login(url, this.username, this.password, (err) => {
             this.isLoading = false;
             if (err) {
-                return this.errorHandler.handleVaultageError(err, () => this.logIn());
+                if (err.code == ERROR_CODE.NETWORK_ERROR) {
+                    this.notificationService.notifyError(`Unable to contact server at: ${url}`);
+                } else {
+                    return this.errorHandler.handleVaultageError(err, () => this.logIn());
+                }
             }
         });
     }
