@@ -5,7 +5,7 @@
   "main": "-",
   "dependencies": {
     "@types/angular": "1.5.9",
-    "@types/angular-material": "1.1.48",
+    "@types/angular-material": "1.1.51",
     "@types/chrome": "0.0.46",
     "angular": "1.5.9",
     "angular-animate": "1.5.11",
@@ -13,7 +13,7 @@
     "angular-material": "1.1.4",
     "qrcode-svg": "0.9.0",
     "ts-loader": "2.0.3",
-    "typescript": "2.2.2",
+    "typescript": "2.3.4",
     "webpack": "2.3.3"
   },
   "devDependencies": {},
