@@ -1,3 +1,4 @@
+import { NotificationService } from './notificationService';
 import {
     TFAConfirmationData,
     TFARequestData,
@@ -14,7 +15,8 @@ export class VaultService {
     private _bgPage: BackgroundPage | null = chrome.extension.getBackgroundPage() as any;
 
     constructor(
-            private $rootScope: ng.IRootScopeService) {
+            private $rootScope: ng.IRootScopeService,
+            private notificationService: NotificationService) {
     }
 
     public getVault(): Vault {
@@ -71,9 +73,14 @@ export class VaultService {
     }
 
     public refresh(cb: VaultServiceCallback): void {
+        let notification = this.notificationService.notifyInfo('Refreshing sites list...', { persistent: true });
         try {
-            this.getVault().refresh(this._vaultAsyncCb(cb));
+            this.getVault().refresh(this._vaultAsyncCb((err) => {
+                notification.discard();
+                cb(err);
+            }));
         } catch (e) {
+            notification.discard();
             cb(e);
         }
     }

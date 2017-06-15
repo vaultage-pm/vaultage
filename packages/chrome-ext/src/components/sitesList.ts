@@ -1,3 +1,4 @@
+import { NotificationService } from '../services/notificationService';
 import { ErrorHandlerService } from '../services/errorHandlerService';
 import { ClipboardService } from '../services/clipboardService';
 import { NavigationService } from '../services/navigationService';
@@ -19,6 +20,7 @@ class SitesListController {
             private vaultService: VaultService,
             private clipboard: ClipboardService,
             private $mdDialog: ng.material.IDialogService,
+            private notificationService: NotificationService,
             $scope: ISitesListScope) {
         $scope.controller = this;
     }
@@ -46,11 +48,12 @@ class SitesListController {
     }
 
     private _deleteItemForSure(entry: VaultDBEntry): void {
+        this.notificationService.notifySuccess('Removing entry...');
         this.vaultService.delete(entry.id, (err) => {
             if (err) {
                 return this.errorHandler.handleVaultageError(err, () => this._deleteItemForSure(entry));
             }
-            console.log('TODO: Show progress and then success');
+            this.notificationService.notifySuccess('Entry removed');
         });
     }
 

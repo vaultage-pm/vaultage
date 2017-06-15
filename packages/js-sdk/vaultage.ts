@@ -12,7 +12,8 @@ export enum ERROR_CODE {
     NOT_FAST_FORWARD,
     DUPLICATE_ENTRY,
     NO_SUCH_ENTRY,
-    TFA_FAILED
+    TFA_FAILED,
+    TFA_CONFIRM_FAILED
 };
 
 export type GUID = string;
@@ -787,6 +788,8 @@ export class Vault {
             if (body.error != null && body.error === true) {
                 if (body.tfa_error) {
                     return cb(new VaultageError(ERROR_CODE.TFA_FAILED, 'Two-step authentication failed.'));
+                } else if (confirm) {
+                    return cb(new VaultageError(ERROR_CODE.TFA_CONFIRM_FAILED, 'Invalid confirmation pin'));
                 } else {
                     return cb(new VaultageError(ERROR_CODE.BAD_REMOTE_CREDS, 'Wrong username / remote password (or DB link inactive).'));
                 }

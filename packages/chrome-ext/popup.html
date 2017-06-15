@@ -10,10 +10,16 @@
     <title>Vaultage</title>
     <link rel="stylesheet" href="node_modules/angular-material/angular-material.css">
     <link href="res/iconfont/material-icons.css" rel="stylesheet">
+    <meta name="viewport" content="width=600, initial-scale=1">
     <style>
-        body {
-            min-width:350px;
-            min-height: 500px;
+        html {
+            width: 350px;
+            height: 500px;
+        }
+
+        .md-open-menu-container.md-active {
+          /* Fixes a weird bug with the dropdown menus */
+          transform: scale(1, 1) !important;
         }
     </style>
   </head>

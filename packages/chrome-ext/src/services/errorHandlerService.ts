@@ -1,3 +1,4 @@
+import { NotificationService } from './notificationService';
 import { VaultService } from './vaultService';
 import { TfaPromptService } from './tfaPromptService';
 import { ERROR_CODE, VaultageError } from '../../../js-sdk/vaultage';
@@ -8,7 +9,8 @@ export class ErrorHandlerService {
 
     constructor(
             private vaultService: VaultService,
-            private tfaPromptService: TfaPromptService) {
+            private tfaPromptService: TfaPromptService,
+            private notificationService: NotificationService) {
     }
 
 
@@ -19,7 +21,7 @@ export class ErrorHandlerService {
                 retry();
             });
         } else {
-            throw err; // TODO: proper error handling
+            this.notificationService.notifyError(err.toString());
         }
     }
 }
