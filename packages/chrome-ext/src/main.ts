@@ -1,3 +1,5 @@
+import { NotificationService } from './services/notificationService';
+import { StorageService } from './services/storageService';
 import { TfaConfigComponent } from './components/tfaConfig';
 import { ErrorHandlerService } from './services/errorHandlerService';
 import { TfaPromptService } from './services/tfaPromptService';
@@ -28,3 +30,5 @@ appModule.service('navigation', NavigationService);
 appModule.service('clipboard', ClipboardService);
 appModule.service('tfaPromptService', TfaPromptService);
 appModule.service('errorHandler', ErrorHandlerService);
+appModule.service('notificationService', NotificationService);
+appModule.service('storageService', StorageService);

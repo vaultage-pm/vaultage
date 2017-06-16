@@ -248,7 +248,7 @@ do_start() {
         vaultage_setup
     else
         echo -e "Vaultage configuration file (./config.php) found, using it..." 
-        echo -e "(to clear config, use \"make docker wipe\")"
+        echo -e "(to clear config, use the \"wipe\" command)"
     fi
 
     # start docker via docker-compose
