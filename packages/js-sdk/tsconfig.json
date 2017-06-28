@@ -1,15 +1,16 @@
 {
-  "files": [
-    "vaultage.ts"
-  ],
   "compilerOptions": {
     "outDir": "dist/js",
     "noImplicitAny": false,
     "strictNullChecks": true,
     "module": "commonjs",
     "target": "es5",
-    "allowJs": true,
+    "allowJs": false,
     "noUnusedParameters": true,
-    "noImplicitReturns": true
-  }
+    "noImplicitReturns": true,
+    "noUnusedLocals": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
 }

@@ -1,49 +1,16 @@
 import * as request from 'request';
-import * as _sjcl from './sjcl';
 
-// sjcl has no typing
-let sjcl = _sjcl as any;
-
-export enum ERROR_CODE {
-    NOT_AUTHENTICATED = 1,
-    BAD_REMOTE_CREDS,
-    CANNOT_DECRYPT,
-    NETWORK_ERROR,
-    NOT_FAST_FORWARD,
-    DUPLICATE_ENTRY,
-    NO_SUCH_ENTRY,
-    TFA_FAILED,
-    TFA_CONFIRM_FAILED
-};
-
-export type GUID = string;
-
-export interface VaultDBEntryAttrs {
-    title?: string;
-    url?: string;
-    login?: string;
-    password?: string;
-}
-
-export interface VaultDBEntry {
-    title: string,
-    url: string,
-    login: string,
-    password: string,
-    id: GUID,
-    created: string,
-    updated: string
-}
+import { Config } from './Config';
+import { Crypto } from './Crypto';
+import { deepCopy, urlencode } from './utils';
+import { ERROR_CODE, VaultageError } from './VaultageError';
+import { VaultDB, VaultDBEntry, VaultDBEntryAttrs } from './VaultDB';
 
 export interface Credentials {
     localKey: string;
     remoteKey: string;
     serverURL: string;
     username: string;
-}
-
-interface SaltsConfig {
-    USERNAME_SALT: string;
 }
 
 export interface TFAConfig {
@@ -59,302 +26,12 @@ export interface TFAConfirmationData {
     pin: string;
 }
 
-/**
- * Utilities for performing queries in the DB
- */
-abstract class QueryUtils {
-
-    public static stringContains(entry: string, criteria?: string): boolean {
-        return criteria == null || entry.indexOf(criteria) !== -1;
-    }
-}
-
-/**
- * Class for errors coming from the Vaultage lib.
- * @constructor
- *
- * @member {number} code Code as defined in Vaultage.ERROR_CODES. Rely on this when processing the error.
- * @member {string} message Human readable error message. Do not rely on this when processing the error.
- * @member {?Error} cause Exception causing this error
- */
-export class VaultageError extends Error{
-    constructor(
-        public readonly code: ERROR_CODE,
-        public readonly message: string,
-        public readonly cause?: Error) {
-            super(message);
-    }
-
-    public toString(): string {
-        var str = this.message;
-        if (this.cause) {
-            str += "\nCaused by: " + this.cause;
-        }
-        return str;
-    }
-}
-
-/**
- * Internal class for handling the vault data.
- *
- * Exposed solely for debugging purpose.
- */
-export class VaultDB {
-    private static VERSION: number = 0;
-
-    public constructor(
-            private _entries: { [key: string]: VaultDBEntry },
-            private _revision: number = 0) {
-    }
-
-    public static serialize(db: VaultDB): string {
-        const entries = db.getAll();
-        const n_entries = entries.length;
-        const expectedLength = n_entries * BYTES_PER_ENTRY + MIN_DB_LENGTH;
-
-        let serialized = JSON.stringify({
-            entries: entries,
-            v: VaultDB.VERSION,
-            r: db._revision
-        });
-
-        const amountToPad = expectedLength - serialized.length;
-        let pad = "";
-        for (let i = 0 ; i < amountToPad ; i++) {
-            pad += " ";
-        }
-
-        // Padding with spaces does not affect the encoded data since it's JSON but
-        // it does change the cipher length.
-        return serialized + pad;
-    }
-
-    public static deserialize(ser: string): VaultDB {
-        const data = JSON.parse(ser);
-        const entries: {
-            [key: string]: VaultDBEntry
-        } = {};
-
-        for (var entry of data.entries) {
-            if (entries[entry.id] != null) {
-                throw new VaultageError(ERROR_CODE.DUPLICATE_ENTRY, 'Duplicate entry with id: ' + entry.id + ' in vault.');
-            }
-            entries[entry.id] = entry;
-        }
-
-        return new VaultDB(entries, data._revision);
-    }
-
-    public add(attrs: VaultDBEntryAttrs): void {
-        let checkedAttrs = {
-            title: '',
-            url: '',
-            login: '',
-            password: ''
-        };
-        checkedAttrs = checkParams(attrs, checkedAttrs);
-        let currentDate = (new Date()).toUTCString();
-        let entry: VaultDBEntry = {
-            id: guid(),
-            title: checkedAttrs.title,
-            url: checkedAttrs.url,
-            login: checkedAttrs.login,
-            password: checkedAttrs.password,
-            created: currentDate,
-            updated: currentDate
-        };
-        this._entries[entry.id] = entry;
-        this.newRevision();
-    }
-
-    public remove(id: string): void {
-        if (this._entries[id] == null) {
-            throw new VaultageError(ERROR_CODE.NO_SUCH_ENTRY, 'No entry with id "' + id + '"');
-        }
-        delete this._entries[id];
-        this.newRevision();
-    }
-
-    public update(entry: VaultDBEntry): void;
-    public update(id: string, attrs: VaultDBEntryAttrs): void;
-    public update(id: (string | VaultDBEntry), attrs?: VaultDBEntryAttrs): void {
-        if (typeof id !== 'string') {
-            attrs = {
-                title: '',
-                url: '',
-                login: '',
-                password: ''
-            };
-            attrs = checkParams(id, attrs);
-            id = id.id;
-        }
-
-        // This is only needed due to typescript's inability to correlate the input
-        // arguments based on the prototypes. In practice this branch is never taken.
-        if (attrs == null) attrs = {};
-
-        let currentDate = (new Date()).toUTCString();
-        let entry = this.get(id);
-
-        if (attrs.login) entry.login = attrs.login;
-        if (attrs.password) entry.password = attrs.password;
-        if (attrs.title) entry.title = attrs.title;
-        if (attrs.url) entry.url = attrs.url;
-        entry.updated = currentDate;
-
-        this._entries[entry.id] = entry;
-        this.newRevision();
-    }
-
-    public get(id: string): VaultDBEntry {
-        let entry = this._entries[id];
-        if (entry == null) {
-            throw new VaultageError(ERROR_CODE.NO_SUCH_ENTRY, 'No entry with id "' + id + '"');
-        }
-        return deepCopy(entry);
-    }
-
-    public find(query: string): VaultDBEntry[] {
-        let keys = Object.keys(this._entries);
-        let resultSet: VaultDBEntry[] = [];
-
-        for (let key of keys) {
-            let entry = this._entries[key];
-            if (    QueryUtils.stringContains(entry.login, query) ||
-                    QueryUtils.stringContains(entry.id, query) ||
-                    QueryUtils.stringContains(entry.title, query) ||
-                    QueryUtils.stringContains(entry.url, query)) {
-                resultSet.push(deepCopy(entry));
-            }
-        }
-
-        return resultSet;
-    }
-
-    public getAll(): VaultDBEntry[] {
-        const entries: VaultDBEntry[] = [];
-        const keys = Object.keys(this._entries);
-        for (var key of keys) {
-            entries.push(deepCopy(this._entries[key]));
-        }
-        return entries;
-    }
-
-    /**
-     * Returns the number of entries in this DB.
-     */
-    public size(): number {
-        return Object.keys(this._entries).length;
-    }
-
-    /**
-     * Bumps the revision number of this DB.
-     */
-    public newRevision(): void {
-        this._revision ++;
-    }
-}
-
-
-/**
- * Handles the crypto stuff
- */
-export class Crypto {
-
-
-    constructor(
-            private _salts: SaltsConfig) {
-
-    }
-
-    private hashUsername(username: string): Uint32Array {
-        return sjcl.hash.sha256.hash(username + this._salts.USERNAME_SALT);
-    }
-
-    /**
-     * Returns the local key for a given username and master password.
-     *
-     * API consumers should not use this method
-     *
-     * @param username The username used to locate the cipher on the server
-     * @param masterPassword Plaintext of the master password
-     */
-    public deriveLocalKey(username: string, masterPassword: string): string {
-        let localSalt = this.hashUsername(username).slice(5, 8);
-        // We convert the master password to a fixed length using sha256 then use the first half
-        // of that result for creating the local key.
-        // Since we use the second half for the remote key and there is no way to derive the first half
-        // of a hash given its second half, then **even if** the remote key leaks AND pbkdf2 is found
-        // to be reversible, we still cannot find the local key.
-        let masterHash = sjcl.hash.sha512.hash(masterPassword);
-        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash.slice(0, 8) , localSalt, PBKF2_DIFFICULTY));
-    }
-
-    /**
-     * Returns the remote key for a given username and master password.
-     *
-     * This method can be used to configure the db with the correct remote key.
-     *
-     * @param username The username used to locate the cipher on the server
-     * @param masterPassword Plaintext of the master password
-     */
-    public deriveRemoteKey(username: string, masterPassword: string): string {
-        let remoteSalt = this.hashUsername(username).slice(0, 4);
-        let masterHash = sjcl.hash.sha512.hash(masterPassword);
-        let result = sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash.slice(8, 16), remoteSalt, PBKF2_DIFFICULTY));
-        console.log(result);
-        return result;
-    }
-
-    /**
-     * Performs the symetric encryption of a plaintext.
-     *
-     * Used to encrypt the vault's serialized data.
-     *
-     * @param localKey Local encryption key
-     * @param plain The plaintext to encrypt
-     */
-    public encrypt(localKey: string, plain: string): string {
-        return sjcl.encrypt(localKey, plain);
-    }
-
-    /**
-     * Performs the symetric decryption of a plaintext.
-     *
-     * Used to decrypt the vault's serialized data.
-     *
-     * @param localKey Local encryption key
-     * @param cipher The ciphertext to encrypt
-     */
-    public decrypt(localKey: string, cipher: string): string {
-        return sjcl.decrypt(localKey, cipher);
-    }
-
-    /**
-     * Computes the fingerprint of a plaintext.
-     *
-     * Used to prove to our past-self that we have access to the local key and the latest
-     * vault's plaintext and and challenge our future-self to do the same.
-     *
-     * @param plain the serialized vault's plaintext
-     * @param localKey the local key
-     * @param username the username is needed to salt the fingerprint
-     */
-    public getFingerprint(plain: string, localKey: string): string {
-        // We want to achieve two results:
-        // 1. Ensure that we don't push old content over some newer content
-        // 2. Prevent unauthorized pushes even if the remote key was compromized
-        //
-        // For 1, we need to fingerprint the plaintext of the DB as well as the local key.
-        // Without the local key we could not detect when the local key changed and
-        // might overwrite a DB that was re-encrypted with a new local password.
-        //
-        // The localKey is already derived from the username, some per-deployment salt and
-        // the master password so using it as a salt here should be enough to show that we know
-        // all of the above information.
-        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(plain, localKey, PBKF2_DIFFICULTY));
-    }
-}
+export const config: Config = {
+    PBKDF2_DIFFICULTY: 32768,
+    BYTES_PER_ENTRY: 512,
+    MIN_DB_LENGTH: 0 // placeholder 
+};
+config.MIN_DB_LENGTH = VaultDB.serialize(new VaultDB(config, {})).length;
 
 /**
  * The vault class.
@@ -663,7 +340,7 @@ export class Vault {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response'));
             }
 
-            this._crypto = new Crypto(body.salts);
+            this._crypto = new Crypto(config, body.salts);
             cb(null);
         });
     }
@@ -708,7 +385,7 @@ export class Vault {
             if (cipher && body.data) {
                 try {
                     let plain = this._crypto.decrypt(creds.localKey, cipher);
-                    this._db = VaultDB.deserialize(plain);
+                    this._db = VaultDB.deserialize(config, plain);
                     this._lastFingerprint = this._crypto.getFingerprint(plain, creds.localKey);
                 } catch (e) {
                     return cb(new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occured while decrypting the cipher', e));
@@ -716,7 +393,7 @@ export class Vault {
                 }
             } else {
                 // Create an empty DB if there is nothing on the server.
-                this._db = new VaultDB({});
+                this._db = new VaultDB(config, {});
                 this._lastFingerprint = '';
             }
             cb(null);
@@ -806,93 +483,3 @@ export class Vault {
         return url;
     }
 }
-
-
-// Utility functions
-
-function urlencode(data: any): string {
-    let ret: string[] = [];
-    let keys = Object.keys(data);
-    for (var key of keys) {
-        if (data[key] != null) {
-            ret.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
-        }
-    }
-    return ret.join('&');
-}
-
-/**
- * Asserts that data has at least all the properties of ref and returns an object containing the keys of
- * ref with the non-null values of data.
- *
- * This can be used to convert object with optional properties into objects with non-null properties
- * at runtime.
- *
- * @param data object to be checked
- * @param ref The reference whose keys are used for checking
- */
-function checkParams<T>(data: any, ref: T): T {
-    let ret: any = {};
-    let properties = Object.keys(ref);
-    for (var prop of properties) {
-        if (data[prop] == null) {
-            throw new Error('Missing property: ' + prop);
-        }
-        ret[prop] = data[prop];
-    }
-    return ret;
-}
-
-/**
- * Creates a good-enough probably unique id.
- */
-function guid(): GUID {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
-}
-
-
-function deepCopy<T>(source: T): T {
-    // Probably one of the most inefficient way to perform a deep copy but at least it guarantees isolation,
-    // is short and easy to understand, and works as long as we dont mess with non-primitive types
-    return JSON.parse(JSON.stringify(source));
-}
-
-
-/*  === Config parameters ===
- *
- * These can be tweaked from outside the module like this:
- * ```
- * vaultage.PBKF2_DIFFICULTY = 10000;
- * ```
- */
-
-/**
- * How hard should the computation to derive the local and remote keys be.
- *
- * Higher is harder.
- * The harder, the longer it takes to brute-force but also the longer it takes to log in.
- */
-export var PBKF2_DIFFICULTY = 32768;
-/**
- * How many bytes should an entry in the vault be.
- *
- * When serializing the DB, vaultage adds some padding to make sure the cleartext is
- * at least BYTES_PER_ENTRY * n_entries + constant bytes long.
- *
- * This prevents an attacker from guessing the vault's contents by its length but the
- * tradeof is that it reveals how many entries the DB contains.
- *
- * If you want to disable padding, set BYTES_PER_ENTRY to 0.
- */
-export var BYTES_PER_ENTRY = 512;
-/**
- * Minimum length of the serialized vault.
- * Accounts for the overhead of the JSON skeleton when computing the padding needed.
- */
-export var MIN_DB_LENGTH = VaultDB.serialize(new VaultDB({})).length;
