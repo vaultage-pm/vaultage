@@ -53,7 +53,6 @@ export class Crypto {
         let remoteSalt = this.hashUsername(username).slice(0, 4);
         let masterHash = sjcl.hash.sha512.hash(masterPassword);
         let result = sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash.slice(8, 16), remoteSalt, this._config.PBKDF2_DIFFICULTY));
-        console.log(result);
         return result;
     }
 
