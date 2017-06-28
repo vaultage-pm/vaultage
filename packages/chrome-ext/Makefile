@@ -19,6 +19,7 @@ SDK = $(SDK_DIR)/dist/vaultage.js
 DIST_DEPS = $(addprefix dist/, $(DEPS))
 DIST_BINS = $(addprefix dist/, $(BINS))
 
+.PHONY: all
 all: $(DIST_BINS) $(DIST_DEPS)
 
 $(DIST_BINS): $(SDK) node_modules $(SRC) webpack.config.js
@@ -26,7 +27,11 @@ $(DIST_BINS): $(SDK) node_modules $(SRC) webpack.config.js
 
 .PHONY: clean
 clean:
-	rm -rf dist/ node_modules
+	rm -rf dist/
+
+.PHONY: mrproper
+mrproper:
+	rm -rf node_modules
 
 $(DIST_DEPS): node_modules $(DEPS)
 	cp -r --parents $(@:dist/%=%) dist/
