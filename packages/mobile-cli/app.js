@@ -11,11 +11,19 @@ phonon.options({
 
 var app = phonon.navigator();
 
-/**
- * The activity scope is not mandatory.
- * For the home page, we do not need to perform actions during
- * page events such as onCreate, onReady, etc
-*/
+
+app.on({page: 'login', preventClose: false, content: null, readyDelay: 1}, function(activity) {
+
+    var loginFn = function(evt) {
+        var target = evt.target;
+
+        phonon.alert('The given URL cannot be contacted', 'Error');
+    };
+
+    activity.onCreate(function() {
+        document.querySelector('#login').on('tap', loginFn);
+    });
+});
 
 app.on({page: 'settings', preventClose: false, content: null, readyDelay: 1}, function(activity) {
 
