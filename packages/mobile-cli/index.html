@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+
+        <link rel="stylesheet" href="dist/css/phonon.css" />
+        <title>App</title>
+    </head>
+    <body>
+
+
+        <div class="side-panel side-panel-left" data-expose-aside="left" data-disable="right" data-page="login,logout,vault,vault_add,settings" id="side-panel-example">
+            <header class="header-bar">
+                <button class="btn pull-right icon icon-close show-for-phone-only" data-side-panel-close="true"></button>
+                <div class="pull-left">
+                    <h1 class="title">Vaultage</h1>
+                </div>
+            </header>
+            <div class="content">
+                <ul class="list">
+                    <li><a class="padded-list" href="#!login">Login</a></li>
+                    <li><a class="padded-list" href="#!logout">Logout</a></li>
+                    <li><a class="padded-list" href="#!vault">Vault</a></li>
+                    <li><a class="padded-list" href="#!vault_add">Add entry</a></li>
+                    <li><a class="padded-list" href="#!settings">Server Settings</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <login data-page="true">
+            <header class="header-bar">
+                <button class="btn icon icon-menu pull-left show-for-phone-only" data-side-panel-id="side-panel-example"></button>
+                <div class="center">
+                    <h1 class="title">Vaultage : Login</h1>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="padded-full">
+
+                    <div class="input-wrapper">
+                        <input class="with-label" type="email" id="username">
+                        <label class="floating-label" for="input-1">Username</label>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <input class="with-label" type="password" id="password">
+                        <label class="floating-label" for="input-1">Password</label>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <label class="checkbox">
+                            <input type="checkbox" name="remember">
+                            <span></span>
+                            <span class="text">Remember username</span>
+                        </label>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <button class="btn fit-parent primary">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </login>
+        
+        <logout data-page="true">
+            <header class="header-bar">
+                <button class="btn icon icon-menu pull-left show-for-phone-only" data-side-panel-id="side-panel-example"></button>
+                <div class="center">
+                    <h1 class="title">Vaultage : Logout</h1>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="padded-full">
+                    <div class="input-wrapper">
+                        <button class="btn fit-parent primary">Log me out</button>
+                    </div>
+                </div>
+            </div>
+        </logout>
+
+
+        <vault data-page="true">
+            <header class="header-bar">
+                <button class="btn icon icon-menu pull-left show-for-phone-only" data-side-panel-id="side-panel-example"></button>
+                <div class="center">
+                    <h1 class="title">Vaultage</h1>
+                </div>
+            </header>
+            <div class="content">
+                <div class="padded-full">
+
+                    <input type="text" placeholder="Search by email, title, password" id="example-input">
+
+                    <datalist id="componentList">
+                        <option>Github</option>
+                        <option>Google</option>
+                        <option>Gitlab</option>
+                    </datalist>
+                </div>
+            </div>
+        </vault>
+
+        <vault_add data-page="true">
+            <header class="header-bar">
+                <button class="btn icon icon-menu pull-left show-for-phone-only" data-side-panel-id="side-panel-example"></button>
+                <div class="center">
+                    <h1 class="title">Vaultage : Add</h1>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="padded-full">
+
+                    <div class="input-wrapper">
+                        <input class="with-label" type="email" id="title">
+                        <label class="floating-label" for="input-1">Title</label>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <input class="with-label" type="email" id="username">
+                        <label class="floating-label" for="input-1">Username</label>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <input class="with-label" type="email" id="url">
+                        <label class="floating-label" for="input-1">URL</label>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <input class="with-label" type="password" id="password">
+                        <label class="floating-label" for="input-1">Password</label>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <button class="btn fit-parent primary">Random password</button>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <button class="btn fit-parent primary">Submit new entry</button>
+                    </div>
+                </div>
+            </div>
+        </vault_add>
+
+        <settings data-page="true">
+            <header class="header-bar">
+                <button class="btn icon icon-menu pull-left show-for-phone-only" data-side-panel-id="side-panel-example"></button>
+                <div class="center">
+                    <h1 class="title">Vaultage : Settings</h1>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="padded-full">
+
+                    <div class="input-wrapper">
+                        <input class="with-label" type="url" id="server">
+                        <label class="floating-label" for="server">Vaultage Server</label>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <button class="btn fit-parent primary" id="validate">Validate</button>
+                    </div>
+                </div>
+            </div>
+        </settings>
+
+        <script src="dist/js/components/awesomplete.js"></script>
+        <script src="dist/js/phonon.js"></script>
+        <script src="app.js"></script>
+
+        <script>
+            // Create the autocomplete instance
+            phonon.autocomplete(document.querySelector('#example-input'), {list: '#componentList'});
+        </script>
+    </body>
+</html>
