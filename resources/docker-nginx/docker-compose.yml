@@ -3,7 +3,7 @@ services:
   mysql:
     image: mysql
     volumes:
-      - ./mysql/data:/var/lib/mysql
+      - ${MYSQL_DATA_DIR}:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
   php:
@@ -11,16 +11,16 @@ services:
       context: ./php
       dockerfile: Dockerfile
     volumes:
-      - "${VAULTAGE_DIR}:/var/www/vaultage"
+      - "${VAULTAGE_DIR}:/var/www/vaultage:ro"
     links:
       - mysql:db
   nginx:
     image: nginx
     ports:
-      - ${VAULTAGE_PORT}:80
+      - ${VAULTAGE_PORT}:8000
     volumes:
-      - "./nginx:/etc/nginx/conf.d"
-      - "${VAULTAGE_DIR}/api:/var/www/vaultage/api"
-      - "${VAULTAGE_DIR}/clients/web-cli:/var/www/vaultage/web-cli"
+      - "./nginx:/etc/nginx/conf.d:ro"
+      - "./ssl:/etc/ssl:ro"
+      - "${VAULTAGE_DIR}/public:/var/www/vaultage:ro"
     links:
       - php:php

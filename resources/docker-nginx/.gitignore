@@ -1,2 +1,5 @@
 mysql/data/*
 !mysql/data/.gitkeep
+env
+ssl/*
+nginx/vaultage.conf

@@ -1,0 +1,21 @@
+
+<form ng-submit="controller.submit()" class="md-padding">
+    <h2>2-factor Configuration</h2>
+    <div ng-if="!controller.provisioningURI">
+        <p>Download a TOTP app such as Google Authenticator on your smartphone then press the button below.</p>
+        <md-button ng-click="controller.requestSetup()">Request a token</md-button>
+    </div>
+    <div ng-if="controller.provisioningURI">
+        <p>Scan this QR code with the TOTP app and enter the password you obtained in the box below.</p>
+        <div ng-bind-html="controller.provisioningQRCode"></div>
+        <md-input-container>
+            <label>Enter your 2FA token</label>
+            <input type="text" placeholder="XXXXXX" ng-model="controller.confirmationPIN">
+        </md-input-container>
+        <div>
+            <md-button type="submit" class="md-primary md-raised">
+            Submit
+            </md-button>
+        </div>
+    </div>
+</form>

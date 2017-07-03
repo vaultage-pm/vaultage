@@ -1,0 +1,45 @@
+BIN=dist/vaultage.js
+INDEX=vaultage.ts
+SRC=$(wildcard src/*.ts)
+TESTS=$(wildcard test/*.ts)
+DEMO=demo.ts
+DEMO_BIN=tmp/demo.js
+
+WEBPACK_FLAGS = --output-library Vaultage
+
+.PHONY: all
+all: $(BIN) test demo
+
+$(BIN): node_modules $(INDEX)
+	node_modules/.bin/webpack
+
+.PHONY: clean
+clean:
+	rm -rf dist/ tmp/
+
+.PHONY: mrproper
+mrproper: clean
+	rm -rf node_modules
+
+node_modules:
+	npm install
+
+.PHONY: tsc
+tsc:
+	node_modules/.bin/tsc -p .
+
+.PHONY: test
+test: $(DEMO) $(SRC) $(TESTS)
+	npm test
+
+$(INDEX): $(SRC)
+	rm -f $(INDEX)
+	for i in $(subst .ts, , $(SRC)); do echo export \* from \"./$$i\" >> $(INDEX); done
+
+$(DEMO_BIN): $(DEMO) $(SRC) node_modules
+	node node_modules/.bin/tsc --outDir tmp $(DEMO)
+	cp sjcl.js tmp/
+
+.PHONY: demo
+demo: $(DEMO_BIN) $(INDEX)
+	node $(DEMO_BIN)

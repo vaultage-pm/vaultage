@@ -1,0 +1,47 @@
+<md-list ng-cloak>
+    <md-list-item class="md-2-line" ng-repeat="site in controller.getList() track by site.id" ng-click="controller.mainItemAction(site)"
+        class="noright">
+        <!-- FEATURE: could add support for favicon -->
+        <!--<img alt="{{ person.name }}" ng-src="{{ person.img }}" class="md-avatar" />-->
+        <div class="md-list-item-text">
+            <h3>{{ site.title }}</h3>
+            <p>{{ site.login }}</p>
+        </div>
+        <!--<md-checkbox class="md-secondary" ng-model="person.selected"></md-checkbox>
+        <md-icon md-svg-icon="communication:email"  ng-click="doSecondaryAction($event)" aria-label="Send Email" class="md-secondary md-hue-3" ></md-icon>
+        <md-icon class="md-secondary" ng-click="doSecondaryAction($event)" aria-label="Chat" md-svg-icon="communication:message"></md-icon>-->
+        <md-menu>
+            <md-button aria-label="Open site interactions menu" class="md-icon-button" ng-click="$mdMenu.open($event)">
+                <md-icon md-menu-origin>more_vert</md-icon>
+            </md-button>
+            <md-menu-content width="4">
+                <md-menu-item>
+                    <md-button ng-click="controller.copyUsername(site)">
+                        <md-icon md-menu-align-target>account_circle</md-icon>
+                        Copy username
+                    </md-button>
+                </md-menu-item>
+                <md-menu-item>
+                    <md-button ng-click="controller.copyPassword(site)">
+                        <md-icon md-menu-align-target>vpn_key</md-icon>
+                        Copy password
+                    </md-button>
+                </md-menu-item>
+                <md-menu-divider></md-menu-divider>
+                <md-menu-item>
+                    <md-button ng-click="controller.editItem(site)">
+                        <md-icon md-menu-align-target>edit</md-icon>
+                        Edit
+                    </md-button>
+                </md-menu-item>
+                <md-menu-item>
+                    <md-button ng-click="controller.deleteItem(site)">
+                        <md-icon md-menu-align-target>delete</md-icon>
+                        Delete
+                    </md-button>
+                </md-menu-item>
+                
+            </md-menu-content>
+        </md-menu>
+    </md-list-item>
+</md-list>

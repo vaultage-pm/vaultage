@@ -1,8 +1,0 @@
-
-export MYSQL_ROOT_PASSWORD=changeme
-
-# HTTP port exposing the API and the client
-export VAULTAGE_PORT=8080
-
-# Change this to the absolute path to your copy of the vaultage repository
-export VAULTAGE_DIR=`pwd`/../..

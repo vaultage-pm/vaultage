@@ -1,0 +1,37 @@
+{
+  "name": "vaultage-browser-sdk",
+  "version": "3.0.0-dev",
+  "description": "SDK to write JavaScript clients for the Vaultage password manager",
+  "main": "vaultage.js",
+  "scripts": {
+    "test": "karma start karma.conf.js --single-run",
+    "watch": "karma start karma.conf.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lbarman/vaultage.git"
+  },
+  "contributors": [
+    "Ludovic Barman (https://github.com/lbarman)",
+    "Hadrien Milano (https://github.com/hmil)"
+  ],
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/lbarman/vaultage/issues"
+  },
+  "homepage": "https://github.com/lbarman/vaultage#readme",
+  "dependencies": {
+    "@types/jasmine": "^2.5.53",
+    "@types/node": "^8.0.4",
+    "jasmine-core": "^2.6.4",
+    "karma": "^1.7.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-jasmine": "^1.1.0",
+    "karma-typescript": "^3.0.4",
+    "request": "2.81.0",
+    "ts-loader": "2.0.3",
+    "typescript": "2.2.2",
+    "webpack": "2.3.2",
+    "xhr": "2.4.0"
+  }
+}
