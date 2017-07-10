@@ -55,3 +55,43 @@ export function deepCopy<T>(source: T): T {
     // is short and easy to understand, and works as long as we dont mess with non-primitive types
     return JSON.parse(JSON.stringify(source));
 }
+
+/**
+ * Converts a numeric value to a fixed length string by padding with zeros.
+ * 
+ * @param value Numeric value to convert
+ */
+export function fixedLength(value: number, length: number): string {
+    return (Array(length + 1).join('0') + value).substr(-length);
+}
+
+/**
+ * Utilities for performing queries in the DB
+ */
+export abstract class QueryUtils {
+
+    // This could use some beefing up
+    private static SUBSTITUTIONS = {
+        'à': 'a', 'ä': 'a',
+        'é': 'e', 'è': 'e', 'ë': 'e',
+        'ï': 'i',
+        'ö': 'o',
+        'ù': 'u',
+        'ñ': 'n',
+    };
+
+    private static normalize(s: string): string {
+        let str = s.toLowerCase();
+        let result = '';
+        for (let i = 0 ; i < str.length ; i++) {
+            const c = str.charAt(i);
+            result += QueryUtils.SUBSTITUTIONS[c] || c;
+        }
+        return result;
+    }
+
+    public static stringContains(entry: string, criteria?: string): boolean {
+        return criteria == null || QueryUtils.normalize(entry).indexOf(QueryUtils.normalize(criteria)) !== -1;
+    }
+}
+

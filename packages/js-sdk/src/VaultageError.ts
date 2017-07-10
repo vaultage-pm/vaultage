@@ -8,7 +8,8 @@ export enum ERROR_CODE {
     DUPLICATE_ENTRY,
     NO_SUCH_ENTRY,
     TFA_FAILED,
-    TFA_CONFIRM_FAILED
+    TFA_CONFIRM_FAILED,
+    DB_ERROR
 };
 
 /**

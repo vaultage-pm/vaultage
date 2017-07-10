@@ -34,9 +34,6 @@ export class Crypto {
         let localSalt = this.hashUsername(username).slice(5, 8);
         // We convert the master password to a fixed length using sha256 then use the first half
         // of that result for creating the local key.
-        // Since we use the second half for the remote key and there is no way to derive the first half
-        // of a hash given its second half, then **even if** the remote key leaks AND pbkdf2 is found
-        // to be reversible, we still cannot find the local key.
         let masterHash = sjcl.hash.sha512.hash(masterPassword);
         return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash.slice(0, 8) , localSalt, this._config.PBKDF2_DIFFICULTY));
     }

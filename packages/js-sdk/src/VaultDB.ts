@@ -1,8 +1,13 @@
 import { Config } from './Config';
-import { checkParams, deepCopy, guid, GUID } from './utils';
+import { checkParams, deepCopy, fixedLength, guid, GUID, QueryUtils } from './utils';
 import { ERROR_CODE, VaultageError } from './VaultageError';
 
 
+export interface SerializedVaultDB_v1 {
+    entries: VaultDBEntry[],
+    v: string,
+    r: string
+};
 
 export interface VaultDBEntryAttrs {
     title?: string;
@@ -19,17 +24,6 @@ export interface VaultDBEntry {
     id: GUID,
     created: string,
     updated: string
-}
-
-
-/**
- * Utilities for performing queries in the DB
- */
-abstract class QueryUtils {
-
-    public static stringContains(entry: string, criteria?: string): boolean {
-        return criteria == null || entry.indexOf(criteria) !== -1;
-    }
 }
 
 /**
@@ -51,11 +45,12 @@ export class VaultDB {
         const n_entries = entries.length;
         const expectedLength = n_entries * db._config.BYTES_PER_ENTRY + db._config.MIN_DB_LENGTH;
 
-        let serialized = JSON.stringify({
+        let dto: SerializedVaultDB_v1 = {
             entries: entries,
-            v: VaultDB.VERSION,
-            r: db._revision
-        });
+            v: fixedLength(VaultDB.VERSION, 3),
+            r: fixedLength(db._revision, 7)
+        };
+        let serialized = JSON.stringify(dto);
 
         const amountToPad = expectedLength - serialized.length;
         let pad = "";
@@ -69,10 +64,15 @@ export class VaultDB {
     }
 
     public static deserialize(config: Config, ser: string): VaultDB {
-        const data = JSON.parse(ser);
+        const data = JSON.parse(ser) as SerializedVaultDB_v1;
         const entries: {
             [key: string]: VaultDBEntry
         } = {};
+
+        const version = parseInt(data.v, 10);
+        if (version !== VaultDB.VERSION) {
+            throw new VaultageError(ERROR_CODE.DB_ERROR, 'Wrong DB version: ' + version + '. expected ' + VaultDB.VERSION);
+        }
 
         for (var entry of data.entries) {
             if (entries[entry.id] != null) {
@@ -81,10 +81,16 @@ export class VaultDB {
             entries[entry.id] = entry;
         }
 
-        return new VaultDB(config, entries, data._revision);
+        return new VaultDB(config, entries, parseInt(data.r, 10));
     }
 
-    public add(attrs: VaultDBEntryAttrs): void {
+    /**
+     * Adds a new entry to the database.
+     * 
+     * @param attrs Entry attributes
+     * @return the generated id for that entry
+     */
+    public add(attrs: VaultDBEntryAttrs): string {
         let checkedAttrs = {
             title: '',
             url: '',
@@ -104,6 +110,7 @@ export class VaultDB {
         };
         this._entries[entry.id] = entry;
         this.newRevision();
+        return entry.id;
     }
 
     public remove(id: string): void {
@@ -114,6 +121,11 @@ export class VaultDB {
         this.newRevision();
     }
 
+    /**
+     * Updates an entry in the DB.
+     * 
+     * You can either pass a full VaultDBEntry (with an id) or an id and some VaultDBEntryAttrs.
+     */
     public update(entry: VaultDBEntry): void;
     public update(id: string, attrs: VaultDBEntryAttrs): void;
     public update(id: (string | VaultDBEntry), attrs?: VaultDBEntryAttrs): void {
