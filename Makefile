@@ -13,12 +13,14 @@ $(CLEANPKGS):
 	$(MAKE) -C $(addprefix $(PKG_DIR)/, $(@:clean-%=%)) clean
 
 dist-cli: clean-public
+	cp -r packages/server public/
 	cp -r packages/web-cli public/
 	cp -r packages/mobile-cli public/
 
 clean: clean-public $(CLEANPKGS)
 
 clean-public:
+	rm -rf public/server
 	rm -rf public/web-cli
 	rm -rf public/mobile-cli
 

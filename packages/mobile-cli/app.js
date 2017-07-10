@@ -8,7 +8,7 @@ phonon.options({
     i18n: null // for this example, we do not use internationalization
 });
 
-var API_URL = './api/index.php';
+var API_URL = '../server/index.php';
 
 var vault = new vaultage.Vault();
 
@@ -39,9 +39,7 @@ app.on({page: 'login', preventClose: false, content: 'login.html', readyDelay: 1
             indicator.close();
 
             if (err) {
-                console.error(err);
-                console.log(err.cause);
-                phonon.alert(err, 'Error');
+                phonon.alert(err.message, 'Error');
                 return;
             }
 
@@ -56,7 +54,15 @@ app.on({page: 'login', preventClose: false, content: 'login.html', readyDelay: 1
 });
 
 app.on({page: 'logout', preventClose: false, content: 'logout.html'});
-app.on({page: 'vault', preventClose: false, content: 'vault.html'});
+
+app.on({page: 'vault', preventClose: false, content: 'vault.html'}, function(activity) {
+
+    activity.onCreate(function() {
+        if (!vault.isAuth()) {
+            tphonon.alert("Please login first.", 'Error');
+        }
+    });
+});
 
 app.on({page: 'vault_add', preventClose: false, content: 'vault_add.html'}, function(activity) {
 
