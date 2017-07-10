@@ -31,3 +31,5 @@ node_modules
 
 dist
 dist/*
+
+deps/
