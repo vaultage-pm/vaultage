@@ -8,20 +8,19 @@
             <div class="content">
                 <div class="padded-full">
 
-                    <input type="text" placeholder="Search by email, title, password" id="example-input">
+                    <p id="dbStatus">Database not loaded (please login).</p>
 
-                    <datalist id="componentList">
-                        <option>Github</option>
-                        <option>Google</option>
-                        <option>Gitlab</option>
-                    </datalist>
+                    <input type="text" placeholder="Search by email, title, password" id="dbSearchField">
+                </div>
+
+                <div class="padded-full">
+                    <ul class="list" id="searchResults">
+                        <li style="display:none"> <!-- dummy element to trigger the JS -->
+                            <a href="#link1" class="padded-list">Link 1</a>
+                            <div class="accordion-content">
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </vault>
-
-        
-
-        <script>
-            // Create the autocomplete instance
-            phonon.autocomplete(document.querySelector('#example-input'), {list: '#componentList'});
-        </script>

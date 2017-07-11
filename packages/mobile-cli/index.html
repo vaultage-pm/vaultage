@@ -6,7 +6,8 @@
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
 
         <link rel="stylesheet" href="dist/css/phonon.css" />
-        <title>App</title>
+        <link rel="stylesheet" href="css/vaultage.css" />
+        <title>Vaultage</title>
     </head>
     <body>
 
@@ -36,6 +37,14 @@
         <vault_add data-page="true"></vault_add>
         <settings data-page="true"></settings>
 
+        <!-- Libs -->
+        <script src="./lib/jquery-2.1.1.js"></script>
+        <script src="./lib/jquery-throttle.js"></script>
+        <script src="./lib/jquery.base64.js"></script>
+        <script src="./lib/js.cookie.js"></script>
+        <script src="./lib/pwdGen.js"></script>
+        <script src="./lib/lodash.js"></script>
+
         <!-- Vaultage -->
         <script src="./deps/vaultage.js"></script>
 
@@ -43,11 +52,7 @@
         <script src="dist/js/components/awesomplete.js"></script>
         <script src="dist/js/phonon.js"></script>
         <script src="app.js"></script>
-
-        <!-- Libs -->
-        <script src="./lib/jquery-2.1.1.js"></script>
-        <script src="./lib/jquery.base64.js"></script>
-        <script src="./lib/js.cookie.js"></script>
-        <script src="./lib/pwdGen.js"></script>
+        <script src="reuse.js"></script>
+        <script src="search.js"></script>
     </body>
 </html>

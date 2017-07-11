@@ -57,9 +57,19 @@ app.on({page: 'logout', preventClose: false, content: 'logout.html'});
 
 app.on({page: 'vault', preventClose: false, content: 'vault.html'}, function(activity) {
 
-    activity.onCreate(function() {
+    activity.onReady(function() {
+
+        $('#dbSearchField').on('input', $.debounce( 250 , search ))
+
         if (!vault.isAuth()) {
-            tphonon.alert("Please login first.", 'Error');
+            phonon.alert('Please login first.', 'Error');
+        } else {
+            var nb_entries = vault.getNbEntries();
+            if (nb_entries !== 0) {
+                $('#dbStatus').html('Pull success, retrieved ' + nb_entries + ' entries.');
+            } else {
+                $('#dbStatus').html('Pull success, 0 entries. Future entries will be encrypted with the provided local password.');
+            }
         }
     });
 });
