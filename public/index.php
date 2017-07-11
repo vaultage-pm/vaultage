@@ -14,7 +14,7 @@
             echo '<li>Vaultage is running with a <a href="./web-cli/"><b>web desktop client</b></a>.</li>';
         }
         if (is_dir("mobile-cli")){
-            echo '<li>Vaultage is running with a <a href="./mobile-cli/"><b>web android/iPhone client</b></a>.</li>';
+            echo '<li>Vaultage is running with a <a href="./mobile-cli/"><b>web Android/iPhone client</b></a>.</li>';
         }
     }
     ?>
