@@ -17,3 +17,18 @@
 .highlight5{
   color:#3E7ED9;
 }
+
+#passwordInput, .pwd{
+    font-family: Consolas;
+    letter-spacing: 1px;
+}
+
+.vaultageEntryLabel{
+    width:100px;
+    display:inline-block;
+}
+
+.list li {
+    border: 1px #0084e7 solid;
+    margin-bottom: 1px;
+}

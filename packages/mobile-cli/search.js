@@ -1,116 +1,114 @@
-
 function search() {
     var searchKeys = $('#dbSearchField').val();
-        console.log("Searching for", searchKeys);
+    console.log("Searching for", searchKeys);
 
-        var filtered;
-        var matcher = _.property('id');
-        var nofilter = false;
-        var op = "and"
+    if (searchKeys.trim() == "") {
+        var o = '<li>' +
+            '<i>Please type a search term...</i>' +
+            '</li>'
+        $('#searchResults').html(o);
+        return;
+    }
 
-        if (searchKeys.lastIndexOf("-or ", 0) === 0) {
-            op = "or"
-            searchKeys = searchKeys.replace("-or ", "")
-        }
+    var filtered;
+    var matcher = _.property('id');
+    var nofilter = false;
+    var op = "and"
 
-        if (searchKeys == "*") {
-            nofilter = true;
-            filtered = vault.findEntries("");
-        } else {
-            var searchKeysParts = searchKeys.split(" ");
-            for (var i in searchKeysParts) {
-                let matchSet = vault.findEntries(searchKeysParts[i]);
+    if (searchKeys.lastIndexOf("-or ", 0) === 0) {
+        op = "or"
+        searchKeys = searchKeys.replace("-or ", "")
+    }
 
-                if (filtered == null) {
-                    filtered = matchSet;
-                } else if (op === 'and') {
-                    filtered = _.intersectionBy(matchSet, filtered, matchSet, matcher);
-                } else {
-                    filtered = _.unionBy(matchSet, filtered, matchSet, matcher);
-                }
-            }
-        }
+    if (searchKeys == "*") {
+        nofilter = true;
+        filtered = vault.findEntries("");
+    } else {
+        var searchKeysParts = searchKeys.split(" ");
+        for (var i in searchKeysParts) {
+            let matchSet = vault.findEntries(searchKeysParts[i]);
 
-        filtered = _.uniq(filtered || [], function(item) {
-            return item.id;
-        });
-
-        console.log(filtered)
-
-        //this could be done in one step with the above function
-        var sorted = _.sortBy(filtered, function(el) {
-            var id = (el.id == undefined) ? '' : ("" + el.id).toLowerCase();
-            var title = (el.title == undefined) ? '' : el.title.toLowerCase();
-            var url = (el.url == undefined) ? '' : el.url.toLowerCase();
-            var login = (el.login == undefined) ? '' : el.login.toLowerCase();
-
-            var numMatched = 0
-
-            _.each(searchKeysParts, function(searchKey) {
-                var s = searchKey.toLowerCase().trim()
-
-                numMatched += countOccurrences(id, s, false)
-                numMatched += countOccurrences(title, s, false)
-                numMatched += countOccurrences(url, s, false)
-                numMatched += countOccurrences(login, s, false)
-            });
-
-            return 1000 - numMatched; //ugly trick to reverse the order easily
-        });
-
-        output = '';
-
-        _.each(sorted, function(obj) {
-
-            reUse = reUseTable[obj.content]
-            reUseText = '<p class="reUse' + (reUse == 1 ? '1' : 'X') + '">'+(reUse == 1 ? 'not re-used' : ('re-used '+(reUse-1)+' times'))+'</p>'
-
-            count = 0
-            if (typeof obj.usageCount !== "undefined") {
-                count = obj.usageCount
-            }
-            countText = '<p class="usage">accessed '+(count)+' times</p>'
-
-            if (nofilter) {
-
-                var s = '<li>' +
-                            '<i class="pull-right icon icon-expand-more">' +
-                            '</i><a href="#link1" class="padded-list">'+obj.title+'</a>' +
-                            '<div class="accordion-content">' +
-                            '<p><span class="login">Login: ' + obj.login + '</span></p>' + 
-                            '<p><span class="url">URL: ' + obj.url + '</span></p>' +
-                            '<p><span class="pwd" onclick="addUsage(\''+obj.id+'\')">Pass: <b>' + obj.password + '</b></span></p>' + 
-                            reUseText + 
-                            countText +
-                        '</div>'+
-                    '</li>'
-
-                output += s;
-
+            if (filtered == null) {
+                filtered = matchSet;
+            } else if (op === 'and') {
+                filtered = _.intersectionBy(matchSet, filtered, matchSet, matcher);
             } else {
-                var _id = highlight(searchKeysParts, obj.id)
-                var _title = highlight(searchKeysParts, obj.title)
-                var _login = highlight(searchKeysParts, obj.login)
-                var _url = highlight(searchKeysParts, obj.url)
-                var _pwd = highlight(searchKeysParts, obj.password)
-
-                var s = '<li>' +
-                            '<i class="pull-right icon icon-expand-more">' +
-                            '</i><a href="#link1" class="padded-list">'+_title+'</a>' +
-                            '<div class="accordion-content">' +
-                            '<p><span class="login">Login: ' + _login + '</span></p>' +
-                            '<p><span class="url">URL: ' + _url + '</span></p>' +
-                            '<p><span class="pwd" onclick="addUsage(\''+obj.id+'\')">Pass: <b>' + _pwd + '</b></span></p>' + 
-                            reUseText + 
-                            countText +
-                        '</div>'+
-                    '</li>'
-
-                output += s;
+                filtered = _.unionBy(matchSet, filtered, matchSet, matcher);
             }
-        })
+        }
+    }
 
-        $('#searchResults').html(output);
+    filtered = _.uniq(filtered || [], function(item) {
+        return item.id;
+    });
+
+    console.log(filtered)
+
+    //this could be done in one step with the above function
+    var sorted = _.sortBy(filtered, function(el) {
+        var id = (el.id == undefined) ? '' : ("" + el.id).toLowerCase();
+        var title = (el.title == undefined) ? '' : el.title.toLowerCase();
+        var url = (el.url == undefined) ? '' : el.url.toLowerCase();
+        var login = (el.login == undefined) ? '' : el.login.toLowerCase();
+
+        var numMatched = 0
+
+        _.each(searchKeysParts, function(searchKey) {
+            var s = searchKey.toLowerCase().trim()
+
+            numMatched += countOccurrences(id, s, false)
+            numMatched += countOccurrences(title, s, false)
+            numMatched += countOccurrences(url, s, false)
+            numMatched += countOccurrences(login, s, false)
+        });
+
+        return 1000 - numMatched; //ugly trick to reverse the order easily
+    });
+
+    output = '';
+
+    _.each(sorted, function(obj) {
+
+        reUse = reUseTable[obj.content]
+        reUseText = '<p class="reUse' + (reUse == 1 ? '1' : 'X') + '">' + (reUse == 1 ? 'not re-used' : ('re-used ' + (reUse - 1) + ' times')) + '</p>'
+
+        count = 0
+        if (typeof obj.usageCount !== "undefined") {
+            count = obj.usageCount
+        }
+        countText = '<p class="usage">accessed ' + (count) + ' times</p>'
+
+        var _id = obj.id
+        var _title = obj.title
+        var _login = obj.login
+        var _url = obj.url
+        var _pwd = obj.password
+
+        if (!nofilter) {
+            _id = highlight(searchKeysParts, obj.id)
+            _title = highlight(searchKeysParts, obj.title)
+            _login = highlight(searchKeysParts, obj.login)
+            _url = highlight(searchKeysParts, obj.url)
+            _pwd = highlight(searchKeysParts, obj.password)
+        }
+
+        var s = '<li>' +
+            '<i class="pull-right icon icon-expand-more">' +
+            '</i><a href="#link1" class="padded-list">' + _title + '</a>' +
+            '<div class="accordion-content">' +
+            '<p><span class="vaultageEntryLabel">Login:</span><span class="login">' + _login + '</span></p>' +
+            '<p><span class="vaultageEntryLabel">URL:</span><span class="url">' + _url + '</span></p>' +
+            '<p><span class="vaultageEntryLabel">Pass:</span><span class="pwd" onclick="addUsage(\'' + obj.id + '\')">' + _pwd + '</span></p>' +
+            reUseText +
+            countText +
+            '</div>' +
+            '</li>'
+
+        output += s;
+
+    })
+
+    $('#searchResults').html(output);
 }
 
 function highlight(terms, baseString) {
