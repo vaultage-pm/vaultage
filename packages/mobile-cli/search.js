@@ -25,6 +25,10 @@ function search() {
     } else {
         var searchKeysParts = searchKeys.split(" ");
         for (var i in searchKeysParts) {
+            if(searchKeysParts[i].trim() == "") {
+                continue;
+            }
+            console.log("Searching for term", searchKeysParts[i])
             let matchSet = vault.findEntries(searchKeysParts[i]);
 
             if (filtered == null) {
@@ -130,7 +134,10 @@ function highlight(terms, baseString) {
     */
     var i = 1
     _.each(terms, function(term) {
-        baseString = baseString.replace(new RegExp("(" + term + ")", 'gim'), '<span class="highlight' + i + '">$1</span>');
+        //don't highlight empty terms, messes with the regex
+        if(term.trim() != "") {
+            baseString = baseString.replace(new RegExp("(" + term + ")", 'gim'), '<span class="highlight' + i + '">$1</span>');
+        }
         i++
     });
 
