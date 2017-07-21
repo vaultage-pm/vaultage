@@ -51,15 +51,28 @@ app.on({
         });
     };
 
-    activity.onCreate(function() {
-        document.querySelector('#login').on('tap', loginFn);
-    });
-});
 
-app.on({
-    page: 'logout',
-    preventClose: false,
-    content: 'logout.html'
+    var logoutFn = function(evt) {
+        vault.unauth();
+        $('#loginPanel').css("display", "block")
+        $('#logoutPanel').css("display", "none")
+    }
+
+    //each time the page loads, display the correct section
+    activity.onReady(function() {
+        if (!vault.isAuth()) {
+            $('#loginPanel').css("display", "block")
+            $('#logoutPanel').css("display", "none")
+        } else {
+            $('#loginPanel').css("display", "none")
+            $('#logoutPanel').css("display", "block")
+        }
+    });
+
+    activity.onCreate(function() {
+        document.querySelector('#loginBtn').on('tap', loginFn);
+        document.querySelector('#logoutBtn').on('tap', logoutFn);
+    });
 });
 
 app.on({

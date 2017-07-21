@@ -7,7 +7,7 @@
             </header>
 
             <div class="content">
-                <div class="padded-full">
+                <div id="loginPanel" class="padded-full">
 
                     <div class="input-wrapper">
                         <input class="with-label" type="email" id="username">
@@ -23,12 +23,18 @@
                         <label class="checkbox">
                             <input type="checkbox" name="remember">
                             <span></span>
-                            <span class="text">Remember username</span>
+                            <span class="text">Remember me</span>
                         </label>
                     </div>
 
                     <div class="input-wrapper">
-                        <button class="btn fit-parent primary" id="login">Submit</button>
+                        <button class="btn fit-parent primary" id="loginBtn">Log in</button>
+                    </div>
+                </div>
+
+                <div id="logoutPanel" class="padded-full" style="display:none">
+                    <div class="input-wrapper">
+                        <button class="btn fit-parent primary" id="logoutBtn">Log out</button>
                     </div>
                 </div>
             </div>
