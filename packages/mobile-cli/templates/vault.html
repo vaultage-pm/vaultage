@@ -10,10 +10,19 @@
 
                     <p id="dbStatus">Database not loaded (please login).</p>
 
-                    <input type="text" placeholder="Search by email, title, password" id="dbSearchField">
+                    <div class="input-wrapper"  id="refreshDBWrapper">
+                        <button class="btn fit-parent primary" id="refreshDBBtn">Refresh</button>
+                    </div>
+                </div>
+                
+                <div class="padded-full">
+                    <hr />
                 </div>
 
                 <div class="padded-full">
+
+                    <input type="text" placeholder="Search by email, title, password" id="dbSearchField">
+
                     <ul class="list" id="searchResults">
                         <li style="display:none"> <!-- dummy element to trigger the JS -->
                             <a href="#link1" class="padded-list">Link 1</a>

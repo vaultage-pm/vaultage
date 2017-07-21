@@ -14,6 +14,9 @@ var vault = new vaultage.Vault();
 
 var app = phonon.navigator();
 
+// **********************************************************************************************
+// Login / Logout
+
 app.on({
     page: 'login',
     preventClose: false,
@@ -22,8 +25,8 @@ app.on({
 }, function(activity) {
 
     var loginFn = function(evt) {
-        var username = $("#username").val()
-        var password = $("#password").val()
+        var username = $("#username").val();
+        var password = $("#password").val();
 
         //sanity check
         if (username.trim() == "") {
@@ -54,18 +57,18 @@ app.on({
 
     var logoutFn = function(evt) {
         vault.unauth();
-        $('#loginPanel').css("display", "block")
-        $('#logoutPanel').css("display", "none")
+        $('#loginPanel').css("display", "block");
+        $('#logoutPanel').css("display", "none");
     }
 
     //each time the page loads, display the correct section
     activity.onReady(function() {
         if (!vault.isAuth()) {
-            $('#loginPanel').css("display", "block")
-            $('#logoutPanel').css("display", "none")
+            $('#loginPanel').css("display", "block");
+            $('#logoutPanel').css("display", "none");
         } else {
-            $('#loginPanel').css("display", "none")
-            $('#logoutPanel').css("display", "block")
+            $('#loginPanel').css("display", "none");
+            $('#logoutPanel').css("display", "block");
         }
     });
 
@@ -75,28 +78,67 @@ app.on({
     });
 });
 
+// **********************************************************************************************
+// Vault - Search
+
 app.on({
     page: 'vault',
     preventClose: false,
     content: 'vault.html'
 }, function(activity) {
 
-    activity.onReady(function() {
+    //displays without re-pulling
+    var updateStatusFn = function(){
+        var nb_entries = vault.getNbEntries();
+        if (nb_entries !== 0) {
+            $('#dbStatus').html('Pull success, retrieved ' + nb_entries + ' entries.');
+        } else {
+            $('#dbStatus').html('Pull success, 0 entries. Future entries will be encrypted with the provided local password.');
+        }
+    }
 
-        $('#dbSearchField').on('input', $.debounce(250, search))
-
+    //repulls and displays
+    var refreshFn = function(evt) {
         if (!vault.isAuth()) {
             phonon.alert('Please login first.', 'Error');
         } else {
-            var nb_entries = vault.getNbEntries();
-            if (nb_entries !== 0) {
-                $('#dbStatus').html('Pull success, retrieved ' + nb_entries + ' entries.');
-            } else {
-                $('#dbStatus').html('Pull success, 0 entries. Future entries will be encrypted with the provided local password.');
-            }
+            var indicator = phonon.indicator('Refreshing...', false);
+            vault.refresh(function(err) {
+                indicator.close();
+                if (err) {
+                    phonon.alert(err.message, 'Error');
+                    return;
+                } else {
+                    updateStatusFn();
+
+                    //since we just refreshed, clear the search
+                    $('#dbSearchField').val('');
+                    var o = '<li id="noKeyword">' +
+                        '<i>Please type a search term...</i>' +
+                        '</li>'
+                    $('#searchResults').html(o);
+                }
+            });
+        }
+    }
+    
+    activity.onReady(function() {
+        //this binding needs to be here, for JQuery to be loaded
+        $('#dbSearchField').on('input', $.debounce(250, search));
+        if (!vault.isAuth()) {
+            phonon.alert('Please login first.', 'Error');
+        } else {
+            updateStatusFn();
         }
     });
+
+    activity.onCreate(function() {
+        document.querySelector('#refreshDBBtn').on('tap', refreshFn);
+    });
 });
+
+// **********************************************************************************************
+// Vault - Add a password
 
 app.on({
     page: 'vault_add',
@@ -185,20 +227,22 @@ app.on({
     });
 });
 
+// **********************************************************************************************
+// Settings
+
 app.on({
     page: 'settings',
     preventClose: false,
     content: 'settings.html'
 }, function(activity) {
 
+    // the only validation was to check if we get a 200 OK - deprecated
     var validateFn = function(evt) {
-
         var url = $("#serverUrl").val()
 
         if (url == "") {
             phonon.alert('Please enter a URL', 'Error');
         } else {
-            console.log("Contacting", url)
             $.ajax({
                 type: 'GET',
                 url: url,
@@ -215,5 +259,4 @@ app.on({
     });
 });
 
-// Let's go!
 app.start();

@@ -1,9 +1,8 @@
 function search() {
     var searchKeys = $('#dbSearchField').val();
-    console.log("Searching for", searchKeys);
 
     if (searchKeys.trim() == "") {
-        var o = '<li>' +
+        var o = '<li id="noKeyword">' +
             '<i>Please type a search term...</i>' +
             '</li>'
         $('#searchResults').html(o);

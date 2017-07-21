@@ -1,21 +1,21 @@
 .highlight1{
-  color:red;
+  background-color: yellow;
 }
 
 .highlight2{
-  color:#F92672;
+  background-color:#F92672;
 }
 
 .highlight3{
-  color:#AE81FF;
+  background-color:#AE81FF;
 }
 
 .highlight4{
-  color:#66D9EF;
+  background-color:#66D9EF;
 }
 
 .highlight5{
-  color:#3E7ED9;
+  background-color:#3E7ED9;
 }
 
 #passwordInput, .pwd{
@@ -35,4 +35,12 @@
 
 #searchResults .padded-list {
     background-color:#EEE;
+}
+
+#dbSearchField {
+    margin-bottom: 10px;
+}
+
+#noKeyword {
+    border: 0px solid #CCC;
 }
