@@ -10,6 +10,7 @@ export interface VaultDBEntryAttrs {
     login?: string;
     password?: string;
     usageCount: number;
+    reUseIndex?: number;
 }
 
 export interface VaultDBEntry {
@@ -18,6 +19,7 @@ export interface VaultDBEntry {
     login: string,
     password: string,
     usageCount: number,
+    reUseIndex: number,
     id: GUID,
     created: string,
     updated: string
@@ -45,7 +47,8 @@ export class VaultDB {
     public constructor(
             private _config: Config,
             private _entries: { [key: string]: VaultDBEntry },
-            private _revision: number = 0) {
+            private _revision: number = 0,
+            private _reuseTable: { [id: string]: number } = {} ) {
     }
 
     public static serialize(db: VaultDB): string {
@@ -75,15 +78,25 @@ export class VaultDB {
         const entries: {
             [key: string]: VaultDBEntry
         } = {};
+        //the reUse table (check which passwords are used multiple times)
+        const reuseTable: {
+            [id: string]: number
+        } = {}
 
         for (var entry of data.entries) {
             if (entries[entry.id] != null) {
                 throw new VaultageError(ERROR_CODE.DUPLICATE_ENTRY, 'Duplicate entry with id: ' + entry.id + ' in vault.');
             }
             entries[entry.id] = entry;
+
+            //init to 0 if unset
+            if (reuseTable[entry.password] == null){
+                reuseTable[entry.password] = 0
+            }
+            reuseTable[entry.password]++
         }
 
-        return new VaultDB(config, entries, data._revision);
+        return new VaultDB(config, entries, data._revision, reuseTable);
     }
 
     public add(attrs: VaultDBEntryAttrs): void {
@@ -102,6 +115,7 @@ export class VaultDB {
             login: checkedAttrs.login,
             password: checkedAttrs.password,
             usageCount: 0,
+            reUseIndex: 0,
             created: currentDate,
             updated: currentDate
         };
@@ -133,6 +147,7 @@ export class VaultDB {
                 login: '',
                 password: '',
                 usageCount: 0,
+                reUseIndex: 0,
             };
             attrs = checkParams(id, attrs);
             id = id.id;
@@ -140,7 +155,7 @@ export class VaultDB {
 
         // This is only needed due to typescript's inability to correlate the input
         // arguments based on the prototypes. In practice this branch is never taken.
-        if (attrs == null) attrs = { usageCount: 0 };
+        if (attrs == null) attrs = { usageCount: 0, reUseIndex: 0 };
 
         let currentDate = (new Date()).toUTCString();
         let entry = this.get(id);
@@ -157,6 +172,7 @@ export class VaultDB {
 
     public get(id: string): VaultDBEntry {
         let entry = this._entries[id];
+        entry.reUseIndex = this._reuseTable[entry.password];
         if (entry == null) {
             throw new VaultageError(ERROR_CODE.NO_SUCH_ENTRY, 'No entry with id "' + id + '"');
         }
@@ -173,7 +189,9 @@ export class VaultDB {
                     QueryUtils.stringContains(entry.id, query) ||
                     QueryUtils.stringContains(entry.title, query) ||
                     QueryUtils.stringContains(entry.url, query)) {
-                resultSet.push(deepCopy(entry));
+                let entry2 = deepCopy(entry)
+                entry2.reUseIndex = this._reuseTable[entry2.password];
+                resultSet.push(entry2);
             }
         }
 
@@ -184,7 +202,9 @@ export class VaultDB {
         const entries: VaultDBEntry[] = [];
         const keys = Object.keys(this._entries);
         for (var key of keys) {
-            entries.push(deepCopy(this._entries[key]));
+            let entry2 = deepCopy(this._entries[key])
+            entry2.reUseIndex = this._reuseTable[entry2.password];
+            entries.push(entry2);
         }
         return entries;
     }
