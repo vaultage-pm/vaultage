@@ -59,4 +59,22 @@ if(plain == dec){
     console.log("Test2 : Databases match, FAIL")
 }
 
+//test the entryUsed()
+let e = db.get("1")
+if(e.usageCount != 10){
+    console.log("Test3: UsageCount should be 10, FAIL")
+    ret = 1;
+} else {
+    console.log("Test3: UsageCount has the correct value (1), OK")
+}
+db.entryUsed("1")
+let e2 = db.get("1")
+if(e2.usageCount != 11){
+    console.log("Test3: UsageCount should be 11, FAIL")
+    ret = 1;
+} else {
+    console.log("Test3: UsageCount has the correct value (2), OK")
+}
+db.entryUsed("1")
+
 process.exit(ret);
