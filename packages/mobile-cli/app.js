@@ -8,8 +8,6 @@ phonon.options({
     i18n: null // for this example, we do not use internationalization
 });
 
-var API_URL = '../server/index.php';
-
 var vault = new vaultage.Vault();
 
 var app = phonon.navigator();
@@ -73,6 +71,7 @@ app.on({
     });
 
     activity.onCreate(function() {
+        $("#username").val(DEFAULT_USERNAME);
         document.querySelector('#loginBtn').on('tap', loginFn);
         document.querySelector('#logoutBtn').on('tap', logoutFn);
     });
@@ -206,12 +205,12 @@ app.on({
                     $("#passwordInput").val('');
 
                     indicator.close();
-                    phonon.alert("Success!");
+                    phonon.alert("Success!", "Vaultage");
                 }
             });
         });
         confirm.on('cancel', function(value) {
-            phonon.alert('Canceled!');
+            phonon.alert('Canceled!', "Vaultage");
         });
     }
 

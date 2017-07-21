@@ -45,8 +45,6 @@ function search() {
         return item.id;
     });
 
-    console.log(filtered)
-
     //this could be done in one step with the above function
     var sorted = _.sortBy(filtered, function(el) {
         var id = (el.id == undefined) ? '' : ("" + el.id).toLowerCase();
@@ -73,13 +71,9 @@ function search() {
     _.each(sorted, function(obj) {
 
         reUse = reUseTable[obj.content]
-        reUseText = '<p class="reUse' + (reUse == 1 ? '1' : 'X') + '">' + (reUse == 1 ? 'not re-used' : ('re-used ' + (reUse - 1) + ' times')) + '</p>'
-
-        count = 0
-        if (typeof obj.usageCount !== "undefined") {
-            count = obj.usageCount
-        }
-        countText = '<p class="usage">accessed ' + (count) + ' times</p>'
+        reUseText = '<span class="reUse' + (reUse == 1 ? '1' : 'X') + '">' + (reUse == 1 ? 'not re-used' : ('re-used ' + (reUse - 1) + ' times')) + '</span>,'
+        reUseText = ""; //TODO: Fix feature
+        countText = '<span class="usage">accessed ' + (obj.usageCount) + ' times</span>'
 
         var _id = obj.id
         var _title = obj.title
@@ -101,9 +95,9 @@ function search() {
             '<div class="accordion-content">' +
             '<p><span class="vaultageEntryLabel">Login:</span><span class="login">' + _login + '</span></p>' +
             '<p><span class="vaultageEntryLabel">URL:</span><span class="url">' + _url + '</span></p>' +
-            '<p><span class="vaultageEntryLabel">Pass:</span><span class="pwd" onclick="addUsage(\'' + obj.id + '\')">' + _pwd + '</span></p>' +
-            reUseText +
-            countText +
+            '<p><span class="vaultageEntryLabel">Pass:</span><span class="pwd">' + _pwd + '</span></p>' +
+            '<p><button class="btn fit-parent primary" class="copyBtn" onclick="copy(\'' + obj.id + '\');">Copy</button></p>' +
+            '<p>' + reUseText +  countText + '</p>' +
             '</div>' +
             '</li>'
 
@@ -112,6 +106,29 @@ function search() {
     })
 
     $('#searchResults').html(output);
+}
+
+function addUsage(id){
+    vault.entryUsed(id);
+    //save the new DB
+    vault.save(function(err) {
+        if (err) {
+            if (err.code === vaultage.ERROR_CODE.NOT_FAST_FORWARD) {
+                console.log("Cannot push : the server's information is newer than the one being pushed. Count not saved.", "Error");
+                return;
+            } else {
+                phonon.alert("Vault error:" + err + ".<br />. Could not save the database.", "Error");
+                return;
+            }
+        }
+    });
+}
+
+function copy(id){
+    var e = vault.getEntry(id);
+    var pwd = e.password;
+    copyTextToClipboard(pwd);
+    addUsage(id);
 }
 
 function highlight(terms, baseString) {
