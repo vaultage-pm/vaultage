@@ -1,0 +1,35 @@
+<vault data-page="true">
+            <header class="header-bar">
+                <button class="btn icon icon-menu pull-left show-for-phone-only" data-side-panel-id="side-panel-example"></button>
+                <div class="center">
+                    <h1 class="title">Vaultage</h1>
+                </div>
+            </header>
+            <div class="content">
+                <div class="padded-full">
+
+                    <p id="dbStatus">Database not loaded (please login).</p>
+
+                    <div class="input-wrapper"  id="refreshDBWrapper">
+                        <button class="btn fit-parent primary" id="refreshDBBtn">Refresh</button>
+                    </div>
+                </div>
+                
+                <div class="padded-full">
+                    <hr />
+                </div>
+
+                <div class="padded-full">
+
+                    <input type="text" placeholder="Search by email, title, password" id="dbSearchField">
+
+                    <ul class="list" id="searchResults">
+                        <li style="display:none"> <!-- dummy element to trigger the JS -->
+                            <a href="#link1" class="padded-list">Link 1</a>
+                            <div class="accordion-content">
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </vault>

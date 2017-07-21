@@ -23,7 +23,7 @@
 <body>
 
 <script>
-var API_URL = './api/index.php';
+var API_URL = '../server/index.php';
 
 var vault = new vaultage.Vault();
 
@@ -149,7 +149,7 @@ jQuery(document).ready(function($) {
 
         } else if (command == "gen") {
 
-            if (!isAuth) {
+            if (!vault.isAuth()) {
                 term.echo("You should <i>auth</i> first.");
             } else {
                 term.push(function(title, term) {

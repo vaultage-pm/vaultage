@@ -257,6 +257,16 @@ export class Vault {
     }
 
     /**
+     * Adds a new entry in the db
+     */
+    public entryUsed(id: string): void {
+        if (!this._db) {
+            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
+        }
+        this._db.entryUsed(id);
+    }
+
+    /**
      * Deletes an entry
      */
     public removeEntry(id: string): void {
