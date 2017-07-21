@@ -20,6 +20,7 @@ const db = new VaultDB(config, { '1': {
     updated: "",
     login: "Bob",
     password: "zephyr",
+    usageCount: 10,
     url: "http://example.com"
 }});
 const plain = VaultDB.serialize(db);

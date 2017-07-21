@@ -9,6 +9,7 @@ export interface VaultDBEntryAttrs {
     url?: string;
     login?: string;
     password?: string;
+    usageCount: number;
 }
 
 export interface VaultDBEntry {
@@ -16,6 +17,7 @@ export interface VaultDBEntry {
     url: string,
     login: string,
     password: string,
+    usageCount: number,
     id: GUID,
     created: string,
     updated: string
@@ -99,6 +101,7 @@ export class VaultDB {
             url: checkedAttrs.url,
             login: checkedAttrs.login,
             password: checkedAttrs.password,
+            usageCount: 0,
             created: currentDate,
             updated: currentDate
         };
@@ -114,6 +117,12 @@ export class VaultDB {
         this.newRevision();
     }
 
+    public entryUsed(id: string): void {
+        let entry = this.get(id);
+        let newCount = entry.usageCount + 1
+        this._entries[entry.id].usageCount = newCount
+    }
+
     public update(entry: VaultDBEntry): void;
     public update(id: string, attrs: VaultDBEntryAttrs): void;
     public update(id: (string | VaultDBEntry), attrs?: VaultDBEntryAttrs): void {
@@ -122,7 +131,8 @@ export class VaultDB {
                 title: '',
                 url: '',
                 login: '',
-                password: ''
+                password: '',
+                usageCount: 0,
             };
             attrs = checkParams(id, attrs);
             id = id.id;
@@ -130,7 +140,7 @@ export class VaultDB {
 
         // This is only needed due to typescript's inability to correlate the input
         // arguments based on the prototypes. In practice this branch is never taken.
-        if (attrs == null) attrs = {};
+        if (attrs == null) attrs = { usageCount: 0 };
 
         let currentDate = (new Date()).toUTCString();
         let entry = this.get(id);
