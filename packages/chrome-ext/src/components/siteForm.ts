@@ -11,7 +11,7 @@ interface ISiteFormScope extends ng.IScope {
 class SiteFormController {
 
     public isLoading: boolean = false;
-    public entry: VaultDBEntryAttrs = {};
+    public entry: VaultDBEntryAttrs = { usageCount: 0 };
 
     private siteId: string | undefined;
 
