@@ -1,6 +1,6 @@
 import { config } from '../src/Vault';
 import { ERROR_CODE, VaultageError } from '../src/VaultageError';
-import { VaultDB, VaultDBEntry, VaultDBEntryAttrs } from '../src/VaultDB';
+import { VaultDB, VaultDBEntryAttrs } from '../src/VaultDB';
 
 describe('The Vault database', () => {
     let db: VaultDB;

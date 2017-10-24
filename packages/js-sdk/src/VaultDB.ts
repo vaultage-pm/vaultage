@@ -26,6 +26,10 @@ export interface VaultDBEntry {
     updated: string
 }
 
+export interface VaultDBEntries {
+    [key: string]: VaultDBEntry;
+}
+
 /**
  * Internal class for handling the vault data.
  *
@@ -36,7 +40,7 @@ export class VaultDB {
 
     public constructor(
             private _config: Config,
-            private _entries: { [key: string]: VaultDBEntry },
+            private _entries: VaultDBEntries,
             private _revision: number = 0) {
     }
 

@@ -38,9 +38,7 @@ config.MIN_DB_LENGTH = VaultDB.serialize(new VaultDB(config, {})).length;
  *
  * @example
  * var vault = new Vault();
- * vault.auth(some_url, some_username, some_pwd, function(err) {
- *   if (err) throw err;
- *
+ * vault.auth(some_url, some_username, some_pwd).then( => {
  *   var nb_entries = vault.getNbEntries();
  *   console.log('Success! Fetched ' + nb_entries + ' entries.');
  * });
@@ -83,16 +81,12 @@ export class Vault {
      * @param cb Callback invoked on completion. err is null if no error occured.
      */
     public requestTFASetup(cb: (err: (VaultageError | null), vault: Vault, data?: TFARequestData) => void): void {
-        if (!this._creds) {
-            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'), this);
-        } else {
-            this._setTFA(this._creds, null, (err, data) => {
-                let translatedData = (data == null) ? undefined : {
-                    provisioningURI: data.provisioning_uri
-                };
-                cb(err, this, translatedData);
-            });
-        }
+        this._setTFA(this._getCreds(), null, (err, data) => {
+            let translatedData = (data == null) ? undefined : {
+                provisioningURI: data.provisioning_uri
+            };
+            cb(err, this, translatedData);
+        });
     }
 
     /**
@@ -104,13 +98,9 @@ export class Vault {
      * @param cb Callback invoked on completion. err is null if no error occured.
      */
     public confirmTFASetup(data: TFAConfirmationData, cb: (err: (VaultageError | null), vault: Vault) => void): void {
-        if (!this._creds) {
-            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'), this);
-        } else {
-            this._setTFA(this._creds, data, (err) => {
-                cb(err, this);
-            });
-        }
+        this._setTFA(this._getCreds(), data, (err) => {
+            cb(err, this);
+        });
     }
 
     /**
@@ -123,9 +113,8 @@ export class Vault {
     public auth(
             serverURL: string,
             username: string,
-            masterPassword: string,
-            cb: (err: (VaultageError | null), vault: Vault) => void
-    ): void {
+            masterPassword: string
+    ): Promise<void> {
 
         let creds = {
             serverURL: serverURL,
@@ -135,12 +124,9 @@ export class Vault {
         };
 
         if (!this._crypto) {
-            return this._pullConfig(creds, (err) => {
-                if (err) {
-                    return cb(err, this);
-                }
+            return this._pullConfig(creds).then(() => {
                 // Retry auth with the crypto this time
-                this.auth(serverURL, username, masterPassword, cb);
+                return this.auth(serverURL, username, masterPassword);
             });
         }
 
@@ -150,11 +136,15 @@ export class Vault {
 
         creds.localKey = localKey;
         creds.remoteKey = remoteKey;
-        this._pullCipher(creds, (err) => {
-            if (!err) {
-                this._setCredentials(creds);
-            }
-            cb(err, this);
+        return new Promise<void>((resolve, reject) => {
+            this._pullCipher(creds, (err) => {
+                if (!err) {
+                    this._setCredentials(creds);
+                    resolve();
+                } else {
+                    reject(err);
+                }
+            });
         });
     }
 
@@ -166,14 +156,10 @@ export class Vault {
      * @param {function} cb Callback invoked with (err: VaultageError, this) on completion. err is null if no error occured.
      */
     public save(cb: (err: (VaultageError|null), vault: Vault) => void): void {
-        if (!this._creds || !this._db) {
-            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'), this);
-        } else {
-            // Bumping the revision on each push ensures that there are no two identical consecutive fingerprints
-            // (in short we are pretending that we updated something even if we didn't)
-            this._db.newRevision();
-            this._pushCipher(this._creds, null, (err) => cb(err, this));
-        }
+        // Bumping the revision on each push ensures that there are no two identical consecutive fingerprints
+        // (in short we are pretending that we updated something even if we didn't)
+        this._getDB().newRevision();
+        this._pushCipher(this._getCreds(), null, (err) => cb(err, this));
     }
 
     /**
@@ -194,11 +180,7 @@ export class Vault {
      * @param {function} cb Callback invoked with (err: VaultageError, this) on completion. err is null if no error occured.
      */
     public refresh(cb: (err: (VaultageError|null), vault: Vault) => void): void {
-        if (!this._creds) {
-            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'), this);
-        } else {
-            this._pullCipher(this._creds, (err) => cb(err, this));
-        }
+        this._pullCipher(this._getCreds(), (err) => cb(err, this));
     }
 
     /**
@@ -211,27 +193,23 @@ export class Vault {
      * @param cb Callback invoked on completion.
      */
     public updateMasterPassword(newPassword: string, cb: (err: (VaultageError|null), vault: Vault) => void): void {
-        if (!this._creds || !this._db || !this._crypto) {
-            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated'), this);
-        } else {
-            let localKey = this._crypto.deriveLocalKey(this._creds.username, newPassword);
-            let remoteKey = this._crypto.deriveRemoteKey(this._creds.username, newPassword);
-            let creds = deepCopy(this._creds);
-            creds.localKey = localKey;
+        const creds = deepCopy(this._getCreds());
+        const localKey = this._getCrypto().deriveLocalKey(creds.username, newPassword);
+        const remoteKey = this._getCrypto().deriveRemoteKey(creds.username, newPassword);
+        creds.localKey = localKey;
 
-            this._db.newRevision();
-            this._pushCipher(creds, remoteKey, (err) => {
-                if (!err) {
-                    if (!this._creds) {
-                        cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'), this);
-                    } else {
-                        creds.remoteKey = remoteKey;
-                        this._setCredentials(creds);
-                    }
+        this._getDB().newRevision();
+        this._pushCipher(creds, remoteKey, (err) => {
+            if (!err) {
+                if (!this._creds) {
+                    cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'), this);
+                } else {
+                    creds.remoteKey = remoteKey;
+                    this._setCredentials(creds);
                 }
-                cb(err, this)
-            });
-        }
+            }
+            cb(err, this)
+        });
     }
 
     /**
@@ -240,30 +218,21 @@ export class Vault {
      * @throws If this vault is not authenticated.
      */
     public getNbEntries(): number {
-        if (!this._db) {
-            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
-        }
-        return this._db.size();
+        return this._getDB().size();
     }
 
     /**
      * Adds a new entry in the db
      */
     public addEntry(attrs: VaultDBEntryAttrs): void {
-        if (!this._db) {
-            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
-        }
-        this._db.add(attrs);
+        this._getDB().add(attrs);
     }
 
     /**
      * Deletes an entry
      */
     public removeEntry(id: string): void {
-        if (!this._db) {
-            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
-        }
-        this._db.remove(id);
+        this._getDB().remove(id);
     }
 
     /**
@@ -271,10 +240,7 @@ export class Vault {
      * @param query attribute substrings to match
      */
     public findEntries(query: string): VaultDBEntry[] {
-        if (!this._db) {
-            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
-        }
-        return this._db.find(query);
+        return this._getDB().find(query);
     }
 
     /**
@@ -292,21 +258,15 @@ export class Vault {
      * @returns an updated version of the entry
      */
     public updateEntry(id: string, attrs: VaultDBEntryAttrs): VaultDBEntry {
-        if (!this._db) {
-            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
-        }
-        this._db.update(id, attrs);
-        return this._db.get(id);
+        this._getDB().update(id, attrs);
+        return this._getDB().get(id);
     }
 
     /**
      * Returns an entry by its id
      */
     public getEntry(id: string): VaultDBEntry {
-        if (!this._db) {
-            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
-        }
-        return this._db.get(id);
+        return this._getDB().get(id);
     }
 
     /**
@@ -320,28 +280,79 @@ export class Vault {
     }
 
 
+    // Visible for tests only
+
+    public _setCrypto(crypto: Crypto): void {
+        this._crypto = crypto;
+    }
+
+    public _getCrypto(): Crypto {
+        if (!this._crypto) {
+            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated');
+        }
+        return this._crypto;
+    }
+
+    public _setDB(db: VaultDB): void {
+        this._db = db;
+    }
+
+    public _getDB(): VaultDB {
+        if (!this._db) {
+            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
+        }
+        return this._db;
+    }
+
+    public _getCreds(): Credentials {
+        if (!this._creds) {
+            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
+        }
+        return this._creds;
+    }
+
+    public _setCreds(creds: Credentials): void {
+        this._creds = creds;
+    }
+
+    public _request(): request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl> {
+        return request;
+    }
+
+    public _VaultDB(): typeof VaultDB {
+        return VaultDB;
+    }
+
+
     // Private methods
 
-    private _pullConfig(creds: Credentials, cb: (err: (VaultageError|null)) => void): void {
-        request({
-            url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey, 'config')
-        }, (err: any, resp: any) => {
-            if (err) {
-                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
-            }
-            let body: any;
-            try {
-                body = JSON.parse(resp.body);
-                // Poor man's typechecking of the server response
-                if (!body.salts || body.salts.USERNAME_SALT == null) {
-                    throw "Parse error";
+    private _pullConfig(creds: Credentials): Promise<void> {
+        return new Promise<request.RequestResponse>(resolve => {
+            this._request()({
+                url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey, 'config')
+            }, (err: any, resp) => {
+                if (err) {
+                    throw new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString());
+                } else {
+                    return resolve(resp);
                 }
-            } catch(e) {
-                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response'));
-            }
+            });
+        }).then((resp) => {
+            return new Promise<void>(resolve => {
+                let body: any;
+                try {
+                    body = JSON.parse(resp.body);
+                    // Poor man's typechecking of the server response
+                    if (!body.salts || body.salts.USERNAME_SALT == null) {
+                        throw "Parse error";
+                    }
+                } catch(e) {
+                    throw new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response');
+                }
 
-            this._crypto = new Crypto(config, body.salts);
-            cb(null);
+                this._setCrypto(new Crypto(config, body.salts));
+                resolve();
+            });
         });
     }
 
@@ -356,7 +367,7 @@ export class Vault {
     }
 
     private _pullCipher(creds: Credentials, cb: (err: (VaultageError|null)) => void): void {
-        request({
+        this._request()({
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey, 'pull')
         }, (err: any, resp: any) => {
             if (err) {
@@ -385,7 +396,7 @@ export class Vault {
             if (cipher && body.data) {
                 try {
                     let plain = this._crypto.decrypt(creds.localKey, cipher);
-                    this._db = VaultDB.deserialize(config, plain);
+                    this._db = this._VaultDB().deserialize(config, plain);
                     this._lastFingerprint = this._crypto.getFingerprint(plain, creds.localKey);
                 } catch (e) {
                     return cb(new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occured while decrypting the cipher', e));
@@ -393,7 +404,7 @@ export class Vault {
                 }
             } else {
                 // Create an empty DB if there is nothing on the server.
-                this._db = new VaultDB(config, {});
+                this._setDB(new (this._VaultDB())(config, {}));
                 this._lastFingerprint = '';
             }
             cb(null);
@@ -401,15 +412,11 @@ export class Vault {
     }
 
     private _pushCipher(creds: Credentials, newRemoteKey: (string|null), cb: (err: (VaultageError|null)) => void): void {
-        if (!this._db || !this._crypto) {
-            return cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
-        }
-
-        let plain = VaultDB.serialize(this._db);
-        let cipher = this._crypto.encrypt(creds.localKey, plain);
-        let fingerprint = this._crypto.getFingerprint(plain, creds.localKey);
+        let plain = VaultDB.serialize(this._getDB());
+        let cipher = this._getCrypto().encrypt(creds.localKey, plain);
+        let fingerprint = this._getCrypto().getFingerprint(plain, creds.localKey);
         let action = newRemoteKey == null ? 'push' : 'changekey';
-        request({
+        this._request()({
             method: 'POST',
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey, action),
             body: urlencode({
@@ -447,7 +454,7 @@ export class Vault {
     }
 
     private _setTFA(creds: Credentials, confirm: (TFAConfirmationData|null), cb: (err: (VaultageError|null), data?: any) => void): void {
-        request({
+        this._request()({
             method: 'POST',
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey, 'settfa'),
             body: urlencode({

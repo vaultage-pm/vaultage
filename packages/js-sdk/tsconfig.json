@@ -8,7 +8,10 @@
     "allowJs": false,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "lib": [
+      "es2015"
+    ]
   },
   "exclude": [
     "node_modules"

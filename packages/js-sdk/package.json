@@ -23,6 +23,7 @@
   "dependencies": {
     "@types/jasmine": "^2.5.53",
     "@types/node": "^8.0.4",
+    "@types/request": "^2.0.0",
     "jasmine-core": "^2.6.4",
     "karma": "^1.7.0",
     "karma-chrome-launcher": "^2.2.0",
