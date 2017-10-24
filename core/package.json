@@ -1,0 +1,90 @@
+{
+    "name": "vaultage",
+    "version": "0.0.0",
+    "description": "A self hosted password manager",
+    "keywords": [],
+    "main": "dist/vaultage.umd.js",
+    "module": "dist/vaultage.es5.js",
+    "typings": "dist/types/vaultage.d.ts",
+    "files": [
+        "dist"
+    ],
+    "contributors": [
+        "Ludovic Barman (https://github.com/lbarman)",
+        "Hadrien Milano (https://github.com/hmil)"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/lbarman/vaultage.git"
+    },
+    "license": "MIT",
+    "engines": {
+        "node": ">=6.0.0"
+    },
+    "scripts": {
+        "lint": "tslint -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+        "prebuild": "rimraf dist",
+        "build": "tsc && rollup -c rollup.config.ts && rimraf compiled && typedoc --out dist/docs --target es6 --theme minimal src",
+        "start": "tsc -w & rollup -c rollup.config.ts -w",
+        "test": "jest",
+        "test:watch": "jest --watch",
+        "test:prod": "npm run lint && npm run test -- --coverage --no-cache",
+        "deploy-docs": "ts-node tools/gh-pages-publish",
+        "report-coverage": "cat ./coverage/lcov.info | coveralls"
+    },
+    "lint-staged": {
+        "{src,test}/**/*.ts": [
+            "prettier --write --no-semi --single-quote",
+            "git add"
+        ]
+    },
+    "jest": {
+        "transform": {
+            ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+        },
+        "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+        "moduleFileExtensions": [
+            "ts",
+            "tsx",
+            "js"
+        ],
+        "coveragePathIgnorePatterns": [
+            "/node_modules/",
+            "/test/"
+        ],
+        "coverageThreshold": {
+            "global": {
+                "branches": 90,
+                "functions": 95,
+                "lines": 95,
+                "statements": 95
+            }
+        },
+        "collectCoverage": true,
+        "mapCoverage": true
+    },
+    "devDependencies": {
+        "@types/jest": "^21.1.0",
+        "@types/node": "^8.0.0",
+        "colors": "^1.1.2",
+        "coveralls": "^3.0.0",
+        "cross-env": "^5.0.1",
+        "jest": "^21.0.0",
+        "lint-staged": "^4.0.0",
+        "lodash.camelcase": "^4.3.0",
+        "prettier": "^1.4.4",
+        "prompt": "^1.0.0",
+        "rimraf": "^2.6.1",
+        "rollup": "^0.50.0",
+        "rollup-plugin-commonjs": "^8.0.2",
+        "rollup-plugin-node-resolve": "^3.0.0",
+        "rollup-plugin-sourcemaps": "^0.4.2",
+        "ts-jest": "^21.0.0",
+        "ts-node": "^3.0.6",
+        "tslint": "^5.4.3",
+        "tslint-config-prettier": "^1.1.0",
+        "tslint-config-standard": "^6.0.0",
+        "typedoc": "^0.9.0",
+        "typescript": "^2.3.4"
+    }
+}
