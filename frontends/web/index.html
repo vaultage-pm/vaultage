@@ -1,0 +1,1028 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Vaultage 4.0</title>
+    <meta name="author" content="Ludovic Barman, Hadrien Milano"/>
+    <meta name="Description" content="A self-hosted password manager with local encryption."/>
+
+    <!-- Styles -->
+    <link href="./css/jquery.terminal.css" rel="stylesheet"/>
+    <link href="./css/vaultage.css" rel="stylesheet"/>
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <!--[if IE]><link rel="shortcut icon" type="image/x-icon" href="favicon.ico" /><![endif]-->
+  </head>
+<body>
+
+<!-- Scripts -->
+<script src="http://code.jquery.com/jquery-1.7.1.min.js" integrity="sha256-iBcUE/x23aI6syuqF7EeT/+JFBxjPs5zeFJEXxumwb0=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/clipboard.js/1.5.12/clipboard.min.js"></script>
+<script src="./js/jquery.terminal.js"></script>
+<script>
+var API_URL = './api/index.php/';
+
+termHook = 0;
+globalKeyUpValue = "";
+jQuery(document).ready(function($) {
+    var id = 1;
+
+    $('body').terminal(function(command, term) {
+
+        termHook = term;
+        if (command.lastIndexOf("man", 0) === 0 || command.lastIndexOf("help", 0) === 0) {
+
+            var manPage = command.replace("man ", "").replace("help ", "").toLowerCase();
+
+            if(manPage == "auth") {
+
+                term.echo("Will prompt for credentials : user name, remote password (used to secure the database access), local password (used to encrypt the local content)");
+                term.echo("If this command succeed, you will be AUTHENTICATED (also <i>loadauth</i>).")
+
+            } else if (manPage == "get") {
+
+                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
+                term.echo("Usage 1 : <i>get TERM</i>. Will display the entries matching TERM (searches in ID, title, login, url, and password fields.")
+                term.echo("Usage 2 : <i>get TERM1 [TERM2 [TERM3 [...]]]</i>. Will display the entries matching <b>all</b> terms.")
+                term.echo("Usage 3 : <i>get <b>-or</b> TERM [TERM2 [TERM3 [...]]]</i>. Will display the entries matching <b>any</b> of the terms.")
+
+            } else if (manPage == "ls") {
+
+                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
+                term.echo("Equivalent of <i>get *</i>. Will display all entries.")
+
+            } else if (manPage == "new") {
+
+                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
+                term.echo("Will create a new password entry. Fields to be filled : title, login, url, password.")
+                term.echo("Will also try to <i>push</i> the changes to the server afterwards.")
+
+            } else if (manPage == "gen") {
+
+                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
+                term.echo("Will create a new password entry, and generates a new password automatically for it. Fields to be filled : title, login, url.")
+                term.echo("Will also try to <i>push</i> the changes to the server afterwards.")
+
+            } else if (manPage == "edit") {
+
+                term.echo("Usage : <i>edit ID</i>. Will start an interactive process to edit the contents of an entry.")
+                term.echo("IMPORTANT: by default, you need to fill the new fields again; the prompt is blank; use KEY_UP to redisplay the previous value of the field, and edit it.")
+                term.echo("Will also try to <i>push</i> the changes to the server afterwards.")
+
+            } else if (manPage == "rm") {
+
+                term.echo("Usage : <i>rm ID</i>. Will start an interactive process to remove an entry.")
+                term.echo("Will also try to <i>push</i> the changes to the server afterwards.")
+
+            } else if (manPage == "rotate") {
+
+                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
+                term.echo("Usage : <i>rotate ID</i>. Will generate a new random password for the entry ID.")
+
+            } else if (manPage == "push") {
+
+                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
+                term.echo("Will try to upload the current local content to the database, after encrypting it locally.")
+                term.echo("Can fail if your push is <i>non-fast-forward</i>, i.e. the database version of the data is newer than yours.")
+                term.echo("You can always <i>push --force</i> which ignores any verification, and overwrites the database content.")
+
+            } else if (manPage == "pull") {
+
+                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
+                term.echo("Will download the database content and replace local content with it, after decrypting it locally.")
+                term.echo("Warning : you may lose local non-pushed data (push is automatic after any operation).")
+
+            } else if (manPage == "clear") {
+
+                term.echo("Clears the screen.")
+
+            } else if (manPage == "logout") {
+
+                term.echo("Remove in-memory login information (username, remote password, local password).")
+                term.echo("After running <i>logout</i>, you will no longer be AUTHENTICATED.")
+                term.echo("Does not deletes any cookie's login information.")
+
+            } else if (manPage == "saveauth") {
+
+                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>).")
+                term.echo("Usage: saveauth[ NUMBER=7], where NUMBER is the number of days to store the cookie.")
+                term.echo("Saves the username, remote password in a cookie.")
+                term.echo("You may use <i>loadauth</i> afterwards.")
+
+            } else if (manPage == "loadauth") {
+
+                term.echo("Prerequisite: you need to possess a cookie generated by <i>saveauth</i>.")
+                term.echo("Tries to read the username, and remote password from the cookie Will prompt for the local password.")
+                term.echo("If this command succeed, you will be AUTHENTICATED (also <i>loadauth</i>).")
+
+            } else if (manPage == "clearauth") {
+
+                term.echo("Removes vaultage's cookie.")
+
+            }else if (manPage == "pwd") {
+
+                term.echo("Prerequisite: you need to be AUTHENTICATED (see <i>auth</i>, <i>loadauth</i>).")
+                term.echo("Will prompt to change local password.")
+                term.echo("Will also try to <i>push</i> the changes to the server afterwards.")
+
+            } else {
+                term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>edit ID</i>, <i>gen</i>, <i>rm ID</i>, <i>ls</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>, <i>pwd</i>.")
+                term.echo("you can get additional information by typing <i>help CMD</i>, e.g. <i>help loadauth</i> (<i>man CMD</i> is an alias)");
+            }
+
+        } else if (command == 'welcome') {
+
+            term.echo(" ");
+            term.echo(" ************************************************* ");
+            term.echo(space(19)+"_ _                   ");
+            term.echo(space(18)+"| | |                  ");
+            term.echo(space(1)+"__"+space(3)+"____ _ _"+space(3)+"_| | |_ __ _"+space(2)+"__ _"+space(2)+"___ ");
+            term.echo(space(1)+"\\ \\ / / _` | | | | | __/ _` |/ _` |/ _ \\");
+            term.echo(space(2)+"\\ V / (_| | |_| | | || (_| | (_| |"+space(2)+"__/");
+            term.echo(space(3)+"\\_/ \\__,_|\\__,_|_|\\__\\__,_|\\__, |\\___|");
+            term.echo(space(31)+"__/ |     ");
+            term.echo(space(30)+"|___/      ");
+            term.echo(" ");
+            term.echo(" Author : Ludovic Barman");
+            term.echo(" Github : <a href=\"https://github.com/lbarman/vaultage/\">github.com/lbarman/vaultage</a>");
+            term.echo(" ");
+            term.echo(" Vaultage is a password manager.");
+            term.echo(" It is in-browser, and can be accessed from all your devices.");
+            term.echo(" The password are encrypted/decrypted in your browser : no plaintext goes through the network.");
+            term.echo(" It is self-hosted : install it securely on your own server (see on github).");
+            term.echo(" It is open-source : please report any bugs on github; I'll do my best to fix them.");
+            term.echo(" ");
+            term.echo(" Security technologies used : <a href=\"https://code.google.com/archive/p/crypto-js/\">CryptoJS</a> and the <a href=\"https://bitwiseshiftleft.github.io/\">Stanford Javascript Crypto Library</a>, using SHA256 as a hash function, and AES (256bits).");
+            term.echo(" Plaintext passwords never leave your computer's memory. ");
+            term.echo(" ");
+            term.echo(" Trouble getting started ?");
+            term.echo(" ");
+            term.echo(" Typical workflow : ");
+            term.echo(" 1. <i>auth</i>, or <i>loadauth</i>");
+            term.echo(" 2. <i>new</i>, or <i>gen</i>");
+            term.echo(" 3. <i>get TERM</i>, where TERM is one of your password's login, title, url, etc.");
+            term.echo(" 4. maybe <i>edit</i>, or <i>rm</i>");
+            term.echo(" 5. <i>saveauth</i>");
+            term.echo(" 6. <i>logout</i>");
+            term.echo(" ");
+            term.echo(" Further questions on a command ? use the <i>man COMMAND</i> ! (<i>help COMMAND</i> is an alias)");
+            term.echo(" ");
+            term.echo(" ************************************************* ");
+            term.echo(" ");
+
+        } else if (command == 'auth') {
+
+            term.push(function(user, term) {
+                term.set_mask('*').push(function(remotePass) {
+                    term.set_mask('*').push(function(localPass) {
+
+                        var _localPasswordHash = hash(localPass);
+                        var _remotePasswordHash = hash(remotePass);
+
+                        getCipher(user, _localPasswordHash, _remotePasswordHash, term);
+                        term.pop().set_mask(false);
+                        term.pop().set_mask(false);
+                        term.pop();
+                    }, {
+                        prompt: 'local password: '
+                    });
+                }, {
+                    prompt: 'remote password: '
+                });
+            }, {
+                name: 'auth',
+                prompt: 'user : '
+            });
+
+        } else if (command.lastIndexOf("get", 0) === 0) {
+
+            search(command, term);
+
+        }else if (command == "ls") {
+
+            search("get *", term);
+
+        } else if (command.lastIndexOf("rm", 0) === 0) {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                var searchKey = command.replace("rm ", "").toLowerCase();
+                term.echo("Removing ID \"" + searchKey + "\"");
+
+                var filtered = _.filter(notes, function(el) {
+                    var id = (el.id == undefined) ? '' : (el.id + '');
+                    return (id.indexOf(searchKey) != -1);
+                });
+
+                _.each(filtered, function(obj) {
+                    term.echo('Entry ' + obj.id + ' found : ' + obj.title + " -> " + obj.login + " @ " + obj.url + " : " + obj.content)
+
+                    newNotes = _.filter(notes, function(el) {
+                        return (el.id != searchKey);
+                    });
+
+                    term.echo('Going to remove ' + (notes.length - newNotes.length) + ' entries.')
+
+                    var history = term.history();
+                    history.disable();
+                    term.push(function(command) {
+                        if (command.match(/^(y|yes)$/i)) {
+
+                            oldNotesLength = notes.length;
+                            oldHash = hash(JSON.stringify(notes));
+
+                            notes = newNotes;
+                            saveCipher(oldNotesLength, oldHash, false, term);
+
+                            term.pop();
+                            history.enable();
+                        } else if (command.match(/^(n|no)$/i)) {
+                            term.pop();
+                            history.enable();
+                        }
+                    }, {
+                        prompt: 'Are you sure? '
+                    });
+
+                })
+            }
+
+        } else if (command == "gen") {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                term.push(function(title, term) {
+                    term.push(function(login, term) {
+                        term.push(function(url, term) {
+                            genEntry(title, login, url, term);
+                            term.pop();
+                            term.pop();
+                            term.pop();
+                        }, {
+                            name: 'gen',
+                            prompt: 'url : '
+                        });
+                    }, {
+                        name: 'gen',
+                        prompt: 'login : '
+                    });
+                }, {
+                    name: 'gen',
+                    prompt: 'title : '
+                });
+            }
+
+
+        } else if (command == "new") {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                term.push(function(title, term) {
+                    term.push(function(login, term) {
+                        term.push(function(url, term) {
+                            term.push(function(pwd, term) {
+                                addEntry(title, login, url, pwd, term);
+                                term.pop();
+                                term.pop();
+                                term.pop();
+                                term.pop();
+                            }, {
+                                name: 'new',
+                                prompt: 'password : '
+                            });
+                        }, {
+                            name: 'new',
+                            prompt: 'url : '
+                        });
+                    }, {
+                        name: 'new',
+                        prompt: 'login : '
+                    });
+                }, {
+                    name: 'new',
+                    prompt: 'title : '
+                });
+            }
+
+        } else if (command.lastIndexOf("edit", 0) === 0) {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                var searchKey = command.replace("edit ", "").toLowerCase();
+
+                var filtered = _.filter(notes, function(el) {
+                    var id = (el.id == undefined) ? '' : (el.id + '');
+                    return (id.indexOf(searchKey) != -1);
+                });
+
+                if (filtered.length == 0) {
+                    term.echo("Could not find this ID")
+                } else {
+                    var s = '<span class="entry"><span class="id">(' + filtered[0].id + ')</span> <span class="title">' + filtered[0].title + "</span> -> <span class=\"login\">" + filtered[0].login + "</span> @ <span class=\"url\">" + filtered[0].url + "</span> : <span class=\"content\">" + filtered[0].content + "</span></span>";
+
+                    term.echo("Going to edit the following entry :");
+                    term.echo(s);
+
+                    term.echo("Use KEY UP to edit the previous text, KEY DOWN to clear.");
+
+                    globalKeyUpValue = filtered[0].title;
+
+                    term.push(function(title, term) {
+
+                        globalKeyUpValue = filtered[0].login;
+
+                        term.push(function(login, term) {
+
+                            globalKeyUpValue = filtered[0].url;
+
+                            term.push(function(url, term) {
+
+                                globalKeyUpValue = filtered[0].content;
+
+                                term.push(function(pwd, term) {
+
+                                    globalKeyUpValue = "";
+
+                                    editEntry(filtered[0].id, title, login, url, pwd, term)
+
+                                    var s = '<span class="entry"><span class="id">(' + filtered[0].id + ')</span> <span class="title">' + filtered[0].title + "</span> -> <span class=\"login\">" + filtered[0].login + "</span> @ <span class=\"url\">" + filtered[0].url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+filtered[0].id+")\">" + filtered[0].content + "</span></span>";
+
+                                    term.echo("The entry #" + filtered[0].id + " is now :");
+                                    term.echo(s);
+
+                                    term.pop();
+                                    term.pop();
+                                    term.pop();
+                                    term.pop();
+                                }, {
+                                    name: 'edit',
+                                    prompt: 'new password : '
+                                });
+                            }, {
+                                name: 'edit',
+                                prompt: 'new url : '
+                            });
+                        }, {
+                            name: 'edit',
+                            prompt: 'new login : '
+                        });
+                    }, {
+                        name: 'edit',
+                        prompt: 'new title : '
+                    });
+                }
+            }
+
+        } else if (command.lastIndexOf("rotate", 0) === 0) {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                var searchKey = command.replace("rotate ", "").toLowerCase();
+
+                var filtered = _.filter(notes, function(el) {
+                    var id = (el.id == undefined) ? '' : (el.id + '');
+                    return (id.indexOf(searchKey) != -1);
+                });
+
+                if (filtered.length == 0) {
+                    term.echo("Could not find this ID")
+                } else {
+                    var s = '<span class="entry"><span class="id">(' + filtered[0].id + ')</span> <span class="title">' + filtered[0].title + "</span> -> <span class=\"login\">" + filtered[0].login + "</span> @ <span class=\"url\">" + filtered[0].url + "</span> : <span class=\"content\">" + filtered[0].content + "</span></span>";
+
+                    term.echo("Going to rotate the following entry :");
+                    term.echo(s);
+
+                    var newPwd = generatePassword(15, false, true, true).join('');
+                    editEntry(filtered[0].id, filtered[0].title, filtered[0].login, filtered[0].url, newPwd, term)
+
+                    var s = '<span class="entry"><span class="id">(' + filtered[0].id + ')</span> <span class="title">' + filtered[0].title + "</span> -> <span class=\"login\">" + filtered[0].login + "</span> @ <span class=\"url\">" + filtered[0].url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+filtered[0].id+")\">" + filtered[0].content + "</span></span>";
+
+                    term.echo("The entry #" + filtered[0].id + " is now :");
+                    term.echo(s);
+                }
+            }
+
+        } else if (command == "push --force") {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                saveCipher(notes.length, hash(JSON.stringify(notes)), true, term);
+            }
+
+        } else if (command == "push") {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                saveCipher(notes.length, hash(JSON.stringify(notes)), false, term);
+            }
+
+        } else if (command == "pull") {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                getCipher(username, localPassword, remotePassword, term);
+            }
+
+        } else if (command == "saveauth") {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                Cookies.set('username', username, {
+                    expires: 7,
+                    secure: true
+                });
+                Cookies.set('remotePassword', remotePassword, {
+                    expires: 7,
+                    secure: true
+                });
+            }
+
+        //if saveauth XXX
+        } else if (command.lastIndexOf("saveauth", 0) === 0) {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                var days = command.replace("saveauth ", "").toLowerCase();
+
+                if(!jQuery.isNumeric(days)) {
+                    term.echo("Syntax : saveauth[ NUMBER=7]");
+                }else {
+                    term.echo("Saving cooking for "+days+" days");
+
+                    days = parseInt(days)
+
+                    Cookies.set('username', username, {
+                        expires: days,
+                        secure: true
+                    });
+                    Cookies.set('remotePassword', remotePassword, {
+                        expires: days,
+                        secure: true
+                    });
+                }
+
+
+            }
+
+
+        } else if (command == "pwd") {
+
+            if (!isAuth) {
+                term.echo("You should <i>auth</i> first.");
+            } else {
+                term.set_mask('*').push(function(localPass1) {
+                    term.set_mask('*').push(function(localPass2) {
+
+                        if (localPass1 == localPass2) {
+                            term.echo("Changing local password... ");
+                            saveCipher(notes.length, hash(JSON.stringify(notes)), false, term);
+                            term.echo("New local password saved.");
+                        } else {
+                            term.echo("Passwords don't match, aborting.");
+                        }
+                        term.pop().set_mask(false);
+                        term.pop().set_mask(false);
+                    }, {
+                        prompt: 'new local password (repeat): '
+                    });
+                }, {
+                    prompt: 'new local password: '
+                });
+            }
+
+        } else if (command == "loadauth" || command == "la") {
+
+            if (Cookies.get('username') == undefined || Cookies.get('remotePassword') == undefined) {
+                term.echo("Could not load cookies, going to re-auth.");
+
+                term.push(function(user, term) {
+                    term.set_mask('*').push(function(remotePass) {
+                        term.set_mask('*').push(function(localPass) {
+
+                            var _localPasswordHash = hash(localPass);
+                            var _remotePasswordHash = hash(remotePass);
+
+                            getCipher(user, _localPasswordHash, _remotePasswordHash, term);
+
+                            term.pop().set_mask(false);
+                            term.pop().set_mask(false);
+                            term.pop();
+
+                            term.push(function(command) {
+                                if (command.match(/^(y|yes)$/i)) {
+
+                                    Cookies.set('username', username, {
+                                        expires: 7,
+                                        secure: true
+                                    });
+                                    Cookies.set('remotePassword', remotePassword, {
+                                        expires: 7,
+                                        secure: true
+                                    });
+
+                                }
+                                term.pop();
+                            }, {
+                                prompt: 'Would you like to store the authentication token in your cookies? (say "no" on a public computer) '
+                            });
+                        }, {
+                            prompt: 'local password: '
+                        });
+                    }, {
+                        prompt: 'remote password: '
+                    });
+                }, {
+                    name: 'auth',
+                    prompt: 'user : '
+                });
+
+            } else {
+                username = Cookies.get('username')
+                remotePassword = Cookies.get('remotePassword')
+                term.set_mask('*').push(function(localPass) {
+
+                    localPassword = hash(localPass);
+                    isAuth = true;
+
+                    //automatic pull
+                    getCipher(username, localPassword, remotePassword, term)
+
+                    term.pop().set_mask(false);
+                }, {
+                    prompt: 'local password: '
+                });
+            }
+
+        } else if (command == "clear") {
+
+            term.clear();
+
+        } else if (command == "logout") {
+
+            username = ""
+            remotePassword = ""
+            localPassword = ""
+            isAuth = false
+
+        } else if (command == "clearauth") {
+
+            Cookies.remove('username');
+            Cookies.remove('remotePassword');
+
+        }  else {
+            term.echo('unknow command "' + command + '"');
+            term.echo("available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>ls</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>, <i>pwd</i>.")
+        }
+    }, {
+        greetings: "Vaultage v2.0 <br />*************<br />available commands : <i>auth</i>, <i>get TERM</i>, <i>new</i>, <i>gen</i>, <i>edit ID</i>, <i>rm ID</i>, <i>ls</i>, <i>push</i>, <i>pull</i>, <i>clear</i>, <i>logout</i>, <i>saveauth</i>, <i>loadauth</i>, <i>clearauth</i>, <i>pwd</i>.<br />*************<br /><span class=\"welcome\">New here ? type <i>welcome</i></span>",
+        onBlur: function() {
+            // prevent loosing focus
+            return false;
+        }
+    });
+});
+
+var isAuth = false;
+var notes = [];
+var username = ""
+var remotePassword = ""
+var localPassword = ""
+
+
+function editEntry(id, title, login, url, pwd, term) {
+
+    var index = 0;
+
+    while (index < notes.length) {
+        var nodeId = (notes[index].id == undefined) ? '' : (notes[index].id + '');
+        if (nodeId == id) {
+            break;
+        }
+        index++
+    }
+
+    if (notes[index].id != id) {
+        term.echo("WARNING: editEntry did nothing, ID not found")
+    }
+
+    oldHash = hash(JSON.stringify(notes));
+
+    notes[index].title = title;
+    notes[index].login = login;
+    notes[index].url = url;
+    notes[index].content = pwd;
+
+    saveCipher(notes.length, oldHash, false, term);
+
+
+    var s = '<span class="entry"><span class="id">(' + notes[index].id + ')</span> <span class="title">' + notes[index].title + "</span> -> <span class=\"login\">" + notes[index].login + "</span> @ <span class=\"url\">" + notes[index].url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+notes[index].id+")\">" + notes[index].content + "</span></span>";
+}
+
+function addEntry(title, login, url, pwd, term) {
+
+    var nextFreeId = _.max(notes, function(el) {
+        return el.id
+    }).id + 1
+
+    //very first ID
+    if (notes.length == 0) {
+        nextFreeId = 1
+    }
+
+    newEntry = {
+        id: nextFreeId,
+        column: -1,
+        title: title,
+        url: url,
+        login: login,
+        content: pwd,
+        order: -1,
+        lastupdate: Date.now()
+    };
+
+    oldHash = hash(JSON.stringify(notes));
+    oldNotesLength = notes.length;
+
+    notes.push(newEntry);
+
+    saveCipher(oldNotesLength, oldHash, false, term);
+
+    var s = '<span class="entry"><span class="id">(' + newEntry.id + ')</span> <span class="title">' + newEntry.title + "</span> -> <span class=\"login\">" + newEntry.login + "</span> @ <span class=\"url\">" + newEntry.url + "</span> : <span class=\"content\" ondblclick=\"addUsage("+newEntry.id+")\">" + newEntry.content + "</span></span>";
+
+    term.echo("New entry is : ")
+    term.echo(s)
+}
+
+function genEntry(title, login, url, term) {
+
+    var pwd = generatePassword(15, false, true, true).join('');
+    addEntry(title, login, url, pwd, term);
+}
+
+function getCipher(_username, _localPasswordHash, _remotePasswordHash, term) {
+
+    url = API_URL + _username + "/" + _remotePasswordHash + "/do"; //do is just for obfuscation
+
+    $.get(url, function(answer) {
+        if (answer.error != undefined && answer.error == true) {
+
+            term.echo('Wrong username / remote password (or DB link inactive).');
+
+            isAuth = false;
+            remotePassword = "";
+            localPassword = "";
+        } else {
+            try {
+                try {
+                    var cipher = answer.data.replace(/!\n/g, '').replace(/\s/g, '');
+
+                    if (answer.data == undefined || answer.data == "" || cipher == undefined || cipher == "") {
+                        term.echo("Pull success, 0 entries. Future entries will be encrypted with the provided local password.")
+                        notes = [];
+                        username = _username;
+                        remotePassword = _remotePasswordHash;
+                        localPassword = _localPasswordHash;
+                        isAuth = true;
+                    } else {
+                        var plain = CryptoJS.AES.decrypt(cipher, _localPasswordHash, {
+                            format: JsonFormatter
+                        }).toString(CryptoJS.enc.Utf8);
+                        notes = JSON.parse(plain);
+                        term.echo("Pull success, retrieved " + notes.length + " entries.");
+
+                        username = _username;
+                        remotePassword = _remotePasswordHash;
+                        localPassword = _localPasswordHash;
+                        isAuth = true;
+                    }
+
+                    //compute reuse table
+                    _.each(notes, function(note){
+                        addToReuseTable(note.content);
+                    })
+
+                } catch (e) {
+                    term.echo('Can\'t decrypt; Wrong local password.');
+
+                    isAuth = false;
+                    remotePassword = "";
+                    localPassword = "";
+
+                }
+            } catch (e) {
+                term.echo('Wrong username / remote password (or DB link inactive).');
+
+                isAuth = false;
+                remotePassword = "";
+                localPassword = "";
+            }
+        }
+    });
+}
+
+function highlight(terms, baseString) {
+
+    /*
+    var signs = ['¢', '°', '§', '~', '¨', '=', '£']
+
+    var i = 1
+    var first = true
+    _.each(terms, function(term){
+        baseString = baseString.replace(new RegExp("("+term+")", 'gim'), ""+signs[i % signs.length]+'$1¬');
+        i++
+    });
+
+    for(i = 0; i<signs.length; i++)    {
+        baseString = baseString.replace(new RegExp(signs[i], 'gim'), '<span class="highlight'+(i+1)+'">');
+        console.log("Replacing "+signs[i]+" with "+'<span class="highlight'+(i+1)+'">')
+    }
+    baseString = baseString.replace(new RegExp('¬', 'gim'), '</span>');
+    */
+    var i = 1
+    _.each(terms, function(term) {
+        baseString = baseString.replace(new RegExp("(" + term + ")", 'gim'), '<span class="highlight' + i + '">$1</span>');
+        i++
+    });
+
+    return baseString
+}
+
+function saveCipher(oldNodeLength, oldEntriesHash, force, term) {
+    url = API_URL + username + "/" + remotePassword + "/do"; //do is just for obfuscation
+
+    var raw = JSON.stringify(notes);
+    var cipher = CryptoJS.AES.encrypt(raw, localPassword, {
+        format: JsonFormatter
+    });
+    var data = cipher.toString();
+    $.post(url, {
+        'data': data,
+        'last_hash': oldEntriesHash,
+        'new_hash': hash(raw),
+        'force': force
+    }, function(answer, status, headers, config) {
+        if (answer.error != undefined && answer.error == true) {
+            if (answer.non_fast_forward == true) {
+                term.echo("Cannot push : the server's information is newer than the one being pushed. Please pull (it will remove your non-previously-pushed changes) and retry. You could also <i>push --force</i>, but be careful, you might lose data.")
+            } else {
+                term.echo('Wrong username / remote password (or DB link inactive).');
+
+                isAuth = false;
+                remotePassword = "";
+                localPassword = "";
+            }
+        } else {
+            try {
+                if (answer.data.indexOf('"ct"') != -1) {
+                    var cipher = answer.data;
+                    var plain = CryptoJS.AES.decrypt(cipher, localPassword, {
+                        format: JsonFormatter
+                    }).toString(CryptoJS.enc.Utf8);
+
+                    notes = JSON.parse(plain);
+                    term.echo("Push success, went from " + oldNodeLength + " to " + notes.length + " entries.");
+                } else {
+                    notes = answer.data;
+                }
+            } catch (e) {
+                console.log(e);
+                isAuth = false;
+                remotePassword = "";
+                localPassword = "";
+                Cookies.set('remotePassword', '', {
+                    expires: days,
+                    secure: true
+                });
+            }
+        }
+    });
+}
+
+function space(n) {
+    s="";
+    i = 0;
+    while( i < n ) {
+        s = s + "<span class=\"hidden\">.</span>"
+        i += 1
+    }
+    return s
+}
+
+function hash(s) {
+    var bitArray = sjcl.hash.sha256.hash(s);  
+    var digest_sha256 = sjcl.codec.hex.fromBits(bitArray);
+    return digest_sha256;
+
+    /*
+    var s2 = CryptoJS.SHA1(s);
+    return s2.toString(CryptoJS.enc.Base64);
+    */
+}
+
+/** Function count the occurrences of substring in a string;
+ * @param {String} string   Required. The string;
+ * @param {String} subString    Required. The string to search for;
+ * @param {Boolean} allowOverlapping    Optional. Default: false;
+ * @author Vitim.us http://stackoverflow.com/questions/4009756/how-to-count-string-occurrence-in-string/7924240#7924240
+ */
+function countOccurrences(string, subString, allowOverlapping) {
+
+    string += "";
+    subString += "";
+    if (subString.length <= 0) return (string.length + 1);
+
+    var n = 0,
+        pos = 0,
+        step = allowOverlapping ? 1 : subString.length;
+
+    while (true) {
+        pos = string.indexOf(subString, pos);
+        if (pos >= 0) {
+            ++n;
+            pos += step;
+        } else break;
+    }
+    return n;
+}
+
+function search(command, term) {
+
+    var searchKeys = command.replace("get ", "").toLowerCase();
+    if (!isAuth) {
+        term.echo("You should <i>auth</i> first.");
+    } else if (searchKeys == "" || searchKeys == "get") {
+        term.echo("Syntax : <i>get</i> SEARCH_TERM");
+    } else {
+
+        if (notes.length == 0) {
+            term.echo("You have 0 entries. You should <i>pull</i> entries, or use <i>new</i>, <i>gen</i>.");
+        }
+        var op = "and"
+
+        if (searchKeys.lastIndexOf("-or ", 0) === 0) {
+            op = "or"
+            searchKeys = searchKeys.replace("-or ", "")
+        }
+
+        var nofilter = false;
+        if (searchKeys == "*") {
+            nofilter = true;
+        }
+
+
+        var searchKeysParts = searchKeys.split(" ")
+
+        var searchString = []
+        var i = 1
+        _.each(searchKeysParts, function(searchKey) {
+            searchString.push('<span class="highlight' + i + '">' + searchKey + '</span>')
+            i++
+        });
+
+        if (op == "and") {
+            term.echo("Searching for " + searchString.join(" AND ") + "");
+        } else {
+            term.echo("Searching for " + searchString.join(" OR ") + "");
+        }
+
+        var filtered = _.filter(notes, function(el) {
+
+            if(nofilter) {
+                return true;
+            }
+
+            var id = (el.id == undefined) ? '' : ("" + el.id).toLowerCase();
+            var title = (el.title == undefined) ? '' : el.title.toLowerCase();
+            var url = (el.url == undefined) ? '' : el.url.toLowerCase();
+            var login = (el.login == undefined) ? '' : el.login.toLowerCase();
+            var pwd = (el.content == undefined) ? '' : el.content.toLowerCase();
+
+            if (op == "or") {
+                var matchedOne = false
+
+                _.each(searchKeysParts, function(searchKey) {
+                    var s = searchKey.toLowerCase().trim()
+                    matchedOne = matchedOne || (id.indexOf(s) != -1) || (title.indexOf(s) != -1) || (url.indexOf(s) != -1) || (login.indexOf(s) != -1) || (pwd.indexOf(s) != -1);
+                })
+
+                return matchedOne;
+            } else {
+                //op == "and"
+                var matchedAll = true
+
+                _.each(searchKeysParts, function(searchKey) {
+                    var s = searchKey.toLowerCase().trim()
+                    matchedAll = matchedAll && ((id.indexOf(s) != -1) || (title.indexOf(s) != -1) || (url.indexOf(s) != -1) || (login.indexOf(s) != -1) || (pwd.indexOf(s) != -1));
+                })
+
+                return matchedAll;
+            }
+        });
+
+        //this could be done in one step with the above function
+        var sorted = _.sortBy(filtered, function(el) {
+            var id = (el.id == undefined) ? '' : ("" + el.id).toLowerCase();
+            var title = (el.title == undefined) ? '' : el.title.toLowerCase();
+            var url = (el.url == undefined) ? '' : el.url.toLowerCase();
+            var login = (el.login == undefined) ? '' : el.login.toLowerCase();
+
+            var numMatched = 0
+
+            _.each(searchKeysParts, function(searchKey) {
+                var s = searchKey.toLowerCase().trim()
+
+                numMatched += countOccurrences(id, s, false)
+                numMatched += countOccurrences(title, s, false)
+                numMatched += countOccurrences(url, s, false)
+                numMatched += countOccurrences(login, s, false)
+            });
+
+            return 1000 - numMatched; //ugly trick to reverse the order easily
+        });
+
+        _.each(sorted, function(obj) {
+
+            reUse = reUseTable[obj.content]
+            reUseText = '<span class="reUse' + (reUse == 1 ? '1' : 'X') + '">'+(reUse == 1 ? 'not re-used' : ('re-used '+(reUse-1)+' times'))+'</span>'
+
+            count = 0
+            if (typeof obj.usageCount !== "undefined") {
+                count = obj.usageCount
+            }
+            countText = '<span class="usage">accessed '+(count)+' times</span>'
+
+            if (nofilter) {
+
+                var s = '<span class="entry"><span class="id">(' + obj.id + ')</span> <span class="title">' + obj.title + "</span> -> <span class=\"login\">" + obj.login + "</span> @ <span class=\"url\">" + obj.url + "</span> : <span class=\"content blurred\" ondblclick=\"addUsage("+obj.id+")\">" + obj.content + "</span> " + reUseText + "</span> " + countText + "</span>";
+
+                term.echo(s)
+
+            } else {
+                var _id = highlight(searchKeysParts, "" + obj.id)
+                var _title = highlight(searchKeysParts, obj.title)
+                var _login = highlight(searchKeysParts, obj.login)
+                var _url = highlight(searchKeysParts, obj.url)
+                var _pwd = highlight(searchKeysParts, obj.content)
+
+
+                var s = '<span class="entry"><span class="id">(' + _id + ')</span> <span class="title">' + _title + "</span> -> <span class=\"login\">" + _login + "</span> @ <span class=\"url\">" + _url + "</span> : <span class=\"content blurred\" ondblclick=\"addUsage("+_id+")\">" + _pwd + "</span> " + reUseText + "</span> " + countText + "</span>";
+
+                term.echo(s)
+            }
+        })
+
+        new Clipboard('.content');
+    }
+}
+function addUsage(id){
+    var index = 0;
+
+    while (index < notes.length) {
+        var nodeId = (notes[index].id == undefined) ? '' : (notes[index].id + '');
+        if (nodeId == id) {
+            break;
+        }
+        index++
+    }
+
+    if (notes[index].id != id) {
+        termHook.echo("WARNING: editEntry did nothing, ID not found")
+    }
+
+
+    oldNotesLength = notes.length;
+    oldHash = hash(JSON.stringify(notes));
+
+
+    console.log(notes[index])
+    if (typeof notes[index].usageCount === "undefined"){
+        console.log("Undefined")
+        notes[index].usageCount = 0
+    }
+    notes[index].usageCount++
+    console.log(notes[index].usageCount)
+    console.log(notes[index])
+
+    saveCipher(oldNotesLength, oldHash, false, termHook);
+}
+
+reUseTable = new Object()
+function addToReuseTable(pwd){
+    if (typeof reUseTable[pwd] === "undefined"){
+        reUseTable[pwd] = 0;
+    }
+    reUseTable[pwd]++;
+}
+</script>
+</body>
