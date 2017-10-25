@@ -43,6 +43,8 @@ final class StorageTest extends TestCase
         $this->assertEquals($db->data,'newdata');
         $this->assertEquals($db->last_hash,'newhash');
 
+        $this->expectException(Exception::class);
+
         // unsuccessful write
         $db->write("newdata2", LAST_HASH_INITIAL_VALUE, "newhash2", false);
         $this->assertEquals($db->data,'newdata');

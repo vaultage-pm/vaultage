@@ -27,34 +27,15 @@ header('Content-Type: application/json; charset=utf-8');
 require_once(__DIR__ . '/config.php');
 require_once(__DIR__ . '/helpers.php');
 
-// Will try to auth, or die
-if(tryAuth())
-{
-    $db = getVaultageDB();
+// Load classes
+require_once(__DIR__ . '/Storage.php');
+require_once(__DIR__ . '/Vaultage.php');
 
-    //on valid POST requests
-    if(isset($_POST['new_data']) && isset($_POST['old_hash']) && isset($_POST['new_hash']))
-    {
-        $data = $_POST['data'];
-        $lastHash = $_POST['old_hash'];
-        $newHash = $_POST['new_hash'];
-        $forceErase = $_POST['force'] === "true";
 
-        pushCipher($db, $lastHash, $lastHash, $newHash, $forceErase);
-        $data = pullCipher($db);
+$credentials = @$_SERVER['PATH_INFO'];
+$db = new MemoryStorage();
 
-        if(MAIL_BACKUP_ENABLED)
-        {
-            emailBackup($data);
-        }
-    } 
-    else {
-        $data = pullCipher($db);
-    }
-    echo json_encode(array('error' => false, 'data' => $data));
-}
-else
-{
-    echo json_encode(array('error' => true, 'desc' => 'auth failed'));
-}
+$vaultage = new Vaultage($credentials, $db);
+echo $vaultage->start();
+
 ?>

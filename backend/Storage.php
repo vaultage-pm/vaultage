@@ -10,6 +10,7 @@ require_once(__DIR__ . '/config.php');
 interface Storage {
     function read();
     function write(string $data, string $old_hash, string $new_hash, bool $force) ;
+    function isConnected();
 }
 
 class MemoryStorage implements Storage {
@@ -26,13 +27,17 @@ class MemoryStorage implements Storage {
     function write(string $data, string $old_hash, string $new_hash, bool $force) {
         if(!$force && $old_hash != $this->last_hash && $this->last_hash != LAST_HASH_INITIAL_VALUE)
         {
-            return 'last hash given '.$old_hash.' not matching actual last hash '.$this->last_hash;
+            //return 'last hash given '.$old_hash.' not matching actual last hash '.$this->last_hash;
+            throw new Exception(ERROR_NOT_FAST_FORWARD);
         }
 
         $this->last_update = time();
         $this->data = $data;
         $this->last_hash = $new_hash;
-        return ""; //means no error
+    }
+
+    public function isConnected() {
+        return true;
     }
 }
 
@@ -83,7 +88,8 @@ class DBStorage implements Storage {
         // if not, if hash differ, check if the old hash is has the initial value (i.e., the db is empty), if not, fail.
         if(!$force && $old_hash != $dbContents[0]['last_hash'] && $dbContents[0]['last_hash'] != LAST_HASH_INITIAL_VALUE)
         {
-            return 'last hash given '.$old_hash.' not matching actual last hash '.$dbContents[0]['last_hash'];
+            //return 'last hash given '.$old_hash.' not matching actual last hash '.$this->last_hash;
+            throw new Exception(ERROR_NOT_FAST_FORWARD);
         }
 
         $params = array(
