@@ -18,34 +18,43 @@ date_default_timezone_set('Europe/Zurich');
 // Disable caching
 header('Access-Control-Allow-Origin: *');
 header('Cache-Control: no-cache, must-revalidate, no-store, private');
+header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+
+// Output is JSON encoded
+header('Content-Type: application/json; charset=utf-8');
 
 // Load helpers
 require_once(__DIR__ . '/config.php');
 require_once(__DIR__ . '/helpers.php');
 
 // Will try to auth, or die
-tryAuth();
-
-$db = getVaultageDB();
-
-//on valid POST requests
-if(isset($_POST['new_data']) && isset($_POST['old_hash']) && isset($_POST['new_hash']))
+if(tryAuth())
 {
-    $data = $_POST['data'];
-    $lastHash = $_POST['old_hash'];
-    $newHash = $_POST['new_hash'];
-    $forceErase = $_POST['force'] === "true";
+    $db = getVaultageDB();
 
-    pushCipher($db, $lastHash, $lastHash, $newHash, $forceErase);
-    $data = pullCipher($db);
-
-    if(MAIL_BACKUP_ENABLED)
+    //on valid POST requests
+    if(isset($_POST['new_data']) && isset($_POST['old_hash']) && isset($_POST['new_hash']))
     {
-        emailBackup($data);
+        $data = $_POST['data'];
+        $lastHash = $_POST['old_hash'];
+        $newHash = $_POST['new_hash'];
+        $forceErase = $_POST['force'] === "true";
+
+        pushCipher($db, $lastHash, $lastHash, $newHash, $forceErase);
+        $data = pullCipher($db);
+
+        if(MAIL_BACKUP_ENABLED)
+        {
+            emailBackup($data);
+        }
+    } 
+    else {
+        $data = pullCipher($db);
     }
-} 
-else {
-    $data = pullCipher($db);
+    echo json_encode(array('error' => false, 'data' => $data));
 }
-outputToJSON(array('error' => false, 'data' => $data));
+else
+{
+    echo json_encode(array('error' => true, 'desc' => 'auth failed'));
+}
 ?>

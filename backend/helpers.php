@@ -1,17 +1,7 @@
 <?php
 
-require_once(__DIR__ . '/../config.php');
-
-/*
- * Sets the correct headers, and outputs the data as JSON
- */
-function end_with_json($data)
-{
-    header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-    header('Content-Type: application/json; charset=utf-8');
-    die(json_encode($data));
-}
-
+require_once(__DIR__ . '/config.php');
+ 
 /*
  * Checks that the url contains really the chain /user/password/do
  * To be used on top of SSL of course.
@@ -23,12 +13,9 @@ function tryAuth($authString = '')
         $requestParams = @$_SERVER['PATH_INFO'];
     }
 
-    $referenceString = "/".AUTH_USER."/".AUTH_PWD_SHA256."/do";
-    
-    if(strcmp($authString,$referenceString) !== 0)
-    {
-        end_with_json(array('error' => true, 'desc' => 'auth failed')); //leaks info but it should be OK in this setting
-    }
+    $referenceString = "/".AUTH_USER."/".AUTH_PWD_SHA256."/vaultage_api";
+    $authValid = (strcmp($authString,$referenceString) !== 0);
+    return $authValid;
 }
 
 /*
@@ -40,14 +27,6 @@ function emailBackup($data)
     $header .= "MIME-Version: 1.0\n";
     $corpus = "" . $data . "\n\n[EOF]\n";
     $res = mail(BACKUP_EMAIL_TO, BACKUP_SUBJECT, $corpus, $header);
-}
-
-/*
- * Returns SHA256(Salt || Pwd)
- */
-function hash_remote_key($pwd, $salt)
-{
-    return hash('sha256', $salt.$pwd);
 }
 
 /*
