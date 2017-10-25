@@ -1,8 +1,15 @@
 <?php
 
+declare(strict_types=1);
+require_once(__DIR__ . '/config.php');
+
+/*
+ * A simple database where you must prove knowledge of the old content to update the content.
+ * write (new_data, old_hash, new_hash) updates the database content to (new_data, new_hash) iff old_hash matches the hash of the database before this update. This prevents overwriting the database, and does serialize the update sequence.
+ */
 interface Storage {
-    function read() : array;
-    function write(string $data, string $old_hash, string $new_hash, boolean $force) : string;
+    function read();
+    function write(string $data, string $old_hash, string $new_hash, bool $force) ;
 }
 
 class MemoryStorage implements Storage {
@@ -12,11 +19,11 @@ class MemoryStorage implements Storage {
     public $last_hash = LAST_HASH_INITIAL_VALUE;
 
 
-    function read() : array {
+    function read() {
         return array($this->data, $this->last_hash);
     }
 
-    function write(string $data, string $old_hash, string $new_hash, boolean $force) : string {
+    function write(string $data, string $old_hash, string $new_hash, bool $force) {
         if(!$force && $old_hash != $this->last_hash && $this->last_hash != LAST_HASH_INITIAL_VALUE)
         {
             return 'last hash given '.$old_hash.' not matching actual last hash '.$this->last_hash;
@@ -43,15 +50,16 @@ class DBStorage implements Storage {
             $this->db = new PDO('mysql:host=' . $host . ';dbname=' . $defaultdb, $username, $password, $pdo_options);
         }
         catch (Exception $e) {
+            throw $e;
             $this->db = null;
         }
     }
 
-    public function isConnected() : boolean {
-        return ($this->db == null);
+    public function isConnected() {
+        return ($this->db != null);
     }
 
-    public function read(): array {
+    public function read() {
         if(!$this->isConnected()){
             return array();
         }
@@ -67,7 +75,7 @@ class DBStorage implements Storage {
         return $data[0][0];
     }
 
-    public function write(string $data, string $old_hash, string $new_hash, boolean $force): string{
+    public function write(string $data, string $old_hash, string $new_hash, bool $force) {
         //check last hash
         $dbContents = $this->read();
         
