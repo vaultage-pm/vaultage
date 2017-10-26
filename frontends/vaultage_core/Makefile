@@ -38,7 +38,8 @@ $(INDEX): $(SRC)
 
 $(DEMO_BIN): $(DEMO) $(SRC) node_modules
 	node node_modules/.bin/tsc --outDir tmp $(DEMO)
-	cp sjcl.js tmp/
+	mkdir tmp/lib
+	cp lib/sjcl.js tmp/lib/
 
 .PHONY: demo
 demo: $(DEMO_BIN) $(INDEX)

@@ -1,4 +1,4 @@
-const sjcl = require('../sjcl') as any;
+const sjcl = require('../lib/sjcl') as any;
 
 export const PBKDF2_DIFFICULTY = 32768;
 
