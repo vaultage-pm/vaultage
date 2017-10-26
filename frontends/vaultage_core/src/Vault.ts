@@ -61,6 +61,7 @@ export class Vault {
 
         creds.localKey = localKey;
         creds.remoteKey = remoteKey;
+
         this._pullCipher(creds, (err) => {
             if (!err) {
                 this._setCredentials(creds);
@@ -106,6 +107,7 @@ export class Vault {
             this._pushCipher(this._creds, null, (err) => cb(err, this));
         }
     }
+
     /**
      * Refreshes the local data by pulling the latest cipher from the server.
      *
@@ -113,7 +115,7 @@ export class Vault {
      *
      * @param {function} cb Callback invoked with (err: VaultageError, this) on completion. err is null if no error occured.
      */
-    public refresh(cb: (err: (VaultageError|null), vault: Vault) => void): void {
+    public pull(cb: (err: (VaultageError|null), vault: Vault) => void): void {
         if (!this._creds) {
             cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'), this);
         } else {

@@ -12,4 +12,8 @@ describe('Vault.ts can', () => {
         let vault = new Vault(salts);
         expect(vault).toEqual(vault);
     });
+    it('cannot login without credentials', () => {
+        let vault = new Vault(salts);
+        expect(vault).toEqual(vault);
+    });
 });
