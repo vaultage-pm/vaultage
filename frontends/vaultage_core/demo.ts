@@ -1,19 +1,19 @@
 console.log('Loading the transpiled library... Run `make tsc` before running this example');
 
-import { Crypto, config, VaultDB } from './vaultage';
+import { Crypto, VaultDB } from './vaultage';
 
 console.log('\nDemoing the encryption / decryption locally...');
 console.log('Note that this is demoing the inside of the vaultage SDK but all of this complexity' +
   ' is going to be hidden behind the "Vault" class.\n');
 
-const crypto = new Crypto(config, {
+const crypto = new Crypto({
     USERNAME_SALT: "abcdef"
 });
 
 const key = crypto.deriveLocalKey('demo', 'demo1');
 console.log('My local key is: ' + key + '\n');
 
-const db = new VaultDB(config, { '1': {
+const db = new VaultDB({ '1': {
     title: "Hello",
     id: "1",
     created: "now",
@@ -39,7 +39,7 @@ console.log('\n\nAnd now let\'s get back the original:');
 
 const dec = crypto.decrypt(key, enc);
 const decFP = crypto.getFingerprint(dec, key);
-const decDB = VaultDB.deserialize(config, dec);
+const decDB = VaultDB.deserialize(dec);
 
 console.log(decDB);
 console.log('Fingerprint: ' + decFP);

@@ -1,7 +1,6 @@
-import { Config } from './Config';
-
 const sjcl = require('../sjcl') as any;
 
+export const PBKDF2_DIFFICULTY = 32768;
 
 export interface SaltsConfig {
     USERNAME_SALT: string;
@@ -14,7 +13,6 @@ export class Crypto {
 
 
     constructor(
-            private _config: Config,
             private _salts: SaltsConfig) {
     }
 
@@ -38,7 +36,7 @@ export class Crypto {
         // of a hash given its second half, then **even if** the remote key leaks AND pbkdf2 is found
         // to be reversible, we still cannot find the local key.
         let masterHash = sjcl.hash.sha512.hash(masterPassword);
-        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash.slice(0, 8) , localSalt, this._config.PBKDF2_DIFFICULTY));
+        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash.slice(0, 8) , localSalt, PBKDF2_DIFFICULTY));
     }
 
     /**
@@ -52,7 +50,7 @@ export class Crypto {
     public deriveRemoteKey(username: string, masterPassword: string): string {
         let remoteSalt = this.hashUsername(username).slice(0, 4);
         let masterHash = sjcl.hash.sha512.hash(masterPassword);
-        let result = sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash.slice(8, 16), remoteSalt, this._config.PBKDF2_DIFFICULTY));
+        let result = sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash.slice(8, 16), remoteSalt, PBKDF2_DIFFICULTY));
         return result;
     }
 
@@ -102,6 +100,6 @@ export class Crypto {
         // The localKey is already derived from the username, some per-deployment salt and
         // the master password so using it as a salt here should be enough to show that we know
         // all of the above information.
-        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(plain, localKey, this._config.PBKDF2_DIFFICULTY));
+        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(plain, localKey, PBKDF2_DIFFICULTY));
     }
 }

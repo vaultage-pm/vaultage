@@ -1,4 +1,3 @@
-import { Config } from './Config';
 import { checkParams, deepCopy, guid, GUID } from './utils';
 import { ERROR_CODE, VaultageError } from './VaultageError';
 
@@ -41,15 +40,12 @@ export class VaultDB {
     private static VERSION: number = 0;
 
     public constructor(
-            private _config: Config,
             private _entries: { [key: string]: VaultDBEntry },
             private _revision: number = 0) {
     }
 
     public static serialize(db: VaultDB): string {
         const entries = db.getAll();
-        const n_entries = entries.length;
-        const expectedLength = n_entries * db._config.BYTES_PER_ENTRY + db._config.MIN_DB_LENGTH;
 
         let serialized = JSON.stringify({
             entries: entries,
@@ -57,18 +53,10 @@ export class VaultDB {
             r: db._revision
         });
 
-        const amountToPad = expectedLength - serialized.length;
-        let pad = "";
-        for (let i = 0 ; i < amountToPad ; i++) {
-            pad += " ";
-        }
-
-        // Padding with spaces does not affect the encoded data since it's JSON but
-        // it does change the cipher length.
-        return serialized + pad;
+        return serialized;
     }
 
-    public static deserialize(config: Config, ser: string): VaultDB {
+    public static deserialize(ser: string): VaultDB {
         const data = JSON.parse(ser);
         const entries: {
             [key: string]: VaultDBEntry
@@ -81,7 +69,7 @@ export class VaultDB {
             entries[entry.id] = entry;
         }
 
-        return new VaultDB(config, entries, data._revision);
+        return new VaultDB(entries, data._revision);
     }
 
     public add(attrs: VaultDBEntryAttrs): void {
@@ -170,6 +158,9 @@ export class VaultDB {
         return resultSet;
     }
 
+    /**
+     * Returns a deep-copy of all DB entries
+     */
     public getAll(): VaultDBEntry[] {
         const entries: VaultDBEntry[] = [];
         const keys = Object.keys(this._entries);

@@ -1,11 +1,10 @@
-import { config } from '../src/Vault';
 import { Crypto } from '../src/Crypto';
 
 describe('The Crypto class', () => {
     let crypto: Crypto;
 
     beforeEach(() => {
-        crypto = new Crypto(config, {
+        crypto = new Crypto({
             USERNAME_SALT: "deadbeef"
         });
     });
