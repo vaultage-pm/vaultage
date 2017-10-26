@@ -10,9 +10,9 @@ require_once(__DIR__ . '/config.php');
  * The DBStorage is *not* tested; it should be simple enough to verify that MemoryStorage and DBStorage perform the same actions.
  */
 interface Storage {
-    function read();
-    function write(string $data, string $old_hash, string $new_hash, bool $force) ;
-    function isConnected();
+    function read(); //returns an array (data, hash)
+    function write(string $data, string $old_hash, string $new_hash, bool $force) ; // returns void
+    function isConnected(); //returns bool
 }
 
 class MemoryStorage implements Storage {
@@ -23,7 +23,7 @@ class MemoryStorage implements Storage {
 
 
     function read() {
-        return array($this->data, $this->last_hash);
+        return array('data' => $this->data, 'hash' => $this->last_hash);
     }
 
     function write(string $data, string $old_hash, string $new_hash, bool $force) {
@@ -79,16 +79,16 @@ class DBStorage implements Storage {
         {
             return array();
         }
-        return $data[0][0];
+        return $data[0];
     }
 
-    public function write(string $data, string $old_hash, string $new_hash, bool $force) {
+    public function write(string $new_data, string $old_hash, string $new_hash, bool $force) {
         //as a first step, get the actual content to check the last hash
         $dbContents = $this->read();
         
         // if forced, never fail. 
         // if not, if hash differ, check if the old hash is has the initial value (i.e., the db is empty), if not, fail.
-        if(!$force && $old_hash != $dbContents[0]['last_hash'] && $dbContents[0]['last_hash'] != LAST_HASH_INITIAL_VALUE)
+        if(!$force && $old_hash != $dbContents['hash'] && $dbContents['hash'] != LAST_HASH_INITIAL_VALUE)
         {
             //return 'last hash given '.$old_hash.' not matching actual last hash '.$this->last_hash;
             throw new Exception(ERROR_NOT_FAST_FORWARD);
@@ -103,7 +103,7 @@ class DBStorage implements Storage {
                                 `last_update` =:datetime,
                                 `data`       =:data, 
                                 `hash`       =:hash";
-        $req = $db->prepare($query);
+        $req = $this->db->prepare($query);
         $res = $req->execute($params);
     }
 }

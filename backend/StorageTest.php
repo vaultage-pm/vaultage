@@ -35,8 +35,8 @@ final class StorageTest extends TestCase
         $this->assertEquals($db->last_hash,LAST_HASH_INITIAL_VALUE);
 
         $read1 = $db->read();
-        $this->assertEquals($read1[0],'');
-        $this->assertEquals($read1[1],LAST_HASH_INITIAL_VALUE);
+        $this->assertEquals($read1['data'],'');
+        $this->assertEquals($read1['hash'],LAST_HASH_INITIAL_VALUE);
 
         // successful write
         $db->write("newdata", "???", "newhash", false);

@@ -58,7 +58,7 @@ final class VaultageTest extends TestCase
         if (AUTH_ENABLED) {
             $this->assertEquals($res, '{"error":true,"description":"'.ERROR_AUTH_FAILED.'"}'); 
         } else {
-            $this->assertEquals($res, '{"error":false,"description":"","data":["","INIT"]}'); 
+            $this->assertEquals($res, '{"error":false,"description":"","data":""}'); 
         }
     }
 
@@ -71,29 +71,32 @@ final class VaultageTest extends TestCase
         $vaultage->setCredentials(AUTH_USER, AUTH_PWD_SHA256);
         $res = $vaultage->start();
 
-        $this->assertEquals($res, '{"error":false,"description":"","data":["","INIT"]}'); 
+        //db is ("", INIT)
+        $this->assertEquals($res, '{"error":false,"description":"","data":""}'); 
 
         //try pushing some data
         $_POST['new_data'] = "NEW_DATA";
         $_POST['old_hash'] = "???"; # OK since DB is on state "init"
         $_POST['new_hash'] = "HASH(NEW_DATA)";
-        $_POST['force'] = false;
+        $_POST['force'] = "false";
         $res = $vaultage->start();
-        $this->assertEquals($res, '{"error":false,"description":"","data":["NEW_DATA","HASH(NEW_DATA)"]}');
+        //db is (NEW_DATA, HASH(NEW_DATA))
+        $this->assertEquals($res, '{"error":false,"description":"","data":"NEW_DATA"}');
 
         // Now pushing some newer data
         $_POST['new_data'] = "NEW_DATA_2";
         $_POST['old_hash'] = "HASH(NEW_DATA)";
         $_POST['new_hash'] = "HASH(NEW_DATA_2)";
-        $_POST['force'] = false;
+        $_POST['force'] = "false";
         $res = $vaultage->start();
-        $this->assertEquals($res, '{"error":false,"description":"","data":["NEW_DATA_2","HASH(NEW_DATA_2)"]}');
+        //db is (NEW_DATA_2, HASH(NEW_DATA_2))
+        $this->assertEquals($res, '{"error":false,"description":"","data":"NEW_DATA_2"}');
 
         // Now pushing some concurrent, non-sequential data - should fail
         $_POST['new_data'] = "NEW_DATA_3";
         $_POST['old_hash'] = "HASH(NEW_DATA)";
         $_POST['new_hash'] = "HASH(NEW_DATA_3)";
-        $_POST['force'] = false;
+        $_POST['force'] = "false";
         $res = $vaultage->start();
         $this->assertEquals($res, '{"error":true,"description":"Error, cannot write; not fast_foward."}');
 
@@ -101,9 +104,10 @@ final class VaultageTest extends TestCase
         $_POST['new_data'] = "NEW_DATA_3";
         $_POST['old_hash'] = "HASH(NEW_DATA)";
         $_POST['new_hash'] = "HASH(NEW_DATA_3)";
-        $_POST['force'] = true;
+        $_POST['force'] = "true";
         $res = $vaultage->start();
-        $this->assertEquals($res, '{"error":false,"description":"","data":["NEW_DATA_3","HASH(NEW_DATA_3)"]}');
+        //db is (NEW_DATA_3, HASH(NEW_DATA_3))
+        $this->assertEquals($res, '{"error":false,"description":"","data":"NEW_DATA_3"}');
     }
 }
 ?>

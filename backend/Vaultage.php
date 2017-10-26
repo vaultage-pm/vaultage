@@ -6,6 +6,14 @@ require_once(__DIR__ . '/Storage.php');
 
 /*
  * Main class. Will check for authentication, handle update requests, and answer with the database contents.
+ * First, AUTH by calling new Vaultage(AUTH_STRING), or setCredentials(USERNAME, PASSWORD). AUTH_STRING = /USERNAME/PASSWORD/vaultage_api. The authentication is not checked at that point.
+ * To perform a GET operation, just perform a $vaultageInstance->start()
+ * To perform an UPDATe operation, set the following POST variables :
+ * $_POST['new_data'] = string
+ * $_POST['old_hash'] = string
+ * $_POST['new_hash'] = string
+ * $_POST['new_force'] = boolean
+ * then call $vaultageInstance->start()
  */
 class Vaultage {
 
@@ -39,12 +47,12 @@ class Vaultage {
         }
 
         //on valid POST requests
-        if(isset($_POST['new_data']) && isset($_POST['old_hash']) && isset($_POST['new_hash']))
+        if(isset($_POST['new_data']) && isset($_POST['old_hash']) && isset($_POST['new_hash']) && isset($_POST['force']))
         {
             $new_data = $_POST['new_data'];
             $old_hash = $_POST['old_hash'];
             $new_hash = $_POST['new_hash'];
-            $force_erase = ($_POST['force'] === true);
+            $force_erase = ($_POST['force'] === "true");
 
             //filters
             if(empty($new_data) || $new_data == '[]')
@@ -71,7 +79,7 @@ class Vaultage {
         else {
             $data = $this->db->read();
         }
-        return json_encode(array('error' => false, 'description' => '', 'data' => $data));
+        return json_encode(array('error' => false, 'description' => '', 'data' => $data['data']));
     }
 }
 ?>
