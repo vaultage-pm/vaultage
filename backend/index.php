@@ -38,4 +38,4 @@ $db = new DBStorage(DEFAULT_DB_HOST, DEFAULT_DB_SELECTED, DEFAULT_DB_USER, DEFAU
 $vaultage = new Vaultage($credentials, $db);
 echo $vaultage->start();
 
-?>to
+?>
