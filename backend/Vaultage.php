@@ -4,6 +4,9 @@ declare(strict_types=1);
 require_once(__DIR__ . '/config.php');
 require_once(__DIR__ . '/Storage.php');
 
+/*
+ * Main class. Will check for authentication, handle update requests, and answer with the database contents.
+ */
 class Vaultage {
 
     private $credentials = "";
@@ -30,7 +33,7 @@ class Vaultage {
     public function start() {
 
         //first, auth
-        if(!$this->auth())
+        if(AUTH_ENABLED && !$this->auth())
         {
             return json_encode(array('error' => true, 'description' => ERROR_AUTH_FAILED));
         }

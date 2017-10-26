@@ -55,7 +55,11 @@ final class VaultageTest extends TestCase
         $vaultage = new Vaultage($credentials, $db);
         $res = $vaultage->start();
 
-        $this->assertEquals($res, '{"error":true,"description":"'.ERROR_AUTH_FAILED.'"}'); 
+        if (AUTH_ENABLED) {
+            $this->assertEquals($res, '{"error":true,"description":"'.ERROR_AUTH_FAILED.'"}'); 
+        } else {
+            $this->assertEquals($res, '{"error":false,"description":"","data":["","INIT"]}'); 
+        }
     }
 
     public function testRunAuth(){

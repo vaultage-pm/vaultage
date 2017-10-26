@@ -33,7 +33,7 @@ require_once(__DIR__ . '/Vaultage.php');
 
 
 $credentials = @$_SERVER['PATH_INFO'];
-$db = new MemoryStorage();
+$db = new DBStorage(DEFAULT_DB_HOST, DEFAULT_DB_SELECTED, DEFAULT_DB_USER, DEFAULT_DB_USER_PASSWORD);
 
 $vaultage = new Vaultage($credentials, $db);
 echo $vaultage->start();
