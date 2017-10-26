@@ -18,7 +18,7 @@ console.log('My local key is: ' + key + '\n');
 
 const db = new VaultDB({ '1': {
     title: "Hello",
-    id: "1",
+    id: 0,
     created: "now",
     updated: "",
     login: "Bob",

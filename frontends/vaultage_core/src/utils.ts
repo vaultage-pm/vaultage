@@ -1,6 +1,4 @@
 
-export type GUID = string;
-
 // Utility functions
 
 export function urlencode(data: any): string {
@@ -35,20 +33,6 @@ export function checkParams<T>(data: any, ref: T): T {
     }
     return ret;
 }
-
-/**
- * Creates a good-enough probably unique id.
- */
-export function guid(): GUID {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
-}
-
 
 export function deepCopy<T>(source: T): T {
     // Probably one of the most inefficient way to perform a deep copy but at least it guarantees isolation,

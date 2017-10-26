@@ -1,4 +1,4 @@
-import { checkParams, deepCopy, guid, GUID } from './utils';
+import { checkParams, deepCopy } from './utils';
 import { ERROR_CODE, VaultageError } from './VaultageError';
 
 
@@ -15,7 +15,7 @@ export interface VaultDBEntry {
     url: string,
     login: string,
     password: string,
-    id: GUID,
+    id: number,
     created: string,
     updated: string
 }
@@ -72,7 +72,7 @@ export class VaultDB {
         return new VaultDB(entries, data._revision);
     }
 
-    public add(attrs: VaultDBEntryAttrs): void {
+    public add(attrs: VaultDBEntryAttrs): number {
         let checkedAttrs = {
             title: '',
             url: '',
@@ -82,7 +82,7 @@ export class VaultDB {
         checkedAttrs = checkParams(attrs, checkedAttrs);
         let currentDate = (new Date()).toUTCString();
         let entry: VaultDBEntry = {
-            id: guid(),
+            id: this.nextFreeId(),
             title: checkedAttrs.title,
             url: checkedAttrs.url,
             login: checkedAttrs.login,
@@ -92,9 +92,11 @@ export class VaultDB {
         };
         this._entries[entry.id] = entry;
         this.newRevision();
+
+        return entry.id;
     }
 
-    public remove(id: string): void {
+    public remove(id: number): void {
         if (this._entries[id] == null) {
             throw new VaultageError(ERROR_CODE.NO_SUCH_ENTRY, 'No entry with id "' + id + '"');
         }
@@ -103,9 +105,9 @@ export class VaultDB {
     }
 
     public update(entry: VaultDBEntry): void;
-    public update(id: string, attrs: VaultDBEntryAttrs): void;
-    public update(id: (string | VaultDBEntry), attrs?: VaultDBEntryAttrs): void {
-        if (typeof id !== 'string') {
+    public update(id: number, attrs: VaultDBEntryAttrs): void;
+    public update(id: (number | VaultDBEntry), attrs?: VaultDBEntryAttrs): void {
+        if (typeof id !== 'number') {
             attrs = {
                 title: '',
                 url: '',
@@ -133,7 +135,7 @@ export class VaultDB {
         this.newRevision();
     }
 
-    public get(id: string): VaultDBEntry {
+    public get(id: number): VaultDBEntry {
         let entry = this._entries[id];
         if (entry == null) {
             throw new VaultageError(ERROR_CODE.NO_SUCH_ENTRY, 'No entry with id "' + id + '"');
@@ -148,7 +150,7 @@ export class VaultDB {
         for (let key of keys) {
             let entry = this._entries[key];
             if (    QueryUtils.stringContains(entry.login, query) ||
-                    QueryUtils.stringContains(entry.id, query) ||
+                    QueryUtils.stringContains(""+entry.id, query) ||
                     QueryUtils.stringContains(entry.title, query) ||
                     QueryUtils.stringContains(entry.url, query)) {
                 resultSet.push(deepCopy(entry));
@@ -178,9 +180,17 @@ export class VaultDB {
     }
 
     /**
+     * Returns the next free ID
+     */
+    public nextFreeId(): number {
+        let nextFreeID = this.size();
+        return nextFreeID;
+    }
+
+    /**
      * Bumps the revision number of this DB.
      */
     public newRevision(): void {
-        this._revision ++;
+        this._revision++;
     }
 }
