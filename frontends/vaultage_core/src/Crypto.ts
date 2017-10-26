@@ -3,7 +3,8 @@ const sjcl = require('../sjcl') as any;
 export const PBKDF2_DIFFICULTY = 32768;
 
 export interface SaltsConfig {
-    USERNAME_SALT: string;
+    LOCAL_KEY_SALT: string;
+    REMOTE_KEY_SALT: string;
 }
 
 /**
@@ -16,42 +17,24 @@ export class Crypto {
             private _salts: SaltsConfig) {
     }
 
-    private hashUsername(username: string): Uint32Array {
-        return sjcl.hash.sha256.hash(username + this._salts.USERNAME_SALT);
+    /**
+     * Returns the local key for a given LOCAL_KEY_SALT and master password.
+     *
+     * @param masterPassword Plaintext of the master password
+     */
+    public deriveLocalKey(masterPassword: string): string {
+        let masterHash = sjcl.hash.sha512.hash(masterPassword);
+        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash , this._salts.LOCAL_KEY_SALT, PBKDF2_DIFFICULTY));
     }
 
     /**
-     * Returns the local key for a given username and master password.
+     * Returns the remote key for a given REMOTE_KEY_SALT and master password.
      *
-     * API consumers should not use this method
-     *
-     * @param username The username used to locate the cipher on the server
      * @param masterPassword Plaintext of the master password
      */
-    public deriveLocalKey(username: string, masterPassword: string): string {
-        let localSalt = this.hashUsername(username).slice(5, 8);
-        // We convert the master password to a fixed length using sha256 then use the first half
-        // of that result for creating the local key.
-        // Since we use the second half for the remote key and there is no way to derive the first half
-        // of a hash given its second half, then **even if** the remote key leaks AND pbkdf2 is found
-        // to be reversible, we still cannot find the local key.
+    public deriveRemoteKey(masterPassword: string): string {
         let masterHash = sjcl.hash.sha512.hash(masterPassword);
-        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash.slice(0, 8) , localSalt, PBKDF2_DIFFICULTY));
-    }
-
-    /**
-     * Returns the remote key for a given username and master password.
-     *
-     * This method can be used to configure the db with the correct remote key.
-     *
-     * @param username The username used to locate the cipher on the server
-     * @param masterPassword Plaintext of the master password
-     */
-    public deriveRemoteKey(username: string, masterPassword: string): string {
-        let remoteSalt = this.hashUsername(username).slice(0, 4);
-        let masterHash = sjcl.hash.sha512.hash(masterPassword);
-        let result = sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash.slice(8, 16), remoteSalt, PBKDF2_DIFFICULTY));
-        return result;
+        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash, this._salts.REMOTE_KEY_SALT, PBKDF2_DIFFICULTY));
     }
 
     /**

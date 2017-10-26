@@ -5,18 +5,20 @@ describe('The Crypto class', () => {
 
     beforeEach(() => {
         crypto = new Crypto({
-            USERNAME_SALT: "deadbeef"
+            LOCAL_KEY_SALT: "deadbeef",
+            REMOTE_KEY_SALT: "0123456789",
         });
     });
 
     describe('the key derivation function', () => {
+        let masterKey = "ucantseeme"
         it('Gives a consistent local key', () => {
-            let localKey = crypto.deriveLocalKey("John Cena", "ucantseeme");
-            expect(localKey).toEqual("819c5b807446a9391dd2f3e666f882f4eeb6d85cbde169b8911dce8477e91e77");
+            let localKey = crypto.deriveLocalKey(masterKey);
+            expect(localKey).toEqual("f99abd482e3b4874fcb86cb735facd41eabbfc8f777bee4c33f0064c45b07af5");
         });
         it('Gives a consistent remote key', () => {
-            let remoteKey = crypto.deriveRemoteKey("John Cena", "ucantseeme");
-            expect(remoteKey).toEqual("405f10dca1a9ac76aa90f28ba66482c9416f2bd7fed9014c6f95119890340427");
+            let remoteKey = crypto.deriveRemoteKey(masterKey);
+            expect(remoteKey).toEqual("e76a6906c85e8bef9eaf7ee4984113d0ec20431668c5faf0a232e0afeceaa62e");
         });
     })
 });

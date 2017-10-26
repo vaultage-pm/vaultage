@@ -7,10 +7,13 @@ console.log('Note that this is demoing the inside of the vaultage SDK but all of
   ' is going to be hidden behind the "Vault" class.\n');
 
 const crypto = new Crypto({
-    USERNAME_SALT: "abcdef"
+    LOCAL_KEY_SALT: "abcdef",
+    REMOTE_KEY_SALT: "01234576",
 });
 
-const key = crypto.deriveLocalKey('demo', 'demo1');
+const masterKey = "ilovesushi"
+
+const key = crypto.deriveLocalKey(masterKey);
 console.log('My local key is: ' + key + '\n');
 
 const db = new VaultDB({ '1': {

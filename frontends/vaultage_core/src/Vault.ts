@@ -61,9 +61,9 @@ export class Vault {
             });
         }
 
-        let remoteKey = this._crypto.deriveRemoteKey(username, masterPassword);
+        let remoteKey = this._crypto.deriveRemoteKey(masterPassword);
         // possible optimization: compute the local key while the request is in the air
-        let localKey = this._crypto.deriveLocalKey(username, masterPassword);
+        let localKey = this._crypto.deriveLocalKey(masterPassword);
 
         creds.localKey = localKey;
         creds.remoteKey = remoteKey;
@@ -130,8 +130,8 @@ export class Vault {
         if (!this._creds || !this._db || !this._crypto) {
             cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated'), this);
         } else {
-            let localKey = this._crypto.deriveLocalKey(this._creds.username, newPassword);
-            let remoteKey = this._crypto.deriveRemoteKey(this._creds.username, newPassword);
+            let localKey = this._crypto.deriveLocalKey(newPassword);
+            let remoteKey = this._crypto.deriveRemoteKey(newPassword);
             let creds = deepCopy(this._creds);
             creds.localKey = localKey;
 
