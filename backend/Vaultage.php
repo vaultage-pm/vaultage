@@ -14,9 +14,16 @@ class Vaultage {
         $this->db = $db;
     }
 
+    public function setCredentials(string $username, string $password){
+        $this->credentials = "/".$username."/".$password."/vaultage_api";
+    }
+
     public function auth() {
         $referenceString = "/".AUTH_USER."/".AUTH_PWD_SHA256."/vaultage_api";
-        $authValid = (strcmp($this->$credentials,$referenceString) !== 0);
+        $authValid = false;
+        if (strcmp($this->credentials,$referenceString) === 0) {
+            $authValid = true;
+        }
         return $authValid;
     }
 
@@ -31,10 +38,10 @@ class Vaultage {
         //on valid POST requests
         if(isset($_POST['new_data']) && isset($_POST['old_hash']) && isset($_POST['new_hash']))
         {
-            $data = $_POST['data'];
-            $lastHash = $_POST['old_hash'];
-            $newHash = $_POST['new_hash'];
-            $forceErase = $_POST['force'] === "true";
+            $new_data = $_POST['new_data'];
+            $old_hash = $_POST['old_hash'];
+            $new_hash = $_POST['new_hash'];
+            $force_erase = ($_POST['force'] === true);
 
             //filters
             if(empty($new_data) || $new_data == '[]')
@@ -44,13 +51,13 @@ class Vaultage {
 
             // try to write; if it fails, it's probably because it's non-fast-forward
             try {
-                $db->write($db, $lastHash, $lastHash, $newHash, $forceErase);
+                $this->db->write($new_data, $old_hash, $new_hash, $force_erase);
             } catch (Exception $e) {
-                return json_encode(array('error' => true, 'description' => $e));
+                return json_encode(array('error' => true, 'description' => $e->getMessage()));
             }
 
             //re-read the data
-            $data = $db->read();
+            $data = $this->db->read();
 
             // if enabled, send the new DB by email
             if(MAIL_BACKUP_ENABLED)
@@ -59,7 +66,7 @@ class Vaultage {
             }
         } 
         else {
-            $data = $db->read();
+            $data = $this->db->read();
         }
         return json_encode(array('error' => false, 'description' => '', 'data' => $data));
     }
