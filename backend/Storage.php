@@ -6,6 +6,8 @@ require_once(__DIR__ . '/config.php');
 /*
  * A simple database where you must prove knowledge of the old content to update the content.
  * write (new_data, old_hash, new_hash) updates the database content to (new_data, new_hash) iff old_hash matches the hash of the database before this update. This prevents overwriting the database, and does serialize the update sequence.
+ * This database has two implementation: MemoryStorage (non-persistent, used for tests), and the real DBStorage which uses a PDO driver to contact, e.g., a MySQL instance.
+ * The DBStorage is *not* tested; it should be simple enough to verify that MemoryStorage and DBStorage perform the same actions.
  */
 interface Storage {
     function read();
@@ -69,7 +71,7 @@ class DBStorage implements Storage {
             return array();
         }
 
-        $query = "SELECT data, last_hash FROM vaultage_data ORDER BY last_update DESC LIMIT 1";
+        $query = "SELECT data, hash FROM vaultage_data ORDER BY last_update DESC LIMIT 1";
         $req = $this->db->prepare($query);
         $queryResult = $req->execute();
         $data = $req->fetchAll();
@@ -81,7 +83,7 @@ class DBStorage implements Storage {
     }
 
     public function write(string $data, string $old_hash, string $new_hash, bool $force) {
-        //check last hash
+        //as a first step, get the actual content to check the last hash
         $dbContents = $this->read();
         
         // if forced, never fail. 
@@ -100,7 +102,7 @@ class DBStorage implements Storage {
         $query = "UPDATE vaultage_data SET
                                 `last_update` =:datetime,
                                 `data`       =:data, 
-                                `last_hash`       =:hash";
+                                `hash`       =:hash";
         $req = $db->prepare($query);
         $res = $req->execute($params);
     }
