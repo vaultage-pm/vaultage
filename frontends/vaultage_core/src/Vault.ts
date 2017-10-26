@@ -1,6 +1,6 @@
 import * as request from 'request';
 
-import { Crypto } from './Crypto';
+import { SaltsConfig, Crypto } from './Crypto';
 import { deepCopy, urlencode } from './utils';
 import { ERROR_CODE, VaultageError } from './VaultageError';
 import { VaultDB, VaultDBEntry, VaultDBEntryAttrs } from './VaultDB';
@@ -30,6 +30,10 @@ export class Vault {
     private _crypto: (Crypto|undefined) = undefined;
     private _lastFingerprint: (string|null) = null;
 
+    constructor(salts : SaltsConfig) {
+        this._crypto = new Crypto(salts);
+    }
+
     /**
      * Attempts to pull the cipher and decode it. Saves credentials on success.
      * @param serverURL URL to the vaultage server.
@@ -51,16 +55,6 @@ export class Vault {
             remoteKey: 'null'
         };
 
-        if (!this._crypto) {
-            return this._pullConfig(creds, (err) => {
-                if (err) {
-                    return cb(err, this);
-                }
-                // Retry auth with the crypto this time
-                this.auth(serverURL, username, masterPassword, cb);
-            });
-        }
-
         let remoteKey = this._crypto.deriveRemoteKey(masterPassword);
         // possible optimization: compute the local key while the request is in the air
         let localKey = this._crypto.deriveLocalKey(masterPassword);
@@ -74,6 +68,26 @@ export class Vault {
             cb(err, this);
         });
     }
+
+    /**
+     * Un-authenticates this vault and clears the TFA configuration.
+     */
+    public unauth(): void {
+        this._creds = undefined;
+        this._db = undefined;
+        this._lastFingerprint = null;
+    }
+
+    /**
+     * Checks whether this instance has had a successful authentication since the last deauthentication.
+     *
+     * @return {boolean} true if there was a successful authentication
+     */
+    public isAuth() {
+        // Weak equality with null also checks undefined
+        return (this._creds != null);
+    }
+
 
     /**
      * Saves the Vault on the server.
@@ -92,16 +106,6 @@ export class Vault {
             this._pushCipher(this._creds, null, (err) => cb(err, this));
         }
     }
-
-    /**
-     * Un-authenticates this vault and clears the TFA configuration.
-     */
-    public unauth(): void {
-        this._creds = undefined;
-        this._db = undefined;
-        this._lastFingerprint = null;
-    }
-
     /**
      * Refreshes the local data by pulling the latest cipher from the server.
      *
@@ -225,42 +229,8 @@ export class Vault {
         return this._db.get(id);
     }
 
-    /**
-     * Checks whether this instance has had a successful authentication since the last deauthentication.
-     *
-     * @return {boolean} true if there was a successful authentication
-     */
-    public isAuth() {
-        // Weak equality with null also checks undefined
-        return (this._creds != null);
-    }
-
 
     // Private methods
-
-    private _pullConfig(creds: Credentials, cb: (err: (VaultageError|null)) => void): void {
-        request({
-            url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey, 'config')
-        }, (err: any, resp: any) => {
-            if (err) {
-                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
-            }
-            let body: any;
-            try {
-                body = JSON.parse(resp.body);
-                // Poor man's typechecking of the server response
-                if (!body.salts || body.salts.USERNAME_SALT == null) {
-                    throw "Parse error";
-                }
-            } catch(e) {
-                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response'));
-            }
-
-            this._crypto = new Crypto(body.salts);
-            cb(null);
-        });
-    }
-
     private _setCredentials(creds: Credentials): void {
         // Copy for immutability
         this._creds = {
@@ -273,7 +243,7 @@ export class Vault {
 
     private _pullCipher(creds: Credentials, cb: (err: (VaultageError|null)) => void): void {
         request({
-            url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey, 'pull')
+            url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey)
         }, (err: any, resp: any) => {
             if (err) {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
@@ -324,10 +294,9 @@ export class Vault {
         let plain = VaultDB.serialize(this._db);
         let cipher = this._crypto.encrypt(creds.localKey, plain);
         let fingerprint = this._crypto.getFingerprint(plain, creds.localKey);
-        let action = newRemoteKey == null ? 'push' : 'changekey';
         request({
             method: 'POST',
-            url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey, action),
+            url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey),
             body: urlencode({
                 'update_key': newRemoteKey,
                 'data': cipher,
@@ -362,8 +331,7 @@ export class Vault {
         });
     }
 
-    private _makeURL(serverURL: string, username: string, remotePwdHash: string, action: string): string {
-        let url = `${serverURL}/${username}/${remotePwdHash}/${action}`; //do is just for obfuscation
-        return url;
+    private _makeURL(serverURL: string, username: string, remotePwdHash: string): string {
+        return `${serverURL}/${username}/${remotePwdHash}/vaultage_api`;
     }
 }

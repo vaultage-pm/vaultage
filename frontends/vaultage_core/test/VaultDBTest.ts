@@ -1,6 +1,4 @@
-import {
-    VaultDB
-} from '../src/VaultDB';
+import { VaultDB } from '../src/VaultDB';
 
 function generateString(len) {
     return Math.random().toString(36).substr(2, 2 + len);

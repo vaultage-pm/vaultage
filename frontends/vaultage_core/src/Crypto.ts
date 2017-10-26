@@ -12,7 +12,6 @@ export interface SaltsConfig {
  */
 export class Crypto {
 
-
     constructor(
             private _salts: SaltsConfig) {
     }
