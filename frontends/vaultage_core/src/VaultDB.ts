@@ -143,6 +143,7 @@ export class VaultDB {
         return deepCopy(entry);
     }
 
+    //TODO: sort results by matching percentage ! process multi-query strings
     public find(query: string): VaultDBEntry[] {
         let keys = Object.keys(this._entries);
         let resultSet: VaultDBEntry[] = [];
