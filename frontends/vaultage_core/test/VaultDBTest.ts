@@ -16,26 +16,26 @@ describe('VaultDB.ts can', () => {
         db.add(e);
         expect(db.getAll().length).toEqual(1);
 
-        let e2 = db.get(0);
-        expect(e2.id).toEqual(0);
+        let e2 = db.get("0");
+        expect(e2.id).toEqual("0");
         expect(e.title).toEqual(e2.title);
         expect(e.login).toEqual(e2.login);
         expect(e.password).toEqual(e2.password);
         expect(e.url).toEqual(e2.url);
 
-        db.update(0, {
+        db.update("0", {
             url: 'https://example2.com'
         })
         expect(db.getAll().length).toEqual(1);
 
-        let e3 = db.get(0);
-        expect(e3.id).toEqual(0);
+        let e3 = db.get("0");
+        expect(e3.id).toEqual("0");
         expect(e3.title).toEqual(e2.title);
         expect(e3.login).toEqual(e2.login);
         expect(e3.password).toEqual(e2.password);
         expect(e3.url).toEqual('https://example2.com');
 
-        db.remove(0);
+        db.remove("0");
         expect(db.getAll().length).toEqual(0);
     });
 
@@ -55,8 +55,8 @@ describe('VaultDB.ts can', () => {
 
         expect(db2.getAll().length).toEqual(1);
 
-        let e2 = db2.get(0);
-        expect(e2.id).toEqual(0);
+        let e2 = db2.get("0");
+        expect(e2.id).toEqual("0");
         expect(e.title).toEqual(e2.title);
         expect(e.login).toEqual(e2.login);
         expect(e.password).toEqual(e2.password);
@@ -64,8 +64,8 @@ describe('VaultDB.ts can', () => {
 
         //deserialized vault does not lose the count when adding new data
         db2.add(e);
-        let e3 = db2.get(1);
-        expect(e3.id).toEqual(1);
+        let e3 = db2.get("1");
+        expect(e3.id).toEqual("1");
         expect(e3.title).toEqual(e.title);
         expect(e3.login).toEqual(e.login);
         expect(e3.password).toEqual(e.password);
@@ -74,7 +74,7 @@ describe('VaultDB.ts can', () => {
         expect(db2.getAll().length).toEqual(2);
         //original db did non change
         expect(db.getAll().length).toEqual(1);
-        expect(db2.nextFreeId()).toEqual(2);
-        expect(db.nextFreeId()).toEqual(1);
+        expect(db2.nextFreeId()).toEqual("2");
+        expect(db.nextFreeId()).toEqual("1");
     });
 });

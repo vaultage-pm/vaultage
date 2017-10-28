@@ -197,7 +197,7 @@ export class Vault {
     /**
      * Deletes an entry
      */
-    public removeEntry(id: number): void {
+    public removeEntry(id: string): void {
         if (!this._db) {
             throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
         }
@@ -208,11 +208,11 @@ export class Vault {
      * Returns the set of entries matching the specified query
      * @param query attribute substrings to match
      */
-    public findEntries(query: string): VaultDBEntry[] {
+    public findEntries(...query: string[]): VaultDBEntry[] {
         if (!this._db) {
             throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
         }
-        return this._db.find(query);
+        return this._db.find(...query);
     }
 
     /**
@@ -229,7 +229,7 @@ export class Vault {
      * @param attrs new set of attributes. undefined values are ignored (the entry keeps its previous value)
      * @returns an updated version of the entry
      */
-    public updateEntry(id: number, attrs: VaultDBEntryAttrs): VaultDBEntry {
+    public updateEntry(id: string, attrs: VaultDBEntryAttrs): VaultDBEntry {
         if (!this._db) {
             throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
         }
@@ -240,7 +240,7 @@ export class Vault {
     /**
      * Returns an entry by its id
      */
-    public getEntry(id: number): VaultDBEntry {
+    public getEntry(id: string): VaultDBEntry {
         if (!this._db) {
             throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
         }

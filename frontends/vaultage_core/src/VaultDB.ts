@@ -15,7 +15,7 @@ export interface VaultDBEntry {
     url: string,
     login: string,
     password: string,
-    id: number,
+    id: string,
     created: string,
     updated: string
 }
@@ -72,7 +72,7 @@ export class VaultDB {
         return new VaultDB(entries, data._revision);
     }
 
-    public add(attrs: VaultDBEntryAttrs): number {
+    public add(attrs: VaultDBEntryAttrs): string {
         let checkedAttrs = {
             title: '',
             url: '',
@@ -96,7 +96,7 @@ export class VaultDB {
         return entry.id;
     }
 
-    public remove(id: number): void {
+    public remove(id: string): void {
         if (this._entries[id] == null) {
             throw new VaultageError(ERROR_CODE.NO_SUCH_ENTRY, 'No entry with id "' + id + '"');
         }
@@ -105,9 +105,9 @@ export class VaultDB {
     }
 
     public update(entry: VaultDBEntry): void;
-    public update(id: number, attrs: VaultDBEntryAttrs): void;
-    public update(id: (number | VaultDBEntry), attrs?: VaultDBEntryAttrs): void {
-        if (typeof id !== 'number') {
+    public update(id: string, attrs: VaultDBEntryAttrs): void;
+    public update(id: (string | VaultDBEntry), attrs?: VaultDBEntryAttrs): void {
+        if (typeof id !== 'string') {
             attrs = {
                 title: '',
                 url: '',
@@ -135,7 +135,7 @@ export class VaultDB {
         this.newRevision();
     }
 
-    public get(id: number): VaultDBEntry {
+    public get(id: string): VaultDBEntry {
         let entry = this._entries[id];
         if (entry == null) {
             throw new VaultageError(ERROR_CODE.NO_SUCH_ENTRY, 'No entry with id "' + id + '"');
@@ -144,16 +144,25 @@ export class VaultDB {
     }
 
     //TODO: sort results by matching percentage ! process multi-query strings
-    public find(query: string): VaultDBEntry[] {
+    public find(...query: string[]): VaultDBEntry[] {
         let keys = Object.keys(this._entries);
+
+        let accu : { [key: string]: {val: VaultDBEntry, hitcount: number} } = {};
+        for (let key of keys) {
+            accu[key] = {val: this.get(key), hitcount:0};
+        }
+
+        console.log(accu)
+        
         let resultSet: VaultDBEntry[] = [];
+
 
         for (let key of keys) {
             let entry = this._entries[key];
-            if (    QueryUtils.stringContains(entry.login, query) ||
-                    QueryUtils.stringContains(""+entry.id, query) ||
-                    QueryUtils.stringContains(entry.title, query) ||
-                    QueryUtils.stringContains(entry.url, query)) {
+            if (    QueryUtils.stringContains(entry.login, query[0]) ||
+                    QueryUtils.stringContains(""+entry.id, query[0]) ||
+                    QueryUtils.stringContains(entry.title, query[0]) ||
+                    QueryUtils.stringContains(entry.url, query[0])) {
                 resultSet.push(deepCopy(entry));
             }
         }
@@ -183,9 +192,9 @@ export class VaultDB {
     /**
      * Returns the next free ID
      */
-    public nextFreeId(): number {
+    public nextFreeId(): string {
         let nextFreeID = this.size();
-        return nextFreeID;
+        return ""+nextFreeID;
     }
 
     /**
@@ -193,5 +202,34 @@ export class VaultDB {
      */
     public newRevision(): void {
         this._revision++;
+    }
+
+
+    /** Function count the occurrences of substring in a string;
+     * @param {String} string   Required. The string;
+     * @param {String} subString    Required. The string to search for;
+     * @param {Boolean} allowOverlapping    Optional. Default: false;
+     * @author Vitim.us http://stackoverflow.com/questions/4009756/how-to-count-string-occurrence-in-string/7924240#7924240
+     */
+    private countOccurrences(haystack: string, needle: string, allowOverlapping: boolean) : number {
+        haystack += "";
+        needle += "";
+
+        if (needle.length <= 0) {
+            return (haystack.length + 1);
+        }
+
+        var n = 0,
+            pos = 0,
+            step = allowOverlapping ? 1 : needle.length;
+
+        while (true) {
+            pos = haystack.indexOf(needle, pos);
+            if (pos >= 0) {
+                ++n;
+                pos += step;
+            } else break;
+        }
+        return n;
     }
 }

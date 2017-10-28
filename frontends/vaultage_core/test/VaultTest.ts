@@ -171,7 +171,7 @@ describe('Vault.ts can', () => {
         apiCallsFired = [];
         callbacksFired = [];
 
-        let entry = vault3.getEntry(0);
+        let entry = vault3.getEntry("0");
         expect(entry.title).toEqual("Hello");
         expect(entry.url).toEqual("http://example.com");
         expect(entry.login).toEqual("Bob");
@@ -187,5 +187,59 @@ describe('Vault.ts can', () => {
         expect(vault3.getAllEntries).toThrow()
         expect(vault3.getEntry.bind(0)).toThrow()
 
+    });
+
+
+
+    it('can create a Vault with a mock API, and play with entries', () => {
+        apiCallsFired = [];
+        callbacksFired = [];
+
+        let vault = new Vault(salts, mockAPI);
+        vault.auth("url", "username", "passwd", errorCb);
+
+        expect(apiCallsFired.length).toBe(1); //one request to the server
+        expect(callbacksFired.length).toBe(0);
+        expect(apiCallsFired[0].parameters).toEqual({url: 'url/username/483c29af947d335ed2851c62f1daa12227126b00035387f66f2d1492036d4dcb/vaultage_api'});
+
+        let apiAnswerFn = apiCallsFired[0].cb
+        apiCallsFired = [];
+        callbacksFired = [];
+
+        //server reachable and empty remote cipher
+        apiAnswerFn(null, {body:'{"error":false,"description":"","data":""}'});
+
+        apiCallsFired = [];
+        callbacksFired = [];
+
+        //add one entry
+        vault.addEntry({
+            title: "github",
+            login: "json",
+            password: "zephyr",
+            url: "http://github.com"
+        })
+
+        expect(vault.getAllEntries().length).toBe(1)
+        expect(apiCallsFired.length).toBe(0)
+        expect(callbacksFired.length).toBe(0);
+
+        //add one entry
+        vault.addEntry({
+            title: "gitlab",
+            login: "jason",
+            password: "jackson",
+            url: "http://lab.git.com"
+        })
+
+        expect(vault.getAllEntries().length).toBe(2)
+        expect(apiCallsFired.length).toBe(0)
+        expect(callbacksFired.length).toBe(0);
+
+        vault.updateEntry("0", {
+            password: "aceventura",
+        });
+
+        console.log(vault.getAllEntries())
     });
 });

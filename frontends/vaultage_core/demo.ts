@@ -16,9 +16,9 @@ const masterKey = "ilovesushi"
 const key = crypto.deriveLocalKey(masterKey);
 console.log('My local key is: ' + key + '\n');
 
-const db = new VaultDB({ '1': {
+const db = new VaultDB({ '0': {
     title: "Hello",
-    id: 0,
+    id: "0",
     created: "now",
     updated: "",
     login: "Bob",
