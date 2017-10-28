@@ -182,5 +182,15 @@ describe('Vault.ts can', () => {
         expect(entry.login).toEqual("Bob");
         expect(entry.password).toEqual("zephyr");
 
+        //once unlogged, should not be able to add any entry
+
+        vault3.unauth();
+        expect(vault3.addEntry.bind(entry)).toThrow()
+        expect(vault3.updateEntry.bind(entry)).toThrow()
+        expect(vault3.removeEntry.bind(entry)).toThrow()
+        expect(vault3.findEntries.bind('')).toThrow()
+        expect(vault3.getAllEntries).toThrow()
+        expect(vault3.getEntry.bind(0)).toThrow()
+
     });
 });
