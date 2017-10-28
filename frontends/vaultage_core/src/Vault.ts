@@ -13,7 +13,7 @@ export interface Credentials {
 }
 
 export interface ApiCallFunction {
-    (url: string, cb: (err: any, resp: any) => void) : void
+    (parameters: any, cb: (err: any, resp: any) => void) : void
 }
 
 
@@ -32,13 +32,22 @@ export interface ApiCallFunction {
 export class Vault {
     private _creds?: Credentials;
     private _db?: VaultDB;
-    private _crypto?: Crypto;
+    private _crypto: Crypto;
     private _lastFingerprint?: string;
-    private _apiCallFunction?: ApiCallFunction;
+    private _apiCallFunction: ApiCallFunction;
 
     constructor(salts : SaltsConfig, apiCallFunction?: ApiCallFunction) {
         this._crypto = new Crypto(salts);
-        this._apiCallFunction = apiCallFunction;
+
+        // if no function was given to reach the backend, use Requests (this is for production)
+        if (apiCallFunction == null){
+            apiCallFunction = (parameters: any, cb: (err: any, resp: any) => void) => {
+                request(parameters, cb);
+            }
+        } else {
+            // this is for testing
+            this._apiCallFunction = apiCallFunction;
+        }
     }
 
     /**
@@ -83,7 +92,7 @@ export class Vault {
     public unauth(): void {
         this._creds = undefined;
         this._db = undefined;
-        this._lastFingerprint = null;
+        this._lastFingerprint = undefined;
     }
 
     /**
@@ -140,7 +149,7 @@ export class Vault {
      * @param cb Callback invoked on completion.
      */
     public updateMasterPassword(newPassword: string, cb: (err: (VaultageError|null), vault: Vault) => void): void {
-        if (!this._creds || !this._db || !this._crypto) {
+        if (!this._creds || !this._db) {
             cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated'), this);
         } else {
             let localKey = this._crypto.deriveLocalKey(newPassword);
@@ -251,9 +260,9 @@ export class Vault {
     }
 
     private _pullCipher(creds: Credentials, cb: (err: (VaultageError|null)) => void): void {
-        request({
-            url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey)
-        }, (err: any, resp: any) => {
+
+        let parameters = {url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey)}
+        let innerCallback = (err: any, resp: any) => {
             if (err) {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
             }
@@ -264,17 +273,9 @@ export class Vault {
             } catch(e) {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response'));
             }
-            if (!this._crypto) {
-                return cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
-            }
             if (body.error != null && body.error === true) {
-                if (body.tfa_error) {
-                    return cb(new VaultageError(ERROR_CODE.TFA_FAILED, 'Two-step authentication failed.'));
-                } else {
-                    return cb(new VaultageError(ERROR_CODE.BAD_REMOTE_CREDS, 'Wrong username / remote password (or DB link inactive).'));
-                }
+                return cb(new VaultageError(ERROR_CODE.BAD_REMOTE_CREDS, 'Wrong username / remote password (or DB link inactive).'));
             }
-
             let cipher = (body.data || '').replace(/[^a-z0-9+/:"{},]/ig, '');
 
             if (cipher && body.data) {
@@ -284,7 +285,6 @@ export class Vault {
                     this._lastFingerprint = this._crypto.getFingerprint(plain, creds.localKey);
                 } catch (e) {
                     return cb(new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occured while decrypting the cipher', e));
-
                 }
             } else {
                 // Create an empty DB if there is nothing on the server.
@@ -292,7 +292,9 @@ export class Vault {
                 this._lastFingerprint = '';
             }
             cb(null);
-        });
+        };
+
+        this._apiCallFunction(parameters, innerCallback);
     }
 
     private _pushCipher(creds: Credentials, newRemoteKey: (string|null), cb: (err: (VaultageError|null)) => void): void {
@@ -303,19 +305,23 @@ export class Vault {
         let plain = VaultDB.serialize(this._db);
         let cipher = this._crypto.encrypt(creds.localKey, plain);
         let fingerprint = this._crypto.getFingerprint(plain, creds.localKey);
-        request({
+
+        let parameters = {
             method: 'POST',
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey),
             body: urlencode({
                 'update_key': newRemoteKey,
-                'data': cipher,
-                'last_hash': this._lastFingerprint,
-                'new_hash': fingerprint
+                'new_data': cipher,
+                'old_hash': this._lastFingerprint,
+                'new_hash': fingerprint,
+                'force': false,
             }),
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
-        }, (err: any, resp: any) => {
+        };
+
+        let innerCallback = (err: any, resp: any) => {
             if (err) {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err));
             }
@@ -329,15 +335,15 @@ export class Vault {
             if (body.error != null && body.error === true) {
                 if (body.not_fast_forward === true) {
                     return cb(new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, 'The server has a newer version of the DB'));
-                } else if (body.tfa_error) {
-                    cb(new VaultageError(ERROR_CODE.TFA_FAILED, 'Two-step authentication failed.'));
                 } else {
                     return cb(new VaultageError(ERROR_CODE.BAD_REMOTE_CREDS, 'Wrong username / remote password (or DB link inactive).'));
                 }
             }
             this._lastFingerprint = fingerprint;
             cb(null);
-        });
+        };
+
+        this._apiCallFunction(parameters, innerCallback);
     }
 
     private _makeURL(serverURL: string, username: string, remotePwdHash: string): string {

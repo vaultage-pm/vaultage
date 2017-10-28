@@ -35,7 +35,7 @@ describe('Crypto.ts', () => {
             it('work together', () => {
                 let cipher = crypto.encrypt(localKey, plaintext);
                 let decoded = crypto.decrypt(localKey, cipher);
-                expect(plaintext).toEqual(plaintext);
+                expect(plaintext).toEqual(decoded);
             });
 
             it('is not the identity function', () => {
@@ -53,7 +53,7 @@ describe('Crypto.ts', () => {
                 let plaintext = generateString(2000);
                 let cipher = crypto.encrypt(localKey, plaintext);
                 let decoded = crypto.decrypt(localKey, cipher);
-                expect(plaintext).toEqual(plaintext);
+                expect(plaintext).toEqual(decoded);
             });
         }
     })
