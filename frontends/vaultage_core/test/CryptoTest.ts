@@ -1,5 +1,9 @@
 import { Crypto } from '../src/Crypto';
 
+function generateString(len) {
+    return Math.random().toString(36).substr(2, 2 + len);
+}
+
 describe('Crypto.ts', () => {
     let crypto: Crypto;
 

@@ -1,9 +1,5 @@
 import { VaultDB } from '../src/VaultDB';
 
-function generateString(len) {
-    return Math.random().toString(36).substr(2, 2 + len);
-}
-
 describe('VaultDB.ts can', () => {
     it('create an empty vault', () => {
         let db = new VaultDB({});
@@ -78,7 +74,7 @@ describe('VaultDB.ts can', () => {
         expect(db2.getAll().length).toEqual(2);
         //original db did non change
         expect(db.getAll().length).toEqual(1);
-        expect(db2.nextFreeID()).toEqual(2);
-        expect(db.nextFreeID()).toEqual(1);
+        expect(db2.nextFreeId()).toEqual(2);
+        expect(db.nextFreeId()).toEqual(1);
     });
 });
