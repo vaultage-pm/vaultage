@@ -12,6 +12,11 @@ export interface Credentials {
     username: string;
 }
 
+export interface ApiCallFunction {
+    (url: string, cb: (err: any, resp: any) => void) : void
+}
+
+
 /**
  * The vault class.
  *
@@ -25,13 +30,15 @@ export interface Credentials {
  * });
  */
 export class Vault {
-    private _creds: (Credentials|undefined);
-    private _db: (VaultDB|undefined);
-    private _crypto: (Crypto|undefined) = undefined;
-    private _lastFingerprint: (string|null) = null;
+    private _creds?: Credentials;
+    private _db?: VaultDB;
+    private _crypto?: Crypto;
+    private _lastFingerprint?: string;
+    private _apiCallFunction?: ApiCallFunction;
 
-    constructor(salts : SaltsConfig) {
+    constructor(salts : SaltsConfig, apiCallFunction?: ApiCallFunction) {
         this._crypto = new Crypto(salts);
+        this._apiCallFunction = apiCallFunction;
     }
 
     /**

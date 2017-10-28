@@ -1,7 +1,5 @@
 const sjcl = require('../lib/sjcl') as any;
 
-export const PBKDF2_DIFFICULTY = 32768;
-
 export interface SaltsConfig {
     LOCAL_KEY_SALT: string;
     REMOTE_KEY_SALT: string;
@@ -11,6 +9,8 @@ export interface SaltsConfig {
  * Handles the crypto stuff
  */
 export class Crypto {
+
+    public PBKDF2_DIFFICULTY : number = 32768;
 
     constructor(
             private _salts: SaltsConfig) {
@@ -23,7 +23,7 @@ export class Crypto {
      */
     public deriveLocalKey(masterPassword: string): string {
         let masterHash = sjcl.hash.sha512.hash(masterPassword);
-        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash , this._salts.LOCAL_KEY_SALT, PBKDF2_DIFFICULTY));
+        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash , this._salts.LOCAL_KEY_SALT, this.PBKDF2_DIFFICULTY));
     }
 
     /**
@@ -33,7 +33,7 @@ export class Crypto {
      */
     public deriveRemoteKey(masterPassword: string): string {
         let masterHash = sjcl.hash.sha512.hash(masterPassword);
-        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash, this._salts.REMOTE_KEY_SALT, PBKDF2_DIFFICULTY));
+        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash, this._salts.REMOTE_KEY_SALT, this.PBKDF2_DIFFICULTY));
     }
 
     /**
@@ -82,6 +82,6 @@ export class Crypto {
         // The localKey is already derived from the username, some per-deployment salt and
         // the master password so using it as a salt here should be enough to show that we know
         // all of the above information.
-        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(plain, localKey, PBKDF2_DIFFICULTY));
+        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(plain, localKey, this.PBKDF2_DIFFICULTY));
     }
 }

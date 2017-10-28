@@ -12,17 +12,18 @@ describe('Crypto.ts', () => {
             LOCAL_KEY_SALT: "deadbeef",
             REMOTE_KEY_SALT: "0123456789",
         });
+        crypto.PBKDF2_DIFFICULTY = 1;
     });
 
     describe('the key derivation function', () => {
         let masterKey = "ucantseeme"
         it('gives a consistent local key', () => {
             let localKey = crypto.deriveLocalKey(masterKey);
-            expect(localKey).toEqual("f99abd482e3b4874fcb86cb735facd41eabbfc8f777bee4c33f0064c45b07af5");
+            expect(localKey).toEqual("93ff3db4b46bf6e63885f0d37efcac689970947c49cd9a04e66cace32b258b0e");
         });
         it('gives a consistent remote key', () => {
             let remoteKey = crypto.deriveRemoteKey(masterKey);
-            expect(remoteKey).toEqual("e76a6906c85e8bef9eaf7ee4984113d0ec20431668c5faf0a232e0afeceaa62e");
+            expect(remoteKey).toEqual("8aefc63391ce6eb2e706bf92d0af026189adfe02d2bc757ca5511112c8bdb2a8");
         });
     })
 
