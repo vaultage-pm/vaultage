@@ -61,7 +61,7 @@ export class Vault {
             serverURL: string,
             username: string,
             masterPassword: string,
-            cb: (err: (VaultageError | null), vault: Vault) => void
+            cb: (err: (VaultageError | null)) => void
     ): void {
 
         let creds = {
@@ -82,7 +82,7 @@ export class Vault {
             if (!err) {
                 this._setCredentials(creds);
             }
-            cb(err, this);
+            cb(err);
         });
     }
 
@@ -113,14 +113,14 @@ export class Vault {
      *
      * @param {function} cb Callback invoked with (err: VaultageError, this) on completion. err is null if no error occured.
      */
-    public save(cb: (err: (VaultageError|null), vault: Vault) => void): void {
+    public save(cb: (err: (VaultageError|null)) => void): void {
         if (!this._creds || !this._db) {
-            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'), this);
+            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
         } else {
             // Bumping the revision on each push ensures that there are no two identical consecutive fingerprints
             // (in short we are pretending that we updated something even if we didn't)
             this._db.newRevision();
-            this._pushCipher(this._creds, null, (err) => cb(err, this));
+            this._pushCipher(this._creds, null, (err) => cb(err));
         }
     }
 
@@ -131,11 +131,11 @@ export class Vault {
      *
      * @param {function} cb Callback invoked with (err: VaultageError, this) on completion. err is null if no error occured.
      */
-    public pull(cb: (err: (VaultageError|null), vault: Vault) => void): void {
+    public pull(cb: (err: (VaultageError|null)) => void): void {
         if (!this._creds) {
-            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'), this);
+            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
         } else {
-            this._pullCipher(this._creds, (err) => cb(err, this));
+            this._pullCipher(this._creds, (err) => cb(err));
         }
     }
 
@@ -148,9 +148,9 @@ export class Vault {
      * @param newPassword The new master password
      * @param cb Callback invoked on completion.
      */
-    public updateMasterPassword(newPassword: string, cb: (err: (VaultageError|null), vault: Vault) => void): void {
+    public updateMasterPassword(newPassword: string, cb: (err: (VaultageError|null)) => void): void {
         if (!this._creds || !this._db) {
-            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated'), this);
+            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated'));
         } else {
             let localKey = this._crypto.deriveLocalKey(newPassword);
             let remoteKey = this._crypto.deriveRemoteKey(newPassword);
@@ -161,13 +161,13 @@ export class Vault {
             this._pushCipher(creds, remoteKey, (err) => {
                 if (!err) {
                     if (!this._creds) {
-                        cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'), this);
+                        cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
                     } else {
                         creds.remoteKey = remoteKey;
                         this._setCredentials(creds);
                     }
                 }
-                cb(err, this)
+                cb(err)
             });
         }
     }

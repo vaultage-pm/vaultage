@@ -1,7 +1,6 @@
 import { Vault, ApiCallFunction } from '../src/Vault';
 import { VaultageError, ERROR_CODE } from '../src/VaultageError';
 import { SaltsConfig } from '../src/Crypto';
-import * as request from 'request';
 
 
 let salts : SaltsConfig = { LOCAL_KEY_SALT: "deadbeef", REMOTE_KEY_SALT: "0123456789"};
@@ -13,8 +12,8 @@ let mockAPI : ApiCallFunction = (parameters: any, cb: (err: any, resp: any)=>voi
 };
 
 let callbacksFired : any[] = [];
-let errorCb = (err: VaultageError, vault: Vault) => {
-    callbacksFired.push({'err': err, 'vault': vault});
+let errorCb = (err: VaultageError) => {
+    callbacksFired.push({'err': err});
 }
 
 describe('Vault.ts can', () => {
@@ -111,31 +110,27 @@ describe('Vault.ts can', () => {
         expect(apiCallsFired.length).toBe(0);
         expect(callbacksFired.length).toBe(1); // returns the new vault
         expect(callbacksFired[0].err).toBe(null);
-        expect(typeof(callbacksFired[0].vault)).toEqual(typeof(vault));
         
-        let vault2 : Vault = callbacksFired[0].vault
         apiCallsFired = [];
         callbacksFired = [];
 
         expect(vault.isAuth()).toBe(true)
-        expect(vault2.isAuth()).toBe(true)
-        expect(vault2.getAllEntries().length).toBe(0)
+        expect(vault.getAllEntries().length).toBe(0)
 
         //add one entry
-        vault2.addEntry({
+        vault.addEntry({
             title: "Hello",
             login: "Bob",
             password: "zephyr",
             url: "http://example.com"
         })
 
-        expect(vault.getAllEntries().length).toBe(1) //check that vault === vault2
-        expect(vault2.getAllEntries().length).toBe(1)
+        expect(vault.getAllEntries().length).toBe(1)
         expect(apiCallsFired.length).toBe(0)
         expect(callbacksFired.length).toBe(0);
 
         //save the current vault
-        vault2.save(errorCb)
+        vault.save(errorCb)
 
         expect(apiCallsFired.length).toBe(1) //one request to the server
         expect(callbacksFired.length).toBe(0)
