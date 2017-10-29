@@ -10,7 +10,7 @@ WEBPACK_FLAGS = --output-library Vaultage
 .PHONY: all
 all: test $(BIN) demo
 
-$(BIN): node_modules $(INDEX)
+$(BIN): node_modules $(INDEX) tsc
 	node_modules/.bin/webpack
 
 .PHONY: clean

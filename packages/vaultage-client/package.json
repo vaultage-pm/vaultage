@@ -1,8 +1,9 @@
 {
-  "name": "vaultage-browser-sdk",
+  "name": "vaultage-client",
   "version": "3.0.0-dev",
   "description": "SDK to write JavaScript clients for the Vaultage password manager",
-  "main": "vaultage.js",
+  "main": "dist/vaultage.js",
+  "types": "dist/vaultage.d.ts",
   "scripts": {
     "test": "karma start karma.conf.js --single-run",
     "watch": "karma start karma.conf.js"
