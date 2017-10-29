@@ -20,17 +20,6 @@ export interface VaultDBEntry {
     updated: string
 }
 
-
-/**
- * Utilities for performing queries in the DB
- */
-abstract class QueryUtils {
-
-    public static stringContains(entry: string, criteria?: string): boolean {
-        return criteria == null || entry.indexOf(criteria) !== -1;
-    }
-}
-
 /**
  * Internal class for handling the vault data.
  *

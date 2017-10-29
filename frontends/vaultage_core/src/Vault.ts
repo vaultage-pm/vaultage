@@ -40,8 +40,8 @@ export class Vault {
         this._crypto = new Crypto(salts);
 
         // if no function was given to reach the backend, use Requests (this is for production)
-        if (apiCallFunction == null){
-            apiCallFunction = (parameters: any, cb: (err: any, resp: any) => void) => {
+        if (apiCallFunction == undefined){
+            this._apiCallFunction = (parameters: any, cb: (err: any, resp: any) => void) => {
                 request(parameters, cb);
             }
         } else {

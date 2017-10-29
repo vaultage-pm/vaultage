@@ -8,7 +8,7 @@ DEMO_BIN=demo/tmp/demo.js
 WEBPACK_FLAGS = --output-library Vaultage
 
 .PHONY: all
-all: $(BIN) test demo
+all: test $(BIN) demo
 
 $(BIN): node_modules $(INDEX)
 	node_modules/.bin/webpack
@@ -38,7 +38,7 @@ $(INDEX): $(SRC)
 
 $(DEMO_BIN): $(DEMO) $(SRC) node_modules
 	node node_modules/.bin/tsc --outDir demo/tmp $(DEMO)
-	mkdir demo/tmp/lib
+	mkdir -p demo/tmp/lib
 	cp lib/sjcl.js demo/tmp/lib/
 
 .PHONY: demo
