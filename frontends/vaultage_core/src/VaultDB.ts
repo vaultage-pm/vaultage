@@ -144,30 +144,56 @@ export class VaultDB {
     }
 
     //TODO: sort results by matching percentage ! process multi-query strings
-    public find(...query: string[]): VaultDBEntry[] {
-        let keys = Object.keys(this._entries);
+    public find(...queries: string[]): VaultDBEntry[] {
 
-        let accu : { [key: string]: {val: VaultDBEntry, hitcount: number} } = {};
-        for (let key of keys) {
-            accu[key] = {val: this.get(key), hitcount:0};
+        queries = queries.filter((e) => e.trim() != "")
+
+        // if we search for nothing, return everyting
+        if(queries.length == 0){
+            let resultSet : VaultDBEntry[] = []
+            let keys = Object.keys(this._entries);
+
+            for (let key of keys) {
+                resultSet.push(deepCopy(this._entries[key]))
+            }
+            return resultSet
         }
 
-        console.log(accu)
-        
-        let resultSet: VaultDBEntry[] = [];
+        let keys = Object.keys(this._entries);
 
-
+        let accu : { [key: string]: {entry: VaultDBEntry, hitcount: number} } = {};
         for (let key of keys) {
-            let entry = this._entries[key];
-            if (    QueryUtils.stringContains(entry.login, query[0]) ||
-                    QueryUtils.stringContains(""+entry.id, query[0]) ||
-                    QueryUtils.stringContains(entry.title, query[0]) ||
-                    QueryUtils.stringContains(entry.url, query[0])) {
-                resultSet.push(deepCopy(entry));
+            accu[key] = {entry: this.get(key), hitcount:0};
+        }
+
+        for (let query of queries) {
+            for (let key of keys) {
+                let e = accu[key].entry
+                accu[key].hitcount += this.countOccurencesInEntry(e, query)
             }
         }
 
-        return resultSet;
+        //delete results with 0 hits
+        for(let key of keys)
+        {
+            if(accu[key].hitcount == 0) {
+                delete accu[key];
+            }
+        }
+
+        //sort it
+        let arrayOfTuples = Object.keys(accu).map(function(key) {
+            return {key: key, hitcount: accu[key].hitcount, entry: accu[key].entry};
+        });
+
+        arrayOfTuples.sort(function(e1, e2){
+            return e2.hitcount - e1.hitcount;
+        });
+
+        let sortedEntries = arrayOfTuples.map((tuple) => deepCopy(tuple.entry))
+
+
+        return sortedEntries;
     }
 
     /**
@@ -204,6 +230,18 @@ export class VaultDB {
         this._revision++;
     }
 
+    public countOccurencesInEntry(entry: VaultDBEntry, needle: string): number {
+        let hitCount = 0;
+        let allowOverlapping = false;
+
+        hitCount += this.countOccurrences(entry.id, needle, allowOverlapping);
+        hitCount += this.countOccurrences(entry.title, needle, allowOverlapping);
+        hitCount += this.countOccurrences(entry.login, needle, allowOverlapping);
+        hitCount += this.countOccurrences(entry.url, needle, allowOverlapping);
+        hitCount += this.countOccurrences(entry.password, needle, allowOverlapping);
+
+        return hitCount;
+    }
 
     /** Function count the occurrences of substring in a string;
      * @param {String} string   Required. The string;

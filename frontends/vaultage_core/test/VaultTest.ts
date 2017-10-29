@@ -227,7 +227,7 @@ describe('Vault.ts can', () => {
         //add one entry
         vault.addEntry({
             title: "gitlab",
-            login: "jason",
+            login: "jasongit",
             password: "jackson",
             url: "http://lab.git.com"
         })
@@ -240,6 +240,9 @@ describe('Vault.ts can', () => {
             password: "aceventura",
         });
 
-        console.log(vault.getAllEntries())
+        let entries = vault.findEntries("git")
+        expect(entries.length).toEqual(2)
+        expect(entries[0].title).toEqual("gitlab")
+        expect(entries[1].title).toEqual("github")
     });
 });
