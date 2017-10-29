@@ -1,6 +1,6 @@
 console.log('Loading the transpiled library... Run `make tsc` before running this example');
 
-import { Crypto, VaultDB } from './vaultage';
+import { Crypto, VaultDB } from '../vaultage';
 
 console.log('\nDemoing the encryption / decryption locally...');
 console.log('Note that this is demoing the inside of the vaultage SDK but all of this complexity' +
