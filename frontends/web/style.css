@@ -1,0 +1,8 @@
+#decrypt{
+    display:inline-block;
+}
+#decrypted_label{
+    display:inline-block;
+    margin-left:20px;
+    display:none;
+}
