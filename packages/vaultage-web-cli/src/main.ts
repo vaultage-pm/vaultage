@@ -4,10 +4,8 @@ import { AsyncCommand } from './commands/Auth';
 import { HelpCommand } from './commands/Help';
 import { PrintVaultCommand } from './commands/PrintVault';
 import { ProcessCommand } from './commands/Process';
-import { PullCommand } from './commands/Pull';
-import { PushCommand } from './commands/Push';
-import { Shell } from './Shell';
-import { Terminal } from './terminal/Terminal';
+import { Shell } from './webshell/Shell';
+import { Terminal } from './webshell/Terminal';
 
 import * as config from '../../config';
 
@@ -18,11 +16,9 @@ const terminal = new Terminal({
 const shell = new Shell(terminal);
 const vault = new Vault(config.SALTS);
 
-shell.addCommand(new HelpCommand(shell));
-shell.addCommand(new PushCommand());
-shell.addCommand(new PullCommand());
-shell.addCommand(new AsyncCommand());
-shell.addCommand(new ProcessCommand(shell));
-shell.addCommand(new PrintVaultCommand(vault, shell));
+shell.registerCommand(new HelpCommand(shell));
+shell.registerCommand(new AsyncCommand());
+shell.registerCommand(new ProcessCommand(shell));
+shell.registerCommand(new PrintVaultCommand(vault, shell));
 
 shell.printHelp();

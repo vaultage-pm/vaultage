@@ -53,24 +53,12 @@ html, body {
     white-space: normal;
 }
 
-.highlight1{
+.highlight {
     color:white;
 }
 
-.highlight2{
+.error {
     color:#F92672;
-}
-
-.highlight3{
-    color:#AE81FF;
-}
-
-.highlight4{
-    color:#66D9EF;
-}
-
-.highlight5{
-    color:#3E7ED9;
 }
 
 .blurred {

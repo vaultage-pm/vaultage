@@ -1,5 +1,5 @@
-import { ICommand } from '../ICommand';
-import { Shell } from '../Shell';
+import { ICommand } from '../webshell/ICommand';
+import { Shell } from '../webshell/Shell';
 
 export class HelpCommand implements ICommand {
     public readonly name = 'help';

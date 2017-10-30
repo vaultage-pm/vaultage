@@ -1,6 +1,6 @@
 import { Vault } from 'vaultage-client';
-import { ICommand } from '../ICommand';
-import { Shell } from '../Shell';
+import { ICommand } from '../webshell/ICommand';
+import { Shell } from '../webshell/Shell';
 
 export class PrintVaultCommand implements ICommand {
     public readonly name = 'print';

@@ -1,6 +1,6 @@
 
 export class BusyIndicator {
-    private steps = [ '\\ ', '| ', '/ ', '- ' ];
+    private steps = [ '\\&nbsp;', '|&nbsp;', '/&nbsp;', '-&nbsp;' ];
     private currentStep = 0;
 
     private interval: number;

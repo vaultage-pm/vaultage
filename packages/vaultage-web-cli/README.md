@@ -13,3 +13,5 @@ Make sure the dependency `vaultage-client` is built beforehand.
 ## Testing
 
 TODO
+- using jest
+- The modular commands architecture should allow for easy testing of individual commands and mock injection

@@ -1,4 +1,4 @@
-import { ICommand } from '../ICommand';
+import { ICommand } from '../webshell/ICommand';
 
 export class AsyncCommand implements ICommand {
     public readonly name = 'async';
