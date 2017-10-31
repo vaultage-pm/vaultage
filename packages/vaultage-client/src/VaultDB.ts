@@ -17,7 +17,9 @@ export interface VaultDBEntry {
     password: string,
     id: string,
     created: string,
-    updated: string
+    updated: string,
+    usage_count: number,
+    reuse_count: number
 }
 
 /**
@@ -44,7 +46,6 @@ export class VaultDB {
 
         return serialized;
     }
-
     public static deserialize(ser: string): VaultDB {
         const data = JSON.parse(ser);
         const entries: {
@@ -77,9 +78,13 @@ export class VaultDB {
             login: checkedAttrs.login,
             password: checkedAttrs.password,
             created: currentDate,
-            updated: currentDate
+            updated: currentDate,
+            usage_count: 0,
+            reuse_count: 0,
         };
         this._entries[entry.id] = entry;
+
+        this.refreshReUseCount();
         this.newRevision();
 
         return entry.id;
@@ -90,12 +95,17 @@ export class VaultDB {
             throw new VaultageError(ERROR_CODE.NO_SUCH_ENTRY, 'No entry with id "' + id + '"');
         }
         delete this._entries[id];
+
+        this.refreshReUseCount();
         this.newRevision();
     }
 
     public update(entry: VaultDBEntry): void;
     public update(id: string, attrs: VaultDBEntryAttrs): void;
     public update(id: (string | VaultDBEntry), attrs?: VaultDBEntryAttrs): void {
+
+        //TODO: lb->hmil no check that the entry exists ?
+
         if (typeof id !== 'string') {
             attrs = {
                 title: '',
@@ -121,6 +131,8 @@ export class VaultDB {
         entry.updated = currentDate;
 
         this._entries[entry.id] = entry;
+
+        this.refreshReUseCount();
         this.newRevision();
     }
 
@@ -130,6 +142,17 @@ export class VaultDB {
             throw new VaultageError(ERROR_CODE.NO_SUCH_ENTRY, 'No entry with id "' + id + '"');
         }
         return deepCopy(entry);
+    }
+
+    /**
+     * Records the fact that one entry was used
+     */
+    public entryUsed(id: string): number {
+        if (this._entries[id] == null) {
+            throw new VaultageError(ERROR_CODE.NO_SUCH_ENTRY, 'No entry with id "' + id + '"');
+        }
+
+        return ++this._entries[id].usage_count
     }
 
     //TODO: sort results by matching percentage ! process multi-query strings
@@ -184,6 +207,28 @@ export class VaultDB {
 
         return sortedEntries;
     }
+    
+    /**
+     * Automatically updates the field "reuse_count" of all entries
+     */
+    private refreshReUseCount(): void {
+        let passwordsCount : { [key: string]: number } = {}
+    
+        const keys = Object.keys(this._entries);
+        for (var key of keys) {
+            let e = this._entries[key]
+            if (!(e.password in passwordsCount)) {
+                passwordsCount[e.password] = 0
+            }
+            passwordsCount[e.password]++
+        }
+    
+        //re-update all entries
+        for (var key of keys) {
+            this._entries[key].reuse_count = passwordsCount[this._entries[key].password]
+        }
+    }
+    
 
     /**
      * Returns a deep-copy of all DB entries

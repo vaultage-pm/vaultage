@@ -77,4 +77,83 @@ describe('VaultDB.ts can', () => {
         expect(db2.nextFreeId()).toEqual("2");
         expect(db.nextFreeId()).toEqual("1");
     });
+
+
+    it('create a vault, in which one can add an entry, and get it, edit it, delete it', () => {
+        let db = new VaultDB({});
+        let e = {
+            title: "Hello",
+            login: "Bob",
+            password: "zephyr",
+            url: "http://example.com"
+        };
+        db.add(e);
+
+        let e2 = {
+            title: "Another",
+            login: "EntryWithSamePwd",
+            password: "zephyr",
+            url: "http://example.com"
+        };
+        db.add(e2);
+
+        let e3 = {
+            title: "Another",
+            login: "EntryWith",
+            password: "uniquePasswd",
+            url: "http://example.com"
+        };
+        db.add(e3);
+
+        expect(db.get("0").reuse_count).toEqual(2);
+        expect(db.get("1").reuse_count).toEqual(2);
+        expect(db.get("2").reuse_count).toEqual(1);
+
+
+        let e4 = {
+            title: "Another",
+            login: "EntryWith",
+            password: "zephyr",
+            url: "http://example.com"
+        };
+        db.add(e4);
+
+        expect(db.get("0").reuse_count).toEqual(3);
+        expect(db.get("1").reuse_count).toEqual(3);
+        expect(db.get("2").reuse_count).toEqual(1);
+        expect(db.get("3").reuse_count).toEqual(3);
+
+        db.update("2", {
+            password: 'zephyr'
+        })
+
+        expect(db.get("0").reuse_count).toEqual(4);
+        expect(db.get("1").reuse_count).toEqual(4);
+        expect(db.get("2").reuse_count).toEqual(4);
+        expect(db.get("3").reuse_count).toEqual(4);
+    });
+
+
+
+    it('create a vault, in which one can add an entry, and get it, edit it, delete it', () => {
+        let db = new VaultDB({});
+        let e = {
+            title: "Hello",
+            login: "Bob",
+            password: "zephyr",
+            url: "http://example.com"
+        };
+        db.add(e);
+
+
+        expect(db.get("0").usage_count).toEqual(0);
+        expect(db.get("0").usage_count).toEqual(0);
+
+        db.entryUsed("0")
+        expect(db.get("0").usage_count).toEqual(1);
+
+        db.entryUsed("0")
+        expect(db.get("0").usage_count).toEqual(2);
+    });
+
 });

@@ -195,6 +195,17 @@ export class Vault {
     }
 
     /**
+     * Records that one entry has been used (for usage_count statistics)
+     * @returns the new usage count
+     */
+    public entryUsed(id: string): number {
+        if (!this._db) {
+            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
+        }
+        return this._db.entryUsed(id);
+    }
+
+    /**
      * Deletes an entry
      */
     public removeEntry(id: string): void {
