@@ -20,10 +20,12 @@ const db = new VaultDB({ '0': {
     title: "Hello",
     id: "0",
     created: "now",
-    updated: "",
+    updated: "", 
     login: "Bob",
     password: "zephyr",
-    url: "http://example.com"
+    url: "http://example.com",
+    usage_count: 0,
+    reuse_count: 0
 }});
 const plain = VaultDB.serialize(db);
 const fp = crypto.getFingerprint(plain, key);

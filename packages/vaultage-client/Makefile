@@ -3,7 +3,7 @@ INDEX=vaultage.ts
 SRC=$(wildcard src/*.ts)
 TESTS=$(wildcard test/*.ts)
 DEMO=demo/demo.ts
-DEMO_BIN=demo/tmp/demo.js
+DEMO_BIN=demo/tmp/demo/demo.js
 
 WEBPACK_FLAGS = --output-library Vaultage
 
