@@ -29,7 +29,7 @@ tsc:
 	node_modules/.bin/tsc -p .
 
 .PHONY: test
-test: $(DEMO) $(SRC) $(TESTS)
+test: node_modules $(DEMO) $(SRC) $(TESTS)
 	npm test
 
 $(INDEX): $(SRC)
