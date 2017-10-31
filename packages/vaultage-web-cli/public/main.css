@@ -58,7 +58,7 @@ html, body {
 }
 
 .error {
-    color:#F92672;
+    color:rgb(249, 38, 38);
 }
 
 .blurred {
@@ -75,7 +75,25 @@ html, body {
     color: #0c0;
 }
 
-
 .blurred:hover .highlight1, .blurred:hover .highlight2, .blurred:hover .highlight3, .blurred:hover .highlight4, .blurred:hover .highlight5 {
     color: #0c0;
+}
+
+
+.entry span {
+    margin-left: 10px;
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.entry .id {
+    width: 50px;
+}
+
+.entry .title {
+    background-color: rgb(51, 51, 51);
+    padding: 0px;
+    padding-left: 6px;
+    padding-right: 6px;
+    font-weight: bold;
 }
