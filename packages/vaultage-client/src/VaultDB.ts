@@ -156,7 +156,6 @@ export class VaultDB {
         return ++this._entries[id].usage_count
     }
 
-    //TODO: sort results by matching percentage ! process multi-query strings
     public find(...queries: string[]): VaultDBEntry[] {
 
         queries = queries.filter((e) => e.trim() != "")

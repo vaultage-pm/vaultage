@@ -236,13 +236,20 @@ describe('Vault.ts can', () => {
         expect(apiCallsFired.length).toBe(0)
         expect(callbacksFired.length).toBe(0);
 
+        let entries2 = vault.getWeakPasswords()
+        expect(entries2.length).toEqual(2)
+
         vault.updateEntry("0", {
-            password: "aceventura",
+            password: "N1N$a23489zasdél123",
         });
 
         let entries = vault.findEntries("git")
         expect(entries.length).toEqual(2)
         expect(entries[0].title).toEqual("gitlab")
         expect(entries[1].title).toEqual("github")
+
+        let entries3 = vault.getWeakPasswords()
+        expect(entries3.length).toEqual(1)
+        expect(entries3[0].title).toEqual("gitlab")
     });
 });
