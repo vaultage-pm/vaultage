@@ -15,22 +15,29 @@ export class AuthCommand implements ICommand {
 
     public async handle() {
         try {
-            // return new Promise(resolve => setTimeout(resolve, 2000));
-            const username = await this.shell.prompt('Username:');
-            const masterpwd = await this.shell.promptSecret('Password:');
 
+            let username = await this.shell.prompt('Username:');
+            let masterpwd = await this.shell.promptSecret('Password:');
+            
             this.shell.echo(`Attempting to login ${username}@${this.serverUrl}...`);
 
             let p = new Promise(resolve => this.vault.auth(this.serverUrl, username, masterpwd, function(err) {
                 if(err == null){
-                    resolve("OK.")
+                    resolve("")
                 } else {
                     resolve('<span class="error">'+err.toString()+'</span>')
                 }
             }));
 
             await p;
-            p.then((s : string) => this.shell.echoHTML(s))
+            p.then((err : string) => {
+                //if no error
+                if(err=="") {
+                    this.shell.echo("Pull OK, got " + this.vault.getNbEntries()+" entries.")
+                } else {
+                    this.shell.echoHTML(err)
+                }      
+            })
 
         } catch (e) {
             // We could get here for instance if the user sends the ^C control sequence to the terminal
