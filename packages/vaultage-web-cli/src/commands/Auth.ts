@@ -33,7 +33,7 @@ export class AuthCommand implements ICommand {
             p.then((err : string) => {
                 //if no error
                 if(err=="") {
-                    this.shell.echo("Pull OK, got " + this.vault.getNbEntries()+" entries.")
+                    this.shell.echo("Pull OK, got " + this.vault.getNbEntries()+" entries (revision "+this.vault.getDBRevision()+").")
                 } else {
                     this.shell.echoHTML(err)
                 }      
