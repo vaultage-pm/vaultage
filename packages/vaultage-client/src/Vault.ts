@@ -234,6 +234,16 @@ export class Vault {
     }
 
     /**
+     * Returns the set of all entries in the DB
+     */
+    public getEntriesWhichReusePasswords(): VaultDBEntry[] {
+        if (!this._db) {
+            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
+        }
+        return this._db.getEntriesWhichReusePasswords();
+    }
+
+    /**
      * Edits an entry in the vault.
      *
      * @param id Id of the entry to edit

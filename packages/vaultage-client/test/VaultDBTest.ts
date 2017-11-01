@@ -105,9 +105,11 @@ describe('VaultDB.ts can', () => {
         };
         db.add(e3);
 
-        expect(db.get("0").reuse_count).toEqual(2);
-        expect(db.get("1").reuse_count).toEqual(2);
-        expect(db.get("2").reuse_count).toEqual(1);
+        expect(db.get("0").reuse_count).toEqual(1);
+        expect(db.get("1").reuse_count).toEqual(1);
+        expect(db.get("2").reuse_count).toEqual(0);
+        
+        expect(db.getEntriesWhichReusePasswords().length).toEqual(2)
 
 
         let e4 = {
@@ -118,19 +120,23 @@ describe('VaultDB.ts can', () => {
         };
         db.add(e4);
 
-        expect(db.get("0").reuse_count).toEqual(3);
-        expect(db.get("1").reuse_count).toEqual(3);
-        expect(db.get("2").reuse_count).toEqual(1);
-        expect(db.get("3").reuse_count).toEqual(3);
+        expect(db.get("0").reuse_count).toEqual(2);
+        expect(db.get("1").reuse_count).toEqual(2);
+        expect(db.get("2").reuse_count).toEqual(0);
+        expect(db.get("3").reuse_count).toEqual(2);
+        
+        expect(db.getEntriesWhichReusePasswords().length).toEqual(3)
 
         db.update("2", {
             password: 'zephyr'
         })
 
-        expect(db.get("0").reuse_count).toEqual(4);
-        expect(db.get("1").reuse_count).toEqual(4);
-        expect(db.get("2").reuse_count).toEqual(4);
-        expect(db.get("3").reuse_count).toEqual(4);
+        expect(db.get("0").reuse_count).toEqual(3);
+        expect(db.get("1").reuse_count).toEqual(3);
+        expect(db.get("2").reuse_count).toEqual(3);
+        expect(db.get("3").reuse_count).toEqual(3);
+
+        expect(db.getEntriesWhichReusePasswords().length).toEqual(4)
     });
 
 

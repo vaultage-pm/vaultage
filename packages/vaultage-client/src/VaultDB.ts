@@ -33,6 +33,7 @@ export class VaultDB {
     public constructor(
             private _entries: { [key: string]: VaultDBEntry },
             private _revision: number = 0) {
+                this.refreshReUseCount()
     }
 
     public static serialize(db: VaultDB): string {
@@ -59,10 +60,7 @@ export class VaultDB {
             entries[entry.id] = entry;
         }
 
-        let v = new VaultDB(entries, data._revision);
-        v.refreshReUseCount();
-
-        return v;
+        return new VaultDB(entries, data._revision);
     }
 
     public add(attrs: VaultDBEntryAttrs): string {
@@ -228,8 +226,25 @@ export class VaultDB {
     
         //re-update all entries
         for (var key of keys) {
-            this._entries[key].reuse_count = passwordsCount[this._entries[key].password]
+            let timesReused = passwordsCount[this._entries[key].password] - 1
+            this._entries[key].reuse_count = timesReused
         }
+    }
+    
+
+    /**
+     * Returns a deep-copy of all DB entries
+     */
+    public getEntriesWhichReusePasswords(): VaultDBEntry[] {
+        this.refreshReUseCount();
+        const entries: VaultDBEntry[] = [];
+        const keys = Object.keys(this._entries);
+        for (var key of keys) {
+            if(this._entries[key].reuse_count > 0) {
+                entries.push(deepCopy(this._entries[key]));
+            }
+        }
+        return entries;
     }
     
 
