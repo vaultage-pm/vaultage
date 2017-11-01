@@ -106,6 +106,13 @@ export class Vault {
         return (this._creds != null);
     }
 
+    public getDBRevision():number{
+        if (!this._db) {
+            return -1;
+        }
+        return this._db.getRevision()
+    }
+
 
     /**
      * Saves the Vault on the server.

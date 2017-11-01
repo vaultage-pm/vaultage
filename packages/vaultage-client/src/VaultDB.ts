@@ -41,8 +41,8 @@ export class VaultDB {
 
         let serialized = JSON.stringify({
             entries: entries,
-            v: VaultDB.VERSION,
-            r: db._revision
+            version: VaultDB.VERSION,
+            revision: db._revision
         });
 
         return serialized;
@@ -60,7 +60,7 @@ export class VaultDB {
             entries[entry.id] = entry;
         }
 
-        return new VaultDB(entries, data._revision);
+        return new VaultDB(entries, data.revision);
     }
 
     public add(attrs: VaultDBEntryAttrs): string {
@@ -279,6 +279,10 @@ export class VaultDB {
      */
     public newRevision(): void {
         this._revision++;
+    }
+
+    public getRevision(): number{
+        return this._revision;
     }
 
     public countOccurencesInEntry(entry: VaultDBEntry, needle: string): number {
