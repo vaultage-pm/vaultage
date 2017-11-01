@@ -59,7 +59,10 @@ export class VaultDB {
             entries[entry.id] = entry;
         }
 
-        return new VaultDB(entries, data._revision);
+        let v = new VaultDB(entries, data._revision);
+        v.refreshReUseCount();
+
+        return v;
     }
 
     public add(attrs: VaultDBEntryAttrs): string {
