@@ -86,7 +86,6 @@ export class VaultDB {
         this._entries[entry.id] = entry;
 
         this.refreshReUseCount();
-        this.newRevision();
 
         return entry.id;
     }
@@ -98,7 +97,6 @@ export class VaultDB {
         delete this._entries[id];
 
         this.refreshReUseCount();
-        this.newRevision();
     }
 
     public update(entry: VaultDBEntry): void;
@@ -134,7 +132,6 @@ export class VaultDB {
         this._entries[entry.id] = entry;
 
         this.refreshReUseCount();
-        this.newRevision();
     }
 
     public get(id: string): VaultDBEntry {

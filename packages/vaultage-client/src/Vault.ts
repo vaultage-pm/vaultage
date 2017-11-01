@@ -195,11 +195,11 @@ export class Vault {
     /**
      * Adds a new entry in the db
      */
-    public addEntry(attrs: VaultDBEntryAttrs): void {
+    public addEntry(attrs: VaultDBEntryAttrs): string {
         if (!this._db) {
             throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
         }
-        this._db.add(attrs);
+        return this._db.add(attrs);
     }
 
     /**
