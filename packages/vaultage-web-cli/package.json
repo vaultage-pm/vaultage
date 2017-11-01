@@ -1,0 +1,32 @@
+{
+  "name": "vaultage-web",
+  "version": "1.0.0",
+  "description": "Vaultage web cli",
+  "main": "package.json",
+  "scripts": {
+    "test": "jest",
+    "build": "cross-env NODE_PATH=.. ts-node scripts/publish-deps.sh.ts && webpack",
+    "dev": "webpack-dev-server"
+  },
+  "files": [
+    "public/**"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jquery": "^3.2.15",
+    "@types/node": "^8.0.47",
+    "@types/webpack-env": "^1.13.2",
+    "baseUrl": "..",
+    "cross-env": "^5.1.1",
+    "fork-ts-checker-webpack-plugin": "^0.2.8",
+    "shelljs": "^0.7.8",
+    "ts-loader": "^3.1.0",
+    "ts-node": "^3.3.0",
+    "tslib": "^1.8.0",
+    "tslint": "^5.8.0",
+    "typescript": "^2.5.3",
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.3"
+  }
+}
