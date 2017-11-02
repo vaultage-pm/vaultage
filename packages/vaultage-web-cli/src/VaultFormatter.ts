@@ -1,4 +1,4 @@
-import { VaultDBEntry } from '../../vaultage-client/vaultage';
+import { VaultDBEntry } from 'vaultage-client';
 
 export class VaultEntryFormatter {
     

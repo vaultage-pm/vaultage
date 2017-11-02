@@ -1,4 +1,4 @@
-import { VaultDBEntryAttrs } from '../../../vaultage-client/vaultage';
+import { VaultDBEntryAttrs } from 'vaultage-client';
 import { Vault } from 'vaultage-client';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
