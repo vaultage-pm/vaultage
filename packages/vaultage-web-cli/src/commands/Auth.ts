@@ -1,6 +1,7 @@
 import { Vault } from 'vaultage-client';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
+import * as config from '../../../config';
 
 export class AuthCommand implements ICommand {
     public readonly name = 'auth';
@@ -16,7 +17,7 @@ export class AuthCommand implements ICommand {
     public async handle() {
         try {
 
-            let username = await this.shell.prompt('Username:');
+            let username = await this.shell.prompt('Username:', config.DEFAULT_USER);
             let masterpwd = await this.shell.promptSecret('Password:');
             
             this.shell.echo(`Attempting to login ${username}@${this.serverUrl}...`);

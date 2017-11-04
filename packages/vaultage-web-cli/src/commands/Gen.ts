@@ -4,6 +4,7 @@ import { Passwords } from 'vaultage-client';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 import * as lang from '../lang';
+import * as config from '../../../config';
 
 export class GenCommand implements ICommand {
     public readonly name = 'gen';
@@ -24,12 +25,12 @@ export class GenCommand implements ICommand {
 
         try {
 
-            const pwdLen = 16
-            const useSymbols = false
-            const avoidSimilarChars = true
-            const avoidPunctuation = true
             const pwdGen = new Passwords()
-            const password = pwdGen.generatePassword(pwdLen, useSymbols, avoidSimilarChars, avoidPunctuation)
+            const password = pwdGen.generatePassword(
+                config.PWD_GEN_LENGTH,
+                config.PWD_GEN_USE_SYMBOLS,
+                config.PWG_GEN_AVOID_VISUALLY_SIMILAR_CHARS,
+                config.PWD_GEN_AVOID_PUNCTUATION_USED_IN_PROGRAMMING)
 
             const title = await this.shell.prompt('Title:');
             const username = await this.shell.prompt('Username:');
