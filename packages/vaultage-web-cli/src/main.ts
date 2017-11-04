@@ -1,3 +1,4 @@
+import { ReusedCommand } from './commands/Reused';
 import { GetCommand } from './commands/Get';
 import { LogoutCommand } from './commands/Logout';
 import { ClearCommand } from './commands/Clear';
@@ -35,6 +36,7 @@ shell.registerCommand(new PullCommand(vault, shell));
 shell.registerCommand(new PushCommand(vault, shell));
 shell.registerCommand(new ClearCommand(shell));
 shell.registerCommand(new LogoutCommand(vault,shell));
+shell.registerCommand(new ReusedCommand(vault,shell));
 
 shell.echoHTML("   Vaultage v4.0")
 shell.echoHTML("*********************")
