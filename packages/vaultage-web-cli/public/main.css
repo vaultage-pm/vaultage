@@ -131,3 +131,12 @@ a, a:hover, a:visited {
     padding-right: 10px !important;
     padding-left: 10px !important;
 }
+
+.mediumPassword {
+    color: yellow;
+}
+
+.weakPassword {
+    color: yellow;
+    font-weight: bold;
+}

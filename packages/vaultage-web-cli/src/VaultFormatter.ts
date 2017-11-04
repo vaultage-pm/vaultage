@@ -1,3 +1,4 @@
+import { PasswordStrength } from 'vaultage-client';
 import { VaultDBEntry } from 'vaultage-client';
 
 export class VaultEntryFormatter {
@@ -27,6 +28,14 @@ export class VaultEntryFormatter {
 
             stringBuilder += `<td class="use">(used ${e.usage_count} times)</td>`
 
+            if (e.password_strength_indication==PasswordStrength.WEAK){
+                stringBuilder += `<td class="weakPassword">(warning: very weak password)</td>`
+            } else if (e.password_strength_indication==PasswordStrength.MEDIUM){
+                stringBuilder += `<td class="mediumPassword">(warning: weak password)</td>`
+            }else {
+                stringBuilder += '<td></td>'
+            }
+
             if (e.reuse_count>0){
                 stringBuilder += `<td class="reuse">(warning: re-used ${e.reuse_count} times)</td>`
             } else {
@@ -51,6 +60,12 @@ export class VaultEntryFormatter {
             stringBuilder += `<span class="url">${e.url}</span>`
 
             stringBuilder += `<span class="use">(used ${e.usage_count} times)</span>`
+
+            if (e.password_strength_indication==PasswordStrength.WEAK){
+                stringBuilder += `<span class="weakPassword">(warning: very weak password)</span>`
+            } else if (e.password_strength_indication==PasswordStrength.MEDIUM){
+                stringBuilder += `<span class="mediumPassword">(warning: weak password)</span>`
+            }
 
             if (e.reuse_count>0){
                 stringBuilder += `<span class="reuse">(warning: re-used ${e.reuse_count} times)</span>`

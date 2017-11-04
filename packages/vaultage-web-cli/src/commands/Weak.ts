@@ -1,13 +1,14 @@
+import { PasswordStrength } from 'vaultage-client';
 import { VaultEntryFormatter } from '../VaultFormatter'
 import { Vault } from 'vaultage-client';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 import * as lang from '../lang';
 
-export class LsCommand implements ICommand {
-    public readonly name = 'ls';
+export class WeakCommand implements ICommand {
+    public readonly name = 'weak';
 
-    public readonly description = 'If authenticated, lists the vault content.';
+    public readonly description = 'Lists all the weak passwords';
 
     constructor(
         private vault: Vault,
@@ -24,9 +25,9 @@ export class LsCommand implements ICommand {
         }
 
         try {
-            this.shell.echo("Vault revision #"+this.vault.getDBRevision()+", "+this.vault.getNbEntries()+" entries.");
-            let allEntries = this.vault.getAllEntries();
-            this.shell.echoHTML(VaultEntryFormatter.formatBatch(allEntries));
+            let results = this.vault.getWeakPasswords(PasswordStrength.MEDIUM)        
+            this.shell.echoHTML('Searching for entries with a weak password, '+results.length+' matching entries.');
+            this.shell.echoHTML(VaultEntryFormatter.formatBatch(results));
 
         } catch (e) {
             this.shell.echoHTML('<span class="error">Failed. ' + e.toString()+'</span>');        
