@@ -4,7 +4,7 @@ import { Shell } from '../webshell/Shell';
 export class ClearCommand implements ICommand {
     public readonly name = 'clear';
 
-    public readonly description = 'Clears the current screen';
+    public readonly description = 'Clears the current screen.';
 
     constructor(
         private shell: Shell) {
