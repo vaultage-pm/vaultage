@@ -54,7 +54,24 @@ html, body {
 }
 
 .highlight {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.highlight0 {
     color:white;
+}
+.highlight1 {
+    color:#F92672;
+}
+.highlight2 {
+    color:#AE81FF;
+}
+.highlight3 {
+    color:#66D9EF;
+}
+.highlight4 {
+    color:#3E7ED9;
 }
 
 .error {
@@ -66,7 +83,7 @@ html, body {
     color: transparent;
 }
 
-.blurred .highlight1, .blurred .highlight2, .blurred .highlight3, .blurred .highlight4, .blurred .highlight5 {
+.blurred .highlight0, .blurred .highlight1, .blurred .highlight2, .blurred .highlight3, .blurred .highlight4 {
     color: transparent;
 }
 

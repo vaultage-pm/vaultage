@@ -1,3 +1,4 @@
+import { GetCommand } from './commands/Get';
 import { LogoutCommand } from './commands/Logout';
 import { ClearCommand } from './commands/Clear';
 import * as config from '../../config';
@@ -34,5 +35,6 @@ shell.registerCommand(new EditCommand(vault, shell));
 shell.registerCommand(new RmCommand(vault, shell));
 shell.registerCommand(new ClearCommand(shell));
 shell.registerCommand(new LogoutCommand(vault,shell));
+shell.registerCommand(new GetCommand(vault,shell));
 
 shell.printHelp();
