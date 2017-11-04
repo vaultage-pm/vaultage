@@ -1,3 +1,4 @@
+import { PasswordStrength } from '../vaultage';
 console.log('Loading the transpiled library... Run `make tsc` before running this example');
 
 import { Crypto, VaultDB } from '../vaultage';
@@ -25,7 +26,8 @@ const db = new VaultDB({ '0': {
     password: "zephyr",
     url: "http://example.com",
     usage_count: 0,
-    reuse_count: 0
+    reuse_count: 0,
+    password_strength_indication: PasswordStrength.WEAK
 }});
 const plain = VaultDB.serialize(db);
 const fp = crypto.getFingerprint(plain, key);

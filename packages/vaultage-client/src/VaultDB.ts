@@ -1,3 +1,4 @@
+import { Passwords, PasswordStrength } from './Passwords';
 import { checkParams, deepCopy } from './utils';
 import { ERROR_CODE, VaultageError } from './VaultageError';
 
@@ -19,7 +20,8 @@ export interface VaultDBEntry {
     created: string,
     updated: string,
     usage_count: number,
-    reuse_count: number
+    reuse_count: number,
+    password_strength_indication: PasswordStrength
 }
 
 /**
@@ -34,6 +36,7 @@ export class VaultDB {
             private _entries: { [key: string]: VaultDBEntry },
             private _revision: number = 0) {
                 this.refreshReUseCount()
+                this.refreshStrengthIndication()
     }
 
     public static serialize(db: VaultDB): string {
@@ -82,6 +85,7 @@ export class VaultDB {
             updated: currentDate,
             usage_count: 0,
             reuse_count: 0,
+            password_strength_indication: Passwords.getPasswordStrength(checkedAttrs.password)
         };
         this._entries[entry.id] = entry;
 
@@ -124,7 +128,10 @@ export class VaultDB {
         let entry = this.get(id);
 
         if (attrs.login) entry.login = attrs.login;
-        if (attrs.password) entry.password = attrs.password;
+        if (attrs.password) { 
+            entry.password = attrs.password;
+            entry.password_strength_indication = Passwords.getPasswordStrength(attrs.password)
+        }
         if (attrs.title) entry.title = attrs.title;
         if (attrs.url) entry.url = attrs.url;
         entry.updated = currentDate;
@@ -224,6 +231,18 @@ export class VaultDB {
         for (var key of keys) {
             let timesReused = passwordsCount[this._entries[key].password] - 1
             this._entries[key].reuse_count = timesReused
+        }
+    }
+
+    /**
+     * Automatically updates the field "password_strength_indication" of all entries
+     */
+    private refreshStrengthIndication(): void {
+      
+        //re-update all entries
+        const keys = Object.keys(this._entries);
+        for (var key of keys) {
+            this._entries[key].password_strength_indication = Passwords.getPasswordStrength(this._entries[key].password)
         }
     }
     

@@ -1,6 +1,6 @@
 import * as request from 'request';
 
-import { Passwords } from './Passwords';
+import { PasswordStrength } from './Passwords';
 import { SaltsConfig, Crypto } from './Crypto';
 import { deepCopy, urlencode } from './utils';
 import { ERROR_CODE, VaultageError } from './VaultageError';
@@ -236,11 +236,11 @@ export class Vault {
 
     /**
      * Returns all weak passwords in the DB
-     * @param threshold the threshold below which an entry is returned. 30 is weak, 60 is medium, 80 is a strong password
+     * @param threshold the threshold below which an entry is returned
      */
-    public getWeakPasswords(threshold : number = 80):VaultDBEntry[] {
+    public getWeakPasswords(threshold : PasswordStrength = PasswordStrength.WEAK):VaultDBEntry[] {
         let entries = this.getAllEntries();
-        return entries.filter(e => Passwords.getPasswordStrength(e.password) < threshold)
+        return entries.filter(e => e.password_strength_indication <= threshold)
     }
 
     /**

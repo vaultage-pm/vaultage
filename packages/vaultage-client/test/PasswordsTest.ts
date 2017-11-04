@@ -1,4 +1,4 @@
-import { Passwords } from '../src/Passwords';
+import { Passwords, PasswordStrength } from '../src/Passwords';
 
 describe('Passwords.ts', () => {
     let passwords: Passwords = new Passwords
@@ -50,14 +50,14 @@ describe('Passwords.ts', () => {
     describe('the password strength function', () => {
         it('can be used with any parameters', () => {
             let s1 = Passwords.getPasswordStrength("ninja")
-            let s2 = Passwords.getPasswordStrength("N1N$a")
+            let s2 = Passwords.getPasswordStrength("N1N2N3N4")
             let s3 = Passwords.getPasswordStrength("v9835sy6SP3y8mH")
-            let s4 = Passwords.getPasswordStrength("N1N$a23489zasdél123")
+            let s4 = Passwords.getPasswordStrength("N1Naa23489zasdel123")
 
-            expect(s1).toBeLessThan(30) //weak
-            expect(s2).toBeLessThan(60) //medium
-            expect(s3).toBeGreaterThan(80) //strong
-            expect(s4).toBeGreaterThan(80)
+            expect(s1).toEqual(PasswordStrength.WEAK)
+            expect(s2).toEqual(PasswordStrength.MEDIUM)
+            expect(s3).toEqual(PasswordStrength.STRONG)
+            expect(s4).toEqual(PasswordStrength.STRONG)
         });
     })
 });

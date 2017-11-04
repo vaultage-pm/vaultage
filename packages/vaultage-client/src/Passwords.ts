@@ -1,3 +1,9 @@
+export enum PasswordStrength {
+    WEAK = 1,
+    MEDIUM,
+    STRONG
+};
+
 export class Passwords {
     
         /**
@@ -115,11 +121,33 @@ export class Passwords {
         }
 
         /**
-         * Returns the strength of a password (higher is better)
+         * Returns an indication (heuristic) on the strength of a password (higher is better)
          * @param password the password to test
-         * @return {number} the strength of the password (<30 is weak, <60 is medium, >80 is strong)
+         * @return {PasswordStrength} an indication on the strength of a password
          */
-        public static getPasswordStrength(password : string) : number {
+        public static getPasswordStrength(password: string) : PasswordStrength {
+            const index = this._getPasswordStrength(password)
+
+            if(index < 30){
+                return PasswordStrength.WEAK
+            } else if(index <= 60) {
+                return PasswordStrength.MEDIUM
+            }
+            return PasswordStrength.STRONG
+        }
+
+        private static _getPasswordStrength(password : string) : number {
+
+            if(password.length < 8){
+                return 0;
+            }
+            const hasDigits = /\d/.test(password);
+            const hasUpper = /\d/.test(password);
+            
+            if(password.length < 14 && !hasDigits && !hasUpper){
+                return 0;
+            }
+
             let score = 0;
             if (!password)
                 return score;
