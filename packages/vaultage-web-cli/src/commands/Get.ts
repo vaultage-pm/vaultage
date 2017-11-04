@@ -28,8 +28,8 @@ export class GetCommand implements ICommand {
 
         try {
             const results = this.vault.findEntries(...searchTerms)
-            const searchString = searchTerms.join(',')
-            this.shell.echo('Searching for '+searchString+', '+results.length+' matching entries.');
+            const coloredSearchString = VaultEntryFormatter.searchTermsToHighlightedString(searchTerms)
+            this.shell.echoHTML('Searching for '+coloredSearchString+', '+results.length+' matching entries.');
 
             for (let entry of results) {
                 let html = VaultEntryFormatter.formatAndHighlight(entry, searchTerms);

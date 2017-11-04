@@ -57,6 +57,19 @@ export class VaultEntryFormatter {
         }
 
         /**
+         * Simply colors the needles with the same highlight colors they would be highlighted
+         * when searching a text
+         * @param needles 
+         */
+        public static searchTermsToHighlightedString(needles: string[]): string {
+            let stringBuilder = ''
+            for(let i=0; i<needles.length; i++) {
+                stringBuilder += this.highlightPrefix(i) + needles[i] + this.highlightSuffix() + ' '
+            }
+            return stringBuilder.trim();
+        }
+
+        /**
          * Highlights all occurences of the words given
          * @param haystack the text in which the function will highlight words
          * @param needles the words to highlight
