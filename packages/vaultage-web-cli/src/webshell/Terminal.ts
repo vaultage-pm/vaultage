@@ -163,6 +163,13 @@ export class Terminal {
     }
 
     /**
+     * Clears the log of all data
+     */
+    public clearLog(){
+        this.$log.innerHTML = ''
+    }
+
+    /**
      * Appends text to the log.
      *
      * @param text The text to append.

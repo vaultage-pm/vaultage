@@ -81,7 +81,6 @@ export class Shell implements ICommandHandler {
             term.prompt = question + '&nbsp;';
 
             if(defaultValue !== undefined){
-                console.log("Setting default value to", defaultValue)
                 term.promptInput = defaultValue;
             }
             this.promptResolve = resolve;
@@ -109,6 +108,15 @@ export class Shell implements ICommandHandler {
      */
     public registerCommand(cmd: ICommand): void {
         this.commands[cmd.name] = cmd;
+    }
+
+    /**
+     * Clears the log
+     */
+    public clearLog() {
+        if(this.terminal !== undefined){
+            this.terminal.clearLog()
+        }
     }
 
     /**

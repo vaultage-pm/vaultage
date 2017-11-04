@@ -1,3 +1,4 @@
+import { ClearCommand } from './commands/Clear';
 import * as config from '../../config';
 import { Vault } from 'vaultage-client';
 import { Shell } from './webshell/Shell';
@@ -8,6 +9,7 @@ import { HelpCommand } from './commands/Help';
 import { LsCommand } from './commands/Ls';
 import { AddCommand } from './commands/Add';
 import { GenCommand } from './commands/Gen';
+import { EditCommand } from './commands/Edit';
 import { RmCommand } from './commands/Rm';
 import { PullCommand } from './commands/Pull';
 import { PushCommand } from './commands/Push';
@@ -27,6 +29,8 @@ shell.registerCommand(new PullCommand(vault, shell));
 shell.registerCommand(new PushCommand(vault, shell));
 shell.registerCommand(new AddCommand(vault, shell));
 shell.registerCommand(new GenCommand(vault, shell));
+shell.registerCommand(new EditCommand(vault, shell));
 shell.registerCommand(new RmCommand(vault, shell));
+shell.registerCommand(new ClearCommand(shell));
 
 shell.printHelp();
