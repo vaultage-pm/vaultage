@@ -122,3 +122,12 @@ html, body {
 a, a:hover, a:visited {
     color: #0c0 !important;
 }
+
+.helptable td {
+    padding-right: 20px;
+}
+
+.entryCollection td {
+    padding-right: 10px !important;
+    padding-left: 10px !important;
+}

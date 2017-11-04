@@ -24,11 +24,7 @@ export class LsCommand implements ICommand {
         try {
             this.shell.echo("Vault revision #"+this.vault.getDBRevision()+", "+this.vault.getNbEntries()+" entries.");
             let allEntries = this.vault.getAllEntries();
-
-            for (let entry of allEntries) {
-                let html = VaultEntryFormatter.format(entry);
-                this.shell.echoHTML(html);
-            }
+            this.shell.echoHTML(VaultEntryFormatter.formatBatch(allEntries));
 
         } catch (e) {
             this.shell.echoHTML('<span class="error">Failed. ' + e.toString()+'</span>');        

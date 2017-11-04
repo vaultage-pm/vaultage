@@ -3,22 +3,57 @@ import { VaultDBEntry } from 'vaultage-client';
 export class VaultEntryFormatter {
     
         /**
+         * Formats a collection of VaultDBEntries to HTML
+         * @param entries 
+         */
+        public static formatBatch(entries: VaultDBEntry[]): string{
+            let stringBuilder = '<table class="entryCollection">';
+
+            for(let e of entries){
+                stringBuilder += this._formatSingleForBatch(e);
+            }
+
+            return stringBuilder+'</table>';
+        }
+
+        private static _formatSingleForBatch(e : VaultDBEntry): string {
+            let stringBuilder = '<tr class="entry">'
+    
+            stringBuilder += `<td class="id">(${e.id})</td>`
+            stringBuilder += `<td class="title">${e.title}</td> <td>&rarr;</td>`
+            stringBuilder += `<td class="login">${e.login}</td> <td>:</td>`
+            stringBuilder += `<td class="password blurred" ondblclick="console.log(${e.id})">${e.password}</td> <td>@</td>`
+            stringBuilder += `<td class="url">${e.url}</span>`
+
+            stringBuilder += `<td class="use">(used ${e.usage_count} times)</td>`
+
+            if (e.reuse_count>0){
+                stringBuilder += `<td class="reuse">(warning: re-used ${e.reuse_count} times)</td>`
+            } else {
+                stringBuilder += '<td></td>'
+            }
+            stringBuilder += '</tr>'
+    
+            return stringBuilder
+        }
+
+        /**
          * Formats a VaultDBEntry to HTML
          * @param e the VaultDBEntry
          */
-        public static format(e : VaultDBEntry): string {
+        public static formatSingle(e : VaultDBEntry): string {
             let stringBuilder = '<span class="entry">'
     
-            stringBuilder += `<span class="id col1">(${e.id})</span>`
-            stringBuilder += `<span class="title col2">${e.title}</span>&rarr;`
-            stringBuilder += `<span class="login col3">${e.login}</span>:`
-            stringBuilder += `<span class="password blurred col4" ondblclick="console.log(${e.id})">${e.password}</span>@`
-            stringBuilder += `<span class="url col5">${e.url}</span>`
+            stringBuilder += `<span class="id">(${e.id})</span>`
+            stringBuilder += `<span class="title">${e.title}</span>&rarr;`
+            stringBuilder += `<span class="login">${e.login}</span>:`
+            stringBuilder += `<span class="password blurred" ondblclick="console.log(${e.id})">${e.password}</span>@`
+            stringBuilder += `<span class="url">${e.url}</span>`
 
-            stringBuilder += `<span class="use col6">(used ${e.usage_count} times)</span>`
+            stringBuilder += `<span class="use">(used ${e.usage_count} times)</span>`
 
             if (e.reuse_count>0){
-                stringBuilder += `<span class="reuse col7">(warning: re-used ${e.reuse_count} times)</span>`
+                stringBuilder += `<span class="reuse">(warning: re-used ${e.reuse_count} times)</span>`
             }
             stringBuilder += '</span>'
     
@@ -42,6 +77,25 @@ export class VaultEntryFormatter {
         }
 
         /**
+         * Formats the VaultDBEntries, and highlight the terms matching the argument
+         * @param entries the VaultDBEntries
+         * @param highlights all terms to highlight
+         */
+        public static formatAndHighlightBatch(entries : VaultDBEntry[], highlights: string[]): string {
+            
+            const _this = this
+            const coloredEntries = entries.map(function(e:VaultDBEntry){
+                e.title = _this.highlight(e.title, highlights);
+                e.login = _this.highlight(e.login, highlights);
+                e.password = _this.highlight(e.password, highlights);
+                e.url = _this.highlight(e.url, highlights);
+                return e
+            });
+    
+            return this.formatBatch(coloredEntries)
+        }
+
+        /**
          * Formats the VaultDBEntry, and highlight the terms matching the argument
          * @param e the VaultDBEntry
          * @param highlights all terms to highlight
@@ -53,7 +107,7 @@ export class VaultEntryFormatter {
             e.password = this.highlight(e.password, highlights)
             e.url = this.highlight(e.url, highlights)
     
-            return this.format(e)
+            return this.formatSingle(e)
         }
 
         /**

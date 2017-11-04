@@ -23,18 +23,20 @@ const terminal = new Terminal({
 const shell = new Shell(terminal);
 const vault = new Vault(config.SALTS);
 
-
 shell.registerCommand(new HelpCommand(shell));
 shell.registerCommand(new AuthCommand(vault, shell, config.REMOTE_URL));
 shell.registerCommand(new LsCommand(vault, shell));
-shell.registerCommand(new PullCommand(vault, shell));
-shell.registerCommand(new PushCommand(vault, shell));
+shell.registerCommand(new GetCommand(vault,shell));
 shell.registerCommand(new AddCommand(vault, shell));
 shell.registerCommand(new GenCommand(vault, shell));
 shell.registerCommand(new EditCommand(vault, shell));
 shell.registerCommand(new RmCommand(vault, shell));
+shell.registerCommand(new PullCommand(vault, shell));
+shell.registerCommand(new PushCommand(vault, shell));
 shell.registerCommand(new ClearCommand(shell));
 shell.registerCommand(new LogoutCommand(vault,shell));
-shell.registerCommand(new GetCommand(vault,shell));
 
-shell.printHelp();
+shell.echoHTML("   Vaultage v4.0")
+shell.echoHTML("*********************")
+shell.printShortHelp();
+shell.echoHTML("*********************")

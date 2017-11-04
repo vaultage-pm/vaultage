@@ -53,7 +53,7 @@ export class EditCommand implements ICommand {
 
             this.vault.updateEntry(id, newEntry)
             const entry2 = this.vault.getEntry(id)
-            this.shell.echoHTML(VaultEntryFormatter.format(entry2))
+            this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry2))
             this.shell.echo("Updated entry #"+id)
 
             let p = new Promise(resolve => this.vault.save(function(err) {

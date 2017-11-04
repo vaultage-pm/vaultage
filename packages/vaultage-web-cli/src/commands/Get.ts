@@ -30,11 +30,7 @@ export class GetCommand implements ICommand {
             const results = this.vault.findEntries(...searchTerms)
             const coloredSearchString = VaultEntryFormatter.searchTermsToHighlightedString(searchTerms)
             this.shell.echoHTML('Searching for '+coloredSearchString+', '+results.length+' matching entries.');
-
-            for (let entry of results) {
-                let html = VaultEntryFormatter.formatAndHighlight(entry, searchTerms);
-                this.shell.echoHTML(html);
-            }
+            this.shell.echoHTML(VaultEntryFormatter.formatAndHighlightBatch(results, searchTerms));
 
         } catch (e) {
             this.shell.echoHTML('<span class="error">Failed. ' + e.toString()+'</span>');        

@@ -38,7 +38,7 @@ export class AddCommand implements ICommand {
 
             const newEntryID = this.vault.addEntry(newEntry)
             const e = this.vault.getEntry(newEntryID)
-            this.shell.echoHTML(VaultEntryFormatter.format(e))
+            this.shell.echoHTML(VaultEntryFormatter.formatSingle(e))
             this.shell.echo("Added entry #"+newEntryID)
 
             let p = new Promise(resolve => this.vault.save(function(err) {

@@ -136,12 +136,25 @@ export class Shell implements ICommandHandler {
     /**
      * Prints a help message describing the available commands.
      */
+    public printShortHelp(): void {
+        const availableCommands = `Available commands: 
+        ${ Object.keys(this.commands)
+            .map(c => '<i>'+c+'</>')
+            .join(',')
+        }`;
+        this.safeGetTerminal().print(availableCommands, { unsafe_i_know_what_i_am_doing: true });
+    }
+
+    /**
+     * Prints a help message describing the available commands.
+     */
     public printHelp(): void {
         const availableCommands = `Available commands:<br>
+        <table class="helptable">
         ${ Object.keys(this.commands)
-            .map(c => Formatter.format('- <b>%</b> :&#9;%', ...[c, this.commands[c].description]))
-            .join('<br>')
-        }`;
+            .map(c => Formatter.format('<tr><td>- <b>%</b></td><td>%</td></tr>', ...[c, this.commands[c].description])).join('')
+        }
+        </table>`;
         this.safeGetTerminal().print(availableCommands, { unsafe_i_know_what_i_am_doing: true });
     }
 
