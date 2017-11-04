@@ -118,3 +118,7 @@ html, body {
 .reuse{
     color: yellow;
 }
+
+a, a:hover, a:visited {
+    color: #0c0 !important;
+}
