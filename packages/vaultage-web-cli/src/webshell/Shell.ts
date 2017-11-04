@@ -76,9 +76,14 @@ export class Shell implements ICommandHandler {
      *
      * @param question Text shown left to the user input
      */
-    public prompt(question: string): Promise<string> {
+    public prompt(question: string, defaultValue?: string): Promise<string> {
         return this.unbusyAction((term) => new Promise(resolve => {
             term.prompt = question + '&nbsp;';
+
+            if(defaultValue !== undefined){
+                console.log("Setting default value to", defaultValue)
+                term.promptInput = defaultValue;
+            }
             this.promptResolve = resolve;
         }));
     }
