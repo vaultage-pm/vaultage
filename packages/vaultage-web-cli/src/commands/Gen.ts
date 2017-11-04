@@ -64,8 +64,7 @@ export class GenCommand implements ICommand {
             })
 
         } catch (e) {
-            // We could get here for instance if the user sends the ^C control sequence to the terminal
-            this.shell.echo('Failed.');
+            this.shell.echoHTML('<span class="error">Failed. ' + e.toString()+'</span>'); 
         }
     }
 }

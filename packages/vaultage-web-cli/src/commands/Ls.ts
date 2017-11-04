@@ -31,8 +31,7 @@ export class LsCommand implements ICommand {
             }
 
         } catch (e) {
-            // We could get here for instance if the user sends the ^C control sequence to the terminal
-            this.shell.echoHTML('<span class="error">' + e + '</span>');
+            this.shell.echoHTML('<span class="error">Failed. ' + e.toString()+'</span>');        
         }
     }
 }

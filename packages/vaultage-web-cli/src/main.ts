@@ -9,7 +9,8 @@ import { LsCommand } from './commands/Ls';
 import { AddCommand } from './commands/Add';
 import { GenCommand } from './commands/Gen';
 import { RmCommand } from './commands/Rm';
-import { PullCommand, PushCommand } from './commands/PushPull';
+import { PullCommand } from './commands/Pull';
+import { PushCommand } from './commands/Push';
 
 const terminal = new Terminal({
     root: document.body

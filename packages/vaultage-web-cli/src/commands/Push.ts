@@ -1,47 +1,26 @@
 import { Vault } from 'vaultage-client';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
-import { VaultEntryFormatter } from '../VaultFormatter'
 import * as lang from '../lang';
 
-export class RmCommand implements ICommand {
-    public readonly name = 'rm';
+export class PushCommand implements ICommand {
+    public readonly name = 'push';
 
-    public readonly description = 'Removes an entry in the local db, then pushes an encrypted version of the db to the server.';
+    public readonly description = 'Pushes an encrypted version of the local db to the server. Does not erase if not fast-forward.';
 
     constructor(
         private vault: Vault,
         private shell: Shell) {
     }
 
-    public async handle(args: string[]) {
-
+    public async handle() {
         if(!this.vault.isAuth()){
             this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED)
             return;
         }
 
         try {
-
-            let id : string;
-            if(args.length == 0) {
-                id = await this.shell.prompt('Entry ID:');
-            } else {
-                id = args[0];
-            }
-
-            const e = this.vault.getEntry(id)
-            this.shell.echoHTML(VaultEntryFormatter.format(e))
-
-            const answer = await this.shell.prompt('Confirm removal of entry #'+id+' ? y/Y')
-            
-            if(answer != "y" && answer != "Y"){
-                this.shell.echo("Cancelled.")
-                return
-            }
-            
-            this.vault.removeEntry(id)
-            this.shell.echo("Remove entry #"+id)
+            this.shell.echo(`Attempting to push the encrypted database ...`);
 
             let p = new Promise(resolve => this.vault.save(function(err) {
                 if(err == null){
