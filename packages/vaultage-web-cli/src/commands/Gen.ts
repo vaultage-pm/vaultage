@@ -4,7 +4,7 @@ import { Passwords } from 'vaultage-client';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 import * as lang from '../lang';
-import * as config from '../../../config';
+import * as config from '../../config';
 
 export class GenCommand implements ICommand {
     public readonly name = 'gen';

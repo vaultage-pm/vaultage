@@ -1,7 +1,7 @@
 import { Vault } from 'vaultage-client';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
-import * as config from '../../../config';
+import * as config from '../../config';
 
 export class AuthCommand implements ICommand {
     public readonly name = 'auth';

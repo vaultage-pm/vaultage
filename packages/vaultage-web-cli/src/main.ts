@@ -1,7 +1,7 @@
 import { GetCommand } from './commands/Get';
 import { LogoutCommand } from './commands/Logout';
 import { ClearCommand } from './commands/Clear';
-import * as config from '../../config';
+import * as config from '../config';
 import { Vault } from 'vaultage-client';
 import { Shell } from './webshell/Shell';
 import { Terminal } from './webshell/Terminal';
