@@ -287,15 +287,14 @@ export class Vault {
 
     /**
      * Replaces the current entries with the new set of provided entries.
-     * Does not perform any check. Might break all properties given by other functions provided
-     * by thi class. Intended for migration only.
+     * Then, manually "push" to overwrite the remote database's ciphertext, or "pull" to cancel this import
      * @param entries The entries to replace this db's entries
      */
-    public unsafe_replaceAllEntries(entries: VaultDBEntry[]) {
+    public replaceAllEntries(entries: VaultDBEntry[]) {
         if (!this._db) {
             throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
         }
-        return this._db.unsafe_replaceAllEntries(entries);
+        return this._db.replaceAllEntries(entries);
     }
 
 

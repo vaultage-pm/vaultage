@@ -178,7 +178,7 @@ describe('VaultDB.ts can', () => {
         let parsedEntries : VaultDBEntry[] = JSON.parse(json)
 
         let db2 = new VaultDB({})
-        db2.unsafe_replaceAllEntries(parsedEntries)
+        db2.replaceAllEntries(parsedEntries)
 
         expect(db2.getAll().length).toEqual(1);
         expect(db2.get("0").login).toEqual(db.get("0").login);
@@ -195,7 +195,7 @@ describe('VaultDB.ts can', () => {
 
         let db2 = new VaultDB({})
         try {
-            db2.unsafe_replaceAllEntries(parsedEntries)
+            db2.replaceAllEntries(parsedEntries)
             fail("Should not allow invalid JSON")
         } catch(e) {
         }

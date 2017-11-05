@@ -345,12 +345,11 @@ export class VaultDB {
     }
 
     /**
-     * Replaces the current entries with the new set of provided entries.
-     * Does not perform any check. Might break all properties given by other functions provided
-     * by thi class. Intended for migration only.
+     * Replaces the current entries with the new set of provided entries. Keeps "lastFingerprint" to its old value,
+     * so a "push" will work.
      * @param entries The entries to replace this db's entries
      */
-    public unsafe_replaceAllEntries(entries : VaultDBEntry[]):void{
+    public replaceAllEntries(entries : VaultDBEntry[]):void{
         const newEntries : {[key:string]: VaultDBEntry} = {};
 
         const exampleEntry: VaultDBEntry = {
