@@ -17,6 +17,8 @@ import { RmCommand } from './commands/Rm';
 import { PullCommand } from './commands/Pull';
 import { PushCommand } from './commands/Push';
 import { WeakCommand } from './commands/Weak';
+import { DumpCommand } from './commands/Dump';
+import { RawImportCommand } from './commands/RawImport';
 
 const terminal = new Terminal({
     root: document.body
@@ -39,6 +41,8 @@ shell.registerCommand(new ClearCommand(shell));
 shell.registerCommand(new LogoutCommand(vault,shell));
 shell.registerCommand(new ReusedCommand(vault,shell));
 shell.registerCommand(new WeakCommand(vault,shell));
+shell.registerCommand(new DumpCommand(vault,shell));
+shell.registerCommand(new RawImportCommand(vault,shell));
 
 shell.echoHTML("   Vaultage v4.0")
 shell.echoHTML("*********************")
