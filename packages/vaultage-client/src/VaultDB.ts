@@ -343,4 +343,43 @@ export class VaultDB {
         }
         return n;
     }
+
+    /**
+     * Replaces the current entries with the new set of provided entries.
+     * Does not perform any check. Might break all properties given by other functions provided
+     * by thi class. Intended for migration only.
+     * @param entries The entries to replace this db's entries
+     */
+    public unsafe_replaceAllEntries(entries : VaultDBEntry[]):void{
+        const newEntries : {[key:string]: VaultDBEntry} = {};
+
+        const exampleEntry: VaultDBEntry = {
+            id: '0',
+            title: '',
+            url: '',
+            login: '',
+            password: '',
+            created: '',
+            updated: '',
+            usage_count: 0,
+            reuse_count: 0,
+            password_strength_indication: PasswordStrength.WEAK,
+            hidden: false,
+        };
+
+        for(let e of entries)
+        {
+            //basic sanity check
+            for(let k of Object.keys(exampleEntry)){
+                if(!(k in e)){
+                    throw new Error("Tried to add entry, but it does not have the field" + k);
+                }    
+            }
+
+            //copy entry
+            newEntries[e.id] = deepCopy(e)
+        }
+ 
+        this._entries = newEntries;
+    }
 }

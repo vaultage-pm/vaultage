@@ -285,6 +285,19 @@ export class Vault {
         return this._db.get(id);
     }
 
+    /**
+     * Replaces the current entries with the new set of provided entries.
+     * Does not perform any check. Might break all properties given by other functions provided
+     * by thi class. Intended for migration only.
+     * @param entries The entries to replace this db's entries
+     */
+    public unsafe_replaceAllEntries(entries: VaultDBEntry[]) {
+        if (!this._db) {
+            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
+        }
+        return this._db.unsafe_replaceAllEntries(entries);
+    }
+
 
     // Private methods
     private _setCredentials(creds: Credentials): void {
