@@ -2,7 +2,7 @@ import { VaultDBEntryAttrs } from 'vaultage-client';
 import { Vault } from 'vaultage-client';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
-import { VaultEntryFormatter } from '../VaultFormatter'
+import { VaultEntryFormatter } from '../VaultEntryFormatter'
 import * as lang from '../lang';
 
 export class AddCommand implements ICommand {

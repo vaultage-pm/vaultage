@@ -54,6 +54,18 @@ export class Shell implements ICommandHandler {
     }
 
     /**
+     * Appends some error text to the console.
+     *
+     * @param value error text to show
+     */
+    public echoError(value: string) {
+        this.safeGetTerminal().print(
+            Formatter.format('<span class="error">%</span>', value),
+            { unsafe_i_know_what_i_am_doing: true }
+        );
+    }
+
+    /**
      * Appends a raw HTML string to the console.
      *
      * Double check for XSS when using this function!

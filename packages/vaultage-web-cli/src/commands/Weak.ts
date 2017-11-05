@@ -1,5 +1,5 @@
 import { PasswordStrength } from 'vaultage-client';
-import { VaultEntryFormatter } from '../VaultFormatter'
+import { VaultEntryFormatter } from '../VaultEntryFormatter'
 import { Vault } from 'vaultage-client';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';

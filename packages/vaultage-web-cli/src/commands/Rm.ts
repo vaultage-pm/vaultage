@@ -1,7 +1,7 @@
 import { Vault } from 'vaultage-client';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
-import { VaultEntryFormatter } from '../VaultFormatter'
+import { VaultEntryFormatter } from '../VaultEntryFormatter'
 import * as lang from '../lang';
 
 export class RmCommand implements ICommand {
@@ -43,26 +43,10 @@ export class RmCommand implements ICommand {
             this.vault.removeEntry(id)
             this.shell.echo("Remove entry #"+id)
 
-            let p = new Promise(resolve => this.vault.save(function(err) {
-                if(err == null){
-                    resolve("")
-                } else {
-                    resolve('<span class="error">'+err.toString()+'</span>')
-                }
-            }));
-
-            await p;
-            p.then((err : string) => {
-                //if no error
-                if(err=="") {
-                    this.shell.echo("Push OK, revision " + this.vault.getDBRevision()+".")
-                } else {
-                    this.shell.echoHTML(err)
-                }                
-            })
-
+            await new Promise((_resolve, reject) => this.vault.save(reject));
+            this.shell.echo("Push OK, revision " + this.vault.getDBRevision()+".");
         } catch (e) {
-            this.shell.echoHTML('<span class="error">Failed. ' + e.toString()+'</span>'); 
+            this.shell.echoError(e.toString());
         }
     }
 }

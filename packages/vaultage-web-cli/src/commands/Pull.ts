@@ -22,26 +22,11 @@ export class PullCommand implements ICommand {
         try {
             this.shell.echo(`Attempting to pull the encrypted database ...`);
 
-            let p = new Promise(resolve => this.vault.pull(function(err) {
-                if(err == null){
-                    resolve("")
-                } else {
-                    resolve('<span class="error">'+err.toString()+'</span>')
-                }
-            }));
+            await new Promise((_resolve, reject) => this.vault.pull(reject));
 
-            await p;
-            p.then((err : string) => {
-                //if no error
-                if(err=="") {
-                    this.shell.echo("Pull OK, got " + this.vault.getNbEntries()+" entries (revision "+this.vault.getDBRevision()+").")
-                } else {
-                    this.shell.echoHTML(err)
-                }                
-            })
-
+            this.shell.echo("Pull OK, got " + this.vault.getNbEntries()+" entries (revision "+this.vault.getDBRevision()+").")
         } catch (e) {
-            this.shell.echoHTML('<span class="error">Failed. ' + e.toString()+'</span>'); 
+            this.shell.echoError(e.toString());
         }
     }
 }
