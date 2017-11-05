@@ -372,7 +372,7 @@ export class VaultDB {
             //basic sanity check
             for(let k of Object.keys(exampleEntry)){
                 if(!(k in e)){
-                    throw new Error("Tried to add entry, but it does not have the field" + k);
+                    throw new Error("Tried to add entry, but it does not have the field \'" + k+"\'");
                 }    
             }
 
