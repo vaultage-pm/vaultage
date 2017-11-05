@@ -27,7 +27,8 @@ const db = new VaultDB({ '0': {
     url: "http://example.com",
     usage_count: 0,
     reuse_count: 0,
-    password_strength_indication: PasswordStrength.WEAK
+    password_strength_indication: PasswordStrength.WEAK,
+    hidden: false,
 }});
 const plain = VaultDB.serialize(db);
 const fp = crypto.getFingerprint(plain, key);

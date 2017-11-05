@@ -21,7 +21,8 @@ export interface VaultDBEntry {
     updated: string,
     usage_count: number,
     reuse_count: number,
-    password_strength_indication: PasswordStrength
+    password_strength_indication: PasswordStrength,
+    hidden: boolean,
 }
 
 /**
@@ -85,7 +86,8 @@ export class VaultDB {
             updated: currentDate,
             usage_count: 0,
             reuse_count: 0,
-            password_strength_indication: Passwords.getPasswordStrength(checkedAttrs.password)
+            password_strength_indication: Passwords.getPasswordStrength(checkedAttrs.password),
+            hidden: false,
         };
         this._entries[entry.id] = entry;
 
