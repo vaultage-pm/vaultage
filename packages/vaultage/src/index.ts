@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as express from 'express';
-import { API } from 'vaultage-api';
+import { API } from 'vaultage-server';
 
 const app = express();
 

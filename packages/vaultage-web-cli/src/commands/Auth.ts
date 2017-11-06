@@ -14,7 +14,8 @@ export class AuthCommand implements ICommand {
         private serverUrl: string) {
     }
 
-    public async handle() {
+    public async handle(args: string[]) {
+        const serverUrl = args.length > 0 ? args[0] : this.serverUrl;
         try {
 
             let username = await this.shell.prompt('Username:', config.DEFAULT_USER);
@@ -23,7 +24,7 @@ export class AuthCommand implements ICommand {
             this.shell.echo(`Attempting to login ${username}@${this.serverUrl}...`);
 
             await new Promise((_resolve, reject) => 
-                this.vault.auth(this.serverUrl, username, masterpwd, reject)
+                this.vault.auth(serverUrl, username, masterpwd, reject)
             );
 
             this.shell.echo("Pull OK, got " + this.vault.getNbEntries()+" entries (revision "+this.vault.getDBRevision()+").")
