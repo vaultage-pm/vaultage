@@ -15,6 +15,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "class-validator": "^0.7.3",
     "reflect-metadata": "^0.1.10",
     "routing-controllers": "^0.7.6",

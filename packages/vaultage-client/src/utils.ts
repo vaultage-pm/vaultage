@@ -1,17 +1,6 @@
 
 // Utility functions
 
-export function urlencode(data: any): string {
-    let ret: string[] = [];
-    let keys = Object.keys(data);
-    for (var key of keys) {
-        if (data[key] != null) {
-            ret.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
-        }
-    }
-    return ret.join('&');
-}
-
 /**
  * Asserts that data has at least all the properties of ref and returns an object containing the keys of
  * ref with the non-null values of data.

@@ -1,7 +1,23 @@
-import * as path from 'path';
-import * as express from 'express';
-import { API } from './API';
+import 'reflect-metadata';
+
+import { json } from 'body-parser';
 import * as cors from 'cors';
+import * as express from 'express';
+import * as path from 'path';
+import { useContainer } from 'routing-controllers';
+import { Container } from 'typedi';
+
+import { API } from './API';
+
+useContainer(Container);
+
+// Sets defaults
+Container.set('cipherLocation', path.join(__dirname, '..', 'cipher.json'));
+Container.set('config', {
+    salts: {
+        USERNAME_SALT: 'nosalt'
+    }
+});
 
 const app = express();
 
@@ -10,6 +26,9 @@ const app = express();
 // from the server if an attacker initiates a request from the victim's browser as opposed to if he initiates
 // it from anywhere else
 app.use(cors());
+
+// I/O protocol is JSON based
+app.use(json());
 // Bind API to server
 API.create(app);
 // Bind static content to server

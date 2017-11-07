@@ -2,7 +2,7 @@ import * as request from 'request';
 
 import { PasswordStrength } from './Passwords';
 import { SaltsConfig, Crypto } from './Crypto';
-import { deepCopy, urlencode } from './utils';
+import { deepCopy } from './utils';
 import { ERROR_CODE, VaultageError } from './VaultageError';
 import { VaultDB, VaultDBEntry, VaultDBEntryAttrs } from './VaultDB';
 
@@ -359,7 +359,7 @@ export class Vault {
         let parameters = {
             method: 'POST',
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey),
-            body: urlencode({
+            body: JSON.stringify({
                 'update_key': newRemoteKey,
                 'new_data': cipher,
                 'old_hash': this._lastFingerprint,
@@ -367,7 +367,7 @@ export class Vault {
                 'force': false,
             }),
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/json'
             }
         };
 

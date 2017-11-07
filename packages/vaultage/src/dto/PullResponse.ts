@@ -1,5 +1,5 @@
 
-export interface PullResponse {
+export interface PushPullResponse {
 
     error: boolean;
 

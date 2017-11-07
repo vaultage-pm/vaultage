@@ -136,7 +136,7 @@ describe('Vault.ts can', () => {
         expect(callbacksFired.length).toBe(0)
         expect(apiCallsFired[0].parameters.method).toEqual('POST')    
         expect(apiCallsFired[0].parameters.url).toEqual('url/username/483c29af947d335ed2851c62f1daa12227126b00035387f66f2d1492036d4dcb/vaultage_api')
-        expect(apiCallsFired[0].parameters.headers).toEqual({'Content-Type': 'application/x-www-form-urlencoded'})
+        expect(apiCallsFired[0].parameters.headers).toEqual({'Content-Type': 'application/json'})
         let dataSent = apiCallsFired[0].parameters.body
 
         // parses the url data=X&last_hash=Y

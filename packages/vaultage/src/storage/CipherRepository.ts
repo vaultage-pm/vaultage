@@ -14,14 +14,7 @@ export class CipherRepository {
     private readonly cipherLocation: string;
 
     public async save(cipher: string, _options: ICipherSaveOptions): Promise<void> {
-        await new Promise((resolve, reject) => {
-            fs.writeFile(this.cipherLocation, cipher, (err) => {
-                if (err) {
-                    return reject(err);
-                }
-                return resolve();
-            });
-        });
+        fs.writeFileSync(this.cipherLocation, cipher);
     }
 
     public async load(): Promise<string> {

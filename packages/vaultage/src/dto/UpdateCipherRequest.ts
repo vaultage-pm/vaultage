@@ -24,8 +24,7 @@ export class UpdateCipherRequest {
      * the update is rejected. 
      */
     @IsString()
-    @IsDefined()
-    old_hash: string;
+    old_hash?: string;
 
     /**
      * The new cipher fingerprint. This value is determined client-side and the server doesn't know how
