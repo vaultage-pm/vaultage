@@ -1,0 +1,33 @@
+{
+  "name": "vaultage-ui-simple",
+  "version": "1.0.0",
+  "description": "A simple UI that only allows for decrypting and viewing passwords. Meant as a backup UI.",
+  "scripts": {
+    "copy-vaultage-client": "cross-env NODE_PATH=.. ts-node scripts/publish-deps.sh.ts",
+    "serve": "./node_modules/http-server/bin/http-server public -p 9001"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lbarman/vaultage.git"
+  },
+  "contributors": [
+    "Ludovic Barman (https://github.com/lbarman)",
+    "Hadrien Milano (https://github.com/hmil)"
+  ],
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/lbarman/vaultage/issues"
+  },
+  "homepage": "https://github.com/lbarman/vaultage#readme",
+  "dependencies": {
+    "@types/node": "^8.0.47",
+    "http-server":"^0.10.0",
+    "shelljs": "^0.7.8",
+    "ts-loader": "^3.1.0",
+    "ts-node": "^3.3.0",
+    "tslib": "^1.8.0",
+    "tslint": "^5.8.0",
+    "typescript": "^2.5.3",
+    "cross-env": "^5.1.1"
+  }
+}
