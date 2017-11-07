@@ -66,7 +66,7 @@ export class Vault {
     ): void {
 
         let creds = {
-            serverURL: serverURL,
+            serverURL: serverURL.replace(/\/$/, ''), // Removes trailing slash
             username: username,
             localKey: 'null',
             remoteKey: 'null'

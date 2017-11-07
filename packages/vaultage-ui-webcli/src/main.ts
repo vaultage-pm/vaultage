@@ -28,7 +28,7 @@ const shell = new Shell(terminal);
 const vault = new Vault(config.SALTS);
 
 shell.registerCommand(new HelpCommand(shell));
-shell.registerCommand(new AuthCommand(vault, shell, config.REMOTE_URL));
+shell.registerCommand(new AuthCommand(vault, shell));
 shell.registerCommand(new LsCommand(vault, shell));
 shell.registerCommand(new GetCommand(vault,shell));
 shell.registerCommand(new AddCommand(vault, shell));
