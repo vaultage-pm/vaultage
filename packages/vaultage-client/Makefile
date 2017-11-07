@@ -17,8 +17,8 @@ $(BIN): node_modules $(INDEX) tsc
 clean:
 	rm -rf dist/ tmp/
 
-.PHONY: mrproper
-mrproper: clean
+.PHONY: cleanall
+cleanall: clean
 	rm -rf node_modules
 
 node_modules:

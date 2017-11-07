@@ -1,6 +1,9 @@
 .PHONY: all
 all: node_modules serve
 
+.PHONY: build
+build: copy-vaultage-client
+
 .PHONY: copy-vaultage-client
 copy-vaultage-client:
 	npm run copy-vaultage-client
