@@ -14,6 +14,10 @@ clean: node_modules
 cleanall: clean
 	rm -rf node_modules
 
+.PHONY: test
+test: node_modules
+	npm test
+
 # Other tasks
 
 $(BIN): node_modules $(SRC)

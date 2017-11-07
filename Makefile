@@ -1,7 +1,7 @@
 # === Variables
 
 PACKAGES=$(wildcard packages/*)
-TASKS=build clean cleanall
+TASKS=build clean cleanall test
 
 
 # === Default task
@@ -17,6 +17,7 @@ packages/vaultage-ui-webcli: packages/vaultage-client
 
 
 # === Custom tasks
+
 .PHONY: serve
 serve:
 	make -C packages/vaultage serve

@@ -24,6 +24,9 @@ clean:
 cleanall: clean
 	rm -rf node_modules
 
+.PHONY: test
+test: node_modules $(DEMO) $(SRC) $(TESTS)
+	npm test
 
 # Other tasks
 
@@ -32,10 +35,6 @@ $(BIN): node_modules $(INDEX) $(SRC)
 
 node_modules: package.json package-lock.json
 	npm install
-
-.PHONY: test
-test: node_modules $(DEMO) $(SRC) $(TESTS)
-	npm test
 
 $(INDEX): $(SRC)
 	rm -f $(INDEX)

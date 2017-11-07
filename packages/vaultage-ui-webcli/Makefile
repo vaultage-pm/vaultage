@@ -14,6 +14,10 @@ clean:
 cleanall: clean
 	rm -rf node_modules
 
+.PHONY: test
+test: node_modules
+	echo "No tests for now"
+
 
 # Other tasks
 

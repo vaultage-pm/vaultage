@@ -15,6 +15,9 @@ clean:
 cleanall: clean
 	rm -rf node_modules
 
+.PHONY: test
+test:
+	echo "No test"
 
 # Other tasks
 
