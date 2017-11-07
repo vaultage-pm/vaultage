@@ -6,7 +6,7 @@
   "scripts": {
     "start": "cross-env NODE_PATH=.. ts-node src/main.ts",
     "test": "jest",
-    "build": "npm run clean && tsc",
+    "build": "tsc",
     "clean": "rimraf dist/",
     "watch": "jest --watch",
     "lint": "tslint -p ."

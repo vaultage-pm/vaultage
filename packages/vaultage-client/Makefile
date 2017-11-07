@@ -10,8 +10,11 @@ WEBPACK_FLAGS = --output-library Vaultage
 .PHONY: all
 all: test $(BIN) demo
 
-$(BIN): node_modules $(INDEX) tsc
-	node_modules/.bin/webpack
+
+# Mandatory tasks (imposed by the top-level Makefile)
+
+.PHONY: build
+build: $(BIN)
 
 .PHONY: clean
 clean:
@@ -21,12 +24,14 @@ clean:
 cleanall: clean
 	rm -rf node_modules
 
-node_modules:
-	npm install
 
-.PHONY: tsc
-tsc:
-	node_modules/.bin/tsc -p .
+# Other tasks
+
+$(BIN): node_modules $(INDEX) $(SRC)
+	npm run build
+
+node_modules: package.json package-lock.json
+	npm install
 
 .PHONY: test
 test: node_modules $(DEMO) $(SRC) $(TESTS)

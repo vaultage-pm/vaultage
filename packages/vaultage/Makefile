@@ -1,32 +1,27 @@
+BIN=dist/main.js
 SRC=$(shell find src/ -type f -name '*.ts')
-BIN=public/dist/main.js
 
 # Mandatory tasks (imposed by the top-level Makefile)
 
 .PHONY: build
-build: $(BIN) copy-vaultage-client
+build: $(BIN)
 
 .PHONY: clean
-clean:
-	rm -rf dist/ tmp/
+clean: node_modules
+	npm run clean
 
 .PHONY: cleanall
 cleanall: clean
 	rm -rf node_modules
 
-
 # Other tasks
 
-.PHONY: copy-vaultage-client
-copy-vaultage-client: node_modules
-	npm run copy-vaultage-client
-
-$(BIN): $(SRC) node_modules
+$(BIN): node_modules $(SRC)
 	npm run build
-
-.PHONY: serve
-serve: build
-	npm run serve
 
 node_modules: package.json package-lock.json
 	npm install
+
+.PHONY: serve
+serve: $(BIN)
+	npm start

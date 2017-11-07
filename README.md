@@ -1,9 +1,16 @@
 # Vaultage
 
+## Quick start
+
+    # Install dependencies and build all:
+    make
+    # Start a server:
+    make serve
+
+
 ## Understanding the folder structure
 
-- `vaultage` is a meta-package that imports all others. 
-- `vaultage-server` is the backend that simply checks for authentication, and stores and delivers the ciphertext to the clients. It is rather *dumb*, if you removes the authentication part, it simply stores the ciphertext (and some configuration).
+- `vaultage` is the backend that simply checks for authentication, and stores and delivers the ciphertext to the clients. It is rather *dumb*, if you removes the authentication part, it simply stores the ciphertext (and some configuration). It also serves the webcli at the root path "/".
 - `vaultage-client` is a collection of Typescript classes that run on the *client* and are used by the `vaultage-ui`'s. This is where the real magic happen: this class pulls the ciphertext from the `vaultage-server`, decrypts and parses it, allows the `vaultage-ui`'s to interact with the decrypted database, and then re-encrypts and sends the result to the server.
 - `vaultage-ui-simple` is a simple user interface that simply contact the `vaultage-server` and decodes the cipher. You can only view passwords. It exists as a failsafe, should there be a problem in `vaultage-ui-webcli`, at least you have this other way of decrypting your passwords.
 - `vaultage-ui-webcli` is a full-featured user interface that allows you do everything
