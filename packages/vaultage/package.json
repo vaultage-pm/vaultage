@@ -4,8 +4,7 @@
   "description": "Vaultage backend server",
   "main": "dist/main.js",
   "scripts": {
-    "start": "ts-node src/main.ts",
-    "prestart": "npm run build",
+    "start": "cross-env NODE_PATH=.. ts-node src/main.ts",
     "test": "jest",
     "build": "npm run clean && tsc",
     "clean": "rimraf dist/",

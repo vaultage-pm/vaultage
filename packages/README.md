@@ -10,8 +10,8 @@
 
 ## How to interact with the folders
 
-- `vaultage` <= TODO
-- `vaultage-server` <= TODO
+- `vaultage`
+    - `npm start` start the server
 - `vaultage-client` : 
     - `make test` to test the build
     - `make dist/vaultage.js` to compile everything into a single `.js` file that can be imported by clients
