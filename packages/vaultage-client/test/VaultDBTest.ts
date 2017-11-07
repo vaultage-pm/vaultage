@@ -1,6 +1,10 @@
 import { VaultDB, VaultDBEntry } from '../src/VaultDB';
 
 describe('VaultDB.ts can', () => {
+    it('create an empty vault from an empty string', () => {
+        let db = VaultDB.deserialize("");
+        expect(db.getAll().length).toEqual(0);
+    });
     it('create an empty vault', () => {
         let db = new VaultDB({});
         expect(db.getAll().length).toEqual(0);

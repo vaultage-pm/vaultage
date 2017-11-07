@@ -51,11 +51,18 @@ export class VaultDB {
 
         return serialized;
     }
-    public static deserialize(ser: string): VaultDB {
-        const data = JSON.parse(ser);
+    public static deserialize(json: string): VaultDB {
+
         const entries: {
             [key: string]: VaultDBEntry
         } = {};
+
+        //return empty DB
+        if(json == ""){
+            return new VaultDB(entries, 0);
+        }
+
+        const data = JSON.parse(json);
 
         for (var entry of data.entries) {
             if (entries[entry.id] != null) {
