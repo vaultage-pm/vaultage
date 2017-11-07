@@ -26,5 +26,6 @@
 - `vaultage-ui-simple`
     - `make build` to
         - copy the compiled `.js` file from `vaultage-client` (you need to run `make dist/vaultage.js` in `vaultage-client`)
-    - `make serve` to build and serve the UI at `http://localhost:9001`. It watches for file changes in the UI.
+        - (NOTE: actually there's no "building" involved, just copying `vaultage-client` file, the UI is already in .js and ready to be served)
+    - `make serve` serve the UI at `http://localhost:9001`. It watches for file changes in the UI.
     - `make clean` to remove the compiled file `public/dist/vaultage.js`
