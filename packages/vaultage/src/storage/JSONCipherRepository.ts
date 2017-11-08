@@ -1,3 +1,4 @@
+import { NotFastForwardError } from './NotFastForwardError';
 import { AuthenticationError } from './AuthenticationError';
 import { CipherRepository, ICipherSaveOptions, IRepositoryCredentials, IUserRepository } from './CipherRepository';
 import { Inject, Service } from 'typedi';
@@ -26,6 +27,14 @@ export class JSONCipherUserRepository implements IUserRepository {
             data: cipher,
             username: this.username,
             password: this.password
+        }
+        if (!options.force) {
+            const file = JSON.parse(fs.readFileSync(this.cipherLocation, {
+                encoding: 'utf-8'
+            })) as JSONCipherFile;
+            if (file.hash !== options.old_hash) {
+                throw new NotFastForwardError();
+            }
         }
         fs.writeFileSync(this.cipherLocation, JSON.stringify(data), {
             encoding: 'utf-8'
