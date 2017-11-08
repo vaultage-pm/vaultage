@@ -8,6 +8,8 @@ import { useContainer } from 'routing-controllers';
 import { Container } from 'typedi';
 
 import { API } from './API';
+import { CipherRepository } from './storage/CipherRepository';
+import { JSONCipherRepository } from './storage/JSONCipherRepository';
 
 useContainer(Container);
 
@@ -18,6 +20,7 @@ Container.set('config', {
         USERNAME_SALT: 'nosalt'
     }
 });
+Container.set(CipherRepository, Container.get(JSONCipherRepository));
 
 const app = express();
 

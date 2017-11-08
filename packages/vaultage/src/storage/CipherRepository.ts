@@ -1,38 +1,32 @@
-import { Inject, Service } from 'typedi';
-import * as fs from 'fs';
 
 export interface ICipherSaveOptions {
+
+    new_hash: string;
+
     old_hash?: string;
 
     force?: boolean;
 }
 
-@Service()
-export class CipherRepository {
+/**
+ * Instance of an authenticated repository.
+ */
+export interface IUserRepository {
 
-    @Inject('cipherLocation')
-    private readonly cipherLocation: string;
+    save(cipher: string, options: ICipherSaveOptions): Promise<string>;
 
-    public async save(cipher: string, _options: ICipherSaveOptions): Promise<void> {
-        fs.writeFileSync(this.cipherLocation, cipher);
-    }
+    load(): Promise<string>;
+}
 
-    public async load(): Promise<string> {
-        try {
-            const data = await new Promise<Buffer>((resolve, reject) => {
-                fs.readFile(this.cipherLocation, (err, res) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    return resolve(res);
-                });
-            });
-            return data.toString('utf-8');
-        } catch(e) {
-            if (e && e.code === 'ENOENT') {
-                return '';
-            }
-            throw e;
-        }
-    }
+export interface IRepositoryCredentials {
+    username: string;
+    password: string;
+};
+
+export abstract class CipherRepository {
+
+    /**
+     * Tries to authenticate a user and returns their repository on success.
+     */
+    abstract auth(creds: IRepositoryCredentials): Promise<IUserRepository>;
 }

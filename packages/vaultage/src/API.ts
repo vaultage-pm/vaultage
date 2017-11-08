@@ -18,7 +18,7 @@ export abstract class API {
             controllers: [
                 CipherController,
                 ConfigController
-            ],
+            ]
         });
     }
 }

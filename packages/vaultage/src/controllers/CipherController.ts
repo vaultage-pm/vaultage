@@ -1,35 +1,54 @@
-import { PushPullResponse } from '../dto/PullResponse';
-import { Inject } from 'typedi';
 import { CipherRepository } from '../storage/CipherRepository';
-import { UpdateCipherRequest } from '../dto/UpdateCipherRequest';
-import { auth } from '../middleware/authMiddleware';
-import { Body, Controller, Get, Post, UseBefore } from 'routing-controllers';
+import { Body, Get, JsonController, Param, Post } from 'routing-controllers';
+import { Inject } from 'typedi';
 
-@Controller()
+import { PushPullResponse } from '../dto/PullResponse';
+import { UpdateCipherRequest } from '../dto/UpdateCipherRequest';
+
+@JsonController()
 export class CipherController {
 
     @Inject()
     private repository: CipherRepository;
 
     @Get('/:user/:key/vaultage_api')
-    @UseBefore(auth)
-    public pull(): Promise<PushPullResponse> {
-        return this.repository.load().then(data => ({
+    public async pull(
+            @Param('user') username: string,
+            @Param('key') password: string)
+            : Promise<PushPullResponse> {
+
+        const repo = await this.repository.auth({
+            username,
+            password
+        });
+
+        const data = await repo.load();
+        
+        return {
             error: false,
             description: '',
             data: data
-        }));
+        };
     }
 
     @Post('/:user/:key/vaultage_api')
-    @UseBefore(auth)
-    public async push(@Body() request: UpdateCipherRequest): Promise<PushPullResponse> {
-        await this.repository.save(request.new_data, request);
+    public async push(
+            @Body() request: UpdateCipherRequest,
+            @Param('user') username: string,
+            @Param('key') password: string)
+            : Promise<PushPullResponse> {
+
+        const repo = await this.repository.auth({
+            username,
+            password
+        })
         
-        return this.repository.load().then(data => ({
+        const data = await repo.save(request.new_data, request);
+        
+        return {
             error: false,
             description: '',
             data: data
-        }));
+        };
     }
 }
