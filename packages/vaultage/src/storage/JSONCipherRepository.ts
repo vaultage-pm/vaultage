@@ -28,7 +28,7 @@ export class JSONCipherUserRepository implements IUserRepository {
             username: this.username,
             password: this.password
         }
-        if (!options.force) {
+        if (!options.force && fs.existsSync(this.cipherLocation)) {
             const file = JSON.parse(fs.readFileSync(this.cipherLocation, {
                 encoding: 'utf-8'
             })) as JSONCipherFile;
