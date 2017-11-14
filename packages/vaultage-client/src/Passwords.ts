@@ -33,7 +33,7 @@ export class Passwords {
             //decide on a number of numbers to inject
             numberOfDigits = this.getRandomNumberInRange(length);
             for (i = 0; i < numberOfDigits; i++) {
-                let pos = this.getRandomNumberInRange(length) - 1
+                let pos = this.getRandomNumberInRange(length)
                 let val = this.getRandomCharFromArray(this.charMapNumbers(avoidSimilarCharacters));
                 result[pos] = val;
             }
@@ -41,7 +41,7 @@ export class Passwords {
             if (useSymbols) {
                 numberOfSymbols = this.getRandomNumberInRange(length);
                 for (i = 0; i < numberOfSymbols; i++) {
-                    let pos = this.getRandomNumberInRange(length) - 1
+                    let pos = this.getRandomNumberInRange(length)
                     let val = this.getRandomCharFromArray(this.charMapSymbols(avoidPunctuationUsedInProgramming));
                     result[pos] = val;
                 }
@@ -99,25 +99,17 @@ export class Passwords {
          * @return {string} a random letter in A
          */
         private getRandomCharFromArray(letters: string[]): string {
-            let x;
-            do {
-                x = this.getRandomNumber();
-            } while (x >= letters.length);
-            return letters[x];
+            const i = this.getRandomNumber() % letters.length;
+            return letters[i];
         }
     
         /**
-         * Returns a random number in [0, upperLimit]
+         * Returns a random number in [0, upperLimit[
          * @param upperLimit
-         * @return {number} a random number in [0, upperLimit]
+         * @return {number} a random number in [0, upperLimit[
          */
-        private getRandomNumberInRange(upperLimit: string[]) {
-            "use strict";
-            let x;
-            do {
-                x = this.getRandomNumber();
-            } while (x >= upperLimit);
-            return x;
+        private getRandomNumberInRange(upperLimit: number) {
+            return (this.getRandomNumber() % upperLimit);
         }
 
         /**
