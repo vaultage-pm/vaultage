@@ -140,9 +140,9 @@ describe('Vault.ts can', () => {
         let dataSent = apiCallsFired[0].parameters.body
 
         // parses the url data=X&last_hash=Y
-        let dataSentArray = dataSent.split('&').map((elem) => elem.split('='))
-        let dataSentMap = dataSentArray.reduce((accu, val) => {accu[val[0]] = val[1]; return accu},{})
+        let dataSentMap = JSON.parse(dataSent)
 
+        expect('update_key' in dataSentMap).toBeTruthy();
         expect('new_data' in dataSentMap).toBeTruthy();
         expect('old_hash' in dataSentMap).toBeTruthy();
         expect('new_hash' in dataSentMap).toBeTruthy();
