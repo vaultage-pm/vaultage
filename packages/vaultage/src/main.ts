@@ -7,10 +7,18 @@ import * as path from 'path';
 import { useContainer } from 'routing-controllers';
 import { Container } from 'typedi';
 
-import { API } from './API';
-import { CipherRepository } from './storage/CipherRepository';
-import { JSONCipherRepository } from './storage/JSONCipherRepository';
+import { VaultageServer } from './VaultageServer';
+import { DatabaseWithAuth } from './storage/Database';
+import { JSONDatabaseWithAuth } from './storage/JSONDatabase';
 
+//TODO lb->hmil: Quelle est l'utilité de cette abstraction ? pourquoi pas
+/*
+const cipherLocation = ...
+const config = ...
+const DatabaseWithAuth = ...
+*/
+// ou même dans un ServerState={} que l'on controle, plutôt qu'une struct avec des set et get qui casse le
+// checking des noms à la compilation (e.g. .get("cypherLocation"))
 useContainer(Container);
 
 // Sets defaults
@@ -20,24 +28,40 @@ Container.set('config', {
         USERNAME_SALT: 'nosalt'
     }
 });
-Container.set(CipherRepository, Container.get(JSONCipherRepository));
+Container.set(DatabaseWithAuth, Container.get(JSONDatabaseWithAuth));
 
-const app = express();
+const expressServer = express();
 
 // Allow requests from all origins.
 // We can do this because we don't have actual sessions and there is nothing more to be obtained
 // from the server if an attacker initiates a request from the victim's browser as opposed to if he initiates
 // it from anywhere else
-app.use(cors());
+expressServer.use(cors());
 
 // I/O protocol is JSON based
-app.use(json());
+expressServer.use(json());
+
 // Bind API to server
-API.create(app);
+//TODO lb->hmil : Pas convaincu que l'abstraction "VaultageServer" ait une utilité. Tu voyais ça pour la suite ?
+// sinon juste :
+/*
+useExpressServer(expressServer, {
+    controllers: [
+        CipherController,
+        ConfigController
+    ]
+    });
+*/
+// ça évite une class et un fichier en plus, et de se surcharger la stack mentale d'une abstraction en plus
+VaultageServer.bindToServer(expressServer);
+
 // Bind static content to server
-app.use(express.static(path.join(path.dirname(require.resolve('vaultage-ui-webcli')), 'public')));
+//TODO lb->hmil: could we also serve, on a different port perhaps, the simple-web-gui ?
+const pathToWebCliGUI = path.dirname(require.resolve('vaultage-ui-webcli'));
+const staticDirToServer = path.join(pathToWebCliGUI, 'public');
+expressServer.use(express.static(staticDirToServer));
  
-// run koa application on port 3000
-app.listen(3000, () => {
-    console.log('Dev server is listening on port 3000');
+// run application on port 3000
+expressServer.listen(3000, () => {
+    console.log('Server is listening on port 3000');
 });

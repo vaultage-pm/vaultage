@@ -1,10 +1,13 @@
 import { NotFastForwardError } from './NotFastForwardError';
 import { AuthenticationError } from './AuthenticationError';
-import { CipherRepository, ICipherSaveOptions, IRepositoryCredentials, IUserRepository } from './CipherRepository';
+import { DatabaseWithAuth, DataSaveParameters, RepositoryCredentials, Database } from './Database';
 import { Inject, Service } from 'typedi';
 import * as fs from 'fs';
 
-interface JSONCipherFile {
+/**
+ * The structure of the content of this database.
+ */
+interface DatabaseContents {
     version: number;
     hash: string;
     data: string;
@@ -12,7 +15,12 @@ interface JSONCipherFile {
     password: string;
 }
 
-export class JSONCipherUserRepository implements IUserRepository {
+/**
+ * This class is a simple database that only use a file storage.
+ * It provides the Vaultage-compliant API of "save" and "load".
+ * Save uses a hashchain to ensure serializability.
+ */
+export class JSONDatabase implements Database {
 
     constructor(
             private readonly cipherLocation: string,
@@ -20,33 +28,41 @@ export class JSONCipherUserRepository implements IUserRepository {
             private readonly password: string) {
     }
 
-    public async save(cipher: string, options: ICipherSaveOptions): Promise<string> {
-        const data: JSONCipherFile = {
+    public async save(update: DataSaveParameters): Promise<string> {
+        const data: DatabaseContents = {
             version: 1,
-            hash: options.new_hash,
-            data: cipher,
+            hash: update.new_hash,
+            data: update.new_data,
             username: this.username,
             password: this.password
         }
-        if (!options.force && fs.existsSync(this.cipherLocation)) {
+        if (!update.force && fs.existsSync(this.cipherLocation)) {
+            // read the current database content (without this update)
             const file = JSON.parse(fs.readFileSync(this.cipherLocation, {
                 encoding: 'utf-8'
-            })) as JSONCipherFile;
-            if (file.hash !== options.old_hash) {
+            })) as DatabaseContents;
+
+            // if we did not provide the correct old hash, we refuse the update
+            if (file.hash !== update.old_hash) {
                 throw new NotFastForwardError();
             }
         }
+        // either it is fast-forward (old hash correctly provided),
+        // or forced; anyway, we process the udpate
         fs.writeFileSync(this.cipherLocation, JSON.stringify(data), {
             encoding: 'utf-8'
         });
-        return cipher;
+        return update.new_data;
     }
 
+    /**
+     * Simply returns the data field of the DatabaseContents
+     */
     public async load(): Promise<string> {
         try {
             const data = JSON.parse(fs.readFileSync(this.cipherLocation, {
                 encoding: 'utf-8'
-            })) as JSONCipherFile;
+            })) as DatabaseContents;
             return data.data;
         } catch(e) {
             if (e && e.code === 'ENOENT') {
@@ -57,17 +73,21 @@ export class JSONCipherUserRepository implements IUserRepository {
     }
 }
 
+/**
+ * This class is a wrapper around JSONDatabase.
+ * It exposes the "auth" methods that return a JSONDatabase.
+ */
 @Service()
-export class JSONCipherRepository extends CipherRepository {
+export class JSONDatabaseWithAuth extends DatabaseWithAuth {
 
     @Inject('cipherLocation')
     private readonly cipherLocation: string;
 
-    async auth(creds: IRepositoryCredentials) {
+    async auth(creds: RepositoryCredentials) {
         try {
             const contents = JSON.parse(fs.readFileSync(this.cipherLocation, {
                 encoding: 'utf-8'
-            })) as JSONCipherFile;
+            })) as DatabaseContents;
 
             // Leaks informations by timing analysis but proper bruteforce protection makes it impractical
             // TODO Ludo: What if someone steals the creds w/ timing analysis and then uses the "force"
@@ -81,6 +101,6 @@ export class JSONCipherRepository extends CipherRepository {
                 throw e;
             }
         }
-        return new JSONCipherUserRepository(this.cipherLocation, creds.username, creds.password);
+        return new JSONDatabase(this.cipherLocation, creds.username, creds.password);
     }
 }

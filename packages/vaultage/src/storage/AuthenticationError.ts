@@ -1,4 +1,3 @@
-
 export class AuthenticationError extends Error {
 
     public readonly code = 'EAUTH';

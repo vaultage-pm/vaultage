@@ -1,4 +1,4 @@
-export interface IVaultageConfig {
+export interface VaultageConfig {
     salts: {
         USERNAME_SALT: string;
     };

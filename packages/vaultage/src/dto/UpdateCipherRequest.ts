@@ -1,7 +1,7 @@
 import { IsBoolean, IsDefined, IsOptional, IsString } from 'class-validator';
 
 /**
- * Describes the body of a POST request to the cipher API.
+ * Describes the body of a POST request to the cipher API (implemented in CipherController).
  */
 export class UpdateCipherRequest {
 

@@ -1,11 +1,12 @@
 import * as express from 'express';
 import * as request from 'supertest';
+import 'core-js/es7/reflect'
 
-import { API } from '../src/index';
+import { VaultageServer } from '../src/VaultageServer';
 
 const app = express();
 
-API.create(app, {
+VaultageServer.newServer(app, {
     salts: {
         USERNAME_SALT: 'thetest'
     }

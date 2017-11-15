@@ -1,15 +1,19 @@
-import { CipherRepository } from '../storage/CipherRepository';
+import { DatabaseWithAuth } from '../storage/Database';
 import { Body, Get, JsonController, Param, Post } from 'routing-controllers';
 import { Inject } from 'typedi';
 
 import { PushPullResponse } from '../dto/PullResponse';
 import { UpdateCipherRequest } from '../dto/UpdateCipherRequest';
 
+/**
+ * This CipherController provides the API methods "pull" and "push".
+ * It is meant to be registered on an existing Express server via the VaultageServer class.
+ */
 @JsonController()
 export class CipherController {
 
     @Inject()
-    private repository: CipherRepository;
+    private repository: DatabaseWithAuth;
 
     @Get('/:user/:key/vaultage_api')
     public async pull(
