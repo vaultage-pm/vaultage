@@ -6,7 +6,7 @@ import { VaultageServer } from '../src/VaultageServer';
 
 const app = express();
 
-VaultageServer.newServer(app, {
+VaultageServer.bindToServer(app, {
     salts: {
         USERNAME_SALT: 'thetest'
     }

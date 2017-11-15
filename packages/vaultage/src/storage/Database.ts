@@ -1,4 +1,4 @@
-export interface RepositoryCredentials {
+export interface Credentials {
     username: string;
     password: string;
 };
@@ -9,9 +9,9 @@ export interface RepositoryCredentials {
 export abstract class DatabaseWithAuth {
 
     /**
-     * Tries to authenticate a user and returns their repository on success.
+     * Tries to authenticate a user and returns their Database on success.
      */
-    abstract auth(creds: RepositoryCredentials): Promise<Database>;
+    abstract auth(creds: Credentials): Promise<Database>;
 }
 
 /**
