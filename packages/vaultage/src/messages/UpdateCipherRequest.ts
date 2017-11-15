@@ -27,8 +27,8 @@ export class UpdateCipherRequest {
     old_hash?: string;
 
     /**
-     * The new cipher fingerprint. This value is determined client-side and the server doesn't know how
-     * it is computed.
+     * The new cipher fingerprint. This value is determined client-side and the server 
+     * doesn't know how it is computed.
      */
     @IsString()
     @IsDefined()

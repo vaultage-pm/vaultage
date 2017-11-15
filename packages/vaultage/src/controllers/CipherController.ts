@@ -13,7 +13,7 @@ import { UpdateCipherRequest } from '../messages/UpdateCipherRequest';
 export class CipherController {
 
     @Inject()
-    private repository: DatabaseWithAuth;
+    private db: DatabaseWithAuth;
 
     @Get('/:user/:key/vaultage_api')
     public async pull(
@@ -21,7 +21,7 @@ export class CipherController {
             @Param('key') password: string)
             : Promise<PushPullResponse> {
 
-        const repo = await this.repository.auth({
+        const repo = await this.db.auth({
             username,
             password
         });
@@ -42,12 +42,12 @@ export class CipherController {
             @Param('key') password: string)
             : Promise<PushPullResponse> {
 
-        const repo = await this.repository.auth({
+        const dbAccess = await this.db.auth({
             username,
             password
         })
         
-        const data = await repo.save(request.new_data, request);
+        const data = await dbAccess.save(request);
         
         return {
             error: false,

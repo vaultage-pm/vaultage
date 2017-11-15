@@ -1,6 +1,6 @@
 import { NotFastForwardError } from './NotFastForwardError';
 import { AuthenticationError } from './AuthenticationError';
-import { DatabaseWithAuth, DataSaveParameters, RepositoryCredentials, Database } from './Database';
+import { Credentials, Database, DatabaseSaveParameters, DatabaseWithAuth } from './Database';
 import { Inject, Service } from 'typedi';
 import * as fs from 'fs';
 
@@ -28,7 +28,7 @@ export class JSONDatabase implements Database {
             private readonly password: string) {
     }
 
-    public async save(update: DataSaveParameters): Promise<string> {
+    public async save(update: DatabaseSaveParameters): Promise<string> {
         const data: DatabaseContents = {
             version: 1,
             hash: update.new_hash,
@@ -83,15 +83,14 @@ export class JSONDatabaseWithAuth extends DatabaseWithAuth {
     @Inject('cipherLocation')
     private readonly cipherLocation: string;
 
-    async auth(creds: RepositoryCredentials) {
+    async auth(creds: Credentials) {
         try {
             const contents = JSON.parse(fs.readFileSync(this.cipherLocation, {
                 encoding: 'utf-8'
             })) as DatabaseContents;
 
-            // Leaks informations by timing analysis but proper bruteforce protection makes it impractical
-            // TODO Ludo: What if someone steals the creds w/ timing analysis and then uses the "force"
-            // parameter on "push" to overwrite the user's passwords?
+            // Leaks informations by timing analysis but proper bruteforce protection makes it impractical,
+            // also knowledge of the remote key doesn't relly help as one needs the local key to decrypt passwords.
             if (contents.username !== creds.username || contents.password !== creds.password) {
                 throw new AuthenticationError();
             }

@@ -5,7 +5,7 @@
 export interface PushPullResponse {
 
     /**
-     * True if an error occurred. Usually, if True, data=""
+     * True if an error occurred. Usually, if true, data=""
      */
     error: boolean;
 
