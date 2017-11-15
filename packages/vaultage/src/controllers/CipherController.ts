@@ -2,8 +2,8 @@ import { DatabaseWithAuth } from '../storage/Database';
 import { Body, Get, JsonController, Param, Post } from 'routing-controllers';
 import { Inject } from 'typedi';
 
-import { PushPullResponse } from '../dto/PullResponse';
-import { UpdateCipherRequest } from '../dto/UpdateCipherRequest';
+import { PushPullResponse } from '../messages/PullResponse';
+import { UpdateCipherRequest } from '../messages/UpdateCipherRequest';
 
 /**
  * This CipherController provides the API methods "pull" and "push".

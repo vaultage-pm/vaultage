@@ -24,7 +24,7 @@ export abstract class DatabaseWithAuth {
  */
 export interface Database {
 
-    save(update: DataSaveParameters): Promise<string>;
+    save(update: DatabaseSaveParameters): Promise<string>;
 
     load(): Promise<string>;
 }
@@ -36,7 +36,7 @@ export interface Database {
  * DB (not including this update); EXCEPT if the db is empty.
  * If Force is True, it ignores hash comparison, and always updates. 
  */
-export interface DataSaveParameters {
+export interface DatabaseSaveParameters {
     
         new_data: string;
     

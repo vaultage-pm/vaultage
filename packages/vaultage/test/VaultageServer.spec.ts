@@ -1,5 +1,7 @@
 import * as express from 'express';
 import * as request from 'supertest';
+
+//TODO lb->hmil: J'ai du ajouter ça, c'est bon ?
 import 'core-js/es7/reflect'
 
 import { VaultageServer } from '../src/VaultageServer';
