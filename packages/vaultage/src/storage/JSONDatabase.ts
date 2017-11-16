@@ -8,7 +8,7 @@ import { NotFastForwardError } from './NotFastForwardError';
 /**
  * The structure of the content of this database.
  */
-interface IDatabaseContents {
+export interface IDatabaseContents {
     version: number;
     hash: string;
     data: string;

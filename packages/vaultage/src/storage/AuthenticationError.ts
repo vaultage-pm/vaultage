@@ -8,5 +8,6 @@ export class AuthenticationError extends Error {
 
     constructor() {
         super('Invalid credentials');
+        Object.setPrototypeOf(this, AuthenticationError.prototype);
     }
 }

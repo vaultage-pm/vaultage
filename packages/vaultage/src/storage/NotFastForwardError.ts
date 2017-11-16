@@ -16,5 +16,6 @@ export class NotFastForwardError extends Error {
 
     constructor() {
         super('Not fast forward');
+        Object.setPrototypeOf(this, NotFastForwardError.prototype);
     }
 }

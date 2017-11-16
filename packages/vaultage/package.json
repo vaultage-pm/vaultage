@@ -8,8 +8,7 @@
     "clean": "rimraf dist/",
     "lint": "tslint -p .",
     "start": "cross-env NODE_PATH=.. ts-node src/main.ts",
-    "test:prod": "npm run lint && npm run test",
-    "test": "jest",
+    "test": "npm run lint && jest",
     "watch": "jest --watch"
   },
   "author": "",
@@ -39,7 +38,7 @@
     "transform": {
       ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
-    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.ts$",
     "moduleFileExtensions": [
       "ts",
       "tsx",
@@ -51,10 +50,10 @@
     ],
     "coverageThreshold": {
       "global": {
-        "branches": 90,
-        "functions": 95,
-        "lines": 95,
-        "statements": 95
+        "branches": 50,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
       }
     },
     "clearMocks": true,

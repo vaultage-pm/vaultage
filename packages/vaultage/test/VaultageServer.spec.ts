@@ -4,12 +4,12 @@ import { useContainer } from 'routing-controllers';
 import * as request from 'supertest';
 import { Container } from 'typedi';
 
-import { VaultageConfig } from '../dist/src/VaultageConfig';
 import { createVaultageAPIServer } from '../src/apiServer';
 import { IPushPullResponse } from '../src/messages/PullResponse';
 import { UpdateCipherRequest } from '../src/messages/UpdateCipherRequest';
 import { DatabaseWithAuth } from '../src/storage/Database';
 import * as db from '../src/storage/JSONDatabase';
+import { IVaultageConfig } from '../src/VaultageConfig';
 
 useContainer(Container);
 
@@ -20,7 +20,7 @@ const mockDB = new mockModule.JSONDatabase('', '', '');
 (mockDB.load as jest.Mock).mockReturnValue(Promise.resolve('load OK'));
 (mockDB.save as jest.Mock).mockReturnValue(Promise.resolve('save OK'));
 
-const mockConfig: VaultageConfig = {
+const mockConfig: IVaultageConfig = {
     salts: {
         USERNAME_SALT: 'le salt'
     }
