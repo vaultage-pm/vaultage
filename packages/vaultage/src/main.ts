@@ -1,4 +1,3 @@
-import { createVaultageAPIServer } from './apiServer';
 import 'reflect-metadata';
 
 import * as express from 'express';
@@ -6,6 +5,7 @@ import * as path from 'path';
 import { useContainer } from 'routing-controllers';
 import { Container } from 'typedi';
 
+import { createVaultageAPIServer } from './apiServer';
 import { DatabaseWithAuth } from './storage/Database';
 import { JSONDatabaseWithAuth } from './storage/JSONDatabase';
 
@@ -41,7 +41,7 @@ const server = createVaultageAPIServer();
 const pathToWebCliGUI = path.dirname(require.resolve('vaultage-ui-webcli'));
 const staticDirToServer = path.join(pathToWebCliGUI, 'public');
 server.use(express.static(staticDirToServer));
- 
+
 // run application on port 3000
 server.listen(3000, () => {
     console.log('Server is listening on port 3000');

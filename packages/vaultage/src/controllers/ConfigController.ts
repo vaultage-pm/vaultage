@@ -1,7 +1,7 @@
 import { Get, JsonController } from 'routing-controllers';
 import { Inject } from 'typedi';
 
-import { VaultageConfig } from '../VaultageConfig';
+import { IVaultageConfig } from '../VaultageConfig';
 
 /**
  * This ConfigController provides the API method "getConfig".
@@ -11,10 +11,10 @@ import { VaultageConfig } from '../VaultageConfig';
 export class ConfigController {
 
     @Inject('config')
-    private config: VaultageConfig;
+    private config: IVaultageConfig;
 
     @Get('/config')
-    protected getConfig(): VaultageConfig {
+    protected getConfig(): IVaultageConfig {
         return this.config;
     }
 }

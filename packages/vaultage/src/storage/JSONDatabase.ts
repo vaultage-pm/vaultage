@@ -1,13 +1,14 @@
-import { NotFastForwardError } from './NotFastForwardError';
-import { AuthenticationError } from './AuthenticationError';
-import { Credentials, Database, DatabaseSaveParameters, DatabaseWithAuth } from './Database';
-import { Inject, Service } from 'typedi';
 import * as fs from 'fs';
+import { Inject, Service } from 'typedi';
+
+import { AuthenticationError } from './AuthenticationError';
+import { DatabaseWithAuth, ICredentials, IDatabase, IDatabaseSaveParameters } from './Database';
+import { NotFastForwardError } from './NotFastForwardError';
 
 /**
  * The structure of the content of this database.
  */
-interface DatabaseContents {
+interface IDatabaseContents {
     version: number;
     hash: string;
     data: string;
@@ -20,7 +21,7 @@ interface DatabaseContents {
  * It provides the Vaultage-compliant API of "save" and "load".
  * Save uses a hashchain to ensure serializability.
  */
-export class JSONDatabase implements Database {
+export class JSONDatabase implements IDatabase {
 
     constructor(
             private readonly cipherLocation: string,
@@ -28,19 +29,19 @@ export class JSONDatabase implements Database {
             private readonly password: string) {
     }
 
-    public async save(update: DatabaseSaveParameters): Promise<string> {
-        const data: DatabaseContents = {
+    public async save(update: IDatabaseSaveParameters): Promise<string> {
+        const data: IDatabaseContents = {
             version: 1,
             hash: update.new_hash,
             data: update.new_data,
             username: this.username,
             password: this.password
-        }
+        };
         if (!update.force && fs.existsSync(this.cipherLocation)) {
             // read the current database content (without this update)
             const file = JSON.parse(fs.readFileSync(this.cipherLocation, {
                 encoding: 'utf-8'
-            })) as DatabaseContents;
+            })) as IDatabaseContents;
 
             // if we did not provide the correct old hash, we refuse the update
             if (file.hash !== update.old_hash) {
@@ -62,9 +63,9 @@ export class JSONDatabase implements Database {
         try {
             const data = JSON.parse(fs.readFileSync(this.cipherLocation, {
                 encoding: 'utf-8'
-            })) as DatabaseContents;
+            })) as IDatabaseContents;
             return data.data;
-        } catch(e) {
+        } catch (e) {
             if (e && e.code === 'ENOENT') {
                 return '';
             }
@@ -83,18 +84,18 @@ export class JSONDatabaseWithAuth extends DatabaseWithAuth {
     @Inject('cipherLocation')
     private readonly cipherLocation: string;
 
-    async auth(creds: Credentials) {
+    public async auth(creds: ICredentials) {
         try {
             const contents = JSON.parse(fs.readFileSync(this.cipherLocation, {
                 encoding: 'utf-8'
-            })) as DatabaseContents;
+            })) as IDatabaseContents;
 
             // Leaks informations by timing analysis but proper bruteforce protection makes it impractical,
             // also knowledge of the remote key doesn't relly help as one needs the local key to decrypt passwords.
             if (contents.username !== creds.username || contents.password !== creds.password) {
                 throw new AuthenticationError();
             }
-        } catch(e) {
+        } catch (e) {
             // Ignore the error if the file does not exist and proceed with returning a repository
             if (!e || e.code !== 'ENOENT') {
                 throw e;

@@ -1,9 +1,9 @@
-import { DatabaseWithAuth } from '../storage/Database';
 import { Body, Get, JsonController, Param, Post } from 'routing-controllers';
 import { Inject } from 'typedi';
 
-import { PushPullResponse } from '../messages/PullResponse';
+import { IPushPullResponse } from '../messages/PullResponse';
 import { UpdateCipherRequest } from '../messages/UpdateCipherRequest';
+import { DatabaseWithAuth } from '../storage/Database';
 
 /**
  * This CipherController provides the API methods "pull" and "push".
@@ -19,7 +19,7 @@ export class CipherController {
     public async pull(
             @Param('user') username: string,
             @Param('key') password: string)
-            : Promise<PushPullResponse> {
+            : Promise<IPushPullResponse> {
 
         const repo = await this.db.auth({
             username,
@@ -27,7 +27,7 @@ export class CipherController {
         });
 
         const data = await repo.load();
-        
+
         return {
             error: false,
             description: '',
@@ -40,15 +40,15 @@ export class CipherController {
             @Body() request: UpdateCipherRequest,
             @Param('user') username: string,
             @Param('key') password: string)
-            : Promise<PushPullResponse> {
+            : Promise<IPushPullResponse> {
 
         const dbAccess = await this.db.auth({
             username,
             password
-        })
-        
+        });
+
         const data = await dbAccess.save(request);
-        
+
         return {
             error: false,
             description: '',

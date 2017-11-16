@@ -16,7 +16,7 @@ cleanall: clean
 
 .PHONY: test
 test: node_modules
-	npm test
+	npm run test:prod
 
 # Other tasks
 

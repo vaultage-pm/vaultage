@@ -2,7 +2,7 @@
 /**
  * Describes the body of a response to the client (contains a possible error, and possible data).
  */
-export interface PushPullResponse {
+export interface IPushPullResponse {
 
     /**
      * True if an error occurred. Usually, if true, data=""

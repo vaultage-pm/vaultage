@@ -4,12 +4,13 @@
   "description": "Vaultage backend server",
   "main": "dist/main.js",
   "scripts": {
-    "start": "cross-env NODE_PATH=.. ts-node src/main.ts",
-    "test": "jest",
     "build": "tsc",
     "clean": "rimraf dist/",
-    "watch": "jest --watch",
-    "lint": "tslint -p ."
+    "lint": "tslint -p .",
+    "start": "cross-env NODE_PATH=.. ts-node src/main.ts",
+    "test:prod": "npm run lint && npm run test",
+    "test": "jest",
+    "watch": "jest --watch"
   },
   "author": "",
   "license": "MIT",
@@ -56,6 +57,7 @@
         "statements": 95
       }
     },
+    "clearMocks": true,
     "collectCoverage": true,
     "mapCoverage": true
   }
