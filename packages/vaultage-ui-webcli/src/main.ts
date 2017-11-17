@@ -1,7 +1,4 @@
-import { ReusedCommand } from './commands/Reused';
 import { GetCommand } from './commands/Get';
-import { LogoutCommand } from './commands/Logout';
-import { ClearCommand } from './commands/Clear';
 import * as config from '../config';
 import { Vault } from 'vaultage-client';
 import { Shell } from './webshell/Shell';
@@ -20,6 +17,10 @@ import { WeakCommand } from './commands/Weak';
 import { DumpCommand } from './commands/Dump';
 import { RotateCommand } from './commands/Rotate';
 import { RawImportCommand } from './commands/RawImport';
+import { PwdCommand } from './commands/Pwd';
+import { LogoutCommand } from './commands/Logout';
+import { ClearCommand } from './commands/Clear';
+import { ReusedCommand } from './commands/Reused';
 
 const terminal = new Terminal({
     root: document.body
@@ -40,6 +41,7 @@ shell.registerCommand(new RmCommand(vault, shell));
 shell.registerCommand(new PullCommand(vault, shell));
 shell.registerCommand(new PushCommand(vault, shell));
 shell.registerCommand(new ClearCommand(shell));
+shell.registerCommand(new PwdCommand(vault,shell));
 shell.registerCommand(new LogoutCommand(vault,shell));
 shell.registerCommand(new ReusedCommand(vault,shell));
 shell.registerCommand(new WeakCommand(vault,shell));

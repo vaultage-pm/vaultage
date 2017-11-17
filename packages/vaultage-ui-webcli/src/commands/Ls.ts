@@ -27,7 +27,7 @@ export class LsCommand implements ICommand {
             this.shell.echoHTML(VaultEntryFormatter.formatBatch(allEntries));
 
         } catch (e) {
-            this.shell.echoError(err.toString());    
+            this.shell.echoError(e.toString());    
         }
     }
 }
