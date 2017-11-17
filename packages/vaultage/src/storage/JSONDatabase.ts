@@ -30,12 +30,17 @@ export class JSONDatabase implements IDatabase {
     }
 
     public async save(update: IDatabaseSaveParameters): Promise<string> {
+        let password = this.password;
+        if (update.new_password !== undefined) {
+            password = update.new_password;
+        }
+
         const data: IDatabaseContents = {
             version: 1,
             hash: update.new_hash,
             data: update.new_data,
             username: this.username,
-            password: this.password
+            password: password
         };
         if (!update.force && fs.existsSync(this.cipherLocation)) {
             // read the current database content (without this update)

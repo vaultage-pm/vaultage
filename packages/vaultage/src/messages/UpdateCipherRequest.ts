@@ -12,7 +12,7 @@ export class UpdateCipherRequest {
      */
     @IsString()
     @IsOptional()
-    public update_key?: string;
+    public new_password?: string;
 
     /**
      * The new cipher data. Overwrites entirely the previous value.

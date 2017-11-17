@@ -46,4 +46,6 @@ export interface IDatabaseSaveParameters {
     old_hash?: string;
 
     force?: boolean;
+
+    new_password?: string;
 }
