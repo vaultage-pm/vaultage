@@ -33,7 +33,7 @@ export class RmCommand implements ICommand {
             const e = this.vault.getEntry(id)
             this.shell.echoHTML(VaultEntryFormatter.formatSingle(e))
 
-            const answer = await this.shell.prompt('Confirm removal of entry #'+id+' ? y/Y')
+            const answer = await this.shell.prompt('Confirm removal of entry #'+id+' ? [y/N]')
             
             if(answer != "y" && answer != "Y"){
                 this.shell.echo("Cancelled.")
