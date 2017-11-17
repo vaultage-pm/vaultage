@@ -24,19 +24,16 @@ export class AuthCommand implements ICommand {
             
             this.shell.echo(`Attempting to login ${username}@${this.defaultURL}...`);
 
-            let p = new Promise(resolve => this.vault.auth(serverUrl, username, masterpwd, function(err) {
+            await new Promise((resolve, reject) => this.vault.auth(serverUrl, username, masterpwd, function(err) {
                 if(err == null){
-                    resolve('')
+                    resolve()
                 } else {
-                    resolve('<span class="error">'+err.toString()+'</span>')
+                    reject('<span class="error">'+err.toString()+'</span>')
                 }
             }));
 
-            await p;
-
             this.shell.echo("Pull OK, got " + this.vault.getNbEntries()+" entries (revision "+this.vault.getDBRevision()+").")
         } catch (err) {
-            console.log(err);
             this.shell.echoError(err.toString());
         }
     }

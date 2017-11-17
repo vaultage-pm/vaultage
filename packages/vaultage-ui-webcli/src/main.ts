@@ -18,6 +18,7 @@ import { PullCommand } from './commands/Pull';
 import { PushCommand } from './commands/Push';
 import { WeakCommand } from './commands/Weak';
 import { DumpCommand } from './commands/Dump';
+import { RotateCommand } from './commands/Rotate';
 import { RawImportCommand } from './commands/RawImport';
 
 const terminal = new Terminal({
@@ -34,6 +35,7 @@ shell.registerCommand(new GetCommand(vault,shell));
 shell.registerCommand(new AddCommand(vault, shell));
 shell.registerCommand(new GenCommand(vault, shell));
 shell.registerCommand(new EditCommand(vault, shell));
+shell.registerCommand(new RotateCommand(vault, shell));
 shell.registerCommand(new RmCommand(vault, shell));
 shell.registerCommand(new PullCommand(vault, shell));
 shell.registerCommand(new PushCommand(vault, shell));

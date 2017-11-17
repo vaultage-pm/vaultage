@@ -41,23 +41,15 @@ export class AddCommand implements ICommand {
             this.shell.echoHTML(VaultEntryFormatter.formatSingle(e))
             this.shell.echo("Added entry #"+newEntryID)
 
-            let p = new Promise(resolve => this.vault.save(function(err) {
+            await new Promise((resolve, reject) => this.vault.save(function(err) {
                 if(err == null){
-                    resolve("")
+                    resolve()
                 } else {
-                    resolve('<span class="error">'+err.toString()+'</span>')
+                    reject('<span class="error">'+err.toString()+'</span>')
                 }
             }));
 
-            await p;
-            p.then((err : string) => {
-                //if no error
-                if(err=="") {
-                    this.shell.echo("Push OK, revision " + this.vault.getDBRevision()+".")
-                } else {
-                    this.shell.echoHTML(err)
-                }                
-            })
+            this.shell.echo("Push OK, revision " + this.vault.getDBRevision()+".")
 
         } catch (e) {
             this.shell.echoHTML('<span class="error">Failed. ' + e.toString()+'</span>');            
