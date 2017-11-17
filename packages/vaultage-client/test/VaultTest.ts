@@ -69,7 +69,7 @@ describe('Vault.ts can', () => {
 
         expect(apiCallsFired.length).toBe(0);
         expect(callbacksFired.length).toBe(1); //Vault got a 200 OK (but auth failed) internally, should throws an error
-        expect(callbacksFired[0].err.code).toEqual(ERROR_CODE.BAD_REMOTE_CREDS);
+        expect(callbacksFired[0].err.code).toEqual(ERROR_CODE.SERVER_ERROR);
     });
 
     /*

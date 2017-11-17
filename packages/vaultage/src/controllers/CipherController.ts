@@ -17,42 +17,58 @@ export class CipherController {
 
     @Get('/:user/:key/vaultage_api')
     public async pull(
-            @Param('user') username: string,
-            @Param('key') password: string)
-            : Promise<IPushPullResponse> {
+        @Param('user') username: string,
+        @Param('key') password: string)
+        : Promise<IPushPullResponse> {
 
-        const repo = await this.db.auth({
-            username,
-            password
-        });
+        try {
+            const repo = await this.db.auth({
+                username,
+                password
+            });
 
-        const data = await repo.load();
+            const data = await repo.load();
 
-        return {
-            error: false,
-            description: '',
-            data: data
-        };
+            return {
+                error: false,
+                description: '',
+                data: data
+            };
+        } catch (err) {
+            return {
+                error: true,
+                description: ('' + err),
+                data: ''
+            };
+        }
     }
 
     @Post('/:user/:key/vaultage_api')
     public async push(
-            @Body() request: UpdateCipherRequest,
-            @Param('user') username: string,
-            @Param('key') password: string)
-            : Promise<IPushPullResponse> {
+        @Body() request: UpdateCipherRequest,
+        @Param('user') username: string,
+        @Param('key') password: string)
+        : Promise<IPushPullResponse> {
 
-        const dbAccess = await this.db.auth({
-            username,
-            password
-        });
+        try {
+            const dbAccess = await this.db.auth({
+                username,
+                password
+            });
 
-        const data = await dbAccess.save(request);
+            const data = await dbAccess.save(request);
 
-        return {
-            error: false,
-            description: '',
-            data: data
-        };
+            return {
+                error: false,
+                description: '',
+                data: data
+            };
+        } catch (err) {
+            return {
+                error: true,
+                description: ('' + err),
+                data: ''
+            };
+        }
     }
 }

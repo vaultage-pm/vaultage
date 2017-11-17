@@ -324,7 +324,11 @@ export class Vault {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response'));
             }
             if (body.error != null && body.error === true) {
-                return cb(new VaultageError(ERROR_CODE.BAD_REMOTE_CREDS, 'Wrong username / remote password (or DB link inactive).'));
+                if (body.description != null) {
+                    return cb(new VaultageError(ERROR_CODE.SERVER_ERROR, body.description));
+                } else {
+                    return cb(new VaultageError(ERROR_CODE.SERVER_ERROR, 'Unknown server error'));
+                }
             }
             let cipher = (body.data || '').replace(/[^a-z0-9+/:"{},]/ig, '');
 
@@ -385,8 +389,10 @@ export class Vault {
             if (body.error != null && body.error === true) {
                 if (body.not_fast_forward === true) {
                     return cb(new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, 'The server has a newer version of the DB'));
+                } else if (body.descrption != null) {
+                    return cb(new VaultageError(ERROR_CODE.SERVER_ERROR, body.description));
                 } else {
-                    return cb(new VaultageError(ERROR_CODE.BAD_REMOTE_CREDS, 'Wrong username / remote password (or DB link inactive).'));
+                    return cb(new VaultageError(ERROR_CODE.SERVER_ERROR, 'Unknown server error'));
                 }
             }
             this._lastFingerprint = fingerprint;
