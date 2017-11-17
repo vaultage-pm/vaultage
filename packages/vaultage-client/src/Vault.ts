@@ -160,23 +160,35 @@ export class Vault {
         if (!this._creds || !this._db) {
             cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated'));
         } else {
-            let localKey = this._crypto.deriveLocalKey(newPassword);
-            let remoteKey = this._crypto.deriveRemoteKey(newPassword);
-            let creds = deepCopy(this._creds);
-            creds.localKey = localKey;
+            let oldCredentials = deepCopy(this._creds);
+            let newCredentials = deepCopy(this._creds);
+            let newLocalKey = this._crypto.deriveLocalKey(newPassword);
+            let newRemoteKey = this._crypto.deriveRemoteKey(newPassword);
 
             this._db.newRevision();
-            this._pushCipher(creds, remoteKey, (err) => {
-                if (!err) {
-                    if (!this._creds) {
-                        cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
-                    } else {
-                        creds.remoteKey = remoteKey;
-                        this._setCredentials(creds);
-                    }
+
+            // first, let's do a request with (oldRemoteKey, newLocalKey), and provide new_password=newRemoteKey.
+            // This will encrypt the cipher with the newLocalKey, instruct the server to use newRemoteKey for the 
+            // *** subsequent *** updates; of course, this message is still authenticated with oldRemoteKey
+            newCredentials.localKey = newLocalKey;
+
+            this._pushCipher(newCredentials, newRemoteKey, (err) => {
+                if (err) {
+                    this._setCredentials(oldCredentials);
                 }
                 cb(err)
             });
+
+            // at this point, the server accepted the update. Let's confirm it by trying to pull with the new
+            // accesses
+            
+            this._pullCipher(newCredentials, (err) => {
+                cb(new VaultageError(ERROR_CODE.SERVER_ERROR, 'Something went terribly wrong; the server accepted the key update, but the new key does not work !' + err))
+            });
+
+            // everything went fine, now we use the new credentials
+            newCredentials.remoteKey = newRemoteKey;
+            this._creds = newCredentials;
         }
     }
 
@@ -364,7 +376,7 @@ export class Vault {
             method: 'POST',
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey),
             body: JSON.stringify({
-                'update_key': newRemoteKey,
+                'new_password': newRemoteKey,
                 'new_data': cipher,
                 'old_hash': this._lastFingerprint,
                 'new_hash': fingerprint,
