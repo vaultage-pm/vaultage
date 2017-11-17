@@ -26,7 +26,7 @@ export class DumpCommand implements ICommand {
             let allEntries = this.vault.getAllEntries();
             this.shell.echoHTML('var entries=\''+JSON.stringify(allEntries)+'\'');
         } catch (e) {
-            this.shell.echoHTML('<span class="error">Failed. ' + e.toString()+'</span>');        
+            this.shell.echoError(e.toString());       
         }
     }
 }

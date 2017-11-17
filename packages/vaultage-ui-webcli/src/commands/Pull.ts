@@ -26,7 +26,7 @@ export class PullCommand implements ICommand {
                 if(err == null){
                     resolve()
                 } else {
-                    reject('<span class="error">'+err.toString()+'</span>')
+                    reject(err)
                 }
             }));
 

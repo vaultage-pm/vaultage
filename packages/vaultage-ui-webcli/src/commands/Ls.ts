@@ -15,8 +15,6 @@ export class LsCommand implements ICommand {
     }
 
     public async handle() {
-
-        console.log(this.vault);
         
         if(!this.vault.isAuth()){
             this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED)
@@ -29,7 +27,7 @@ export class LsCommand implements ICommand {
             this.shell.echoHTML(VaultEntryFormatter.formatBatch(allEntries));
 
         } catch (e) {
-            this.shell.echoHTML('<span class="error">Failed. ' + e.toString()+'</span>');        
+            this.shell.echoError(err.toString());    
         }
     }
 }

@@ -30,7 +30,7 @@ export class RawImportCommand implements ICommand {
                 "please explore the data with <i>get</i>, then <i>push</i> to confirm or <i>pull</i> to abort this import.")            
 
         } catch (e) {
-            this.shell.echoHTML('<span class="error">Failed. ' + e.toString()+'</span>');            
+            this.shell.echoError(e.toString());       
         }
     }
 }

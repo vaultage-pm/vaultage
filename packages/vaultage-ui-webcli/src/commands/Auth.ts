@@ -28,13 +28,13 @@ export class AuthCommand implements ICommand {
                 if(err == null){
                     resolve()
                 } else {
-                    reject('<span class="error">'+err.toString()+'</span>')
+                    reject(err)
                 }
             }));
 
             this.shell.echo("Pull OK, got " + this.vault.getNbEntries()+" entries (revision "+this.vault.getDBRevision()+").")
-        } catch (err) {
-            this.shell.echoError(err.toString());
+        } catch (e) {
+            this.shell.echoError(e.toString());
         }
     }
 }

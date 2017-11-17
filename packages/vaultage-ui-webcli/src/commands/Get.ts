@@ -33,7 +33,7 @@ export class GetCommand implements ICommand {
             this.shell.echoHTML(VaultEntryFormatter.formatAndHighlightBatch(results, searchTerms));
 
         } catch (e) {
-            this.shell.echoHTML('<span class="error">Failed. ' + e.toString()+'</span>');        
+            this.shell.echoError(e.toString());     
         }
     }
 }

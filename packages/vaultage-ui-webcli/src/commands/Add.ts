@@ -45,14 +45,14 @@ export class AddCommand implements ICommand {
                 if(err == null){
                     resolve()
                 } else {
-                    reject('<span class="error">'+err.toString()+'</span>')
+                    reject(err)
                 }
             }));
 
             this.shell.echo("Push OK, revision " + this.vault.getDBRevision()+".")
 
         } catch (e) {
-            this.shell.echoHTML('<span class="error">Failed. ' + e.toString()+'</span>');            
+            this.shell.echoError(e.toString());           
         }
     }
 }

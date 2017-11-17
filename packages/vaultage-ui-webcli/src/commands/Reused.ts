@@ -27,7 +27,7 @@ export class ReusedCommand implements ICommand {
             this.shell.echoHTML(VaultEntryFormatter.formatBatch(results));
 
         } catch (e) {
-            this.shell.echoHTML('<span class="error">Failed. ' + e.toString()+'</span>');        
+            this.shell.echoError(e.toString());      
         }
     }
 }
