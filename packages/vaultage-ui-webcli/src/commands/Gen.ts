@@ -1,4 +1,4 @@
-import { VaultDBEntryAttrs } from 'vaultage-client';
+import { IVaultDBEntryAttrs } from 'vaultage-client';
 import { Vault } from 'vaultage-client';
 import { Passwords } from 'vaultage-client';
 import { ICommand } from '../webshell/ICommand';
@@ -36,7 +36,7 @@ export class GenCommand implements ICommand {
             const username = await this.shell.prompt('Username:');
             const url = await this.shell.promptSecret('Url:');
 
-            const newEntry : VaultDBEntryAttrs = {
+            const newEntry : IVaultDBEntryAttrs = {
                 title: title,
                 login: username,
                 password: password,

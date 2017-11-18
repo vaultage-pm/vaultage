@@ -1,12 +1,12 @@
 import { PasswordStrength } from 'vaultage-client';
-import { VaultDBEntry } from 'vaultage-client';
+import { IVaultDBEntry } from 'vaultage-client';
 
 export class VaultEntryFormatter {
     /**
      * Formats a collection of VaultDBEntries to HTML
      * @param entries 
      */
-    public static formatBatch(entries: VaultDBEntry[]): string{
+    public static formatBatch(entries: IVaultDBEntry[]): string{
         let stringBuilder = '<table class="entryCollection">';
 
         for(let e of entries){
@@ -16,7 +16,7 @@ export class VaultEntryFormatter {
         return stringBuilder+'</table>';
     }
 
-    private static _formatSingleForBatch(e : VaultDBEntry): string {
+    private static _formatSingleForBatch(e : IVaultDBEntry): string {
         let stringBuilder = '<tr class="entry">'
 
         stringBuilder += `<td class="id">(${e.id})</td>`
@@ -49,7 +49,7 @@ export class VaultEntryFormatter {
      * Formats a VaultDBEntry to HTML
      * @param e the VaultDBEntry
      */
-    public static formatSingle(e : VaultDBEntry): string {
+    public static formatSingle(e : IVaultDBEntry): string {
         let stringBuilder = '<span class="entry">'
 
         stringBuilder += `<span class="id">(${e.id})</span>`
@@ -95,10 +95,10 @@ export class VaultEntryFormatter {
      * @param entries the VaultDBEntries
      * @param highlights all terms to highlight
      */
-    public static formatAndHighlightBatch(entries : VaultDBEntry[], highlights: string[]): string {
+    public static formatAndHighlightBatch(entries : IVaultDBEntry[], highlights: string[]): string {
         
         const _this = this
-        const coloredEntries = entries.map(function(e:VaultDBEntry){
+        const coloredEntries = entries.map(function(e:IVaultDBEntry){
             e.title = _this.highlight(e.title, highlights);
             e.login = _this.highlight(e.login, highlights);
             e.password = _this.highlight(e.password, highlights);
@@ -114,7 +114,7 @@ export class VaultEntryFormatter {
      * @param e the VaultDBEntry
      * @param highlights all terms to highlight
      */
-    public static formatAndHighlight(e : VaultDBEntry, highlights: string[]): string {
+    public static formatAndHighlight(e : IVaultDBEntry, highlights: string[]): string {
         
         e.title = this.highlight(e.title, highlights)
         e.login = this.highlight(e.login, highlights)

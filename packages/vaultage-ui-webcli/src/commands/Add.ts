@@ -1,4 +1,4 @@
-import { VaultDBEntryAttrs } from 'vaultage-client';
+import { IVaultDBEntryAttrs } from 'vaultage-client';
 import { Vault } from 'vaultage-client';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
@@ -29,7 +29,7 @@ export class AddCommand implements ICommand {
             const password = await this.shell.prompt('Password:');
             const url = await this.shell.prompt('Url:');
 
-            const newEntry : VaultDBEntryAttrs = {
+            const newEntry : IVaultDBEntryAttrs = {
                 title: title,
                 login: username,
                 password: password,

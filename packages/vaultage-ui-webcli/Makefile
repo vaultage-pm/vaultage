@@ -8,7 +8,7 @@ build: $(BIN) copy-vaultage-client
 
 .PHONY: clean
 clean:
-	rm -rf dist/ tmp/
+	rm -rf public/dist/
 
 .PHONY: cleanall
 cleanall: clean

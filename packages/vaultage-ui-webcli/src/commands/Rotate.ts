@@ -1,5 +1,5 @@
 import { ICommand } from '../webshell/ICommand';
-import { VaultDBEntryAttrs } from 'vaultage-client';
+import { IVaultDBEntryAttrs } from 'vaultage-client';
 import { Vault } from 'vaultage-client';
 import { Passwords } from 'vaultage-client';
 import { Shell } from '../webshell/Shell';
@@ -42,7 +42,7 @@ export class RotateCommand implements ICommand {
                 config.PWG_GEN_AVOID_VISUALLY_SIMILAR_CHARS,
                 config.PWD_GEN_AVOID_PUNCTUATION_USED_IN_PROGRAMMING)
 
-            const newEntry: VaultDBEntryAttrs = {
+            const newEntry: IVaultDBEntryAttrs = {
                 title: entry.title,
                 login: entry.login,
                 password: newPassword,
