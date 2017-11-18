@@ -26,8 +26,7 @@ cleanall: clean
 
 .PHONY: test
 test: node_modules $(DEMO) $(SRC) $(TESTS)
-	echo "WARNING: The tests have been disabled until they are migrated from karma to jest"
-	# npm test
+	npm test
 
 # Other tasks
 
