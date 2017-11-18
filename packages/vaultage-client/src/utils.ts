@@ -12,9 +12,9 @@
  * @param ref The reference whose keys are used for checking
  */
 export function checkParams<T>(data: any, ref: T): T {
-    let ret: any = {};
-    let properties = Object.keys(ref);
-    for (var prop of properties) {
+    const ret: any = {};
+    const properties = Object.keys(ref);
+    for (const prop of properties) {
         if (data[prop] == null) {
             throw new Error('Missing property: ' + prop);
         }

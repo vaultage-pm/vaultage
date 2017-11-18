@@ -9,77 +9,77 @@ describe('Crypto.ts', () => {
 
     beforeEach(() => {
         crypto = new Crypto({
-            LOCAL_KEY_SALT: "deadbeef",
-            REMOTE_KEY_SALT: "0123456789",
+            LOCAL_KEY_SALT: 'deadbeef',
+            REMOTE_KEY_SALT: '0123456789',
         });
         crypto.PBKDF2_DIFFICULTY = 1;
     });
 
     describe('the key derivation function', () => {
-        let masterKey = "ucantseeme"
+        const masterKey = 'ucantseeme';
         it('gives a consistent local key', () => {
-            let localKey = crypto.deriveLocalKey(masterKey);
-            expect(localKey).toEqual("93ff3db4b46bf6e63885f0d37efcac689970947c49cd9a04e66cace32b258b0e");
+            const localKey = crypto.deriveLocalKey(masterKey);
+            expect(localKey).toEqual('93ff3db4b46bf6e63885f0d37efcac689970947c49cd9a04e66cace32b258b0e');
         });
         it('gives a consistent remote key', () => {
-            let remoteKey = crypto.deriveRemoteKey(masterKey);
-            expect(remoteKey).toEqual("8aefc63391ce6eb2e706bf92d0af026189adfe02d2bc757ca5511112c8bdb2a8");
+            const remoteKey = crypto.deriveRemoteKey(masterKey);
+            expect(remoteKey).toEqual('8aefc63391ce6eb2e706bf92d0af026189adfe02d2bc757ca5511112c8bdb2a8');
         });
-    })
+    });
 
     describe('the encryption/decryption pair', () => {
-        for(let i=0; i<10; i++){
-            let localKey = generateString(20);
-            let plaintext = generateString(2000);
+        for (let i = 0 ; i < 10 ; i++) {
+            const localKey = generateString(20);
+            const plaintext = generateString(2000);
 
             it('work together', () => {
-                let cipher = crypto.encrypt(localKey, plaintext);
-                let decoded = crypto.decrypt(localKey, cipher);
+                const cipher = crypto.encrypt(localKey, plaintext);
+                const decoded = crypto.decrypt(localKey, cipher);
                 expect(plaintext).toEqual(decoded);
             });
 
             it('is not the identity function', () => {
-                let cipher = crypto.encrypt(localKey, plaintext);
+                const cipher = crypto.encrypt(localKey, plaintext);
                 expect(plaintext).not.toEqual(cipher);
             });
         }
-    })
+    });
 
     describe('the key derivation works with encryption and decryption', () => {
-         for(let i=0; i<10; i++){
+         for (let i = 0 ; i < 10 ; i++) {
             it('work together', () => {
-                let masterKey = generateString(20);
-                let localKey = crypto.deriveLocalKey(masterKey);
-                let plaintext = generateString(2000);
-                let cipher = crypto.encrypt(localKey, plaintext);
-                let decoded = crypto.decrypt(localKey, cipher);
+                const masterKey = generateString(20);
+                const localKey = crypto.deriveLocalKey(masterKey);
+                const plaintext = generateString(2000);
+                const cipher = crypto.encrypt(localKey, plaintext);
+                const decoded = crypto.decrypt(localKey, cipher);
                 expect(plaintext).toEqual(decoded);
             });
         }
-    })
+    });
 
     describe('the fingerprint function', () => {
-        for(let i=0; i<10; i++){
-            let database = generateString(2000);
-            let masterKey = generateString(20);
+        for (let i = 0 ; i < 10 ; i++) {
+            const database = generateString(2000);
+            const masterKey = generateString(20);
             it('works on a random database', () => {
-                let localKey = crypto.deriveLocalKey(masterKey);
-                let fingerprint = crypto.getFingerprint(localKey, database);
+                const localKey = crypto.deriveLocalKey(masterKey);
+                const fingerprint = crypto.getFingerprint(localKey, database);
                 expect(fingerprint).not.toEqual(database);
             });
             it('is deterministic', () => {
-                let localKey = crypto.deriveLocalKey(masterKey);
-                let fingerprint = crypto.getFingerprint(localKey, database);
-                let fingerprint2 = crypto.getFingerprint(localKey, database);
+                const localKey = crypto.deriveLocalKey(masterKey);
+                const fingerprint = crypto.getFingerprint(localKey, database);
+                const fingerprint2 = crypto.getFingerprint(localKey, database);
                 expect(fingerprint).toEqual(fingerprint2);
             });
             it('depends on the local key', () => {
-                let localKey = crypto.deriveLocalKey(masterKey);
-                let localKey2 = crypto.deriveLocalKey(masterKey+"2");
-                let fingerprint = crypto.getFingerprint(localKey, database);
-                let fingerprint2 = crypto.getFingerprint(localKey2, database);
+                const localKey = crypto.deriveLocalKey(masterKey);
+                const localKey2 = crypto.deriveLocalKey(masterKey + '2');
+                const fingerprint = crypto.getFingerprint(localKey, database);
+                const fingerprint2 = crypto.getFingerprint(localKey2, database);
                 expect(fingerprint).not.toEqual(fingerprint2);
             });
         }
-    })
+    });
 });

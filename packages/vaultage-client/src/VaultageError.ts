@@ -7,7 +7,7 @@ export enum ERROR_CODE {
     NOT_FAST_FORWARD,
     DUPLICATE_ENTRY,
     NO_SUCH_ENTRY
-};
+}
 
 /**
  * Class for errors coming from the Vaultage lib.
@@ -17,7 +17,7 @@ export enum ERROR_CODE {
  * @member {string} message Human readable error message. Do not rely on this when processing the error.
  * @member {?Error} cause Exception causing this error
  */
-export class VaultageError extends Error{
+export class VaultageError extends Error {
     constructor(
         public readonly code: ERROR_CODE,
         public readonly message: string,
@@ -26,9 +26,9 @@ export class VaultageError extends Error{
     }
 
     public toString(): string {
-        var str = this.message;
+        let str = this.message;
         if (this.cause) {
-            str += "\nCaused by: " + this.cause;
+            str += '\nCaused by: ' + this.cause;
         }
         return str;
     }

@@ -5,9 +5,11 @@
   "main": "dist/vaultage.js",
   "types": "dist/vaultage.d.ts",
   "scripts": {
-    "test": "jest",
-    "watch": "jest --watch",
-    "build": "webpack"
+    "build": "webpack",
+    "clean": "rimraf dist/",
+    "lint": "tslint -p .",
+    "test": "npm run lint && jest",
+    "watch": "jest --watch"
   },
   "repository": {
     "type": "git",

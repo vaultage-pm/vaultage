@@ -3,26 +3,25 @@ import { checkParams, deepCopy } from './utils';
 import { ERROR_CODE, VaultageError } from './VaultageError';
 
 
-
-export interface VaultDBEntryAttrs {
+export interface IVaultDBEntryAttrs {
     title?: string;
     url?: string;
     login?: string;
     password?: string;
 }
 
-export interface VaultDBEntry {
-    title: string,
-    url: string,
-    login: string,
-    password: string,
-    id: string,
-    created: string,
-    updated: string,
-    usage_count: number,
-    reuse_count: number,
-    password_strength_indication: PasswordStrength,
-    hidden: boolean,
+export interface IVaultDBEntry {
+    title: string;
+    url: string;
+    login: string;
+    password: string;
+    id: string;
+    created: string;
+    updated: string;
+    usage_count: number;
+    reuse_count: number;
+    password_strength_indication: PasswordStrength;
+    hidden: boolean;
 }
 
 /**
@@ -31,19 +30,11 @@ export interface VaultDBEntry {
  * Exposed solely for debugging purpose.
  */
 export class VaultDB {
-    private static VERSION: number = 0;
-
-    public constructor(
-            private _entries: { [key: string]: VaultDBEntry },
-            private _revision: number = 0) {
-                this.refreshReUseCount()
-                this.refreshStrengthIndication()
-    }
 
     public static serialize(db: VaultDB): string {
         const entries = db.getAll();
 
-        let serialized = JSON.stringify({
+        const serialized = JSON.stringify({
             entries: entries,
             version: VaultDB.VERSION,
             revision: db._revision
@@ -51,20 +42,21 @@ export class VaultDB {
 
         return serialized;
     }
+
     public static deserialize(json: string): VaultDB {
 
         const entries: {
-            [key: string]: VaultDBEntry
+            [key: string]: IVaultDBEntry
         } = {};
 
-        //return empty DB
-        if(json == ""){
+        // return empty DB
+        if (json === '') {
             return new VaultDB(entries, 0);
         }
 
         const data = JSON.parse(json);
 
-        for (var entry of data.entries) {
+        for (const entry of data.entries) {
             if (entries[entry.id] != null) {
                 throw new VaultageError(ERROR_CODE.DUPLICATE_ENTRY, 'Duplicate entry with id: ' + entry.id + ' in vault.');
             }
@@ -74,7 +66,16 @@ export class VaultDB {
         return new VaultDB(entries, data.revision);
     }
 
-    public add(attrs: VaultDBEntryAttrs): string {
+    private static VERSION: number = 0;
+
+    public constructor(
+            private _entries: { [key: string]: IVaultDBEntry },
+            private _revision: number = 0) {
+                this.refreshReUseCount();
+                this.refreshStrengthIndication();
+    }
+
+    public add(attrs: IVaultDBEntryAttrs): string {
         let checkedAttrs = {
             title: '',
             url: '',
@@ -82,8 +83,8 @@ export class VaultDB {
             password: ''
         };
         checkedAttrs = checkParams(attrs, checkedAttrs);
-        let currentDate = (new Date()).toUTCString();
-        let entry: VaultDBEntry = {
+        const currentDate = (new Date()).toUTCString();
+        const entry: IVaultDBEntry = {
             id: this.nextFreeId(),
             title: checkedAttrs.title,
             url: checkedAttrs.url,
@@ -112,11 +113,11 @@ export class VaultDB {
         this.refreshReUseCount();
     }
 
-    public update(entry: VaultDBEntry): void;
-    public update(id: string, attrs: VaultDBEntryAttrs): void;
-    public update(id: (string | VaultDBEntry), attrs?: VaultDBEntryAttrs): void {
+    public update(entry: IVaultDBEntry): void;
+    public update(id: string, attrs: IVaultDBEntryAttrs): void;
+    public update(id: (string | IVaultDBEntry), attrs?: IVaultDBEntryAttrs): void {
 
-        //TODO: lb->hmil no check that the entry exists ?
+        // TODO: lb->hmil no check that the entry exists ?
 
         if (typeof id !== 'string') {
             attrs = {
@@ -131,18 +132,26 @@ export class VaultDB {
 
         // This is only needed due to typescript's inability to correlate the input
         // arguments based on the prototypes. In practice this branch is never taken.
-        if (attrs == null) attrs = {};
-
-        let currentDate = (new Date()).toUTCString();
-        let entry = this.get(id);
-
-        if (attrs.login) entry.login = attrs.login;
-        if (attrs.password) { 
-            entry.password = attrs.password;
-            entry.password_strength_indication = Passwords.getPasswordStrength(attrs.password)
+        if (attrs == null) {
+             attrs = {};
         }
-        if (attrs.title) entry.title = attrs.title;
-        if (attrs.url) entry.url = attrs.url;
+
+        const currentDate = (new Date()).toUTCString();
+        const entry = this.get(id);
+
+        if (attrs.login) {
+            entry.login = attrs.login;
+        }
+        if (attrs.password) {
+            entry.password = attrs.password;
+            entry.password_strength_indication = Passwords.getPasswordStrength(attrs.password);
+        }
+        if (attrs.title) {
+            entry.title = attrs.title;
+        }
+        if (attrs.url) {
+            entry.url = attrs.url;
+        }
         entry.updated = currentDate;
 
         this._entries[entry.id] = entry;
@@ -150,8 +159,8 @@ export class VaultDB {
         this.refreshReUseCount();
     }
 
-    public get(id: string): VaultDBEntry {
-        let entry = this._entries[id];
+    public get(id: string): IVaultDBEntry {
+        const entry = this._entries[id];
         if (entry == null) {
             throw new VaultageError(ERROR_CODE.NO_SUCH_ENTRY, 'No entry with id "' + id + '"');
         }
@@ -166,119 +175,83 @@ export class VaultDB {
             throw new VaultageError(ERROR_CODE.NO_SUCH_ENTRY, 'No entry with id "' + id + '"');
         }
 
-        return ++this._entries[id].usage_count
+        return ++this._entries[id].usage_count;
     }
 
-    public find(...queries: string[]): VaultDBEntry[] {
+    public find(...queries: string[]): IVaultDBEntry[] {
 
-        queries = queries.filter((e) => e.trim() != "")
+        queries = queries.filter((e) => e.trim() !== '');
+        const keys = Object.keys(this._entries);
 
         // if we search for nothing, return everyting
-        if(queries.length == 0){
-            let resultSet : VaultDBEntry[] = []
-            let keys = Object.keys(this._entries);
+        if (queries.length === 0) {
+            const resultSet: IVaultDBEntry[] = [];
 
-            for (let key of keys) {
-                resultSet.push(deepCopy(this._entries[key]))
+            for (const key of keys) {
+                resultSet.push(deepCopy(this._entries[key]));
             }
-            return resultSet
+            return resultSet;
         }
 
-        let keys = Object.keys(this._entries);
 
-        let accu : { [key: string]: {entry: VaultDBEntry, hitcount: number} } = {};
-        for (let key of keys) {
-            accu[key] = {entry: this.get(key), hitcount:0};
+        const accu: { [key: string]: {entry: IVaultDBEntry, hitcount: number} } = {};
+        for (const key of keys) {
+            accu[key] = { entry: this.get(key), hitcount: 0 };
         }
 
-        for (let query of queries) {
-            for (let key of keys) {
-                let e = accu[key].entry
-                accu[key].hitcount += this.countOccurencesInEntry(e, query)
+        for (const query of queries) {
+            for (const key of keys) {
+                const e = accu[key].entry;
+                accu[key].hitcount += this.countOccurencesInEntry(e, query);
             }
         }
 
-        //delete results with 0 hits
-        for(let key of keys)
-        {
-            if(accu[key].hitcount == 0) {
+        // delete results with 0 hits
+        for (const key of keys) {
+            if (accu[key].hitcount === 0) {
                 delete accu[key];
             }
         }
 
-        //sort it
-        let arrayOfTuples = Object.keys(accu).map(function(key) {
+        // sort it
+        const arrayOfTuples = Object.keys(accu).map((key) => {
             return {key: key, hitcount: accu[key].hitcount, entry: accu[key].entry};
         });
 
-        arrayOfTuples.sort(function(e1, e2){
+        arrayOfTuples.sort((e1, e2) => {
             return e2.hitcount - e1.hitcount;
         });
 
-        let sortedEntries = arrayOfTuples.map((tuple) => deepCopy(tuple.entry))
+        const sortedEntries = arrayOfTuples.map((tuple) => deepCopy(tuple.entry));
 
 
         return sortedEntries;
     }
-    
-    /**
-     * Automatically updates the field "reuse_count" of all entries
-     */
-    private refreshReUseCount(): void {
-        let passwordsCount : { [key: string]: number } = {}
-    
-        const keys = Object.keys(this._entries);
-        for (var key of keys) {
-            let e = this._entries[key]
-            if (!(e.password in passwordsCount)) {
-                passwordsCount[e.password] = 0
-            }
-            passwordsCount[e.password]++
-        }
-    
-        //re-update all entries
-        for (var key of keys) {
-            let timesReused = passwordsCount[this._entries[key].password] - 1
-            this._entries[key].reuse_count = timesReused
-        }
-    }
 
-    /**
-     * Automatically updates the field "password_strength_indication" of all entries
-     */
-    private refreshStrengthIndication(): void {
-      
-        //re-update all entries
-        const keys = Object.keys(this._entries);
-        for (var key of keys) {
-            this._entries[key].password_strength_indication = Passwords.getPasswordStrength(this._entries[key].password)
-        }
-    }
-    
 
     /**
      * Returns a deep-copy of all DB entries
      */
-    public getEntriesWhichReusePasswords(): VaultDBEntry[] {
+    public getEntriesWhichReusePasswords(): IVaultDBEntry[] {
         this.refreshReUseCount();
-        const entries: VaultDBEntry[] = [];
+        const entries: IVaultDBEntry[] = [];
         const keys = Object.keys(this._entries);
-        for (var key of keys) {
-            if(this._entries[key].reuse_count > 0) {
+        for (const key of keys) {
+            if (this._entries[key].reuse_count > 0) {
                 entries.push(deepCopy(this._entries[key]));
             }
         }
         return entries;
     }
-    
+
 
     /**
      * Returns a deep-copy of all DB entries
      */
-    public getAll(): VaultDBEntry[] {
-        const entries: VaultDBEntry[] = [];
+    public getAll(): IVaultDBEntry[] {
+        const entries: IVaultDBEntry[] = [];
         const keys = Object.keys(this._entries);
-        for (var key of keys) {
+        for (const key of keys) {
             entries.push(deepCopy(this._entries[key]));
         }
         return entries;
@@ -295,8 +268,8 @@ export class VaultDB {
      * Returns the next free ID
      */
     public nextFreeId(): string {
-        let nextFreeID = this.size();
-        return ""+nextFreeID;
+        const nextFreeID = this.size();
+        return '' + nextFreeID;
     }
 
     /**
@@ -306,13 +279,13 @@ export class VaultDB {
         this._revision++;
     }
 
-    public getRevision(): number{
+    public getRevision(): number {
         return this._revision;
     }
 
-    public countOccurencesInEntry(entry: VaultDBEntry, needle: string): number {
+    public countOccurencesInEntry(entry: IVaultDBEntry, needle: string): number {
         let hitCount = 0;
-        let allowOverlapping = false;
+        const allowOverlapping = false;
 
         hitCount += this.countOccurrences(entry.id, needle, allowOverlapping);
         hitCount += this.countOccurrences(entry.title, needle, allowOverlapping);
@@ -323,43 +296,15 @@ export class VaultDB {
         return hitCount;
     }
 
-    /** Function count the occurrences of substring in a string;
-     * @param {String} string   Required. The string;
-     * @param {String} subString    Required. The string to search for;
-     * @param {Boolean} allowOverlapping    Optional. Default: false;
-     * @author Vitim.us http://stackoverflow.com/questions/4009756/how-to-count-string-occurrence-in-string/7924240#7924240
-     */
-    private countOccurrences(haystack: string, needle: string, allowOverlapping: boolean) : number {
-        haystack = (""+haystack).toLowerCase();
-        needle = (""+needle).toLowerCase();
-
-        if (needle.length <= 0) {
-            return (haystack.length + 1);
-        }
-
-        var n = 0,
-            pos = 0,
-            step = allowOverlapping ? 1 : needle.length;
-
-        while (true) {
-            pos = haystack.indexOf(needle, pos);
-            if (pos >= 0) {
-                ++n;
-                pos += step;
-            } else break;
-        }
-        return n;
-    }
-
     /**
      * Replaces the current entries with the new set of provided entries. Keeps "lastFingerprint" to its old value,
      * so a "push" will work.
      * @param entries The entries to replace this db's entries
      */
-    public replaceAllEntries(entries : VaultDBEntry[]):void{
-        const newEntries : {[key:string]: VaultDBEntry} = {};
+    public replaceAllEntries(entries: IVaultDBEntry[]): void {
+        const newEntries: {[key: string]: IVaultDBEntry} = {};
 
-        const exampleEntry: VaultDBEntry = {
+        const exampleEntry: IVaultDBEntry = {
             id: '0',
             title: '',
             url: '',
@@ -373,19 +318,82 @@ export class VaultDB {
             hidden: false,
         };
 
-        for(let e of entries)
-        {
-            //basic sanity check
-            for(let k of Object.keys(exampleEntry)){
-                if(!(k in e)){
-                    throw new Error("Tried to add entry, but it does not have the field \'" + k+"\'");
-                }    
+        for (const e of entries) {
+            // basic sanity check
+            for (const k of Object.keys(exampleEntry)) {
+                if (!(k in e)) {
+                    throw new Error('Tried to add entry, but it does not have the field "' + k + '"');
+                }
             }
 
-            //copy entry
-            newEntries[e.id] = deepCopy(e)
+            // copy entry
+            newEntries[e.id] = deepCopy(e);
         }
- 
+
         this._entries = newEntries;
+    }
+
+    /**
+     * Automatically updates the field "reuse_count" of all entries
+     */
+    private refreshReUseCount(): void {
+        const passwordsCount: { [key: string]: number } = {};
+
+        const keys = Object.keys(this._entries);
+        for (const key of keys) {
+            const e = this._entries[key];
+            if (!(e.password in passwordsCount)) {
+                passwordsCount[e.password] = 0;
+            }
+            passwordsCount[e.password]++;
+        }
+
+        // re-update all entries
+        for (const key of keys) {
+            const timesReused = passwordsCount[this._entries[key].password] - 1;
+            this._entries[key].reuse_count = timesReused;
+        }
+    }
+
+    /**
+     * Automatically updates the field "password_strength_indication" of all entries
+     */
+    private refreshStrengthIndication(): void {
+
+        // re-update all entries
+        const keys = Object.keys(this._entries);
+        for (const key of keys) {
+            this._entries[key].password_strength_indication = Passwords.getPasswordStrength(this._entries[key].password);
+        }
+    }
+
+    /** Function count the occurrences of substring in a string;
+     * @param {String} string   Required. The string;
+     * @param {String} subString    Required. The string to search for;
+     * @param {Boolean} allowOverlapping    Optional. Default: false;
+     * @author Vitim.us http://stackoverflow.com/questions/4009756/how-to-count-string-occurrence-in-string/7924240#7924240
+     */
+    private countOccurrences(haystack: string, needle: string, allowOverlapping: boolean): number {
+        haystack = ('' + haystack).toLowerCase();
+        needle = ('' + needle).toLowerCase();
+
+        if (needle.length <= 0) {
+            return (haystack.length + 1);
+        }
+
+        let n = 0;
+        let pos = 0;
+        const step = allowOverlapping ? 1 : needle.length;
+
+        while (true) {
+            pos = haystack.indexOf(needle, pos);
+            if (pos >= 0) {
+                ++n;
+                pos += step;
+            } else {
+                break;
+            }
+        }
+        return n;
     }
 }

@@ -1,6 +1,7 @@
+// tslint:disable-next-line:no-var-requires
 const sjcl = require('../lib/sjcl') as any;
 
-export interface SaltsConfig {
+export interface ISaltsConfig {
     LOCAL_KEY_SALT: string;
     REMOTE_KEY_SALT: string;
 }
@@ -10,10 +11,10 @@ export interface SaltsConfig {
  */
 export class Crypto {
 
-    public PBKDF2_DIFFICULTY : number = 32768;
+    public PBKDF2_DIFFICULTY: number = 32768;
 
     constructor(
-            private _salts: SaltsConfig) {
+            private _salts: ISaltsConfig) {
     }
 
     /**
@@ -22,7 +23,7 @@ export class Crypto {
      * @param masterPassword Plaintext of the master password
      */
     public deriveLocalKey(masterPassword: string): string {
-        let masterHash = sjcl.hash.sha512.hash(masterPassword);
+        const masterHash = sjcl.hash.sha512.hash(masterPassword);
         return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash , this._salts.LOCAL_KEY_SALT, this.PBKDF2_DIFFICULTY));
     }
 
@@ -32,7 +33,7 @@ export class Crypto {
      * @param masterPassword Plaintext of the master password
      */
     public deriveRemoteKey(masterPassword: string): string {
-        let masterHash = sjcl.hash.sha512.hash(masterPassword);
+        const masterHash = sjcl.hash.sha512.hash(masterPassword);
         return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash, this._salts.REMOTE_KEY_SALT, this.PBKDF2_DIFFICULTY));
     }
 

@@ -1,21 +1,19 @@
 import * as request from 'request';
 
+import { Crypto, ISaltsConfig } from './Crypto';
 import { PasswordStrength } from './Passwords';
-import { SaltsConfig, Crypto } from './Crypto';
 import { deepCopy } from './utils';
 import { ERROR_CODE, VaultageError } from './VaultageError';
-import { VaultDB, VaultDBEntry, VaultDBEntryAttrs } from './VaultDB';
+import { IVaultDBEntry, IVaultDBEntryAttrs, VaultDB } from './VaultDB';
 
-export interface Credentials {
+export interface ICredentials {
     localKey: string;
     remoteKey: string;
     serverURL: string;
     username: string;
 }
 
-export interface ApiCallFunction {
-    (parameters: any, cb: (err: any, resp: any) => void) : void
-}
+export type ApiCallFunction = (parameters: any, cb: (err: any, resp: any) => void) => void;
 
 
 /**
@@ -31,20 +29,20 @@ export interface ApiCallFunction {
  * });
  */
 export class Vault {
-    private _creds?: Credentials;
+    private _creds?: ICredentials;
     private _db?: VaultDB;
     private _crypto: Crypto;
     private _lastFingerprint?: string;
     private _apiCallFunction: ApiCallFunction;
 
-    constructor(salts : SaltsConfig, apiCallFunction?: ApiCallFunction) {
+    constructor(salts: ISaltsConfig, apiCallFunction?: ApiCallFunction) {
         this._crypto = new Crypto(salts);
 
         // if no function was given to reach the backend, use Requests (this is for production)
-        if (apiCallFunction == undefined){
+        if (apiCallFunction == null) {
             this._apiCallFunction = (parameters: any, cb: (err: any, resp: any) => void) => {
                 request(parameters, cb);
-            }
+            };
         } else {
             // this is for testing
             this._apiCallFunction = apiCallFunction;
@@ -65,16 +63,16 @@ export class Vault {
             cb: (err: (VaultageError | null)) => void
     ): void {
 
-        let creds = {
+        const creds = {
             serverURL: serverURL.replace(/\/$/, ''), // Removes trailing slash
             username: username,
             localKey: 'null',
             remoteKey: 'null'
         };
 
-        let remoteKey = this._crypto.deriveRemoteKey(masterPassword);
+        const remoteKey = this._crypto.deriveRemoteKey(masterPassword);
         // possible optimization: compute the local key while the request is in the air
-        let localKey = this._crypto.deriveLocalKey(masterPassword);
+        const localKey = this._crypto.deriveLocalKey(masterPassword);
 
         creds.localKey = localKey;
         creds.remoteKey = remoteKey;
@@ -106,11 +104,11 @@ export class Vault {
         return (this._creds != null);
     }
 
-    public getDBRevision():number{
+    public getDBRevision(): number {
         if (!this._db) {
             return -1;
         }
-        return this._db.getRevision()
+        return this._db.getRevision();
     }
 
 
@@ -160,15 +158,15 @@ export class Vault {
         if (!this._creds || !this._db) {
             cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated'));
         } else {
-            let oldCredentials = deepCopy(this._creds);
-            let newCredentials = deepCopy(this._creds);
-            let newLocalKey = this._crypto.deriveLocalKey(newPassword);
-            let newRemoteKey = this._crypto.deriveRemoteKey(newPassword);
+            const oldCredentials = deepCopy(this._creds);
+            const newCredentials = deepCopy(this._creds);
+            const newLocalKey = this._crypto.deriveLocalKey(newPassword);
+            const newRemoteKey = this._crypto.deriveRemoteKey(newPassword);
 
             this._db.newRevision();
 
             // first, let's do a request with (oldRemoteKey, newLocalKey), and provide new_password=newRemoteKey.
-            // This will encrypt the cipher with the newLocalKey, instruct the server to use newRemoteKey for the 
+            // This will encrypt the cipher with the newLocalKey, instruct the server to use newRemoteKey for the
             // *** subsequent *** updates; of course, this message is still authenticated with oldRemoteKey
             newCredentials.localKey = newLocalKey;
 
@@ -176,14 +174,15 @@ export class Vault {
                 if (err) {
                     this._setCredentials(oldCredentials);
                 }
-                cb(err)
+                cb(err);
             });
 
             // at this point, the server accepted the update. Let's confirm it by trying to pull with the new
             // accesses
-            
+
             this._pullCipher(newCredentials, (err) => {
-                cb(new VaultageError(ERROR_CODE.SERVER_ERROR, 'Something went terribly wrong; the server accepted the key update, but the new key does not work !' + err))
+                cb(new VaultageError(ERROR_CODE.SERVER_ERROR,
+                        'Something went terribly wrong; the server accepted the key update, but the new key does not work !' + err));
             });
 
             // everything went fine, now we use the new credentials
@@ -207,7 +206,7 @@ export class Vault {
     /**
      * Adds a new entry in the db
      */
-    public addEntry(attrs: VaultDBEntryAttrs): string {
+    public addEntry(attrs: IVaultDBEntryAttrs): string {
         if (!this._db) {
             throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
         }
@@ -239,7 +238,7 @@ export class Vault {
      * Returns the set of entries matching the specified query
      * @param query attribute substrings to match
      */
-    public findEntries(...query: string[]): VaultDBEntry[] {
+    public findEntries(...query: string[]): IVaultDBEntry[] {
         if (!this._db) {
             throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
         }
@@ -250,22 +249,22 @@ export class Vault {
      * Returns all weak passwords in the DB
      * @param threshold the threshold below which an entry is returned
      */
-    public getWeakPasswords(threshold : PasswordStrength = PasswordStrength.WEAK):VaultDBEntry[] {
-        let entries = this.getAllEntries();
-        return entries.filter(e => e.password_strength_indication <= threshold)
+    public getWeakPasswords(threshold: PasswordStrength = PasswordStrength.WEAK): IVaultDBEntry[] {
+        const entries = this.getAllEntries();
+        return entries.filter((e) => e.password_strength_indication <= threshold);
     }
 
     /**
      * Returns the set of all entries in the DB
      */
-    public getAllEntries(): VaultDBEntry[] {
+    public getAllEntries(): IVaultDBEntry[] {
         return this.findEntries('');
     }
 
     /**
      * Returns the set of all entries in the DB
      */
-    public getEntriesWhichReusePasswords(): VaultDBEntry[] {
+    public getEntriesWhichReusePasswords(): IVaultDBEntry[] {
         if (!this._db) {
             throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
         }
@@ -279,7 +278,7 @@ export class Vault {
      * @param attrs new set of attributes. undefined values are ignored (the entry keeps its previous value)
      * @returns an updated version of the entry
      */
-    public updateEntry(id: string, attrs: VaultDBEntryAttrs): VaultDBEntry {
+    public updateEntry(id: string, attrs: IVaultDBEntryAttrs): IVaultDBEntry {
         if (!this._db) {
             throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
         }
@@ -290,7 +289,7 @@ export class Vault {
     /**
      * Returns an entry by its id
      */
-    public getEntry(id: string): VaultDBEntry {
+    public getEntry(id: string): IVaultDBEntry {
         if (!this._db) {
             throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
         }
@@ -302,7 +301,7 @@ export class Vault {
      * Then, manually "push" to overwrite the remote database's ciphertext, or "pull" to cancel this import
      * @param entries The entries to replace this db's entries
      */
-    public replaceAllEntries(entries: VaultDBEntry[]) {
+    public replaceAllEntries(entries: IVaultDBEntry[]) {
         if (!this._db) {
             throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
         }
@@ -311,7 +310,7 @@ export class Vault {
 
 
     // Private methods
-    private _setCredentials(creds: Credentials): void {
+    private _setCredentials(creds: ICredentials): void {
         // Copy for immutability
         this._creds = {
             serverURL: creds.serverURL,
@@ -321,10 +320,12 @@ export class Vault {
         };
     }
 
-    private _pullCipher(creds: Credentials, cb: (err: (VaultageError|null)) => void): void {
+    private _pullCipher(creds: ICredentials, cb: (err: (VaultageError|null)) => void): void {
 
-        let parameters = {url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey)}
-        let innerCallback = (err: any, resp: any) => {
+        const parameters = {
+            url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey)
+        };
+        const innerCallback = (err: any, resp: any) => {
             if (err) {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
             }
@@ -332,7 +333,7 @@ export class Vault {
             let body: any;
             try {
                 body = JSON.parse(resp.body);
-            } catch(e) {
+            } catch (e) {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response'));
             }
             if (body.error != null && body.error === true) {
@@ -342,11 +343,11 @@ export class Vault {
                     return cb(new VaultageError(ERROR_CODE.SERVER_ERROR, 'Unknown server error'));
                 }
             }
-            let cipher = (body.data || '').replace(/[^a-z0-9+/:"{},]/ig, '');
+            const cipher = (body.data || '').replace(/[^a-z0-9+/:"{},]/ig, '');
 
             if (cipher && body.data) {
                 try {
-                    let plain = this._crypto.decrypt(creds.localKey, cipher);
+                    const plain = this._crypto.decrypt(creds.localKey, cipher);
                     this._db = VaultDB.deserialize(plain);
                     this._lastFingerprint = this._crypto.getFingerprint(plain, creds.localKey);
                 } catch (e) {
@@ -363,31 +364,31 @@ export class Vault {
         this._apiCallFunction(parameters, innerCallback);
     }
 
-    private _pushCipher(creds: Credentials, newRemoteKey: (string|null), cb: (err: (VaultageError|null)) => void): void {
+    private _pushCipher(creds: ICredentials, newRemoteKey: (string|null), cb: (err: (VaultageError|null)) => void): void {
         if (!this._db || !this._crypto) {
             return cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
         }
 
-        let plain = VaultDB.serialize(this._db);
-        let cipher = this._crypto.encrypt(creds.localKey, plain);
-        let fingerprint = this._crypto.getFingerprint(plain, creds.localKey);
+        const plain = VaultDB.serialize(this._db);
+        const cipher = this._crypto.encrypt(creds.localKey, plain);
+        const fingerprint = this._crypto.getFingerprint(plain, creds.localKey);
 
-        let parameters = {
+        const parameters = {
             method: 'POST',
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey),
             body: JSON.stringify({
-                'new_password': newRemoteKey,
-                'new_data': cipher,
-                'old_hash': this._lastFingerprint,
-                'new_hash': fingerprint,
-                'force': false,
+                new_password: newRemoteKey,
+                new_data: cipher,
+                old_hash: this._lastFingerprint,
+                new_hash: fingerprint,
+                force: false,
             }),
             headers: {
                 'Content-Type': 'application/json'
             }
         };
 
-        let innerCallback = (err: any, resp: any) => {
+        const innerCallback = (err: any, resp: any) => {
             if (err) {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err));
             }
@@ -395,7 +396,7 @@ export class Vault {
             let body: any;
             try {
                 body = JSON.parse(resp.body);
-            } catch(e) {
+            } catch (e) {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response'));
             }
             if (body.error != null && body.error === true) {
