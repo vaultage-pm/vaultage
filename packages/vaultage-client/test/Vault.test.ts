@@ -142,7 +142,7 @@ describe('Vault.ts can', () => {
         // parses the url data=X&last_hash=Y
         let dataSentMap = JSON.parse(dataSent)
 
-        expect('update_key' in dataSentMap).toBeTruthy();
+        expect('new_password' in dataSentMap).toBeTruthy();
         expect('new_data' in dataSentMap).toBeTruthy();
         expect('old_hash' in dataSentMap).toBeTruthy();
         expect('new_hash' in dataSentMap).toBeTruthy();
