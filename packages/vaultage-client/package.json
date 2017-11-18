@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/lbarman/vaultage#readme",
   "dependencies": {
-    "request": "2.81.0",
+    "request": "2.83.0",
     "xhr": "2.4.0"
   },
   "devDependencies": {
@@ -33,10 +33,10 @@
     "@types/node": "^8.0.4",
     "jest": "^21.2.1",
     "ts-jest": "^21.2.3",
-    "ts-loader": "2.0.3",
+    "ts-loader": "3.1.1",
     "tslint": "^5.8.0",
-    "typescript": "2.2.2",
-    "webpack": "2.3.2"
+    "typescript": "2.6.1",
+    "webpack": "3.8.1"
   },
   "jest": {
     "transform": {
