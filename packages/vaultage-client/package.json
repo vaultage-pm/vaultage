@@ -5,8 +5,8 @@
   "main": "dist/vaultage.js",
   "types": "dist/vaultage.d.ts",
   "scripts": {
-    "test": "karma start karma.conf.js --single-run",
-    "watch": "karma start karma.conf.js",
+    "test": "jest",
+    "watch": "jest --watch",
     "build": "webpack"
   },
   "repository": {
@@ -23,17 +23,44 @@
   },
   "homepage": "https://github.com/lbarman/vaultage#readme",
   "dependencies": {
-    "@types/jasmine": "^2.5.53",
-    "@types/node": "^8.0.4",
-    "jasmine-core": "^2.6.4",
-    "karma": "^1.7.0",
-    "karma-chrome-launcher": "^2.2.0",
-    "karma-jasmine": "^1.1.0",
-    "karma-typescript": "^3.0.4",
     "request": "2.81.0",
-    "ts-loader": "2.0.3",
-    "typescript": "2.2.2",
-    "webpack": "2.3.2",
     "xhr": "2.4.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^21.1.6",
+    "@types/node": "^8.0.4",
+    "jest": "^21.2.1",
+    "ts-jest": "^21.2.3",
+    "ts-loader": "2.0.3",
+    "tslint": "^5.8.0",
+    "typescript": "2.2.2",
+    "webpack": "2.3.2"
+  },
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.ts$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/",
+      "sjcl.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 50,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      }
+    },
+    "clearMocks": true,
+    "collectCoverage": true,
+    "mapCoverage": true
   }
 }

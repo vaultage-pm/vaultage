@@ -15,7 +15,7 @@ export class Passwords {
          * @return {string} a password
          * @throws If window.crypto is not accessible (old browsers)
          */
-        public generatePassword(length, useSymbols, avoidSimilarCharacters, avoidPunctuationUsedInProgramming): string {
+        public generatePassword(length: number, useSymbols: boolean, avoidSimilarCharacters: boolean, avoidPunctuationUsedInProgramming: boolean): string {
     
             let result: string[] = []
             let i = 0;
