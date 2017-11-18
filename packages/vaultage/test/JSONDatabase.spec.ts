@@ -112,11 +112,6 @@ describe('JSONDatabase', () => {
             const db = new JSONDatabase('/custom/location', 'Mr T', 'secret');
             (fs.existsSync as jest.Mock).mockImplementationOnce(() => true);
             (fs.readFileSync as jest.Mock).mockImplementationOnce(() => JSON.stringify(fakeDBOnDisk));
-            (fs.writeFileSync as jest.Mock).mockImplementationOnce((location, strData, opts) => {
-                expect(location).toEqual('/custom/location');
-                expect(opts).toEqual({ encoding: 'utf-8' });
-                expect(JSON.parse(strData)).toEqual(newDBOnDisk);
-            });
 
             const result = db.save({
                 force: false,
@@ -174,6 +169,32 @@ describe('JSONDatabase', () => {
             expect(fs.existsSync as jest.Mock).toHaveBeenCalledTimes(1);
             expect(fs.existsSync as jest.Mock).toHaveBeenCalledWith('/custom/location');
             expect(fs.readFileSync).not.toHaveBeenCalled();
+            expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
+            expect(data).toEqual(newDBOnDisk.data);
+        });
+
+        it('updates the password if a new password is provided', async () => {
+            const db = new JSONDatabase('/custom/location', 'Mr T', 'secret');
+            (fs.existsSync as jest.Mock).mockImplementationOnce(() => true);
+            (fs.readFileSync as jest.Mock).mockImplementationOnce(() => JSON.stringify(fakeDBOnDisk));
+            (fs.writeFileSync as jest.Mock).mockImplementationOnce((location, strData, opts) => {
+                expect(location).toEqual('/custom/location');
+                expect(opts).toEqual({ encoding: 'utf-8' });
+                expect(JSON.parse(strData)).toEqual({ ...newDBOnDisk, password: 'terces' });
+            });
+
+            const data = await db.save({
+                force: false,
+                new_data: newDBOnDisk.data,
+                new_hash: newDBOnDisk.hash,
+                old_hash: fakeDBOnDisk.hash,
+                new_password: 'terces'
+            });
+
+            expect(fs.existsSync as jest.Mock).toHaveBeenCalledTimes(1);
+            expect(fs.existsSync as jest.Mock).toHaveBeenCalledWith('/custom/location');
+            expect(fs.readFileSync).toHaveBeenCalledTimes(1);
+            expect(fs.readFileSync).toHaveBeenCalledWith('/custom/location', { encoding: 'utf-8' });
             expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
             expect(data).toEqual(newDBOnDisk.data);
         });

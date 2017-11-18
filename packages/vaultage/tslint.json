@@ -7,6 +7,7 @@
         "object-literal-shorthand": false,
         "object-literal-sort-keys": false,
         "quotemark": [ true, "single" ],
-        "trailing-comma": false
+        "trailing-comma": false,
+        "variable-name": [ true, "check-format", "allow-leading-underscore"]
     }
 }

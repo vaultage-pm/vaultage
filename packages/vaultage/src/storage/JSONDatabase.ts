@@ -31,7 +31,8 @@ export class JSONDatabase implements IDatabase {
 
     public async save(update: IDatabaseSaveParameters): Promise<string> {
         let password = this.password;
-        if (update.new_password !== undefined) {
+
+        if (update.new_password != null) {
             password = update.new_password;
         }
 
@@ -42,6 +43,7 @@ export class JSONDatabase implements IDatabase {
             username: this.username,
             password: password
         };
+
         if (!update.force && fs.existsSync(this.cipherLocation)) {
             // read the current database content (without this update)
             const file = JSON.parse(fs.readFileSync(this.cipherLocation, {
