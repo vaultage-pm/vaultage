@@ -38,7 +38,7 @@ export class AddCommand implements ICommand {
 
             const newEntryID = this.vault.addEntry(newEntry)
             const e = this.vault.getEntry(newEntryID)
-            this.shell.echoHTML(VaultEntryFormatter.formatSingle(e))
+            this.shell.echoHTML(VaultEntryFormatter.formatSingle(e));
             this.shell.echo("Added entry #"+newEntryID)
 
             await new Promise((resolve, reject) => this.vault.save(function(err) {
@@ -52,7 +52,7 @@ export class AddCommand implements ICommand {
             this.shell.echo("Push OK, revision " + this.vault.getDBRevision()+".")
 
         } catch (e) {
-            this.shell.echoError(e.toString());           
+            this.shell.echoError(e.toString());
         }
     }
 }
