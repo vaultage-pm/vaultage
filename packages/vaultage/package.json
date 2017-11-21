@@ -1,5 +1,5 @@
 {
-  "name": "vaultage-api",
+  "name": "vaultage",
   "version": "0.0.0",
   "description": "Vaultage backend server",
   "main": "dist/main.js",
