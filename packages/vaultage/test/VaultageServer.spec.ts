@@ -22,8 +22,11 @@ const mockDB = new mockModule.JSONDatabase('', '', '');
 (mockDB.save as jest.Mock).mockReturnValue(Promise.resolve('save OK'));
 
 const mockConfig: IVaultageConfig = {
+    version: 1,
+    default_user: 'foo',
     salts: {
-        USERNAME_SALT: 'le salt'
+        local_key_salt: '1234',
+        remote_key_salt: '5678'
     }
 };
 

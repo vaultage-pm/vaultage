@@ -21,10 +21,10 @@ export function initConfig(): Promise<void> {
 
             const config: IVaultageConfig = {
                 version: 1,
-                DEFAULT_USER: 'lbarman',
-                SALTS: {
-                    LOCAL_KEY_SALT: hexbytes.substr(0, SALTS_LENGTH),
-                    REMOTE_KEY_SALT: hexbytes.substr(0, SALTS_LENGTH)
+                default_user: 'lbarman',
+                salts: {
+                    local_key_salt: hexbytes.substr(0, SALTS_LENGTH),
+                    remote_key_salt: hexbytes.substr(0, SALTS_LENGTH)
                 }
             };
 

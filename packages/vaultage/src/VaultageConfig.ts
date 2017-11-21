@@ -7,13 +7,13 @@ export interface IVaultageConfig {
     /**
      * Default user shown in the UI.
      */
-    DEFAULT_USER: string;
+    default_user: string;
 
     /**
      * Salts used for hashing
      */
-    SALTS: {
-        LOCAL_KEY_SALT: string;
-        REMOTE_KEY_SALT: string;
+    salts: {
+        local_key_salt: string;
+        remote_key_salt: string;
     };
 }
