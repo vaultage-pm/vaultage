@@ -1,7 +1,8 @@
 import { Vault } from 'vaultage-client';
+
+import * as lang from '../lang';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
-import * as lang from '../lang';
 
 export class PushCommand implements ICommand {
     public readonly name = 'push';
@@ -14,25 +15,25 @@ export class PushCommand implements ICommand {
     }
 
     public async handle() {
-        if(!this.vault.isAuth()){
-            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED)
+        if (!this.vault.isAuth()) {
+            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
             return;
         }
 
         try {
             this.shell.echo(`Attempting to push the encrypted database ...`);
 
-            await new Promise((resolve, reject) => this.vault.save(function(err) {
-                if(err == null){
-                    resolve()
+            await new Promise((resolve, reject) => this.vault.save((err) => {
+                if (err == null) {
+                    resolve();
                 } else {
-                    reject(err)
+                    reject(err);
                 }
             }));
 
-            this.shell.echo("Push OK, revision " + this.vault.getDBRevision()+".")
+            this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
         } catch (e) {
-            this.shell.echoError(e.toString()); 
+            this.shell.echoError(e.toString());
         }
     }
 }

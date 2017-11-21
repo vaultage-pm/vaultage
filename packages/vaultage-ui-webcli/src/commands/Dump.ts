@@ -1,7 +1,8 @@
 import { Vault } from 'vaultage-client';
+
+import * as lang from '../lang';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
-import * as lang from '../lang';
 
 export class DumpCommand implements ICommand {
     public readonly name = 'dump';
@@ -15,18 +16,16 @@ export class DumpCommand implements ICommand {
 
     public async handle() {
 
-        console.log(this.vault);
-        
-        if(!this.vault.isAuth()){
-            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED)
+        if (!this.vault.isAuth()) {
+            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
             return;
         }
 
         try {
-            let allEntries = this.vault.getAllEntries();
-            this.shell.echoHTML('var entries=\''+JSON.stringify(allEntries)+'\'');
+            const allEntries = this.vault.getAllEntries();
+            this.shell.echoHTML('var entries=\'' + JSON.stringify(allEntries) + '\'');
         } catch (e) {
-            this.shell.echoError(e.toString());       
+            this.shell.echoError(e.toString());
         }
     }
 }

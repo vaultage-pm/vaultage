@@ -1,9 +1,10 @@
 import { IVaultDBEntryAttrs } from 'vaultage-client';
 import { Vault } from 'vaultage-client';
+
+import * as lang from '../lang';
+import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
-import { VaultEntryFormatter } from '../VaultEntryFormatter'
-import * as lang from '../lang';
 
 export class EditCommand implements ICommand {
     public readonly name = 'edit';
@@ -17,54 +18,54 @@ export class EditCommand implements ICommand {
 
     public async handle(args: string[]) {
 
-        if(!this.vault.isAuth()){
-            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED)
+        if (!this.vault.isAuth()) {
+            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
             return;
         }
 
         try {
-            let id : string;
-            if(args.length == 0) {
+            let id: string;
+            if (args.length === 0) {
                 id = await this.shell.prompt('Entry ID:');
             } else {
                 id = args[0];
             }
 
-            const entry = this.vault.getEntry(id)
+            const entry = this.vault.getEntry(id);
 
             const title = await this.shell.prompt('Title:', entry.title);
             const username = await this.shell.prompt('Username:', entry.login);
             const password = await this.shell.prompt('Password:', entry.password);
             const url = await this.shell.prompt('Url:', entry.url);
 
-            const newEntry : IVaultDBEntryAttrs = {
+            const newEntry: IVaultDBEntryAttrs = {
                 title: title,
                 login: username,
                 password: password,
                 url: url
+            };
+
+            const answer = await this.shell.prompt('Confirm edit of entry #' + id + ' ? y/Y');
+
+            if (answer !== 'y' && answer !== 'Y') {
+                this.shell.echo('Cancelled.');
+                return;
             }
 
-            const answer = await this.shell.prompt('Confirm edit of entry #'+id+' ? y/Y')
-            
-            if(answer != "y" && answer != "Y"){
-                this.shell.echo("Cancelled.")
-                return
-            }
+            this.vault.updateEntry(id, newEntry);
+            const entry2 = this.vault.getEntry(id);
+            this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry2));
+            this.shell.echo('Updated entry #' + id);
 
-            this.vault.updateEntry(id, newEntry)
-            const entry2 = this.vault.getEntry(id)
-            this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry2))
-            this.shell.echo("Updated entry #"+id)
-
-            await new Promise((resolve, reject) => this.vault.save(function(err) {
-                if(err == null){
-                    resolve()
+            await new Promise((resolve, reject) => this.vault.save((err) => {
+                if (err == null) {
+                    resolve();
                 } else {
-                    reject(err)
+                    reject(err);
                 }
             }));
 
-            this.shell.echo("Push OK, revision " + this.vault.getDBRevision()+".")
+            this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
         } catch (e) {
             this.shell.echoError(e.toString());
         }

@@ -1,9 +1,10 @@
 import { IVaultDBEntryAttrs } from 'vaultage-client';
 import { Vault } from 'vaultage-client';
+
+import * as lang from '../lang';
+import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
-import { VaultEntryFormatter } from '../VaultEntryFormatter'
-import * as lang from '../lang';
 
 export class AddCommand implements ICommand {
     public readonly name = 'add';
@@ -17,8 +18,8 @@ export class AddCommand implements ICommand {
 
     public async handle() {
 
-        if(!this.vault.isAuth()){
-            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED)
+        if (!this.vault.isAuth()) {
+            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
             return;
         }
 
@@ -29,30 +30,30 @@ export class AddCommand implements ICommand {
             const password = await this.shell.prompt('Password:');
             const url = await this.shell.prompt('Url:');
 
-            const newEntry : IVaultDBEntryAttrs = {
+            const newEntry: IVaultDBEntryAttrs = {
                 title: title,
                 login: username,
                 password: password,
                 url: url
-            }
+            };
 
-            const newEntryID = this.vault.addEntry(newEntry)
-            const e = this.vault.getEntry(newEntryID)
-            this.shell.echoHTML(VaultEntryFormatter.formatSingle(e))
-            this.shell.echo("Added entry #"+newEntryID)
+            const newEntryID = this.vault.addEntry(newEntry);
+            const e = this.vault.getEntry(newEntryID);
+            this.shell.echoHTML(VaultEntryFormatter.formatSingle(e));
+            this.shell.echo('Added entry #' + newEntryID);
 
-            await new Promise((resolve, reject) => this.vault.save(function(err) {
-                if(err == null){
-                    resolve()
+            await new Promise((resolve, reject) => this.vault.save((err) => {
+                if (err == null) {
+                    resolve();
                 } else {
-                    reject(err)
+                    reject(err);
                 }
             }));
 
-            this.shell.echo("Push OK, revision " + this.vault.getDBRevision()+".")
+            this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
 
         } catch (e) {
-            this.shell.echoError(e.toString());           
+            this.shell.echoError(e.toString());
         }
     }
 }

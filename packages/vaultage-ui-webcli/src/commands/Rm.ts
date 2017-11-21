@@ -1,8 +1,9 @@
 import { Vault } from 'vaultage-client';
+
+import * as lang from '../lang';
+import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
-import { VaultEntryFormatter } from '../VaultEntryFormatter'
-import * as lang from '../lang';
 
 export class RmCommand implements ICommand {
     public readonly name = 'rm';
@@ -16,42 +17,42 @@ export class RmCommand implements ICommand {
 
     public async handle(args: string[]) {
 
-        if(!this.vault.isAuth()){
-            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED)
+        if (!this.vault.isAuth()) {
+            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
             return;
         }
 
         try {
 
-            let id : string;
-            if(args.length == 0) {
+            let id: string;
+            if (args.length === 0) {
                 id = await this.shell.prompt('Entry ID:');
             } else {
                 id = args[0];
             }
 
-            const e = this.vault.getEntry(id)
-            this.shell.echoHTML(VaultEntryFormatter.formatSingle(e))
+            const e = this.vault.getEntry(id);
+            this.shell.echoHTML(VaultEntryFormatter.formatSingle(e));
 
-            const answer = await this.shell.prompt('Confirm removal of entry #'+id+' ? [y/N]')
-            
-            if(answer != "y" && answer != "Y"){
-                this.shell.echo("Cancelled.")
-                return
+            const answer = await this.shell.prompt('Confirm removal of entry #' + id + ' ? [y/N]');
+
+            if (answer !== 'y' && answer !== 'Y') {
+                this.shell.echo('Cancelled.');
+                return;
             }
-            
-            this.vault.removeEntry(id)
-            this.shell.echo("Remove entry #"+id)
 
-            await new Promise((resolve, reject) => this.vault.save(function(err) {
-                if(err == null){
-                    resolve()
+            this.vault.removeEntry(id);
+            this.shell.echo('Remove entry #' + id);
+
+            await new Promise((resolve, reject) => this.vault.save((err) => {
+                if (err == null) {
+                    resolve();
                 } else {
-                    reject(err)
+                    reject(err);
                 }
             }));
 
-            this.shell.echo("Push OK, revision " + this.vault.getDBRevision()+".");
+            this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
         } catch (e) {
             this.shell.echoError(e.toString());
         }

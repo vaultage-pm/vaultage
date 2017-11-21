@@ -11,12 +11,12 @@ export class ClearCommand implements ICommand {
     }
 
     public async handle() {
-        this.shell.clearLog()
+        this.shell.clearLog();
 
-        this.shell.echoHTML("   Vaultage v4.0")
-        this.shell.echoHTML("*********************")
+        this.shell.echoHTML('   Vaultage v4.0');
+        this.shell.echoHTML('*********************');
         this.shell.printShortHelp();
-        this.shell.echoHTML("*********************")
+        this.shell.echoHTML('*********************');
 
     }
 }
