@@ -37,15 +37,15 @@ export class Config {
     }
 
     public getDefaultUserName(): string {
-        if (this._pulledConfig.DEFAULT_USER != null) {
-            return this._pulledConfig.DEFAULT_USER;
+        if (this._pulledConfig.default_user != null) {
+            return this._pulledConfig.default_user;
         }
         return '';
     }
 
     public getSalts(): ISaltsConfig {
-        if (this._pulledConfig.SALTS != null) {
-            return this._pulledConfig.SALTS;
+        if (this._pulledConfig.salts != null) {
+            return this._pulledConfig.salts;
         }
 
         $.ajax({
@@ -54,7 +54,7 @@ export class Config {
             url: this.defaultURL + 'config',
             success: (data) => {
                 this._pulledConfig = (data as IVaultageConfig);
-                return this._pulledConfig.SALTS;
+                return this._pulledConfig.salts;
             }
         });
 
