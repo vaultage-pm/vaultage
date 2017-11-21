@@ -31,12 +31,11 @@ export type ApiCallFunction = (parameters: any, cb: (err: any, resp: any) => voi
 export class Vault {
     private _creds?: ICredentials;
     private _db?: VaultDB;
-    private _crypto: Crypto;
+    private _crypto?: Crypto;
     private _lastFingerprint?: string;
     private _apiCallFunction: ApiCallFunction;
 
-    constructor(salts: ISaltsConfig, apiCallFunction?: ApiCallFunction) {
-        this._crypto = new Crypto(salts);
+    constructor(apiCallFunction?: ApiCallFunction) {
 
         // if no function was given to reach the backend, use Requests (this is for production)
         if (apiCallFunction == null) {
@@ -60,6 +59,7 @@ export class Vault {
             serverURL: string,
             username: string,
             masterPassword: string,
+            salts: ISaltsConfig,
             cb: (err: (VaultageError | null)) => void
     ): void {
 
@@ -69,6 +69,8 @@ export class Vault {
             localKey: 'null',
             remoteKey: 'null'
         };
+
+        this._crypto = new Crypto(salts);
 
         const remoteKey = this._crypto.deriveRemoteKey(masterPassword);
         // possible optimization: compute the local key while the request is in the air
@@ -155,7 +157,7 @@ export class Vault {
      * @param cb Callback invoked on completion.
      */
     public updateMasterPassword(newPassword: string, cb: (err: (VaultageError|null)) => void): void {
-        if (!this._creds || !this._db) {
+        if (!this._creds || !this._db || !this._crypto) {
             cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated'));
         } else {
             const oldCredentials = deepCopy(this._creds);
@@ -321,11 +323,20 @@ export class Vault {
     }
 
     private _pullCipher(creds: ICredentials, cb: (err: (VaultageError|null)) => void): void {
+        if (!this._crypto) {
+            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
+            return;
+        }
 
         const parameters = {
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey)
         };
         const innerCallback = (err: any, resp: any) => {
+            if (!this._crypto) {
+                cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
+                return;
+            }
+
             if (err) {
                 return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
             }

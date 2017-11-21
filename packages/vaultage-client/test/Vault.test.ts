@@ -17,11 +17,11 @@ const errorCb = (err: VaultageError) => {
 
 describe('Vault.ts can', () => {
     it('create an empty vault', () => {
-        const vault = new Vault(salts);
+        const vault = new Vault();
         expect(vault).toEqual(vault);
     });
     it('cannot login without credentials', () => {
-        const vault = new Vault(salts);
+        const vault = new Vault();
         expect(vault).toEqual(vault);
     });
 
@@ -29,8 +29,8 @@ describe('Vault.ts can', () => {
         apiCallsFired = [];
         callbacksFired = [];
 
-        const vault = new Vault(salts, mockAPI);
-        vault.auth('url', 'username', 'passwd', errorCb);
+        const vault = new Vault(mockAPI);
+        vault.auth('url', 'username', 'passwd', salts, errorCb);
 
         expect(apiCallsFired.length).toBe(1); // one request to the server
         expect(callbacksFired.length).toBe(0);
@@ -54,8 +54,8 @@ describe('Vault.ts can', () => {
         apiCallsFired = [];
         callbacksFired = [];
 
-        const vault = new Vault(salts, mockAPI);
-        vault.auth('url', 'username', 'passwd', errorCb);
+        const vault = new Vault(mockAPI);
+        vault.auth('url', 'username', 'passwd', salts, errorCb);
 
         expect(apiCallsFired.length).toBe(1); // one request to the server
         expect(callbacksFired.length).toBe(0);
@@ -96,8 +96,8 @@ describe('Vault.ts can', () => {
         apiCallsFired = [];
         callbacksFired = [];
 
-        const vault = new Vault(salts, mockAPI);
-        vault.auth('url', 'username', 'passwd', errorCb);
+        const vault = new Vault(mockAPI);
+        vault.auth('url', 'username', 'passwd', salts, errorCb);
 
         expect(apiCallsFired.length).toBe(1); // one request to the server
         expect(callbacksFired.length).toBe(0);
@@ -159,8 +159,8 @@ describe('Vault.ts can', () => {
 
         // suppose the server accepted this message, const's create a new vault with some fixed data data
 
-        const vault3 = new Vault(salts, mockAPI);
-        vault3.auth('url', 'ninja', 'passwd', errorCb);
+        const vault3 = new Vault(mockAPI);
+        vault3.auth('url', 'ninja', 'passwd', salts, errorCb);
 
         expect(apiCallsFired.length).toBe(1);
         expect(callbacksFired.length).toBe(0);
@@ -203,8 +203,8 @@ describe('Vault.ts can', () => {
         apiCallsFired = [];
         callbacksFired = [];
 
-        const vault = new Vault(salts, mockAPI);
-        vault.auth('url', 'username', 'passwd', errorCb);
+        const vault = new Vault(mockAPI);
+        vault.auth('url', 'username', 'passwd', salts, errorCb);
 
         expect(apiCallsFired.length).toBe(1); // one request to the server
         expect(callbacksFired.length).toBe(0);
