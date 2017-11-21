@@ -25,7 +25,7 @@ useContainer(Container);
 
 // Wires all dependencies
 Container.set('cipherLocation', path.join(__dirname, '..', 'cipher.json'));
-// TODO: Use a config store. The store could for instance pull config data
+// TODO (#107): Use a config store. The store could for instance pull config data
 // from a JSON file at a predefined or command-line defined location.
 Container.set('config', {
     salts: {

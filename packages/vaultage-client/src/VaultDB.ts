@@ -117,8 +117,6 @@ export class VaultDB {
     public update(id: string, attrs: IVaultDBEntryAttrs): void;
     public update(id: (string | IVaultDBEntry), attrs?: IVaultDBEntryAttrs): void {
 
-        // TODO: lb->hmil no check that the entry exists ?
-
         if (typeof id !== 'string') {
             attrs = {
                 title: '',

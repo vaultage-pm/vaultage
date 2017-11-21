@@ -3,7 +3,7 @@ import { Passwords, PasswordStrength } from '../src/Passwords';
 /**
  * This test suite is broken.
  *
- * TODO: mock native crypto and make deterministic tests.
+ *  (#109): mock native crypto and make deterministic tests.
  */
 xdescribe('Passwords.ts', () => {
     const passwords: Passwords = new Passwords();

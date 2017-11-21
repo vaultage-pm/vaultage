@@ -18,7 +18,7 @@ import { ICommandHandler, ICompletionResponse, Terminal } from './Terminal';
  * Features:
  *  - Command registration and input parameters parsing
  *  - Automatic help text generation
- *  - Basic command name autocompletion (TODO: advanced per-command autocompletion)
+ *  - Basic command name autocompletion (TODO (#112): advanced per-command autocompletion)
  *  - Nice handling of asynchronous tasks
  *  - Text and password prompting
  *  - Partial support for the ^C control sequence. (when in a `prompt` action)
