@@ -34,12 +34,12 @@ export class HelpCommand implements ICommand {
         this.shell.echoHTML(' It is open-source : please report any bugs on github');
         this.shell.echoHTML(' ');
         this.shell.echoHTML(' Security technologies used : the <a href=\'https://bitwiseshiftleft.github.io/\'>Stanford Javascript Crypto Library</a>, using SHA256 / PBKDF2 as hash functions, and AES (256bits).');
-        this.shell.echoHTML(' Plaintext passwords never leave your computer's memory. ');
+        this.shell.echoHTML(' Plaintext passwords never leave your computer\'s memory. ');
         this.shell.echoHTML(' ');
         this.shell.echoHTML(' Trouble getting started ? Typical workflow : ');
         this.shell.echoHTML(' 1. <i>auth</i>');
         this.shell.echoHTML(' 2. <i>new</i>, or <i>gen</i>');
-        this.shell.echoHTML(' 3. <i>get TERM</i>, where TERM is one of your password's login, title, url, etc.');
+        this.shell.echoHTML(' 3. <i>get TERM</i>, where TERM is one of your password\'s login, title, url, etc.');
         this.shell.echoHTML(' 4. maybe <i>edit</i>, or <i>rm</i>');
         this.shell.echoHTML(' 5. <i>clear</i> or <i>logout</i>');
         this.shell.echoHTML(' ');

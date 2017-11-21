@@ -1,6 +1,5 @@
 import { Vault } from 'vaultage-client';
 
-import * as config from '../config';
 import { AddCommand } from './commands/Add';
 import { AuthCommand } from './commands/Auth';
 import { ClearCommand } from './commands/Clear';
@@ -21,16 +20,18 @@ import { RotateCommand } from './commands/Rotate';
 import { WeakCommand } from './commands/Weak';
 import { Shell } from './webshell/Shell';
 import { Terminal } from './webshell/Terminal';
+import { Config } from 'vaultage-ui-webcli/src/Config';
 
 const terminal = new Terminal({
     root: document.body
 });
 
 const shell = new Shell(terminal);
-const vault = new Vault(config.SALTS);
+const vault = new Vault();
+const config = new Config(shell);
 
 shell.registerCommand(new HelpCommand(shell));
-shell.registerCommand(new AuthCommand(vault, shell));
+shell.registerCommand(new AuthCommand(vault, shell, config));
 shell.registerCommand(new LsCommand(vault, shell));
 shell.registerCommand(new GetCommand(vault, shell));
 shell.registerCommand(new AddCommand(vault, shell));
@@ -52,3 +53,5 @@ shell.echoHTML('   Vaultage v4.0');
 shell.echoHTML('*********************');
 shell.printShortHelp();
 shell.echoHTML('*********************');
+
+config.pull();

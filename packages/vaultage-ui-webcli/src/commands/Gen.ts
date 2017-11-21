@@ -2,7 +2,7 @@ import { IVaultDBEntryAttrs } from 'vaultage-client';
 import { Vault } from 'vaultage-client';
 import { Passwords } from 'vaultage-client';
 
-import * as config from '../../config';
+import * as config from '../Config';
 import * as lang from '../lang';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
