@@ -2,3 +2,4 @@ node_modules
 coverage
 dist
 cipher.json
+config.json
