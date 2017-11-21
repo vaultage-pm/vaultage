@@ -11,7 +11,7 @@ Karma can launch it.
 
 ## API Documentation
 
-TODO: generate some kind of API doc from the class definitions and comments
+TODO (#108): generate some kind of API doc from the class definitions and comments
 
 ## Contributing
 

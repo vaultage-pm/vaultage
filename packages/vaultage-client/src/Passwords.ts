@@ -74,7 +74,7 @@ export class Passwords {
      */
     public generatePassword(
             length: number,
-            // TODO: use option hash instead of anonymous booleans
+            // TODO (#109): use option hash instead of anonymous booleans
             useSymbols: boolean,
             avoidSimilarCharacters: boolean,
             avoidPunctuationUsedInProgramming: boolean): string {
