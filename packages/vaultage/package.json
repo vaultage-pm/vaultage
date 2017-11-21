@@ -20,6 +20,9 @@
     "routing-controllers": "^0.7.6",
     "typedi": "^0.5.2"
   },
+  "files": [
+    "dist/src"
+  ],
   "devDependencies": {
     "@types/express": "^4.0.38",
     "@types/jest": "^21.1.5",

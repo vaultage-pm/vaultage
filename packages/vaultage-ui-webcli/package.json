@@ -10,7 +10,7 @@
     "serve": "webpack-dev-server"
   },
   "files": [
-    "public/**"
+    "public"
   ],
   "author": "",
   "license": "MIT",
