@@ -1,8 +1,9 @@
-import { VaultEntryFormatter } from '../VaultEntryFormatter'
 import { Vault } from 'vaultage-client';
+
+import * as lang from '../lang';
+import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
-import * as lang from '../lang';
 
 export class LsCommand implements ICommand {
     public readonly name = 'ls';
@@ -15,19 +16,19 @@ export class LsCommand implements ICommand {
     }
 
     public async handle() {
-        
-        if(!this.vault.isAuth()){
-            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED)
+
+        if (!this.vault.isAuth()) {
+            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
             return;
         }
 
         try {
-            this.shell.echo("Vault revision #"+this.vault.getDBRevision()+", "+this.vault.getNbEntries()+" entries.");
-            let allEntries = this.vault.getAllEntries();
+            this.shell.echo('Vault revision #' + this.vault.getDBRevision() + ', ' + this.vault.getNbEntries() + ' entries.');
+            const allEntries = this.vault.getAllEntries();
             this.shell.echoHTML(VaultEntryFormatter.formatBatch(allEntries));
 
         } catch (e) {
-            this.shell.echoError(e.toString());    
+            this.shell.echoError(e.toString());
         }
     }
 }

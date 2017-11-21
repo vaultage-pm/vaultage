@@ -1,4 +1,5 @@
 import { Vault } from 'vaultage-client';
+
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 
@@ -14,11 +15,11 @@ export class LogoutCommand implements ICommand {
 
     public async handle() {
         try {
-            this.vault.unauth()
-            this.shell.echo("Logout OK.")
+            this.vault.unauth();
+            this.shell.echo('Logout OK.');
 
         } catch (e) {
-            this.shell.echoHTML('<span class="error">Failed. ' + e.toString()+'</span>');            
+            this.shell.echoHTML('<span class="error">Failed. ' + e.toString() + '</span>');
         }
     }
 }
