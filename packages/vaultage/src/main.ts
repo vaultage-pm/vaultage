@@ -1,13 +1,16 @@
 import 'reflect-metadata';
 
 import * as express from 'express';
+import * as fs from 'fs';
 import * as path from 'path';
 import { useContainer } from 'routing-controllers';
 import { Container } from 'typedi';
 
-import { createVaultageAPIServer } from './apiServer';
+import { createVaultageAPIServer, IVaultageConfig } from './apiServer';
+import { CONFIG_PATH } from './constants';
 import { DatabaseWithAuth } from './storage/Database';
 import { JSONDatabaseWithAuth } from './storage/JSONDatabase';
+import { initConfig } from './tools/initConfig';
 
 
 /*
@@ -20,29 +23,44 @@ import { JSONDatabaseWithAuth } from './storage/JSONDatabase';
     (ie. binding to a TCP port or injecting actual I/O-bound dependencies).
 */
 
-// Tell routing-controller to use our dependency injection container
-useContainer(Container);
-
-// Wires all dependencies
-Container.set('cipherLocation', path.join(__dirname, '..', 'cipher.json'));
-// TODO (#107): Use a config store. The store could for instance pull config data
-// from a JSON file at a predefined or command-line defined location.
-Container.set('config', {
-    salts: {
-        USERNAME_SALT: 'nosalt'
+async function loadConfig(retry: boolean): Promise<void> {
+    try {
+        const config = JSON.parse(fs.readFileSync(CONFIG_PATH, { encoding: 'utf-8' })) as IVaultageConfig;
+        Container.set('config', config);
+    } catch (e) {
+        if (retry && e.code === 'ENOENT') {
+            console.log('No config found, writing initial config.');
+            await initConfig();
+            return loadConfig(false);
+        }
+        console.error(`Unable to read config file. Make sure ${CONFIG_PATH} exists and is readable`);
+        throw e;
     }
-});
-Container.set(DatabaseWithAuth, Container.get(JSONDatabaseWithAuth));
+}
 
-// Create an express server which is preconfigured to serve the API
-const server = createVaultageAPIServer();
+async function boot() {
+    // Tell routing-controller to use our dependency injection container
+    useContainer(Container);
 
-// Bind static content to server
-const pathToWebCliGUI = path.dirname(require.resolve('vaultage-ui-webcli'));
-const staticDirToServer = path.join(pathToWebCliGUI, 'public');
-server.use(express.static(staticDirToServer));
+    // Wires all dependencies
+    Container.set('cipherLocation', path.join(__dirname, '..', 'cipher.json'));
 
-// run application on port 3000
-server.listen(3000, () => {
-    console.log('Server is listening on port 3000');
-});
+    await loadConfig(true);
+
+    Container.set(DatabaseWithAuth, Container.get(JSONDatabaseWithAuth));
+
+    // Create an express server which is preconfigured to serve the API
+    const server = createVaultageAPIServer();
+
+    // Bind static content to server
+    const pathToWebCliGUI = path.dirname(require.resolve('vaultage-ui-webcli'));
+    const staticDirToServer = path.join(pathToWebCliGUI, 'public');
+    server.use(express.static(staticDirToServer));
+
+    // run application on port 3000
+    server.listen(3000, () => {
+        console.log('Server is listening on port 3000');
+    });
+}
+
+boot();
