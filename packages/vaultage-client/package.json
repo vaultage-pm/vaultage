@@ -11,6 +11,10 @@
     "test": "npm run lint && jest",
     "watch": "jest --watch"
   },
+  "files": [
+    "dist/src",
+    "lib"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lbarman/vaultage.git"
