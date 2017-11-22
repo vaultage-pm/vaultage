@@ -1,10 +1,21 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
+import * as path from 'path';
 
 import { IVaultageConfig } from '../../src/apiServer';
-import { CONFIG_PATH } from '../constants';
+import { CONFIG_FILENAME } from '../constants';
 
 const SALTS_LENGTH = 64;
+
+export function absolutePath(fileName: string): string {
+    const vaultageConfigDir = path.join(require('os').homedir(), '.vaultage');
+
+    if (!fs.existsSync(vaultageConfigDir)) {
+        fs.mkdirSync(vaultageConfigDir);
+    }
+
+    return path.join(vaultageConfigDir, fileName);
+}
 
 export function initConfig(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -28,7 +39,8 @@ export function initConfig(): Promise<void> {
                 }
             };
 
-            fs.writeFile(CONFIG_PATH, JSON.stringify(config), { encoding: 'utf-8' }, (err2) => {
+            const configPath = absolutePath(CONFIG_FILENAME);
+            fs.writeFile(configPath, JSON.stringify(config), { encoding: 'utf-8' }, (err2) => {
                 if (err2) {
                     return reject(err2);
                 }

@@ -7,10 +7,10 @@ import { useContainer } from 'routing-controllers';
 import { Container } from 'typedi';
 
 import { createVaultageAPIServer, IVaultageConfig } from './apiServer';
-import { CONFIG_PATH } from './constants';
+import { CONFIG_FILENAME, VAULT_FILENAME } from './constants';
 import { DatabaseWithAuth } from './storage/Database';
 import { JSONDatabaseWithAuth } from './storage/JSONDatabase';
-import { initConfig } from './tools/initConfig';
+import { absolutePath, initConfig } from './tools/initConfig';
 
 
 /*
@@ -24,8 +24,9 @@ import { initConfig } from './tools/initConfig';
 */
 
 async function loadConfig(retry: boolean): Promise<void> {
+    const configPath = absolutePath(CONFIG_FILENAME);
     try {
-        const config = JSON.parse(fs.readFileSync(CONFIG_PATH, { encoding: 'utf-8' })) as IVaultageConfig;
+        const config = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf-8' })) as IVaultageConfig;
         Container.set('config', config);
     } catch (e) {
         if (retry && e.code === 'ENOENT') {
@@ -33,7 +34,7 @@ async function loadConfig(retry: boolean): Promise<void> {
             await initConfig();
             return loadConfig(false);
         }
-        console.error(`Unable to read config file. Make sure ${CONFIG_PATH} exists and is readable`);
+        console.error(`Unable to read config file. Make sure ${configPath} exists and is readable`);
         throw e;
     }
 }
@@ -43,7 +44,8 @@ async function boot() {
     useContainer(Container);
 
     // Wires all dependencies
-    Container.set('cipherLocation', path.join(__dirname, '..', 'cipher.json'));
+    const vaultPath = absolutePath(VAULT_FILENAME);
+    Container.set('cipherLocation', vaultPath);
 
     await loadConfig(true);
 

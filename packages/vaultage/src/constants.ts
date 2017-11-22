@@ -1,3 +1,3 @@
-import * as path from 'path';
+export const CONFIG_FILENAME = 'config.json';
 
-export const CONFIG_PATH = path.resolve('config.json');
+export const VAULT_FILENAME = 'vault.json';
