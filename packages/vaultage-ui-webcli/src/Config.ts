@@ -1,6 +1,7 @@
-import { ISaltsConfig } from 'vaultage-client';
-
+import { ISaltsConfig } from '../../vaultage-client/src/Crypto';
 import { IVaultageConfig } from '../../vaultage/src/VaultageConfig';
+
+
 import * as lang from './lang';
 import { Shell } from './webshell/Shell';
 
@@ -45,7 +46,12 @@ export class Config {
 
     public getSalts(): ISaltsConfig {
         if (this._pulledConfig.salts != null) {
-            return this._pulledConfig.salts;
+            const salts: ISaltsConfig = {
+                LOCAL_KEY_SALT: this._pulledConfig.salts.local_key_salt,
+                REMOTE_KEY_SALT: this._pulledConfig.salts.remote_key_salt,
+            };
+
+            return salts;
         }
 
         $.ajax({
