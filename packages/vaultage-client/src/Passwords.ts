@@ -4,6 +4,61 @@ export enum PasswordStrength {
     STRONG
 }
 
+export interface IRandomness {
+    getRandomNumber(): number;
+}
+
+export class ConcreteRandomnessGenerator implements IRandomness {
+
+    /**
+     * Returns a random number using window.crypto if possible
+     * @return {number} a random number
+     * @throws If window.crypto is not accessible (old browsers)
+     */
+    public getRandomNumber(): number {
+        // crypto.getRandomValues needs a TypedArray; Uint8Array is the smallest one (don’t waste entropy)
+        try {
+            const typedArrayWithRandomNumber = new Uint8Array(1);
+            // Use crypto random functionality if the browser supports it
+            if (window.crypto && window.crypto.getRandomValues) {
+                window.crypto.getRandomValues(typedArrayWithRandomNumber);
+                return typedArrayWithRandomNumber[0];
+            }
+        } catch (e) {
+            // If the browser doesn’t support crypto random functionality, use Math.random
+            if (!window.crypto || !window.crypto.getRandomValues) {
+
+                throw new Error('Your browser only supports Math.Random as an entropy source. ' +
+                        'Refusing to generate a weak password. Please update your browser.');
+            }
+        }
+        return -1;
+    }
+}
+
+export class FakeRandomnessGenerator implements IRandomness {
+
+    private maxValue: number = 256;
+
+    private primeGroup: number = 257;
+    private multiplicativeFactor = 263;
+    private currentValue: number = 0;
+
+
+    constructor(
+        private seed: number) {
+            this.currentValue = this.seed;
+    }
+
+    public getRandomNumber(): number {
+        // generates a deterministic random-looking number in Z_p, p=primeGroup
+        this.currentValue = (this.currentValue * this.multiplicativeFactor) % this.primeGroup;
+
+        // returns a result in [0, maxValue[. Uniform only if maxValue == primeGroup
+        return this.currentValue % this.maxValue;
+    }
+}
+
 export class Passwords {
 
     /**
@@ -63,6 +118,10 @@ export class Passwords {
         return Math.floor(score);
     }
 
+    constructor(
+        private random: IRandomness) {
+    }
+
     /**
      * Returns a strong password
      * @param length the number of characters in the outputted password (strict)
@@ -86,7 +145,7 @@ export class Passwords {
 
         // pick L=length letters, L/2 uppercase, L/2 lowercase on average
         for (i = 0; i < length; i++) {
-            if (this.getRandomNumber() % 2 === 0) {
+            if (this.random.getRandomNumber() % 2 === 0) {
                 result[i] = this.getRandomCharFromArray(this.charMapLetters(avoidSimilarCharacters)).toUpperCase();
             } else {
                 result[i] = this.getRandomCharFromArray(this.charMapLetters(avoidSimilarCharacters));
@@ -134,37 +193,12 @@ export class Passwords {
     }
 
     /**
-     * Returns a random number using window.crypto if possible
-     * @return {number} a random number
-     * @throws If window.crypto is not accessible (old browsers)
-     */
-    private getRandomNumber(): number {
-        // crypto.getRandomValues needs a TypedArray; Uint8Array is the smallest one (don’t waste entropy)
-        try {
-            const typedArrayWithRandomNumber = new Uint8Array(1);
-            // Use crypto random functionality if the browser supports it
-            if (window.crypto && window.crypto.getRandomValues) {
-                window.crypto.getRandomValues(typedArrayWithRandomNumber);
-                return typedArrayWithRandomNumber[0];
-            }
-        } catch (e) {
-            // If the browser doesn’t support crypto random functionality, use Math.random
-            if (!window.crypto || !window.crypto.getRandomValues) {
-
-                throw new Error('Your browser only supports Math.Random as an entropy source. ' +
-                        'Refusing to generate a weak password. Please update your browser.');
-            }
-        }
-        return -1;
-    }
-
-    /**
      * Returns a random letter from an array of letters
      * @param letters array of letters A
      * @return {string} a random letter in A
      */
     private getRandomCharFromArray(letters: string[]): string {
-        const i = this.getRandomNumber() % letters.length;
+        const i = this.random.getRandomNumber() % letters.length;
         return letters[i];
     }
 
@@ -174,6 +208,6 @@ export class Passwords {
      * @return {number} a random number in [0, upperLimit[
      */
     private getRandomNumberInRange(upperLimit: number) {
-        return (this.getRandomNumber() % upperLimit);
+        return (this.random.getRandomNumber() % upperLimit);
     }
 }

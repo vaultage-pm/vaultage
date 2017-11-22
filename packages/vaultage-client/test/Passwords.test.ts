@@ -1,4 +1,4 @@
-import { Passwords, PasswordStrength } from '../src/Passwords';
+import { FakeRandomnessGenerator, IRandomness, Passwords, PasswordStrength } from '../src/Passwords';
 
 /**
  * This test suite is broken.
@@ -6,7 +6,11 @@ import { Passwords, PasswordStrength } from '../src/Passwords';
  *  (#109): mock native crypto and make deterministic tests.
  */
 xdescribe('Passwords.ts', () => {
-    const passwords: Passwords = new Passwords();
+
+    const seed = 123;
+    const rnd: IRandomness = new FakeRandomnessGenerator(seed);
+
+    const passwords: Passwords = new Passwords(rnd);
     const defaultLength = 10;
 
 
