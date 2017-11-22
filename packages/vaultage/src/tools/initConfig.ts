@@ -7,7 +7,7 @@ import { CONFIG_FILENAME } from '../constants';
 
 const SALTS_LENGTH = 64;
 
-export function absolutePath(fileName: string): string {
+export function storagePath(fileName: string): string {
     const vaultageConfigDir = path.join(require('os').homedir(), '.vaultage');
 
     if (!fs.existsSync(vaultageConfigDir)) {
@@ -32,14 +32,14 @@ export function initConfig(): Promise<void> {
 
             const config: IVaultageConfig = {
                 version: 1,
-                default_user: 'lbarman',
+                default_user: '',
                 salts: {
                     local_key_salt: hexbytes.substr(0, SALTS_LENGTH),
                     remote_key_salt: hexbytes.substr(0, SALTS_LENGTH)
                 }
             };
 
-            const configPath = absolutePath(CONFIG_FILENAME);
+            const configPath = storagePath(CONFIG_FILENAME);
             fs.writeFile(configPath, JSON.stringify(config), { encoding: 'utf-8' }, (err2) => {
                 if (err2) {
                     return reject(err2);

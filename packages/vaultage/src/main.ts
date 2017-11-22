@@ -10,7 +10,7 @@ import { createVaultageAPIServer, IVaultageConfig } from './apiServer';
 import { CONFIG_FILENAME, VAULT_FILENAME } from './constants';
 import { DatabaseWithAuth } from './storage/Database';
 import { JSONDatabaseWithAuth } from './storage/JSONDatabase';
-import { absolutePath, initConfig } from './tools/initConfig';
+import { storagePath, initConfig } from './tools/initConfig';
 
 
 /*
@@ -24,7 +24,7 @@ import { absolutePath, initConfig } from './tools/initConfig';
 */
 
 async function loadConfig(retry: boolean): Promise<void> {
-    const configPath = absolutePath(CONFIG_FILENAME);
+    const configPath = storagePath(CONFIG_FILENAME);
     try {
         const config = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf-8' })) as IVaultageConfig;
         Container.set('config', config);
@@ -44,7 +44,7 @@ async function boot() {
     useContainer(Container);
 
     // Wires all dependencies
-    const vaultPath = absolutePath(VAULT_FILENAME);
+    const vaultPath = storagePath(VAULT_FILENAME);
     Container.set('cipherLocation', vaultPath);
 
     await loadConfig(true);
