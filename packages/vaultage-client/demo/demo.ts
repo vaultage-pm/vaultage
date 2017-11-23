@@ -1,30 +1,28 @@
 import { PasswordStrength } from '../vaultage';
-console.log('Loading the transpiled library... Run `make tsc` before running this example');
-
 import { Crypto, VaultDB } from '../vaultage';
 
 console.log('\nDemoing the encryption / decryption locally...');
 console.log('Note that this is demoing the inside of the vaultage SDK but all of this complexity' +
-  ' is going to be hidden behind the "Vault" class.\n');
+  ' is going to be hidden behind the Vault class.\n');
 
 const crypto = new Crypto({
-    LOCAL_KEY_SALT: "abcdef",
-    REMOTE_KEY_SALT: "01234576",
+    LOCAL_KEY_SALT: 'abcdef',
+    REMOTE_KEY_SALT: '01234576',
 });
 
-const masterKey = "ilovesushi"
+const masterKey = 'ilovesushi';
 
 const key = crypto.deriveLocalKey(masterKey);
 console.log('My local key is: ' + key + '\n');
 
 const db = new VaultDB({ '0': {
-    title: "Hello",
-    id: "0",
-    created: "now",
-    updated: "", 
-    login: "Bob",
-    password: "zephyr",
-    url: "http://example.com",
+    title: 'Hello',
+    id: '0',
+    created: 'now',
+    updated: '',
+    login: 'Bob',
+    password: 'zephyr',
+    url: 'http://example.com',
     usage_count: 0,
     reuse_count: 0,
     password_strength_indication: PasswordStrength.WEAK,
@@ -53,17 +51,17 @@ console.log(decDB);
 console.log('Fingerprint: ' + decFP);
 
 let ret = 0;
-if(fp == decFP){
-    console.log("Test1 : Fingerprints match, OK")
+if (fp === decFP){
+    console.log('Test1 : Fingerprints match, OK');
 } else {
     ret = 1;
-    console.log("Test1 : Fingerprints match, FAIL")
+    console.log('Test1 : Fingerprints match, FAIL');
 }
-if(plain == dec){
-    console.log("Test2 : Databases match, OK")
+if (plain === dec) {
+    console.log('Test2 : Databases match, OK');
 } else {
     ret = 1;
-    console.log("Test2 : Databases match, FAIL")
+    console.log('Test2 : Databases match, FAIL');
 }
 
 process.exit(ret);
