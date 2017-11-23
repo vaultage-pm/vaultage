@@ -24,9 +24,9 @@ export interface IDatabaseContents {
 export class JSONDatabase implements IDatabase {
 
     constructor(
-            private readonly cipherLocation: string,
-            private readonly username: string,
-            private readonly password: string) {
+        private readonly cipherLocation: string,
+        private readonly username: string,
+        private readonly password: string) {
     }
 
     public async save(update: IDatabaseSaveParameters): Promise<string> {
@@ -88,40 +88,12 @@ export class JSONDatabase implements IDatabase {
 @Service()
 export class JSONDatabaseWithAuth extends DatabaseWithAuth {
 
-    @Inject('cipherLocation')
-    private readonly cipherLocation: string;
-
-    public async auth(creds: ICredentials) {
-        try {
-            const contents = JSON.parse(fs.readFileSync(this.cipherLocation, {
-                encoding: 'utf-8'
-            })) as IDatabaseContents;
-
-            const usernameOK = this.constantTimeComparison(contents.username, creds.username);
-            const passwordOK = this.constantTimeComparison(contents.password, creds.password);
-
-            if (!(usernameOK && passwordOK)) {
-                throw new AuthenticationError();
-            }
-        } catch (e) {
-            // Ignore the error if the file does not exist and proceed with returning a repository
-            if (!e || e.code !== 'ENOENT') {
-                throw e;
-            }
-        }
-        return new JSONDatabase(this.cipherLocation, creds.username, creds.password);
-    }
-
     /**
      * Performs a constant-time comparison of two strings.
      * Returns 0 iff a===b
      * If a || b is null or undefined, immediately returns false (not time-constant)
      */
-    private constantTimeComparison(a: string, b: string): boolean {
-
-        if (a == null || b == null) {
-            return false;
-        }
+    public static constantTimeComparison(a: string, b: string): boolean {
 
         let result: boolean = true;
 
@@ -141,5 +113,29 @@ export class JSONDatabaseWithAuth extends DatabaseWithAuth {
         }
 
         return result;
+    }
+
+    @Inject('cipherLocation')
+    private readonly cipherLocation: string;
+
+    public async auth(creds: ICredentials) {
+        try {
+            const contents = JSON.parse(fs.readFileSync(this.cipherLocation, {
+                encoding: 'utf-8'
+            })) as IDatabaseContents;
+
+            const usernameOK = JSONDatabaseWithAuth.constantTimeComparison(contents.username, creds.username);
+            const passwordOK = JSONDatabaseWithAuth.constantTimeComparison(contents.password, creds.password);
+
+            if (!(usernameOK && passwordOK)) {
+                throw new AuthenticationError();
+            }
+        } catch (e) {
+            // Ignore the error if the file does not exist and proceed with returning a repository
+            if (!e || e.code !== 'ENOENT') {
+                throw e;
+            }
+        }
+        return new JSONDatabase(this.cipherLocation, creds.username, creds.password);
     }
 }
