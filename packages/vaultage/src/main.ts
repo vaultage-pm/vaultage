@@ -10,7 +10,7 @@ import { createVaultageAPIServer, IVaultageConfig } from './apiServer';
 import { CONFIG_FILENAME, VAULT_FILENAME } from './constants';
 import { DatabaseWithAuth } from './storage/Database';
 import { JSONDatabaseWithAuth } from './storage/JSONDatabase';
-import { storagePath, initConfig } from './tools/initConfig';
+import { initConfig, storagePath } from './tools/initConfig';
 
 
 /*
