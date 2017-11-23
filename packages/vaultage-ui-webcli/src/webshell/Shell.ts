@@ -1,3 +1,4 @@
+import { setTimeout } from 'timers';
 import { Vault } from 'vaultage-client';
 
 import { BusyIndicator } from './BusyIndicator';
@@ -97,8 +98,12 @@ export class Shell implements ICommandHandler {
             const pwd = $(e).html();
 
             // copy the password to the clipboard
-            console.log("putting", pwd, "in clipboard")
             copy(pwd);
+
+            // indicate to the user that we copied it in the clipboard
+            const copiedElem = $(e).siblings('.copied');
+            copiedElem.addClass('visible');
+            setTimeout(() => copiedElem.removeClass('visible'), 1000);
 
             // mark the entry as used
             if (this.vault != null) {

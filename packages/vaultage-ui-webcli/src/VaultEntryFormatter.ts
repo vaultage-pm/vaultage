@@ -40,6 +40,7 @@ export class VaultEntryFormatter {
         if (e.reuse_count > 0) {
             stringBuilder += `<span class="reuse">(warning: re-used ${e.reuse_count} times)</span>`;
         }
+        stringBuilder += `<span class="copied">Copied to the clipboard!</span>`;
         stringBuilder += '</span>';
 
         return stringBuilder;
@@ -118,14 +119,15 @@ export class VaultEntryFormatter {
         } else if (e.password_strength_indication === PasswordStrength.MEDIUM) {
             stringBuilder += `<td class="mediumPassword">(warning: weak password)</td>`;
         } else {
-            stringBuilder += '<td></td>';
+            stringBuilder += '<td class="empty"></td>';
         }
 
         if (e.reuse_count > 0) {
             stringBuilder += `<td class="reuse">(warning: re-used ${e.reuse_count} times)</td>`;
         } else {
-            stringBuilder += '<td></td>';
+            stringBuilder += '<td class="empty"></td>';
         }
+        stringBuilder += `<td class="copied">Copied to the clipboard!</td>`;
         stringBuilder += '</tr>';
 
         return stringBuilder;
