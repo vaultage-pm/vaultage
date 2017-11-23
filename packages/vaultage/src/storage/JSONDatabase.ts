@@ -99,7 +99,8 @@ export class JSONDatabaseWithAuth extends DatabaseWithAuth {
 
             // Leaks informations by timing analysis but proper bruteforce protection makes it impractical,
             // also knowledge of the remote key doesn't relly help as one needs the local key to decrypt passwords.
-            if (contents.username !== creds.username || contents.password !== creds.password) {
+            if ( !this.constantTimeComparison(contents.username, creds.username) ||
+                !this.constantTimeComparison(contents.password, creds.password)) {
                 throw new AuthenticationError();
             }
         } catch (e) {
@@ -109,5 +110,36 @@ export class JSONDatabaseWithAuth extends DatabaseWithAuth {
             }
         }
         return new JSONDatabase(this.cipherLocation, creds.username, creds.password);
+    }
+
+    /**
+     * Performs a constant-time comparison of two strings.
+     * Returns true iff a===b
+     * If a || b is null or undefined, immediately returns false (not time-constant)
+     */
+    private constantTimeComparison(a: string, b: string): boolean {
+
+        if (a == null || b == null) {
+            return false;
+        }
+
+        let result: boolean = true;
+
+        if (a.length !== b.length) {
+            result = false;
+        }
+
+        const minLength = Math.min(a.length, b.length);
+
+        for (let i = 0; i < minLength; i++) {
+            const charA = a[i];
+            const charB = b[i];
+
+            if (charA !== charB) {
+                result = false;
+            }
+        }
+
+        return result;
     }
 }
