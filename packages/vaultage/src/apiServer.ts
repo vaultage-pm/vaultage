@@ -23,6 +23,28 @@ export function createVaultageAPIServer(): express.Application {
     // I/O protocol is JSON based
     expressServer.use(json());
 
+    expressServer.use((_, res, next) => {
+
+        // disables caching
+        res.setHeader('Cache-Control', 'no-cache,no-store,max-age=0,must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '-1');
+
+        // enables built-in XSS protection
+        res.setHeader('X-XSS-Protection', '1;mode=block');
+
+        // prevents Vaultage from being embedded in another website
+        res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+
+        // only allows javascript sources specified here
+        res.setHeader('Content-Security-Policy', 'script-src \'self\' https://cdnjs.cloudflare.com/');
+
+        // prevents MIME-confusion attacks
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+
+        next();
+      });
+
     // Bind API to server
     useExpressServer(expressServer, {
         controllers: [

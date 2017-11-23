@@ -26,7 +26,7 @@ export class VaultEntryFormatter {
         stringBuilder += `<span class="id">(${e.id})</span>`;
         stringBuilder += `<span class="title">${e.title}</span>&rarr;`;
         stringBuilder += `<span class="login">${e.login}</span>:`;
-        stringBuilder += `<span class="password blurred" ondblclick="console.log(${e.id})">${e.password}</span>@`;
+        stringBuilder += `<span class="password blurred" data-id="${e.id}">${e.password}</span>@`;
         stringBuilder += `<span class="url">${e.url}</span>`;
 
         stringBuilder += `<span class="use">(used ${e.usage_count} times)</span>`;
@@ -108,7 +108,7 @@ export class VaultEntryFormatter {
         stringBuilder += `<td class="id">(${e.id})</td>`;
         stringBuilder += `<td class="title">${e.title}</td> <td>&rarr;</td>`;
         stringBuilder += `<td class="login">${e.login}</td> <td>:</td>`;
-        stringBuilder += `<td class="password blurred" ondblclick="console.log(${e.id})">${e.password}</td> <td>@</td>`;
+        stringBuilder += `<td class="password blurred" data-id="${e.id}">${e.password}</td> <td>@</td>`;
         stringBuilder += `<td class="url">${e.url}</span>`;
 
         stringBuilder += `<td class="use">(used ${e.usage_count} times)</td>`;

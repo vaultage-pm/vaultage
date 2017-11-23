@@ -26,8 +26,8 @@ const terminal = new Terminal({
     root: document.body
 });
 
-const shell = new Shell(terminal);
 const vault = new Vault();
+const shell = new Shell(terminal, vault);
 const config = new Config(shell);
 
 shell.registerCommand(new HelpCommand(shell));
