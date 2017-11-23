@@ -25,6 +25,31 @@ const newDBOnDisk: IDatabaseContents = {
     version: 1
 };
 
+const constantTimeCmp = JSONDatabaseWithAuth.constantTimeComparison;
+
+describe('JSONDatabaseWithAuth', () => {
+
+    describe('\'s constant-time comparison', () => {
+
+        it('handle equal strings', () => {
+            expect(constantTimeCmp('1234', '1234')).toBeTruthy();
+        });
+
+        it('handle non equal strings of same length', () => {
+            expect(constantTimeCmp('1234', '4321')).not.toBeTruthy();
+        });
+
+        it('handle non equal strings of different length', () => {
+            expect(constantTimeCmp('1', '123456789')).not.toBeTruthy();
+        });
+
+        it('handle non equal strings of same length', () => {
+            expect(constantTimeCmp('123456890', '')).not.toBeTruthy();
+        });
+    });
+
+});
+
 describe('JSONDatabaseWithAuth', () => {
 
     beforeEach(() => {

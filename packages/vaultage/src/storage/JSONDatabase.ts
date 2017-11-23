@@ -24,9 +24,9 @@ export interface IDatabaseContents {
 export class JSONDatabase implements IDatabase {
 
     constructor(
-            private readonly cipherLocation: string,
-            private readonly username: string,
-            private readonly password: string) {
+        private readonly cipherLocation: string,
+        private readonly username: string,
+        private readonly password: string) {
     }
 
     public async save(update: IDatabaseSaveParameters): Promise<string> {
@@ -88,6 +88,33 @@ export class JSONDatabase implements IDatabase {
 @Service()
 export class JSONDatabaseWithAuth extends DatabaseWithAuth {
 
+    /**
+     * Performs a constant-time comparison of two strings.
+     * Returns 0 iff a===b
+     * If a || b is null or undefined, immediately returns false (not time-constant)
+     */
+    public static constantTimeComparison(a: string, b: string): boolean {
+
+        let result: boolean = true;
+
+        if (a.length !== b.length) {
+            result = false;
+        }
+
+        const minLength = Math.min(a.length, b.length);
+
+        for (let i = 0; i < minLength; i++) {
+            const charA = a[i];
+            const charB = b[i];
+
+            if (charA !== charB) {
+                result = false;
+            }
+        }
+
+        return result;
+    }
+
     @Inject('cipherLocation')
     private readonly cipherLocation: string;
 
@@ -97,9 +124,10 @@ export class JSONDatabaseWithAuth extends DatabaseWithAuth {
                 encoding: 'utf-8'
             })) as IDatabaseContents;
 
-            // Leaks informations by timing analysis but proper bruteforce protection makes it impractical,
-            // also knowledge of the remote key doesn't relly help as one needs the local key to decrypt passwords.
-            if (contents.username !== creds.username || contents.password !== creds.password) {
+            const usernameOK = JSONDatabaseWithAuth.constantTimeComparison(contents.username, creds.username);
+            const passwordOK = JSONDatabaseWithAuth.constantTimeComparison(contents.password, creds.password);
+
+            if (!(usernameOK && passwordOK)) {
                 throw new AuthenticationError();
             }
         } catch (e) {

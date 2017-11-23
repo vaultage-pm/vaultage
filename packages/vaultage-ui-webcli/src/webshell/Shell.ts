@@ -1,8 +1,13 @@
+import { setTimeout } from 'timers';
+import { Vault } from 'vaultage-client';
+
 import { BusyIndicator } from './BusyIndicator';
 import { Formatter } from './Formatter';
-import { ICommand } from './ICommand';
 import { History } from './History';
+import { ICommand } from './ICommand';
 import { ICommandHandler, ICompletionResponse, Terminal } from './Terminal';
+import * as copy from 'copy-to-clipboard';
+
 
 /**
  * Simple web shell inspired by linux terminals.
@@ -11,10 +16,10 @@ import { ICommandHandler, ICompletionResponse, Terminal } from './Terminal';
  *
  * A promise-based API allows simple scripts to be written against the shell. Of course those scripts
  * only need to interact with the shell for I/O purposes and the rest is handled in plain JS.
- * 
+ *
  * The shell works as a dictionnary of commands. Each command is implemented through the interface
  * ICommand and registered in a shell using `registerCommand`
- * 
+ *
  * Features:
  *  - Command registration and input parameters parsing
  *  - Automatic help text generation
@@ -38,7 +43,8 @@ export class Shell implements ICommandHandler {
     private promptResolve: ((val: Promise<string>) => void) | null = null;
 
     constructor(
-            private terminal?: Terminal) {
+        private terminal?: Terminal,
+        private vault?: Vault) {
         if (terminal) {
             this.attach(terminal);
         }
@@ -80,6 +86,30 @@ export class Shell implements ICommandHandler {
      */
     public echoHTML(value: string) {
         this.safeGetTerminal().print(value, { unsafe_i_know_what_i_am_doing: true });
+        this.enablePassswordDoubleClick();
+    }
+
+
+    public enablePassswordDoubleClick() {
+        $('.password').off('dblclick');
+        $('.password').dblclick((event) => {
+            const e = event.target;
+            const id = $(e).data('id');
+            const pwd = $(e).html();
+
+            // copy the password to the clipboard
+            copy(pwd);
+
+            // indicate to the user that we copied it in the clipboard
+            const copiedElem = $(e).siblings('.copied');
+            copiedElem.addClass('visible');
+            setTimeout(() => copiedElem.removeClass('visible'), 1000);
+
+            // mark the entry as used
+            if (this.vault != null) {
+                this.vault.entryUsed(id);
+            }
+        });
     }
 
     /**
@@ -88,16 +118,16 @@ export class Shell implements ICommandHandler {
      * The promise may fail if the user decides to abort input (using ^C or ESC for instance)
      *
      * usage:
-     * 
+     *
      * const answer = shell.prompt('What is the answer to life?');
      *
      * @param question Text shown left to the user input
      */
     public prompt(question: string, defaultValue?: string): Promise<string> {
-        return this.unbusyAction((term) => new Promise(resolve => {
+        return this.unbusyAction((term) => new Promise((resolve) => {
             term.prompt = question + '&nbsp;';
 
-            if(defaultValue !== undefined){
+            if (defaultValue !== undefined) {
                 term.promptInput = defaultValue;
             }
             this.promptResolve = resolve;
@@ -111,7 +141,7 @@ export class Shell implements ICommandHandler {
      * @param question Text shown left to the user input
      */
     public promptSecret(question: string): Promise<string> {
-        return this.unbusyAction((term) => new Promise(resolve => {
+        return this.unbusyAction((term) => new Promise((resolve) => {
             term.secretMode = true;
             term.prompt = question + '&nbsp;';
             this.promptResolve = resolve;
@@ -131,14 +161,14 @@ export class Shell implements ICommandHandler {
      * Clears the log
      */
     public clearLog() {
-        if(this.terminal !== undefined){
-            this.terminal.clearLog()
+        if (this.terminal !== undefined) {
+            this.terminal.clearLog();
         }
     }
 
     /**
      * Attaches this shell to a terminal.
-     * 
+     *
      * The shell can in principle be moved from one terminal to another without
      * breaking functionnality or losing state, allowing complex setups such as GNU screen.
      *
@@ -154,9 +184,9 @@ export class Shell implements ICommandHandler {
      * Prints a help message describing the available commands.
      */
     public printShortHelp(): void {
-        const availableCommands = `Available commands: 
+        const availableCommands = `Available commands:
         ${ Object.keys(this.commands)
-            .map(c => '<i>'+c+'</>')
+            .map((c) => '<i>' + c + '</>')
             .join(',')
         }`;
         this.safeGetTerminal().print(availableCommands, { unsafe_i_know_what_i_am_doing: true });
@@ -169,7 +199,7 @@ export class Shell implements ICommandHandler {
         const availableCommands = `Available commands:<br>
         <table class="helptable">
         ${ Object.keys(this.commands)
-            .map(c => Formatter.format('<tr><td>- <b>%</b></td><td>%</td></tr>', ...[c, this.commands[c].description])).join('')
+            .map((c) => Formatter.format('<tr><td>- <b>%</b></td><td>%</td></tr>', ...[c, this.commands[c].description])).join('')
         }
         </table>`;
         this.safeGetTerminal().print(availableCommands, { unsafe_i_know_what_i_am_doing: true });
@@ -240,7 +270,7 @@ export class Shell implements ICommandHandler {
                 } else if (matching.length > 1) {
                     this.safeGetTerminal().printCurrentPrompt();
                     this.safeGetTerminal().print(matching
-                            .map(k => Formatter.format('<b>%</b>', k))
+                            .map((k) => Formatter.format('<b>%</b>', k))
                             .join('&#9;')
                         , { unsafe_i_know_what_i_am_doing: true });
                 }

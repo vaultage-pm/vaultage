@@ -28,5 +28,8 @@
     "typescript": "^2.5.3",
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.3"
+  },
+  "dependencies": {
+    "copy-to-clipboard": "^3.0.8"
   }
 }
