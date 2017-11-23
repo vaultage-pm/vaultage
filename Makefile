@@ -22,6 +22,9 @@ packages/vaultage-ui-webcli: packages/vaultage-client
 serve:
 	make -C packages/vaultage serve
 
+integration-test:
+	make -C packages/vaultage-client integration-test
+
 
 # === Boilerplate
 
