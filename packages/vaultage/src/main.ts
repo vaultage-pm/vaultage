@@ -23,6 +23,27 @@ import { initConfig, storagePath } from './tools/initConfig';
     (ie. binding to a TCP port or injecting actual I/O-bound dependencies).
 */
 
+if (process.argv.length > 2) {
+    const option = process.argv[2];
+    if (option === '-v' || option === '--version') {
+        printVersion();
+        process.exit(0);
+    } else {
+        console.log(`Unrecognized option '${option}'`);
+        printUsage();
+        process.exit(1);
+    }
+}
+
+function printUsage() {
+    console.log(`usage: vaultage-server [-v|--version]`);
+}
+
+function printVersion() {
+    const pkg = require(path.join(__dirname, '../../package.json'));
+    console.log(`${pkg.name} - ${pkg.version}`);
+}
+
 async function loadConfig(retry: boolean): Promise<void> {
     const configPath = storagePath(CONFIG_FILENAME);
     try {
