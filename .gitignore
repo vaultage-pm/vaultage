@@ -1,5 +1,1 @@
-config.php
-public/web-cli
-public/mobile-cli
-public/server
-composer.phar
+node_modules

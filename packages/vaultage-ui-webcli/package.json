@@ -1,35 +1,36 @@
 {
-  "name": "vaultage-ui-webcli",
-  "version": "0.0.0",
-  "description": "Vaultage web cli",
-  "main": "package.json",
-  "scripts": {
-    "test": "jest",
-    "copy-vaultage-client": "cross-env NODE_PATH=.. ts-node scripts/publish-deps.sh.ts",
-    "build": "webpack",
-    "serve": "webpack-dev-server"
-  },
-  "files": [
-    "public"
-  ],
-  "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/jquery": "^3.2.15",
-    "@types/node": "^8.0.47",
-    "@types/webpack-env": "^1.13.2",
-    "cross-env": "^5.1.1",
-    "fork-ts-checker-webpack-plugin": "^0.2.8",
-    "shelljs": "^0.7.8",
-    "ts-loader": "^3.1.0",
-    "ts-node": "^3.3.0",
-    "tslib": "^1.8.0",
-    "tslint": "^5.8.0",
-    "typescript": "^2.5.3",
-    "webpack": "^3.8.1",
-    "webpack-dev-server": "^2.9.3"
-  },
-  "dependencies": {
-    "copy-to-clipboard": "^3.0.8"
-  }
+    "name": "vaultage-ui-webcli",
+    "version": "0.0.0-dev",
+    "description": "Vaultage web cli",
+    "main": "package.json",
+    "scripts": {
+        "test": "jest",
+        "copy-vaultage-client": "cross-env NODE_PATH=.. ts-node scripts/publish-deps.sh.ts",
+        "build": "webpack",
+        "serve": "webpack-dev-server"
+    },
+    "files": [
+        "public"
+    ],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/jquery": "^3.2.15",
+        "@types/node": "^8.0.47",
+        "@types/webpack-env": "^1.13.2",
+        "cross-env": "^5.1.1",
+        "fork-ts-checker-webpack-plugin": "^0.2.8",
+        "shelljs": "^0.7.8",
+        "ts-loader": "^3.1.0",
+        "ts-node": "^3.3.0",
+        "tslib": "^1.8.0",
+        "tslint": "^5.8.0",
+        "typescript": "^2.5.3",
+        "vaultage-client": "0.0.0-dev",
+        "webpack": "^3.8.1",
+        "webpack-dev-server": "^2.9.3"
+    },
+    "dependencies": {
+        "copy-to-clipboard": "^3.0.8"
+    }
 }

@@ -1,70 +1,71 @@
 {
-  "name": "vaultage",
-  "version": "0.0.0-dev4",
-  "description": "Vaultage backend server",
-  "main": "dist/src/main.js",
-  "scripts": {
-    "build": "tsc",
-    "clean": "rimraf dist/",
-    "lint": "tslint -p .",
-    "start": "cross-env NODE_PATH=.. ts-node src/main.ts",
-    "test": "npm run lint && jest",
-    "watch": "jest --watch"
-  },
-  "bin": {
-    "vaultage": "./bin/vaultage.js"
-  },
-  "author": "",
-  "license": "MIT",
-  "dependencies": {
-    "body-parser": "^1.18.2",
-    "class-validator": "^0.7.3",
-    "cors": "^2.8.4",
-    "express": "^4.16.2",
-    "reflect-metadata": "^0.1.10",
-    "routing-controllers": "^0.7.6",
-    "typedi": "^0.5.2"
-  },
-  "files": [
-    "dist/src",
-    "bin"
-  ],
-  "devDependencies": {
-    "@types/express": "^4.0.38",
-    "@types/jest": "^21.1.5",
-    "@types/node": "^8.0.47",
-    "cross-env": "^5.1.1",
-    "jest": "^21.2.1",
-    "supertest": "^3.0.0",
-    "ts-jest": "^21.1.3",
-    "ts-node": "^3.3.0",
-    "tslint": "^5.8.0",
-    "typescript": "^2.5.3"
-  },
-  "jest": {
-    "transform": {
-      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    "name": "vaultage",
+    "version": "0.0.0-dev7",
+    "description": "Vaultage backend server",
+    "main": "dist/src/main.js",
+    "scripts": {
+        "build": "tsc",
+        "clean": "rimraf dist/",
+        "lint": "tslint -p .",
+        "start": "cross-env NODE_PATH=.. node dist/src/main.js",
+        "prestart": "npm run build",
+        "test": "npm run lint && jest",
+        "watch": "jest --watch"
     },
-    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.ts$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js"
-    ],
-    "coveragePathIgnorePatterns": [
-      "/node_modules/",
-      "/test/"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 50,
-        "functions": 100,
-        "lines": 100,
-        "statements": 100
-      }
+    "bin": {
+        "vaultage-server": "./bin/vaultage.js"
     },
-    "clearMocks": true,
-    "collectCoverage": true,
-    "mapCoverage": true
-  }
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "body-parser": "^1.18.2",
+        "class-validator": "^0.7.3",
+        "cors": "^2.8.4",
+        "express": "^4.16.2",
+        "reflect-metadata": "^0.1.10",
+        "routing-controllers": "^0.7.6",
+        "typedi": "^0.5.2"
+    },
+    "files": [
+        "dist/src",
+        "bin"
+    ],
+    "devDependencies": {
+        "@types/express": "^4.0.38",
+        "@types/jest": "^21.1.5",
+        "@types/node": "^8.0.47",
+        "cross-env": "^5.1.1",
+        "jest": "^21.2.1",
+        "supertest": "^3.0.0",
+        "ts-jest": "^21.1.3",
+        "ts-node": "^3.3.0",
+        "tslint": "^5.8.0",
+        "typescript": "^2.5.3"
+    },
+    "jest": {
+        "transform": {
+            ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+        },
+        "testRegex": "(/__tests__/.*|\\.(test|spec))\\.ts$",
+        "moduleFileExtensions": [
+            "ts",
+            "tsx",
+            "js"
+        ],
+        "coveragePathIgnorePatterns": [
+            "/node_modules/",
+            "/test/"
+        ],
+        "coverageThreshold": {
+            "global": {
+                "branches": 50,
+                "functions": 100,
+                "lines": 100,
+                "statements": 100
+            }
+        },
+        "clearMocks": true,
+        "collectCoverage": true,
+        "mapCoverage": true
+    }
 }
