@@ -36,7 +36,7 @@ async function configure() {
         type: 'list',
         name: 'channel',
         message: 'To which channel would you like to release?',
-        choices: ['dev', 'beta', 'latest'],
+        choices: ['dev', 'next', 'latest'],
         filter: function(val) {
           return val.toLowerCase();
         }
@@ -132,7 +132,7 @@ async function main() {
     }
 
     // Git release
-    if (config.releaseType !== 'prerelease' && channel === 'latest') {
+    if (channel === 'latest') {
         exec(`git tag -s -m "${config.message}" v${version}`);
         exec('git push --tags');
     }
@@ -147,6 +147,7 @@ async function main() {
     for (const pkg of packages) {
         const pkgJSONPath = path.join(__dirname, '../packages', pkg.name, 'package.json');
         const pkgJSON = require(pkgJSONPath);
+        pkgJSON.version = '0.0.0';
         // This might actually not be necessary if the package is cached we already get the original.
         for (const dep of pkg.dependencies) {
             delete pkgJSON.dependencies[dep];

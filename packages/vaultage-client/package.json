@@ -1,6 +1,6 @@
 {
     "name": "vaultage-client",
-    "version": "0.0.1-0",
+    "version": "0.0.0",
     "description": "SDK to write JavaScript clients for the Vaultage password manager",
     "main": "dist/vaultage.js",
     "types": "dist/vaultage.d.ts",
