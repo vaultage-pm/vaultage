@@ -18,7 +18,11 @@
   },
   "homepage": "https://github.com/lbarman/vaultage#readme",
   "devDependencies": {
+    "@types/inquirer": "0.0.35",
+    "@types/semver": "^5.4.0",
     "@types/shelljs": "^0.7.6",
+    "inquirer": "^4.0.0",
+    "semver": "^5.4.1",
     "shelljs": "^0.7.8",
     "ts-node": "^3.3.0",
     "typescript": "^2.6.1"

@@ -22,9 +22,18 @@ packages/vaultage-ui-webcli: packages/vaultage-client
 serve:
 	make -C packages/vaultage serve
 
+.PHONY: integration-test
 integration-test:
 	make -C packages/vaultage-client integration-test
 
+publish: node_modules
+	make test
+	make clean
+	make build
+	node_modules/.bin/ts-node tools/publish.ts
+
+node_modules: package.json package-lock.json
+	npm install
 
 # === Boilerplate
 
