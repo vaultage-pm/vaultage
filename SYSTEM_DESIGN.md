@@ -21,19 +21,19 @@ The server `S` is **semi-honest**: it will not run active attacks against the sy
 
 ## System properties
 
-1) Confidentiality at rest: No 3rd parties, including `A`, can retrieve `{P}` from data at rest.
+1) **Confidentiality at rest**: No 3rd parties, including `A`, can retrieve `{P}` from data at rest.
 
-2) Confidentiality in transit: No 3rd parties, including `A`, can retrieve `{P}` from data at in transit.
+2) **Confidentiality in transit**: No 3rd parties, including `A`, can retrieve `{P}` from data at in transit.
 
-3) Integrity protection: No 3rd parties, including `A`, can alter or delete `{P}`.
+3) **Integrity protection**: No 3rd parties, including `A`, can alter or delete `{P}`.
 
 ## Assumptions
 
-1) Sound encryption: we assume that the encryption used (`ENC`/`DEC`) is sound and does not leak information without the appropriate key.
+1) **Sound encryption**: we assume that the encryption used (`ENC`/`DEC`) is sound and does not leak information without the appropriate key.
 
-2) Sound hash functions: we assume that the hash function used (`H` and `PBKDF2`) are sound, and have the usual properties of a cryptographic hash functions (deterministic, cannot be inverted, collision resistant, has perfect diffusion).
+2) **Sound hash functions**: we assume that the hash function used (`H` and `PBKDF2`) are sound, and have the usual properties of a cryptographic hash functions (deterministic, cannot be inverted, collision resistant, has perfect diffusion).
 
-2) Authenticated communications: we assume the communication between `U` and `S` is encrypted (e.g., via TLS), and that `U` knows the public key of `S` (e.g., `S`'s public key is incorporated in the certificate signed by a valid Certificate Authority).
+2) **Authenticated communications**: we assume the communication between `U` and `S` is encrypted (e.g., via TLS), and that `U` knows the public key of `S` (e.g., `S`'s public key is incorporated in the certificate signed by a valid Certificate Authority).
 
 ## Overview
 
