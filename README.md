@@ -16,7 +16,7 @@ Vaultage is a **password manager**.
 - It is self-hosted: install it easily on your own server. **Everything is under your control**.
 - It is open-source: please feel to audit the code, and please report any bugs.
 
-How does it work ? Please check our document ![SYSTEM.md](SYSTEM.md) for the assumptions, the adversary model and the system design.
+How does it work ? Please check our document ![SYSTEM_DESIGN.md](SYSTEM_DESIGN.md) for the assumptions, the adversary model and the system design.
 
 ## Screenshots
 
@@ -36,10 +36,9 @@ npm install -g vaultage
 vaultage-server
 
 # then browse to http://localhost:3000/
-# Trouble beginning? First `auth`, then `ls`. Try to `gen` a password, then `get` it. Try to `rotate` this entry, perhaps `edit`.
 ```
 
-*NOTE: If deployed remotely, please deploy it behind a *reverse-proxy* with TLS for additional security. The security implications of both variants are explicited in ![SYSTEM.md](SYSTEM.md).
+*NOTE: If deployed remotely, please deploy it behind a *reverse-proxy* with TLS for additional security. The security implications of both variants are explicited in ![SYSTEM_DESIGN.md](SYSTEM_DESIGN.md).
 
 ## Backup instructions
 
