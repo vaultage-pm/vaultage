@@ -2,17 +2,16 @@
 
 ## System
 
-Let `{P}` be a plaintext collection of passwords.
+Entities:
 
-Let `S` be a server, `U` be a user device (e.g. computer, smartphone).
+- Let `{P}` be a plaintext collection of passwords.
+- Let `S` be a server, `U` be a user device (e.g. computer, smartphone).
+- Let `A` be the adversary (i.e., anyone that might try to steal your passwords `{P}`).
 
-Let `A` be the adversary (i.e., anyone that might try to steal your passwords `{P}`).
-
-Let `H` be a hash function; we use `H = SHA256`
-
-Let `PBKDF2` be a key derivation function; we use `PBKDF2` instantiated as `PBKDF2-HMAC-SHA256`
-
-Let `E` be an encryption/decryption function; we use `E = AES_CCM`. We write `E_key` to indicate that the encryption/decryption is under key `key`.
+Crypto primitives:
+- Let `H` be a hash function; we use `H = SHA256`
+- Let `PBKDF2` be a key derivation function; we use `PBKDF2` instantiated as `PBKDF2-HMAC-SHA256`
+- Let `ENC`/`DEC` be an encryption/decryption function; we use `ENC = AES_CCM`. We write `ENC_key` to indicate that the encryption/decryption is under key `key`.
 
 ## Threat model
 
@@ -22,11 +21,11 @@ The server `S` is **semi-honest**: it will not run active attacks against the sy
 
 ## Overview
 
-The server `S` offers the "Vaultage" service to the user device/user `U`. `S` stores the code necessary to run Vaultage, and `U` is stateless.
+The server `S` offers the "Vaultage" service to the user device/user `U`. The server `S` stores the code necessary to run Vaultage, and `U` is stateless.
 
 On a high level, `U` connects to `S`, retrieves the code for running Vaultage and an encrypted version of `{P}`. `U` will locally decrypt (and possibly update) `{P}`, then send an encrypted version of `{P}` to `S`.
 
-We assume the communication between `U` and `S` is encrypted (e.g., via TLS), and that `U` knows the public key of `S` (e.g., `S`'s public key is incorporated in the certificate signed by a Certificate Authority).
+We assume the communication between `U` and `S` is encrypted (e.g., via TLS), and that `U` knows the public key of `S` (e.g., `S`'s public key is incorporated in the certificate signed by a valid Certificate Authority).
 
 ## Strawman protocol
 
@@ -41,21 +40,18 @@ where `<-R` means "picks at random"
 
 First connection:
 1) `U` connects to `S`. 
-2) `S` sends the latest Vaultage client to `U`, as long as 
+2) `S` sends the latest Vaultage client to `U`.
 3) `U` runs the vaultage client.
-4) The user is prompter for its **master password** `MP`.
+4) `U` prompts the end-user its **master password** `MP`.
 5) From `MP`, `U` derivates the **remote key** `RK` and **local key** `LK` as follow :
 ```
-RK <- PBKDF2-HMAC-SHA256(MP, RS)
-LK <- PBKDF2-HMAC-SHA256(MP, LS)
+RK <- PBKDF2(MP, RS)
+LK <- PBKDF2(MP, LS)
 ```
 6) `U` sends a request `GET(RK)` to the server `S`.
 7) `S` stores `RK` and answers `CIPHER()`, the empty ciphertext.
 8) `U` sees that there is nothing to decrypt, and initialize an empty local database `DB`.
 10) `U` sends `UPDATE(RK, ENC_LK(DB))`, where `ENC_LK(DB)` is the encryption under `LK` of the database `DB`. The encryption is computed as follow:
-```
-ENC_LK(DB) <- AES_CCM(DB) with key LK
-```
 11) After verifying `RK`, `S` stores `ENC_LK(DB)`
 
 Normal usage phase:
@@ -65,12 +61,15 @@ Normal usage phase:
 4) The user is prompter for its **master password** `MP`.
 5) From `MP`, `U` derivates the **remote key** `RK` and **local key** `LK` as follow :
 ```
-RK <- PBKDF2-HMAC-SHA256(MP, RS)
-LK <- PBKDF2-HMAC-SHA256(MP, LS)
+RK <- PBKDF2(MP, RS)
+LK <- PBKDF2(MP, LS)
 ```
 6) `U` sends a request `GET(RK)` to the server `S`.
 7) `S` checks the provided `RK` against the stored one, and answers with `CIPHER(ENC_LK(DB))`
-8) `U` locally decrypts `CIPHER(ENC_LK(DB))` to `DB`
+8) `U` locally decrypts `CIPHER(ENC_LK(DB))` to `DB` as follow :
+```
+DB <- DEC_LK(ENC_LK(DB))
+```
 9) `U` interacts with `DB` (adds, edit passwords)
 10) `U` sends `UPDATE(RK, ENC_LK(DB))`, where `ENC_LK(DB)` is the encryption under `LK` of the database `DB`.
 11) After verifying `RK`, `S` stores `ENC_LK(DB)`
