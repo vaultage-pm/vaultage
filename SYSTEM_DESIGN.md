@@ -27,16 +27,24 @@ On a high level, `U` connects to `S`, retrieves the code for running Vaultage an
 
 We assume the communication between `U` and `S` is encrypted (e.g., via TLS), and that `U` knows the public key of `S` (e.g., `S`'s public key is incorporated in the certificate signed by a valid Certificate Authority).
 
+## Keys
+
+Vaultage uses 3 keys:
+
+- the **master key** `MP`, corresponding to the user password
+- the **remote key** `RK`, derived from `MP`, and used to *authenticate* `U` to `S`
+- the **local key** `LK`, derived from `MP`, and used to locally *encrypt* or *decrypt* the password database
+
 ## Strawman protocol
 
 Install phase:
-1) The vaultage server is installed on `S`
+1) The vaultage server is installed on `S`.
 2) Two salts, the **remote salt** `RS` and the **local salt** `LS`, are computed as follow:
 ```
 RS <-R {0,1}^{32}
 LS <-R {0,1}^{32}
 ```
-where `<-R` means "picks at random"
+where `<-R` means "picks at random".
 
 First connection:
 1) `U` connects to `S`. 
@@ -51,7 +59,7 @@ LK <- PBKDF2(MP, LS)
 6) `U` sends a request `GET(RK)` to the server `S`.
 7) `S` stores `RK` and answers `CIPHER()`, the empty ciphertext.
 8) `U` sees that there is nothing to decrypt, and initialize an empty local database `DB`.
-10) `U` sends `UPDATE(RK, ENC_LK(DB))`, where `ENC_LK(DB)` is the encryption under `LK` of the database `DB`. The encryption is computed as follow:
+10) `U` sends `UPDATE(RK, ENC_LK(DB))`, where `ENC_LK(DB)` is the encryption under `LK` of the database `DB`.
 11) After verifying `RK`, `S` stores `ENC_LK(DB)`
 
 Normal usage phase:
