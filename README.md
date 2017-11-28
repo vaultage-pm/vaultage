@@ -40,6 +40,25 @@ vaultage-server
 
 *NOTE: If deployed remotely, please deploy it behind a *reverse-proxy* with TLS for additional security. The security implications of both variants are explicited in [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md).
 
+## Config
+
+The config is auto-generated in `~/.vaultage/config.json`.
+
+It looks like this:
+
+```
+{
+    "default_user": "",
+    "salts": {
+        "local_key_salt":  "SOME_SALT",
+        "remote_key_salt": "SOME_SALT"
+    },
+    "version": 1
+}
+```
+
+There's nothing to change there, except filling `default_user` with the username you intend to use, so `auth` asks you one less question.
+
 ## Backup instructions
 
 Your configuration and encrypted database are both stored in `~/.vaultage`. Just zip that folder.
