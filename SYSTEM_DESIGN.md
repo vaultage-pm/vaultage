@@ -35,6 +35,14 @@ Vaultage uses 3 keys:
 - the **remote key** `RK`, derived from `MP`, and used to *authenticate* `U` to `S`
 - the **local key** `LK`, derived from `MP`, and used to locally *encrypt* or *decrypt* the password database
 
+## Messages between `U` and `S`
+
+The protocol uses three messages:
+
+- a message `GET` from `U` to `S`, requesting for the encrypted database
+- a message `CIPHER`from `S` to `U`, containing the encrypted database
+- a message `UPDATE`from `U` to `S`, containing an encrypted database, and requesting the server to store the new one.
+
 ## Strawman protocol
 
 Install phase:
