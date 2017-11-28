@@ -46,4 +46,4 @@ Your configuration and encrypted database are both stored in `~/.vaultage`. Just
 
 ## Contributing
 
-Please check ![CONTRIBUTING.md](CONTRIBUTING.md)
+Please check [CONTRIBUTING.md](CONTRIBUTING.md)
