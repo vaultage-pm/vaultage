@@ -190,6 +190,7 @@ export class Shell implements ICommandHandler {
             .join(',')
         }`;
         this.safeGetTerminal().print(availableCommands, { unsafe_i_know_what_i_am_doing: true });
+        this.safeGetTerminal().print('<span class="helpLine">Trouble beginning? First <i>auth</i> (on first use, any user/password works), then <i>ls</i>. Try to <i>gen</i> or <i>add</i> a password, then <i>get</i> it. Try to <i>rotate</i> or <i>edit</i> this entry.</span>', { unsafe_i_know_what_i_am_doing: true });
     }
 
     /**

@@ -156,3 +156,7 @@ td.empty {
     margin: 0 !important;
     width: 0px !important;
 }
+
+.helpLine {
+    color:#aaa;
+}
