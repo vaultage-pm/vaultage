@@ -1,33 +1,53 @@
+[![Build Status](https://travis-ci.org/lbarman/vaultage.svg)](https://travis-ci.org/lbarman/vaultage) 
+[![Dependency Status](https://david-dm.org/lbarman/vaultage.svg)](https://david-dm.org/lbarman/vaultage) 
+
 # Vaultage
 
-## Quick start
+A web-based, self-hosted password manager with client-side encryption.
+
+### Description
+
+Authors : Ludovic Barman, Hadrien Milano
+
+Vaultage is a password manager.
+
+- The password are encrypted/decrypted in your browser: no plaintext goes through the network; your passwords never leave your computer's memory.
+- It is in-browser, and can be accessed from all your devices.
+- It is self-hosted: install it easily on your own server. Everything is under your control.
+- It is open-source: please feel to audit the code, and please report any bugs.
+
+Security technologies used : the <a href="https://bitwiseshiftleft.github.io/">Stanford Javascript Crypto Library</a>, using SHA256 as a hash function, PBKDF2 as a key derivation function, and AES (256bits). Please check our document ![DESIGN.md]("DESIGN.md") for the adversary model and the system design.
+
+## Live demo
+
+ [-> access the live demo](https://demo.lbarman.ch/vaultage/)
+
+- username : __demo__
+- remote password : __demo1__
+- local password : __demo2__
+
+Trouble beginning? First `auth`, then `ls`. Try to `get Github`, then `gen` a new password, and `get` it.
+
+Database is reset at 00:00 CET
+
+## Examples
+
+![Vaultage demo 1](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot1.png "Vaultage demo 1")
+
+![Vaultage demo 2](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot2.png "Vaultage demo 2")
+
+
+## Installing Vaultage locally or on your server*
 
     # Install dependencies and build all:
-    make
-    # Start a server:
-    make serve
+    npm install -g vaultage
+    # Start the vaultage server
+    vaultage-server
     # then browse to
     http://localhost:3000/
 
+* If deployed remotely, please deploy it behind a *reverse-proxy* with TLS for additional security.
 
-## Understanding the folder structure
+## Contributing
 
-- `vaultage` is the backend that simply checks for authentication, and stores and delivers the ciphertext to the clients. It is rather *dumb*, if you removes the authentication part, it simply stores the ciphertext (and some configuration). It also serves the webcli at the root path "/".
-- `vaultage-client` is a collection of Typescript classes that run on the *client* and are used by the `vaultage-ui`'s. This is where the real magic happen: this class pulls the ciphertext from the `vaultage-server`, decrypts and parses it, allows the `vaultage-ui`'s to interact with the decrypted database, and then re-encrypts and sends the result to the server.
-- `vaultage-ui-webcli` is a full-featured user interface that allows you do everything
-
-## How to interact with the folders
-
-- `vaultage`
-    - `npm start` start the server
-- `vaultage-client` : 
-    - `make test` to test the build
-    - `make dist/vaultage.js` to compile everything into a single `.js` file that can be imported by clients
-    - `make demo` to compile and run a demo showing how to interact with Vaultage's main class, the `Vault`
-    - `make clean` to remove the compiled `.js` files
-- `vaultage-ui-webcli`
-    - `make build` to
-        - copy the compiled `.js` file from `vaultage-client` (you need to run `make dist/vaultage.js` in `vaultage-client`)
-        - build the UI into `public/`
-    - `make serve` to build and serve the UI at `http://localhost:9000`. It watches for file changes in the UI.
-    - `make clean` to remove the compiled files in `public/dist`
+Please check ![CONTRIBUTING.md](CONTRIBUTING.md)
