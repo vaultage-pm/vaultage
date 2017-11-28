@@ -35,7 +35,7 @@ The server `S` is **semi-honest**: it will not run active attacks against the sy
 
 2) **Sound hash functions**: we assume that the hash function used (`H` and `PBKDF2`) are sound, and have the usual properties of a cryptographic hash functions (deterministic, cannot be inverted, collision resistant, etc).
 
-2) **Authenticated communications**: we assume the communication between `U` and `S` is encrypted (e.g., via TLS), and that `U` knows the public key of `S` (e.g., `S`'s public key is incorporated in the certificate signed by a valid Certificate Authority).
+2) **Authenticated and confidential communications**: we assume the communication between `U` and `S` is encrypted (e.g., via TLS), and that `U` knows the public key of `S` (e.g., `S`'s public key is incorporated in the certificate signed by a valid Certificate Authority).
 
 ## Overview
 
@@ -192,7 +192,7 @@ We treat our system properties one by one:
 
 2) **Confidentiality in transit**: No 3rd parties, including `A`, can retrieve `{P}` from data at in transit.
 
-All communications are confidential and integrity-protected (Assumption 3).
+All communications are integrity-protected (Assumption 3).
 
 3) **Integrity protection**: No 3rd parties, including `A`, can alter or delete `{P}`.
 
