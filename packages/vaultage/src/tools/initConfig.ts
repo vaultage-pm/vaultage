@@ -23,7 +23,7 @@ export function initConfig(): Promise<void> {
         // Get random bytes for salts generation.
         // SALT_LENGTH is the lenght in hexadecimal of each salt
         // so we neeed SALT_LENGTH/2 * number_of_salts bytes in total.
-        crypto.randomBytes(SALTS_LENGTH, (err, buf) => {
+        crypto.randomBytes(2 * SALTS_LENGTH, (err, buf) => {
             if (err) {
                 return reject(err);
             }
@@ -35,7 +35,7 @@ export function initConfig(): Promise<void> {
                 default_user: '',
                 salts: {
                     local_key_salt: hexbytes.substr(0, SALTS_LENGTH),
-                    remote_key_salt: hexbytes.substr(0, SALTS_LENGTH)
+                    remote_key_salt: hexbytes.substr(SALTS_LENGTH, 2 * SALTS_LENGTH)
                 }
             };
 
