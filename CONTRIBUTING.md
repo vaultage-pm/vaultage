@@ -1,10 +1,14 @@
-### Understanding the folder structure
+# Contributing to Vaultage
+
+xxx
+
+## Understanding the folder structure
 
 - `vaultage` is the backend that simply checks for authentication, and stores and delivers the ciphertext to the clients. It is rather *dumb*, if you removes the authentication part, it simply stores the ciphertext (and some configuration). It also serves the webcli at the root path "/".
 - `vaultage-client` is a collection of Typescript classes that run on the *client* and are used by the `vaultage-ui`'s. This is where the real magic happen: this class pulls the ciphertext from the `vaultage-server`, decrypts and parses it, allows the `vaultage-ui`'s to interact with the decrypted database, and then re-encrypts and sends the result to the server.
 - `vaultage-ui-webcli` is a full-featured user interface that allows you do everything
 
-### How to interact with the folders
+## How to interact with the folders
 
 - `vaultage`
     - `npm start` start the server
