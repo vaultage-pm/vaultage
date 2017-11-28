@@ -19,15 +19,29 @@ The user device `U` is **trusted** (or **honest**): we assume that it is control
 
 The server `S` is **semi-honest**: it will not run active attacks against the system, but might be curious and try to *passively* learn `{P}`.
 
+## System properties
+
+1) Confidentiality at rest: No 3rd parties, including `A`, can retrieve `{P}` from data at rest.
+
+2) Confidentiality in transit: No 3rd parties, including `A`, can retrieve `{P}` from data at in transit.
+
+3) Integrity protection: No 3rd parties, including `A`, can alter or delete `{P}`.
+
+## Assumptions
+
+1) Sound encryption: we assume that the encryption used (`ENC`/`DEC`) is sound and does not leak information without the appropriate key.
+
+2) Sound hash functions: we assume that the hash function used (`H` and `PBKDF2`) are sound, and have the usual properties of a cryptographic hash functions (deterministic, cannot be inverted, collision resistant, has perfect diffusion).
+
+2) Authenticated communications: we assume the communication between `U` and `S` is encrypted (e.g., via TLS), and that `U` knows the public key of `S` (e.g., `S`'s public key is incorporated in the certificate signed by a valid Certificate Authority).
+
 ## Overview
 
 The server `S` offers the "Vaultage" service to the user device/user `U`. The server `S` stores the code necessary to run Vaultage, and `U` is stateless.
 
 On a high level, `U` connects to `S`, retrieves the code for running Vaultage and an encrypted version of `{P}`. `U` will locally decrypt (and possibly update) `{P}`, then send an encrypted version of `{P}` to `S`.
 
-We assume the communication between `U` and `S` is encrypted (e.g., via TLS), and that `U` knows the public key of `S` (e.g., `S`'s public key is incorporated in the certificate signed by a valid Certificate Authority).
-
-## Keys
+### Keys
 
 Vaultage uses 3 keys:
 
@@ -35,7 +49,7 @@ Vaultage uses 3 keys:
 - the **remote key** `RK`, derived from `MP`, and used to *authenticate* `U` to `S`
 - the **local key** `LK`, derived from `MP`, and used to locally *encrypt* or *decrypt* the password database
 
-## Messages between `U` and `S`
+### Messages between `U` and `S`
 
 The protocol uses three messages:
 
@@ -44,6 +58,8 @@ The protocol uses three messages:
 - a message `UPDATE`from `U` to `S`, containing an encrypted database, and requesting the server to store the new one.
 
 ## Strawman protocol
+
+This is a simplified version of the protocol. The real protocol is described below.
 
 Install phase:
 1) The vaultage server is installed on `S`.
@@ -89,6 +105,37 @@ DB <- DEC_LK(ENC_LK(DB))
 9) `U` interacts with `DB` (adds, edit passwords)
 10) `U` sends `UPDATE(RK, ENC_LK(DB))`, where `ENC_LK(DB)` is the encryption under `LK` of the database `DB`.
 11) After verifying `RK`, `S` stores `ENC_LK(DB)`
+
+## Serializable protocol
+
+We slightly complexify the above protocol to add *serializability* to the updates.
+
+### Motivations
+
+Intuitively, we want to avoid a user with two devices `U1`, `U2` to lose data by doing:
+
+```
+U1 <- GET()
+U2 <- GET()
+U1 locally changes DB to DB'
+U2 locally changes DB to DB''
+U1 -> UPDATE(..., DB')
+U2 -> UPDATE(..., DB'') # DB' is lost
+```
+
+### Protocol
+
+- Let `DB` be the database stored by `S` (actually, `S` stores `ENC(DB)`).
+- Let `DB_NEW` be the altered database, part of an `UPDATE` message, e.g. `UPDATE(RK, ENC_LK(DB_NEW))`.
+- We change the `UPDATE(RK, ENC_LK(DB_NEW))` message to `UPDATE(RK, ENC_LK(DB_NEW), H(DB))`, i.e. we include the hash of the *old* database in the `UPDATE` message.
+- `S` stores `ENC(DB)` **and** `H(DB)`.
+- `S` accept an `UPDATE` message *iff* the provided `H(DB)` matches the stored one.
+
+This ensure all updates are sequential, to the cost of possibly denying an update to the user `U`. 
+
+### Second improvement
+
+The protocol above does not protects against loss of information if the user updates its master key `MK`, but does not changes the content of `DB`: 
 
 ## What if
 
