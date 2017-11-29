@@ -40,7 +40,7 @@ node_modules: package.json package-lock.json
 
 $(INDEX): $(SRC)
 	rm -f $(INDEX)
-	for i in $(subst .ts, , $(SRC)); do echo export \* from \"./$$i\" >> $(INDEX); done
+	for i in $(subst .ts, , $(SRC)); do echo export \* from \'./$$i\' >> $(INDEX); done
 
 $(DEMO_BIN): $(DEMO) $(SRC) node_modules
 	node node_modules/.bin/tsc --outDir demo/tmp $(DEMO)

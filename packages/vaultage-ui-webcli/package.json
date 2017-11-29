@@ -4,7 +4,8 @@
     "description": "Vaultage web cli",
     "main": "package.json",
     "scripts": {
-        "test": "jest",
+        "test": "npm run lint && jest",
+        "lint": "tslint -p .",
         "build": "webpack",
         "serve": "webpack-dev-server"
     },
@@ -25,7 +26,6 @@
         "tslib": "^1.8.0",
         "tslint": "^5.8.0",
         "typescript": "^2.5.3",
-        "vaultage-client": "0.0.0-dev",
         "webpack": "^3.8.1",
         "webpack-dev-server": "^2.9.3"
     },

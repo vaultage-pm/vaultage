@@ -1,3 +1,4 @@
+import * as copy from 'copy-to-clipboard';
 import { setTimeout } from 'timers';
 import { Vault } from 'vaultage-client';
 
@@ -6,7 +7,6 @@ import { Formatter } from './Formatter';
 import { History } from './History';
 import { ICommand } from './ICommand';
 import { ICommandHandler, ICompletionResponse, Terminal } from './Terminal';
-import * as copy from 'copy-to-clipboard';
 
 
 /**
@@ -262,7 +262,7 @@ export class Shell implements ICommandHandler {
             if (pos <= firstWord.length) {
                 // We can autocomplete the first word at that point
                 const toMatch = firstWord.trim();
-                const matching = Object.keys(this.commands).filter(k => k.startsWith(toMatch));
+                const matching = Object.keys(this.commands).filter((k) => k.startsWith(toMatch));
                 if (matching.length === 1) {
                     return {
                         line: matching[0] + ' ' + restOfCommand,
@@ -296,13 +296,23 @@ export class Shell implements ICommandHandler {
             this.printHelp();
             return;
         }
-        const result = handler.handle(parts.slice(1));
-        if (result && result.then) {
-            this.enterBusyMode();
-            result.then(
-                () => this.exitBusyMode(),
-                () => this.exitBusyMode()
-            );
+        try {
+            const result = handler.handle(parts.slice(1));
+            if (result && result.then) {
+                // Handles asynchronous workflow (error and happy path)
+                this.enterBusyMode();
+                result.catch((e) => {
+                    this.echoError('' + e);
+                    console.error(e);
+                }).then(
+                    () => this.exitBusyMode(),
+                    () => this.exitBusyMode()
+                );
+            }
+        } catch (e) {
+            // This branch handles synchronous errors
+            this.echoError('' + e);
+            console.error(e);
         }
     }
 
@@ -378,7 +388,7 @@ export class Shell implements ICommandHandler {
                     if (wasBusy) {
                         this.enterBusyMode();
                     }
-                }
+                };
                 try {
                     const ret = await cb(term);
                     restore();
