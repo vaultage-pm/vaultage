@@ -1,35 +1,30 @@
-import { IVaultDBEntryAttrs } from 'vaultage-client';
+import axios from 'axios';
 
-import { IVaultageConfig } from '../../vaultage/src/VaultageConfig';
-import { Vault } from '../vaultage';
+import { IVaultDBEntryAttrs } from '../src/VaultDB';
+import { ISaltsConfig, Vault } from '../vaultage';
 
 async function runIntegrationTest() {
     try {
-        const salts = this.config.getSalts();
-
         const serverUrl = 'http://localhost:3000/';
         const username = 'any';
         const masterpwd = 'masterpwd';
-        let config: IVaultageConfig;
 
         // fetch config
         console.log('Trying to contact Vaultage server on', serverUrl);
-        $.ajax({
-            async: false,
-            type: 'GET',
-            url: serverUrl + 'config',
-            success: (data) => {
-                config = (data as IVaultageConfig);
-            }
-        });
+        const config = (await axios.get(serverUrl + 'config')).data;
 
         console.log('Got the config, continuing...');
 
         // create vault
         let vault = new Vault();
 
+        const deeperSalt: ISaltsConfig = {
+            LOCAL_KEY_SALT: config.salts.local_key_salt,
+            REMOTE_KEY_SALT: config.salts.remote_key_salt
+        };
+
         // authenticate and pull ciphers
-        await new Promise((resolve, reject) => this.vault.auth(serverUrl, username, masterpwd, config.salts, (err) => {
+        await new Promise((resolve, reject) => vault.auth(serverUrl, username, masterpwd, deeperSalt, (err) => {
             if (err == null) {
                 resolve();
             } else {
@@ -55,7 +50,7 @@ async function runIntegrationTest() {
 
         console.log('Pushing the db...');
 
-        await new Promise((resolve, reject) => this.vault.save((err) => {
+        await new Promise((resolve, reject) => vault.save((err) => {
             if (err == null) {
                 resolve();
             } else {
@@ -70,7 +65,7 @@ async function runIntegrationTest() {
 
 
         // authenticate and pull ciphers
-        await new Promise((resolve, reject) => this.vault.auth(serverUrl, username, masterpwd, config.salts, (err) => {
+        await new Promise((resolve, reject) => vault.auth(serverUrl, username, masterpwd, deeperSalt, (err) => {
             if (err == null) {
                 resolve();
             } else {
@@ -112,7 +107,7 @@ async function runIntegrationTest() {
         console.log('Saving it...');
 
         // manually save
-        await new Promise((resolve, reject) => this.vault.save((err) => {
+        await new Promise((resolve, reject) => vault.save((err) => {
             if (err == null) {
                 resolve();
             } else {
@@ -123,7 +118,7 @@ async function runIntegrationTest() {
         console.log('Manually pulling the db...');
 
         // try to manually pull the db
-        await new Promise((resolve, reject) => this.vault.pull((err) => {
+        await new Promise((resolve, reject) => vault.pull((err) => {
             if (err == null) {
                 resolve();
             } else {
@@ -154,7 +149,7 @@ async function runIntegrationTest() {
 
         const newMasterPassword = 'masterpwd2';
 
-        await new Promise((resolve, reject) => this.vault.updateMasterPassword(newMasterPassword, (err) => {
+        await new Promise((resolve, reject) => vault.updateMasterPassword(newMasterPassword, (err) => {
             if (err == null) {
                 resolve();
             } else {
@@ -168,7 +163,7 @@ async function runIntegrationTest() {
         vault = new Vault();
 
         // authenticate and pull ciphers
-        await new Promise((resolve, reject) => this.vault.auth(serverUrl, username, newMasterPassword, config.salts, (err) => {
+        await new Promise((resolve, reject) => vault.auth(serverUrl, username, newMasterPassword, deeperSalt, (err) => {
             if (err == null) {
                 resolve();
             } else {
@@ -212,7 +207,7 @@ async function runIntegrationTest() {
         console.log('Trying to pull the cipher (should fail)');
 
         // try to manually pull the db (should fail - resolve/reject inverted)
-        await new Promise((resolve, reject) => this.vault.pull((err) => {
+        await new Promise((resolve, reject) => vault.pull((err) => {
             if (err != null) {
                 resolve();
             } else {
