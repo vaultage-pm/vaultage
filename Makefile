@@ -20,16 +20,17 @@ packages/vaultage-ui-webcli: packages/vaultage-client
 
 .PHONY: serve
 serve:
-	make -C packages/vaultage serve
+	$(MAKE) build
+	$(MAKE) -C packages/vaultage serve
 
 .PHONY: integration-test
 integration-test:
-	make -C packages/vaultage-client integration-test
+	$(MAKE) -C packages/vaultage-client integration-test
 
 publish: node_modules
-	make test
-	make clean
-	make build
+	$(MAKE) test
+	$(MAKE) clean
+	$(MAKE) build
 	node_modules/.bin/ts-node tools/publish.ts
 
 node_modules: package.json package-lock.json
