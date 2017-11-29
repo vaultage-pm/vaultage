@@ -5,7 +5,6 @@
     "main": "package.json",
     "scripts": {
         "test": "jest",
-        "copy-vaultage-client": "cross-env NODE_PATH=.. ts-node scripts/publish-deps.sh.ts",
         "build": "webpack",
         "serve": "webpack-dev-server"
     },

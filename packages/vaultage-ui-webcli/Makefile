@@ -6,9 +6,11 @@ VAULTAGE_CLIENT=../vaultage-client/dist/vaultage.js
 
 $(VAULTAGE_CLIENT):
 	$(MAKE) -C ../vaultage-client build
+	mkdir -p public/dist
+	cp $(VAULTAGE_CLIENT) public/dist
 
 .PHONY: build
-build: $(VAULTAGE_CLIENT) $(BIN) copy-vaultage-client
+build: $(VAULTAGE_CLIENT) $(BIN)
 
 .PHONY: clean
 clean:
@@ -24,10 +26,6 @@ test: node_modules
 
 
 # Other tasks
-
-.PHONY: copy-vaultage-client
-copy-vaultage-client: node_modules
-	npm run copy-vaultage-client
 
 $(BIN): $(SRC) node_modules
 	npm run build
