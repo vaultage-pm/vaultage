@@ -1,10 +1,14 @@
 SRC=$(shell find src/ -type f -name '*.ts')
 BIN=public/dist/main.js
+VAULTAGE_CLIENT=../vaultage-client/dist/vaultage.js
 
 # Mandatory tasks (imposed by the top-level Makefile)
 
+$(VAULTAGE_CLIENT):
+	$(MAKE) -C ../vaultage-client build
+
 .PHONY: build
-build: $(BIN) copy-vaultage-client
+build: $(VAULTAGE_CLIENT) $(BIN) copy-vaultage-client
 
 .PHONY: clean
 clean:
