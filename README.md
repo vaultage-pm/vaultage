@@ -42,26 +42,20 @@ vaultage-server
 
 ## Config
 
-The config is auto-generated in `~/.vaultage/config.json`.
+When starting, `vaultage-server` will look for config settings in `~/.vaultage/config.json`. If this file does not exist it will be automatically generated. This file should be included in any backup as instructed in the backup section below.
 
-It looks like this:
+Configuration settings are enumerated below:
 
-```
-{
-    "default_user": "",
-    "salts": {
-        "local_key_salt":  "SOME_SALT",
-        "remote_key_salt": "SOME_SALT"
-    },
-    "version": 1
-}
-```
+- **default_user**  
+Value used by the web UI to prefill the username field during authentication. Use this setting if you don't want to type your username every time you log in.
 
-There's nothing to change there, except filling `default_user` with the username you intend to use, so `auth` asks you one less question.
+- **salts**  
+Cryptographic salts used for authentication and encryption. **Losing these will make you unable to decipher your vault, make sure to always have a backup of the salts along with the backup of your vault**.
 
 ## Backup instructions
 
-Your configuration and encrypted database are both stored in `~/.vaultage`. Just zip that folder.
+Your configuration and encrypted vault are both stored in `~/.vaultage`. You **must** keep an up-to-date copy of this folder somewhere [safe](https://en.wikipedia.org/wiki/Information_security#Key_concepts) in case you lose the original.  
+To restore your vault from a backup, simply copy the files back to `~/.vaultage` and restart `vaultage-server`.
 
 ## Contributing
 
