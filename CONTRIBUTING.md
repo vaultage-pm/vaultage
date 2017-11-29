@@ -33,7 +33,6 @@ Please contact us / open a PR with your great ideas!
         - `make test` to test the build
         - `make clean` to remove the compiled files in `public/dist`
         - `make cleanall` to remove the node_modules
-        - `make demo` to compile and run a demo showing how to interact with Vaultage's main class, the `Vault`
         - `make integration-test` to run a test-case against a server already running at `http://localhost:3000`
     - `vaultage-ui-webcli`
         - `make build` to
