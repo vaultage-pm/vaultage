@@ -1,6 +1,6 @@
-import { PasswordStrength } from '../../vaultage';
-import { Crypto, VaultDB } from '../../vaultage';
-
+import { Crypto } from '../src/Crypto';
+import { PasswordStrength } from '../src/Passwords';
+import { VaultDB } from '../src/VaultDB';
 
 test('Workflow', () => {
 
