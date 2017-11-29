@@ -2,10 +2,18 @@ import { Crypto } from '../src/Crypto';
 import { PasswordStrength } from '../src/Passwords';
 import { VaultDB } from '../src/VaultDB';
 
+const verbose = false;
+
+function cPrint(v) {
+    if (verbose) {
+        console.log(v);
+    }
+}
+
 test('Workflow', () => {
 
-    console.log('Demoing the encryption / decryption locally...');
-    console.log('Note that this is demoing the inside of the vaultage SDK but all of this complexity' +
+    cPrint('Demoing the encryption / decryption locally...');
+    cPrint('Note that this is demoing the inside of the vaultage SDK but all of this complexity' +
         ' is going to be hidden behind the Vault class.\n');
 
     const crypto = new Crypto({
@@ -16,7 +24,7 @@ test('Workflow', () => {
     const masterKey = 'ilovesushi';
 
     const key = crypto.deriveLocalKey(masterKey);
-    console.log('My local key is: ' + key + '\n');
+    cPrint('My local key is: ' + key + '\n');
 
     // tslint:disable-next-line:object-literal-key-quotes
     const db = new VaultDB({'0': {
@@ -36,24 +44,24 @@ test('Workflow', () => {
     const plain = VaultDB.serialize(db);
     const fp = crypto.getFingerprint(plain, key);
 
-    console.log('Here is what the db looks like initially: ');
-    console.log(db);
-    console.log('Fingerprint: ' + fp);
+    cPrint('Here is what the db looks like initially: ');
+    cPrint(db);
+    cPrint('Fingerprint: ' + fp);
 
-    console.log('\n\nNow I\'m gonna encrypt the db');
+    cPrint('\n\nNow I\'m gonna encrypt the db');
     const enc = crypto.encrypt(key, plain);
 
-    console.log('Here is the cipher:\n');
-    console.log(enc);
+    cPrint('Here is the cipher:\n');
+    cPrint(enc);
 
-    console.log('\n\nAnd now let\'s get back the original:');
+    cPrint('\n\nAnd now let\'s get back the original:');
 
     const dec = crypto.decrypt(key, enc);
     const decFP = crypto.getFingerprint(dec, key);
     const decDB = VaultDB.deserialize(dec);
 
-    console.log(decDB);
-    console.log('Fingerprint: ' + decFP);
+    cPrint(decDB);
+    cPrint('Fingerprint: ' + decFP);
 
     expect(fp).toEqual(decFP);
     expect(plain).toEqual(dec);
