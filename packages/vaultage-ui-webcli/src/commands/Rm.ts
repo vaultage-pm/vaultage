@@ -22,39 +22,34 @@ export class RmCommand implements ICommand {
             return;
         }
 
-        try {
-
-            let id: string;
-            if (args.length === 0) {
-                id = await this.shell.prompt('Entry ID:');
-            } else {
-                id = args[0];
-            }
-
-            const e = this.vault.getEntry(id);
-            this.shell.echoHTML(VaultEntryFormatter.formatSingle(e));
-
-            const answer = await this.shell.prompt('Confirm removal of entry #' + id + ' ? [y/N]');
-
-            if (answer !== 'y' && answer !== 'Y') {
-                this.shell.echo('Cancelled.');
-                return;
-            }
-
-            this.vault.removeEntry(id);
-            this.shell.echo('Remove entry #' + id);
-
-            await new Promise((resolve, reject) => this.vault.save((err) => {
-                if (err == null) {
-                    resolve();
-                } else {
-                    reject(err);
-                }
-            }));
-
-            this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
-        } catch (e) {
-            this.shell.echoError(e.toString());
+        let id: string;
+        if (args.length === 0) {
+            id = await this.shell.prompt('Entry ID:');
+        } else {
+            id = args[0];
         }
+
+        const e = this.vault.getEntry(id);
+        this.shell.echoHTML(VaultEntryFormatter.formatSingle(e));
+
+        const answer = await this.shell.prompt('Confirm removal of entry #' + id + ' ? [y/N]');
+
+        if (answer !== 'y' && answer !== 'Y') {
+            this.shell.echo('Cancelled.');
+            return;
+        }
+
+        this.vault.removeEntry(id);
+        this.shell.echo('Remove entry #' + id);
+
+        await new Promise((resolve, reject) => this.vault.save((err) => {
+            if (err == null) {
+                resolve();
+            } else {
+                reject(err);
+            }
+        }));
+
+        this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
     }
 }

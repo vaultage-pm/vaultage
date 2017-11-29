@@ -27,14 +27,9 @@ export class GetCommand implements ICommand {
             return;
         }
 
-        try {
-            const results = this.vault.findEntries(...searchTerms);
-            const coloredSearchString = VaultEntryFormatter.searchTermsToHighlightedString(searchTerms);
-            this.shell.echoHTML('Searching for ' + coloredSearchString + ', ' + results.length + ' matching entries.');
-            this.shell.echoHTML(VaultEntryFormatter.formatAndHighlightBatch(results, searchTerms));
-
-        } catch (e) {
-            this.shell.echoError(e.toString());
-        }
+        const results = this.vault.findEntries(...searchTerms);
+        const coloredSearchString = VaultEntryFormatter.searchTermsToHighlightedString(searchTerms);
+        this.shell.echoHTML('Searching for ' + coloredSearchString + ', ' + results.length + ' matching entries.');
+        this.shell.echoHTML(VaultEntryFormatter.formatAndHighlightBatch(results, searchTerms));
     }
 }

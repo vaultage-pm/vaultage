@@ -20,20 +20,16 @@ export class PushCommand implements ICommand {
             return;
         }
 
-        try {
-            this.shell.echo(`Attempting to push the encrypted database ...`);
+        this.shell.echo(`Attempting to push the encrypted database ...`);
 
-            await new Promise((resolve, reject) => this.vault.save((err) => {
-                if (err == null) {
-                    resolve();
-                } else {
-                    reject(err);
-                }
-            }));
+        await new Promise((resolve, reject) => this.vault.save((err) => {
+            if (err == null) {
+                resolve();
+            } else {
+                reject(err);
+            }
+        }));
 
-            this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
-        } catch (e) {
-            this.shell.echoError(e.toString());
-        }
+        this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
     }
 }

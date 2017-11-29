@@ -25,52 +25,46 @@ export class RotateCommand implements ICommand {
             return;
         }
 
-        try {
-
-            let id: string;
-            if (args.length === 0) {
-                id = await this.shell.prompt('Entry ID:');
-            } else {
-                id = args[0];
-            }
-
-            const entry = this.vault.getEntry(id);
-
-            const rnd: IRandomness = new ConcreteRandomnessGenerator();
-            const pwdGen = new Passwords(rnd);
-            const newPassword = pwdGen.generatePassword(
-                config.PWD_GEN_LENGTH,
-                config.PWD_GEN_USE_SYMBOLS,
-                config.PWG_GEN_AVOID_VISUALLY_SIMILAR_CHARS,
-                config        .PWD_GEN_AVOID_PUNCTUATION_USED_IN_PROGRAMMING);
-
-            const newEntry: IVaultDBEntryAttrs = {
-                title: entry.title,
-                login: entry.login,
-                password: newPassword,
-                url: entry.url
-            };
-
-            this.vault.updateEntry(id, newEntry);
-
-            this.shell.echoHTML('Entry #' + id + ' was :');
-            this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry));
-            this.shell.echoHTML('Entry #' + id + ' now is :');
-            const entry2 = this.vault.getEntry(id);
-            this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry2));
-
-            await new Promise((resolve, reject) => this.vault.save((err) => {
-                if (err == null) {
-                    resolve();
-                } else {
-                    reject(err);
-                }
-            }));
-
-            this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
-
-        } catch (e) {
-            this.shell.echoError(e.toString());
+        let id: string;
+        if (args.length === 0) {
+            id = await this.shell.prompt('Entry ID:');
+        } else {
+            id = args[0];
         }
+
+        const entry = this.vault.getEntry(id);
+
+        const rnd: IRandomness = new ConcreteRandomnessGenerator();
+        const pwdGen = new Passwords(rnd);
+        const newPassword = pwdGen.generatePassword(
+            config.PWD_GEN_LENGTH,
+            config.PWD_GEN_USE_SYMBOLS,
+            config.PWG_GEN_AVOID_VISUALLY_SIMILAR_CHARS,
+            config.PWD_GEN_AVOID_PUNCTUATION_USED_IN_PROGRAMMING);
+
+        const newEntry: IVaultDBEntryAttrs = {
+            title: entry.title,
+            login: entry.login,
+            password: newPassword,
+            url: entry.url
+        };
+
+        this.vault.updateEntry(id, newEntry);
+
+        this.shell.echoHTML('Entry #' + id + ' was :');
+        this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry));
+        this.shell.echoHTML('Entry #' + id + ' now is :');
+        const entry2 = this.vault.getEntry(id);
+        this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry2));
+
+        await new Promise((resolve, reject) => this.vault.save((err) => {
+            if (err == null) {
+                resolve();
+            } else {
+                reject(err);
+            }
+        }));
+
+        this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
     }
 }

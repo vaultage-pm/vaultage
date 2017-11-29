@@ -24,41 +24,36 @@ export class GenCommand implements ICommand {
             return;
         }
 
-        try {
+        const rnd: IRandomness = new ConcreteRandomnessGenerator();
+        const pwdGen = new Passwords(rnd);
+        const password = pwdGen.generatePassword(
+            config.PWD_GEN_LENGTH,
+            config.PWD_GEN_USE_SYMBOLS,
+            config.PWG_GEN_AVOID_VISUALLY_SIMILAR_CHARS,
+            config.PWD_GEN_AVOID_PUNCTUATION_USED_IN_PROGRAMMING);
 
-            const rnd: IRandomness = new ConcreteRandomnessGenerator();
-            const pwdGen = new Passwords(rnd);
-            const password = pwdGen.generatePassword(
-                config.PWD_GEN_LENGTH,
-                config.PWD_GEN_USE_SYMBOLS,
-                config.PWG_GEN_AVOID_VISUALLY_SIMILAR_CHARS,
-                config.PWD_GEN_AVOID_PUNCTUATION_USED_IN_PROGRAMMING);
+        const title = await this.shell.prompt('Title:');
+        const username = await this.shell.prompt('Username:');
+        const url = await this.shell.promptSecret('Url:');
 
-            const title = await this.shell.prompt('Title:');
-            const username = await this.shell.prompt('Username:');
-            const url = await this.shell.promptSecret('Url:');
+        const newEntry: IVaultDBEntryAttrs = {
+            title: title,
+            login: username,
+            password: password,
+            url: url
+        };
 
-            const newEntry: IVaultDBEntryAttrs = {
-                title: title,
-                login: username,
-                password: password,
-                url: url
-            };
+        const newEntryID = this.vault.addEntry(newEntry);
+        this.shell.echoHTML(`Added entry #${newEntryID}, generated password is <span class='blurred'>${password}</span>`);
 
-            const newEntryID = this.vault.addEntry(newEntry);
-            this.shell.echoHTML(`Added entry #${newEntryID}, generated password is <span class='blurred'>${password}</span>`);
+        await new Promise((resolve, reject) => this.vault.save((err) => {
+            if (err == null) {
+                resolve();
+            } else {
+                reject(err);
+            }
+        }));
 
-            await new Promise((resolve, reject) => this.vault.save((err) => {
-                if (err == null) {
-                    resolve();
-                } else {
-                    reject(err);
-                }
-            }));
-
-            this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
-        } catch (e) {
-            this.shell.echoError(e.toString());
-        }
+        this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
     }
 }

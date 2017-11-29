@@ -22,16 +22,10 @@ export class RawImportCommand implements ICommand {
             return;
         }
 
-        try {
-
-            const json = await this.shell.prompt('JSON:');
-            const entries: IVaultDBEntry[] = JSON.parse(json);
-            this.vault.replaceAllEntries(entries); // can throw exceptions on malformed input
-            this.shell.echoHTML('Import successful, db now contains ' + this.vault.getNbEntries() + '. <b>It has not been pushed</b>, ' + 
-                'please explore the data with <i>get</i>, then <i>push</i> to confirm or <i>pull</i> to abort this import.');
-
-        } catch (e) {
-            this.shell.echoError(e.toString());
-        }
+        const json = await this.shell.prompt('JSON:');
+        const entries: IVaultDBEntry[] = JSON.parse(json);
+        this.vault.replaceAllEntries(entries); // can throw exceptions on malformed input
+        this.shell.echoHTML('Import successful, db now contains ' + this.vault.getNbEntries() + '. <b>It has not been pushed</b>, ' +
+            'please explore the data with <i>get</i>, then <i>push</i> to confirm or <i>pull</i> to abort this import.');
     }
 }

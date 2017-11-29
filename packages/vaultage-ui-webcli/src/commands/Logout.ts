@@ -14,12 +14,7 @@ export class LogoutCommand implements ICommand {
     }
 
     public async handle() {
-        try {
-            this.vault.unauth();
-            this.shell.echo('Logout OK.');
-
-        } catch (e) {
-            this.shell.echoHTML('<span class="error">Failed. ' + e.toString() + '</span>');
-        }
+        this.vault.unauth();
+        this.shell.echo('Logout OK.');
     }
 }

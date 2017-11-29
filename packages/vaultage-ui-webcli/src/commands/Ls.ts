@@ -22,13 +22,8 @@ export class LsCommand implements ICommand {
             return;
         }
 
-        try {
-            this.shell.echo('Vault revision #' + this.vault.getDBRevision() + ', ' + this.vault.getNbEntries() + ' entries.');
-            const allEntries = this.vault.getAllEntries();
-            this.shell.echoHTML(VaultEntryFormatter.formatBatch(allEntries));
-
-        } catch (e) {
-            this.shell.echoError(e.toString());
-        }
+        this.shell.echo('Vault revision #' + this.vault.getDBRevision() + ', ' + this.vault.getNbEntries() + ' entries.');
+        const allEntries = this.vault.getAllEntries();
+        this.shell.echoHTML(VaultEntryFormatter.formatBatch(allEntries)); p
     }
 }
