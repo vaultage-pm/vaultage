@@ -234,8 +234,6 @@ async function runIntegrationTest() {
         }));
 
         console.log('Everything went well ! Test OK.');
-        process.exit(0);
-
     } catch (e) {
         console.log('Error:', e);
         process.exit(1);

@@ -15,7 +15,7 @@ make serve 1>"$SERVER_LOGFILE" 2>&1 &
 serverPid="$!"
 
 echo "Sleeping for a while (30 sec)..."
-sleep 30
+sleep 20
 
 lastLine=$(cat "$SERVER_LOGFILE" | tail -n 1)
 if [ "$lastLine" != "$EXPECTED_LAST_LINE" ]; then
@@ -30,7 +30,8 @@ if [ "$lastLine" != "$EXPECTED_LAST_LINE" ]; then
 fi
 
 # try running it
-res=$(make integration-test-client)
+make -C packages/vaultage-client integration-test
+res=$?
 
 echo "Cleaning up server..."
 kill "$serverPid"

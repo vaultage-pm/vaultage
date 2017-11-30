@@ -27,10 +27,6 @@ serve:
 integration-test:
 	./tools/integration-test.sh
 
-.PHONY: integration-test-client
-integration-test-client:
-	$(MAKE) -C packages/vaultage-client integration-test
-
 publish: node_modules
 	$(MAKE) test
 	$(MAKE) clean
