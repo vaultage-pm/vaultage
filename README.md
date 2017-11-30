@@ -20,8 +20,6 @@ How does it work ? Please check our document [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md
 
 ## Screenshots
 
-TODO: New screenshots
-
 ![Vaultage demo 1](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot1.png "Vaultage demo 1")
 
 ![Vaultage demo 2](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot2.png "Vaultage demo 2")
