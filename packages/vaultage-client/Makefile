@@ -24,7 +24,7 @@ cleanall: clean
 	rm -rf node_modules
 
 .PHONY: test
-test: node_modules $(SRC) $(TESTS)
+test: node_modules $(SRC) $(INDEX) $(TESTS)
 	npm test
 
 # Other tasks
@@ -37,7 +37,7 @@ node_modules: package.json package-lock.json
 
 $(INDEX): $(SRC)
 	rm -f $(INDEX)
-	for i in $(subst .ts, , $(SRC)); do echo export \* from \'./$$i\' >> $(INDEX); done
+	for i in $(subst .ts, , $(SRC)); do echo export \* from \'./$$i\'; >> $(INDEX); done
 
 .PHONY: integration-test
 integration-test: $(INDEX) node_modules
