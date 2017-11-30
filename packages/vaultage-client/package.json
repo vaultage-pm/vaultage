@@ -17,15 +17,15 @@
         "dist/vaultage.d.ts",
         "lib"
     ],
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/lbarman/vaultage.git"
-    },
     "contributors": [
-        "Ludovic Barman (https://github.com/lbarman)",
-        "Hadrien Milano (https://github.com/hmil)"
+        "Ludovic Barman <ludovic.barman@protonmail.com> (https://lbarman.ch/)",
+        "Hadrien Milano <hadrien.milano@gmail.com> (https://hmil.fr)"
     ],
     "license": "GPL-2.0",
+    "repository" :{
+        "type" : "git", 
+        "url" : "https://github.com/lbarman/vaultge"
+    },
     "bugs": {
         "url": "https://github.com/lbarman/vaultage/issues"
     },

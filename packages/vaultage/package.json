@@ -15,8 +15,15 @@
     "bin": {
         "vaultage-server": "./bin/vaultage.js"
     },
-    "author": "",
-    "license": "MIT",
+    "contributors": [
+        "Ludovic Barman <ludovic.barman@protonmail.com> (https://lbarman.ch/)",
+        "Hadrien Milano <hadrien.milano@gmail.com> (https://hmil.fr)"
+    ],
+    "license": "GPL-2.0",
+    "repository" :{
+        "type" : "git", 
+        "url" : "https://github.com/lbarman/vaultge"
+    },
     "dependencies": {
         "body-parser": "^1.18.2",
         "class-validator": "^0.7.3",
