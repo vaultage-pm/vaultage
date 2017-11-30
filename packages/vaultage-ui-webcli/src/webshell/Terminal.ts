@@ -124,11 +124,11 @@ export class Terminal {
             }
         }
 
-       this.focus();
+        this.focus();
 
-       this.$el.addEventListener('keydown', (evt: KeyboardEvent) => this.handler.onKeyDown(evt, this));
-       this.$el.addEventListener('keyup', (evt: KeyboardEvent) => this.handler.onKeyUp(evt, this));
-       this.$el.addEventListener('mouseup', () => setImmediate(() => this.onMouseUp()));
+        this.$el.addEventListener('keydown', (evt: KeyboardEvent) => this.handler.onKeyDown(evt, this));
+        this.$el.addEventListener('keyup', (evt: KeyboardEvent) => this.handler.onKeyUp(evt, this));
+        this.$el.addEventListener('mouseup', () => setImmediate(() => this.onMouseUp()));
     }
 
     /**
@@ -165,8 +165,23 @@ export class Terminal {
     /**
      * Clears the log of all data
      */
-    public clearLog(){
-        this.$log.innerHTML = ''
+    public clearLog() {
+        this.$log.innerHTML = '';
+    }
+
+
+    /**
+     * Appends a separator
+     *
+     * @param text The text to append.
+     * @param opts Advanced options
+     */
+    public separator(): Element {
+        const entry = document.createElement('span');
+        entry.className = 'separator';
+        this.$log.appendChild(entry);
+        this.scrollToBottom();
+        return entry;
     }
 
     /**

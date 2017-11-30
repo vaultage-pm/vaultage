@@ -76,6 +76,10 @@ export class Shell implements ICommandHandler {
         );
     }
 
+    public separator() {
+        this.safeGetTerminal().separator();
+    }
+
     /**
      * Appends a raw HTML string to the console.
      *

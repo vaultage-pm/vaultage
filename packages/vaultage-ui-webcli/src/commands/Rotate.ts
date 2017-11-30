@@ -66,5 +66,6 @@ export class RotateCommand implements ICommand {
         }));
 
         this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
+        this.shell.separator();
     }
 }
