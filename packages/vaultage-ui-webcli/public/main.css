@@ -1,0 +1,162 @@
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    background-color: #00060e;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.terminal {
+    height: 100%;
+    padding: 10px;
+    color: #0c0;
+    overflow: auto;
+}
+
+.terminal .input,
+.terminal .cmd {
+    color: #0e0;
+    text-shadow: 0 0 2px rgba(0,100,0,50);
+    font-weight: bold;
+}
+.terminal,
+.terminal .input {
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.terminal .promptLine {
+    flex-direction: row;
+    display: flex;
+}
+
+.terminal .prompt {
+    display: inline;
+}
+
+.terminal .input {
+    background: none;
+    border: none;
+    outline: none;
+    margin: 0;
+    padding: 0;
+    flex-grow: 1;
+}
+
+.terminal .log {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    white-space: normal;
+}
+
+.highlight {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+}
+
+.highlight0 {
+    color:white;
+}
+.highlight1 {
+    color:#F92672;
+}
+.highlight2 {
+    color:#AE81FF;
+}
+.highlight3 {
+    color:#66D9EF;
+}
+.highlight4 {
+    color:#3E7ED9;
+}
+
+.error {
+    color:rgb(249, 38, 38);
+}
+
+.blurred {
+    text-shadow: 0px 0px 6px rgb(0, 204, 0);
+    color: transparent;
+}
+
+.blurred .highlight0, .blurred .highlight1, .blurred .highlight2, .blurred .highlight3, .blurred .highlight4 {
+    color: transparent;
+}
+
+.blurred:hover{
+    text-shadow: 0px 0px 0px rgb(0, 0, 0);
+    color: #0c0;
+}
+
+.blurred:hover .highlight1, .blurred:hover .highlight2, .blurred:hover .highlight3, .blurred:hover .highlight4, .blurred:hover .highlight5 {
+    color: #0c0;
+}
+
+
+.entry span {
+    margin-left: 10px;
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.entry .id {
+    width: 50px;
+}
+
+.entry .title {
+    background-color: rgb(51, 51, 51);
+    padding: 0px;
+    padding-left: 6px;
+    padding-right: 6px;
+    font-weight: bold;
+}
+
+.entry .copied {
+    color: #ffda00;
+    display: none;
+    opacity: 1;
+}
+
+.entry .copied.visible {
+    display: block;
+}
+
+.reuse{
+    color: yellow;
+}
+
+a, a:hover, a:visited {
+    color: #0c0 !important;
+}
+
+.helptable td {
+    padding-right: 20px;
+}
+
+.entryCollection td {
+    padding-right: 10px !important;
+    padding-left: 10px !important;
+}
+
+.mediumPassword {
+    color: yellow;
+}
+
+.weakPassword {
+    color: yellow;
+    font-weight: bold;
+}
+
+td.empty {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 0px !important;
+}
+
+.helpLine {
+    color:#aaa;
+}

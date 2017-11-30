@@ -1,0 +1,30 @@
+{
+  "name": "vaultage-monorepo",
+  "version": "0.0.0",
+  "description": "Development infra for the Vaultage password manager",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "publish": "ts-node tools/publish.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lbarman/vaultage.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lbarman/vaultage/issues"
+  },
+  "homepage": "https://github.com/lbarman/vaultage#readme",
+  "devDependencies": {
+    "@types/inquirer": "0.0.35",
+    "@types/semver": "^5.4.0",
+    "@types/shelljs": "^0.7.6",
+    "inquirer": "^4.0.0",
+    "semver": "^5.4.1",
+    "shelljs": "^0.7.8",
+    "ts-node": "^3.3.0",
+    "typescript": "^2.6.1"
+  }
+}

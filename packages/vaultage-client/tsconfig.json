@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "outDir": "dist",
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "module": "commonjs",
+    "target": "es5",
+    "allowJs": false,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "lib": [ "es2015", "dom" ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "integration-test/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

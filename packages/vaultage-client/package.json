@@ -1,0 +1,78 @@
+{
+    "name": "vaultage-client",
+    "version": "0.0.0",
+    "description": "SDK to write JavaScript clients for the Vaultage password manager",
+    "main": "dist/vaultage.js",
+    "types": "dist/vaultage.d.ts",
+    "scripts": {
+        "build": "webpack",
+        "clean": "rimraf dist/",
+        "lint": "tslint -p .",
+        "test": "npm run lint && jest",
+        "watch": "jest --watch"
+    },
+    "files": [
+        "dist/src",
+        "dist/vaultage.js",
+        "dist/vaultage.d.ts",
+        "lib"
+    ],
+    "contributors": [
+        "Ludovic Barman <ludovic.barman@protonmail.com> (https://lbarman.ch/)",
+        "Hadrien Milano <hadrien.milano@gmail.com> (https://hmil.fr)"
+    ],
+    "license": "GPL-2.0",
+    "repository" :{
+        "type" : "git", 
+        "url" : "https://github.com/lbarman/vaultge"
+    },
+    "bugs": {
+        "url": "https://github.com/lbarman/vaultage/issues"
+    },
+    "homepage": "https://github.com/lbarman/vaultage#readme",
+    "dependencies": {
+        "jquery": "^3.2.1",
+        "request": "2.83.0",
+        "xhr": "2.4.0"
+    },
+    "devDependencies": {
+        "@types/jest": "^21.1.6",
+        "@types/jquery": "^3.2.15",
+        "@types/node": "^8.0.4",
+        "axios": "^0.17.1",
+        "jest": "^21.2.1",
+        "ts-jest": "^21.2.3",
+        "ts-loader": "3.1.1",
+        "ts-node": "^3.3.0",
+        "tslint": "^5.8.0",
+        "typescript": "2.6.1",
+        "webpack": "3.8.1"
+    },
+    "jest": {
+        "transform": {
+            ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+        },
+        "testRegex": "(/__tests__/.*|\\.(test|spec))\\.ts$",
+        "moduleFileExtensions": [
+            "ts",
+            "tsx",
+            "js"
+        ],
+        "coveragePathIgnorePatterns": [
+            "/node_modules/",
+            "/test/",
+            "sjcl.js"
+        ],
+        "coverageThreshold": {
+            "global": {
+                "branches": 50,
+                "functions": 70,
+                "lines": 70,
+                "statements": 70
+            }
+        },
+        "clearMocks": true,
+        "collectCoverage": true,
+        "mapCoverage": true
+    }
+}

@@ -1,84 +1,62 @@
+[![Build Status](https://travis-ci.org/lbarman/vaultage.svg)](https://travis-ci.org/lbarman/vaultage) 
+[![Dependency Status](https://david-dm.org/lbarman/vaultage.svg)](https://david-dm.org/lbarman/vaultage) 
+
 # Vaultage
+
 A web-based, self-hosted password manager with client-side encryption.
 
-### Description
+Authors: ![Ludovic Barman](https://github.com/lbarman/), ![Hadrien Milano](https://github.com/hmil/)
 
-Author : Ludovic Barman
+## Description
 
-Vaultage is a password manager.
+Vaultage is a **password manager**.
 
-It is in-browser, and can be accessed from all your devices; the password are encrypted/decrypted in your browser : no plaintext goes through the network. It is self-hosted : install it securely on your own server, and it is open-source : please report any bugs on here; I'll do my best to fix them.
+- The password are encrypted/decrypted in your browser: no plaintext goes through the network; **your passwords never leave your computer's memory**.
+- It is in-browser, and can be accessed from **all your devices**.
+- It is self-hosted: install it easily on your own server. **Everything is under your control**.
+- It is open-source: please feel to audit the code, and please report any bugs.
 
-Security technologies used : <a href="https://code.google.com/archive/p/crypto-js/">CryptoJS</a>, and the <a href="https://bitwiseshiftleft.github.io/">Stanford Javascript Crypto Library</a>, using SHA256 as a hash function, and AES (256bits).
-Plaintext passwords never leave your computer's memory. 
+How does it work ? Please check our document [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md) for the assumptions, the adversary model and the system design.
 
-## Live demo
+## Screenshots
 
- [-> access the live demo](https://demo.lbarman.ch/vaultage/)
-
-- username : __demo__
-- remote password : __demo1__
-- local password : __demo2__
-
-Trouble beginning? First `auth`, then `ls`. Try to `get Github`, then `gen` a new password, and `get` it.
-
-Database is reset at 00:00 CET
-
-## Examples
+TODO: New screenshots
 
 ![Vaultage demo 1](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot1.png "Vaultage demo 1")
 
 ![Vaultage demo 2](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot2.png "Vaultage demo 2")
 
-## Requirements
+## Installing Vaultage locally or on your server*
 
-1. (HTTPS) web server with javascript and php
-2. mysql
+```
+# Install vaultage
+npm install -g vaultage
 
-## Setup
+# Start the vaultage server
+vaultage-server
 
-1. create the database, using `resources/db_setup.sql`
-2. move `config.default.php` to `config.php`, edit the contents accordingly
-3. upload all contents to your web server, serve `clients/web-cli`
+# then browse to http://localhost:3000/
+```
 
-## Docker setup
+*NOTE: If deployed remotely, please deploy it behind a *reverse-proxy* with TLS for additional security. The security implications of both variants are explicited in [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md).
 
-Or, instead of the above setup, you can directly spawn a docker container. See the [Docker README](https://github.com/lbarman/vaultage/tree/master/resources/docker-nginx).
+## Config
 
-## Possible commands
+When starting, `vaultage-server` will look for config settings in `~/.vaultage/config.json`. If this file does not exist it will be automatically generated. This file should be included in any backup as instructed in the backup section below.
 
-- `auth` : authenticate to the mysql server, and `pull`s the entries
-- `la` : alias for `loadauth`, the one I use everyday to login
+Configuration settings are enumerated below:
 
-common :
+- **default_user**  
+Value used by the web UI to prefill the username field during authentication. Use this setting if you don't want to type your username every time you log in.
 
-- `get TERM` : filter the results, and display the matching password entry (supports multi-terms; find all entries matching all terms. use `get -or TERM1 TERM2` to get every entry matching any terms
-- `new` : creates a new password entry, then `push`es the changes
-- `gen` : creates a new password entry with a random password, and `push`es the changes
-- `edit ID` : edits the entry ID (ID is the number in parenthesis). Use KEY_UP to display the previous content.
-- `rm ID` : removes the entry ID
-- `rotate ID` : re-generates a new password for entry ID, keeping all other fields the same
+- **salts**  
+Cryptographic salts used for authentication and encryption. **Losing these will make you unable to decipher your vault, make sure to always have a backup of the salts along with the backup of your vault**.
 
-less common :
+## Backup instructions
 
-- `push` : pushes the current entries to the database. Check that no overwrite is done; use `push --force` with caution.
-- `pull` : pulls the entries from the database
-- `clear` : clear the screen
-- `logout` : clear all the in-memory authentication information
-- `pwd` : to change your local password. Once done, the next `push` will use the new password.
+Your configuration and encrypted vault are both stored in `~/.vaultage`. You **must** keep an up-to-date copy of this folder somewhere [safe](https://en.wikipedia.org/wiki/Information_security#Key_concepts) in case you lose the original.  
+To restore your vault from a backup, simply copy the files back to `~/.vaultage` and restart `vaultage-server`.
 
-cookies: 
+## Contributing
 
-- `saveauth` : saves the username and the remote password in a cookie. _does not save the local password_ by design.
-- `loadauth` : loads the username and the remote password from the cookie, and asks for the local password. Use as quicker an alternative to `auth`. Also `pull`s the entries
-- `clearauth` : removes all authentication cookies
-
-## Email backups
-
-If you server supports it, you can enable email backup; every time a change is made, the database content (it's a ciphertext) is sent to your email. This way, if something goes wrong, you always have intermediate version of your password database. You can either plug it back in the database, or you can decrypt it with a little javascript (my own ["urgence decryptor" script](https://lbarman.ch/server/aes.html) ).
-
-To enable it, fill in the information in `config.php`
-
-## Contributors
-
-Thanks to [hmil](github.com/hmil) for his security audit, PR for structure + Docker setup
+Please check [CONTRIBUTING.md](CONTRIBUTING.md)
