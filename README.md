@@ -38,7 +38,7 @@ vaultage-server
 # then browse to http://localhost:3000/
 ```
 
-*NOTE: If deployed remotely, please deploy it behind a *reverse-proxy* with TLS for additional security. The security implications of both variants are explicited in [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md).
+*NOTE: If deployed remotely, please deploy it behind a *reverse-proxy* with TLS; contacting Vaultage remotely over HTTP is very insecure.
 
 ## Config
 

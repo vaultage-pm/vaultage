@@ -26,5 +26,6 @@ export class WeakCommand implements ICommand {
         const results = this.vault.getWeakPasswords(PasswordStrength.MEDIUM);
         this.shell.echoHTML('Searching for entries with a weak password, ' + results.length + ' matching entries.');
         this.shell.echoHTML(VaultEntryFormatter.formatBatch(results));
+        this.shell.separator();
     }
 }

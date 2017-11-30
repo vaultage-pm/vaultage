@@ -25,5 +25,6 @@ export class ReusedCommand implements ICommand {
         const results = this.vault.getEntriesWhichReusePasswords();
         this.shell.echoHTML('Searching for entries with a non-unique password, ' + results.length + ' matching entries.');
         this.shell.echoHTML(VaultEntryFormatter.formatBatch(results));
+        this.shell.separator();
     }
 }

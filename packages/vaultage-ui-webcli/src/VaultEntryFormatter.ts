@@ -7,13 +7,17 @@ export class VaultEntryFormatter {
      * @param entries
      */
     public static formatBatch(entries: IVaultDBEntry[]): string {
-        let stringBuilder = '<table class="entryCollection">';
+        let stringBuilder = '';
 
         for (const e of entries) {
             stringBuilder += this._formatSingleForBatch(e);
         }
 
-        return stringBuilder + '</table>';
+        if (stringBuilder === '') {
+            return '';
+        }
+
+        return '<table class="entryCollection">' + stringBuilder + '</table>';
     }
 
     /**

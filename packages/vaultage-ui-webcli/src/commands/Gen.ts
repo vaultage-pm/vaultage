@@ -34,7 +34,7 @@ export class GenCommand implements ICommand {
 
         const title = await this.shell.prompt('Title:');
         const username = await this.shell.prompt('Username:');
-        const url = await this.shell.promptSecret('Url:');
+        const url = await this.shell.prompt('Url:');
 
         const newEntry: IVaultDBEntryAttrs = {
             title: title,
@@ -55,5 +55,6 @@ export class GenCommand implements ICommand {
         }));
 
         this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
+        this.shell.separator();
     }
 }

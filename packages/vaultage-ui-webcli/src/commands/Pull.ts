@@ -31,5 +31,6 @@ export class PullCommand implements ICommand {
         }));
 
         this.shell.echo('Pull OK, got ' + this.vault.getNbEntries() + ' entries (revision ' + this.vault.getDBRevision() + ').');
+        this.shell.separator();
     }
 }

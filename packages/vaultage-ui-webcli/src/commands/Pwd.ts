@@ -51,6 +51,8 @@ export class PwdCommand implements ICommand {
             }
         }));
 
-        this.shell.echo('Password change OK (db at revision ' + this.vault.getDBRevision() + '). Please use the new password from now on.');
+        this.shell.echo('Password change OK (db at revision ' + this.vault.getDBRevision() + '). Please use the new password' +
+        + 'from now on.');
+        this.shell.separator();
     }
 }
