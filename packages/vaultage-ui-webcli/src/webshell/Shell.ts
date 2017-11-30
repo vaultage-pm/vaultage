@@ -56,6 +56,9 @@ export class Shell implements ICommandHandler {
      * @param value text to show
      */
     public echo(value: string) {
+        if (value === '') {
+            return;
+        }
         this.safeGetTerminal().print(value);
     }
 
@@ -89,6 +92,9 @@ export class Shell implements ICommandHandler {
      * @param value properly escaped HTML string
      */
     public echoHTML(value: string) {
+        if (value === '') {
+            return;
+        }
         this.safeGetTerminal().print(value, { unsafe_i_know_what_i_am_doing: true });
         this.enablePassswordDoubleClick();
     }
