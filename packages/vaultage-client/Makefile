@@ -40,5 +40,5 @@ $(INDEX): $(SRC)
 	for i in $(subst .ts, , $(SRC)); do echo export \* from \'./$$i\' >> $(INDEX); done
 
 .PHONY: integration-test
-integration-test: $(INDEX)
+integration-test: $(INDEX) node_modules
 	node_modules/.bin/ts-node $(IT)

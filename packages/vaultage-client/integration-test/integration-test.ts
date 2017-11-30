@@ -11,7 +11,18 @@ async function runIntegrationTest() {
 
         // fetch config
         console.log('Trying to contact Vaultage server on', serverUrl);
-        const config = (await axios.get(serverUrl + 'config')).data;
+        let config: any;
+        try {
+            config = (await axios.get(serverUrl + 'config')).data;
+        } catch (err) {
+            // make this common error more verbose
+            if (err.code === 'ECONNREFUSED') {
+                console.log('Error: cannot contact the server on ' + serverUrl + '. For this integration test, ' +
+                'you need to manually start a vaultage server, or use the top-level script ./tools/integration-test.sh.');
+                process.exit(1);
+            }
+            throw err;
+        }
 
         console.log('Got the config, continuing...');
 
@@ -28,6 +39,12 @@ async function runIntegrationTest() {
             if (err == null) {
                 resolve();
             } else {
+                // make this common error more verbose
+                if (err.message === 'Error: Invalid credentials') {
+                    console.log('Error: Invalid credentials. This integration test is meant to be ' +
+                    'run against an *empty* db - please (backup and) delete ~/.vaultage and retry.');
+                    process.exit(1);
+                }
                 reject(err);
             }
         }));
@@ -54,6 +71,7 @@ async function runIntegrationTest() {
             if (err == null) {
                 resolve();
             } else {
+                console.log(err);
                 reject(err);
             }
         }));
