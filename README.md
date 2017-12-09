@@ -5,7 +5,7 @@
 
 A web-based, self-hosted password manager with client-side encryption.
 
-Authors: ![Ludovic Barman](https://github.com/lbarman/), ![Hadrien Milano](https://github.com/hmil/)
+Authors: [Ludovic Barman](https://github.com/lbarman/), [Hadrien Milano](https://github.com/hmil/)
 
 ## Description
 
