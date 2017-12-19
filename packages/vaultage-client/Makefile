@@ -35,7 +35,6 @@ $(BIN): node_modules $(INDEX) $(SRC)
 node_modules: package.json package-lock.json
 	npm install
 
-.PHONY: $(INDEX)
 $(INDEX): $(SRC)
 	rm -f $(INDEX)
 	for i in $(subst .ts, , $(SRC)); do echo "export * from './$$i';" >> $(INDEX); done
