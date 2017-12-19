@@ -266,15 +266,15 @@ export class VaultDB {
      * Returns the next free ID
      */
     public nextFreeId(): string {
-        let nextFreeID = this.size();
-        let key: string = '' + nextFreeID;
+        let i = this.size();
+        let nextFreeID: string = '' + i;
 
-        while ( key in this._entries ) {
-            nextFreeID++;
-            key = '' + nextFreeID;
+        while ( nextFreeID in this._entries ) {
+            i++;
+            nextFreeID = '' + i;
         }
 
-        return key;
+        return nextFreeID;
     }
 
     /**
