@@ -143,6 +143,67 @@ describe('VaultDB.ts can', () => {
         expect(db.getEntriesWhichReusePasswords().length).toEqual(4);
     });
 
+
+    it('create a vault that handles IDs correctly', () => {
+        const db = new VaultDB({});
+        const e = {
+            title: 'Title1',
+            login: 'Bob',
+            password: 'zephyr',
+            url: 'http://example.com'
+        };
+        db.add(e);
+
+        const e2 = {
+            title: 'Title2',
+            login: 'EntryWithSamePwd',
+            password: 'zephyr',
+            url: 'http://example.com'
+        };
+        db.add(e2);
+
+        const e3 = {
+            title: 'Title3',
+            login: 'EntryWith',
+            password: 'uniquePasswd',
+            url: 'http://example.com'
+        };
+        db.add(e3);
+
+        expect(db.get('0').title).toEqual('Title1');
+        expect(db.get('1').title).toEqual('Title2');
+        expect(db.get('2').title).toEqual('Title3');
+        expect(db.getAll().length).toEqual(3);
+
+        // db length is 3
+        expect(db.nextFreeId()).toEqual('3');
+
+        db.remove('1');
+
+        expect(db.get('0').title).toEqual('Title1');
+        expect(db.get('2').title).toEqual('Title3');
+        expect(db.getAll().length).toEqual(2);
+
+        // db length is 2
+        expect(db.nextFreeId()).toEqual('3');
+
+        const e4 = {
+            title: 'Title4',
+            login: 'EntryWith',
+            password: 'zephyr',
+            url: 'http://example.com'
+        };
+        db.add(e4);
+
+        expect(db.get('0').title).toEqual('Title1');
+        expect(db.get('2').title).toEqual('Title3');
+        expect(db.get('3').title).toEqual('Title4');
+        expect(db.getAll().length).toEqual(3);
+
+        // db length is 2
+        expect(db.nextFreeId()).toEqual('4');
+    });
+
     it('create a vault, in which one can add an entry, and get it, edit it, deconste it', () => {
         const db = new VaultDB({});
         const e = {
