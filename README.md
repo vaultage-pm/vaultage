@@ -44,7 +44,7 @@ We provide a prebuilt docker image you can use to run vaultage:
 
 Defined the two variables `$LOCAL_PORT` and `$DATA_FOLDER` to be the port where you will expose vaultage and the directory containing the encrypted vault on the server, respectively.
 Then running docker is just a one-liner:
-`sudo docker run -d --init -p $LOCAL_PORT:3000 -v $DATA_FOLDER:/home/node/.vaultage hmil/vaultage`
+`sudo docker run -d --init --name vaultage -p $LOCAL_PORT:3000 -v $DATA_FOLDER:/home/node/.vaultage hmil/vaultage`
 
 ## Config
 
