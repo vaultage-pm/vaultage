@@ -96,6 +96,7 @@ export class Terminal {
         this.$log.className = 'log';
 
         this.$input = document.createElement('input');
+        this.$input.id = 'main_input';
         this.$input.type = 'text';
         this.$input.className = 'input';
 
