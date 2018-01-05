@@ -22,7 +22,7 @@ export class DumpCommand implements ICommand {
         }
 
         const allEntries = this.vault.getAllEntries();
-        this.shell.echoHTML('var entries=\'' + JSON.stringify(allEntries) + '\'');
+        this.shell.echoHTML(JSON.stringify(allEntries));
         this.shell.separator();
     }
 }
