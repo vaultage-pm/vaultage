@@ -17,9 +17,9 @@
         "Hadrien Milano <hadrien.milano@gmail.com> (https://hmil.fr)"
     ],
     "license": "MIT",
-    "repository" :{
-        "type" : "git", 
-        "url" : "https://github.com/lbarman/vaultage"
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/lbarman/vaultage"
     },
     "devDependencies": {
         "@types/jquery": "^3.2.15",
