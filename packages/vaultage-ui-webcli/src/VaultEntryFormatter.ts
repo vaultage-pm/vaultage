@@ -30,20 +30,23 @@ export class VaultEntryFormatter {
         stringBuilder += `<span class="id">(${e.id})</span>`;
         stringBuilder += `<span class="title">${e.title}</span>&rarr;`;
         stringBuilder += `<span class="login">${e.login}</span>:`;
-        stringBuilder += `<span class="password blurred" data-id="${e.id}">${e.password}</span>@`;
+
+        let extraClass = '';
+        if (e.password_strength_indication === PasswordStrength.WEAK) {
+            extraClass += `weakPassword`;
+        } else if (e.password_strength_indication === PasswordStrength.MEDIUM) {
+            extraClass += `mediumPassword`;
+        }
+
+        stringBuilder += `<span class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</span>@`;
         stringBuilder += `<span class="url">${e.url}</span>`;
 
         stringBuilder += `<span class="use">(used ${e.usage_count} times)</span>`;
 
-        if (e.password_strength_indication === PasswordStrength.WEAK) {
-            stringBuilder += `<span class="weakPassword">(warning: very weak password)</span>`;
-        } else if (e.password_strength_indication === PasswordStrength.MEDIUM) {
-            stringBuilder += `<span class="mediumPassword">(warning: weak password)</span>`;
-        }
-
         if (e.reuse_count > 0) {
             stringBuilder += `<span class="reuse">(warning: re-used ${e.reuse_count} times)</span>`;
         }
+        
         stringBuilder += `<span class="copied">Copied to the clipboard!</span>`;
         stringBuilder += '</span>';
 
@@ -113,18 +116,18 @@ export class VaultEntryFormatter {
         stringBuilder += `<td class="id">(${e.id})</td>`;
         stringBuilder += `<td class="title">${e.title}</td> <td>&rarr;</td>`;
         stringBuilder += `<td class="login">${e.login}</td> <td>:</td>`;
-        stringBuilder += `<td class="password blurred" data-id="${e.id}">${e.password}</td> <td>@</td>`;
+
+        let extraClass = '';
+        if (e.password_strength_indication === PasswordStrength.WEAK) {
+            extraClass += `weakPassword`;
+        } else if (e.password_strength_indication === PasswordStrength.MEDIUM) {
+            extraClass += `mediumPassword`;
+        }
+
+        stringBuilder += `<td class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</td> <td>@</td>`;
         stringBuilder += `<td class="url">${e.url}</span>`;
 
         stringBuilder += `<td class="use">(used ${e.usage_count} times)</td>`;
-
-        if (e.password_strength_indication === PasswordStrength.WEAK) {
-            stringBuilder += `<td class="weakPassword">(warning: very weak password)</td>`;
-        } else if (e.password_strength_indication === PasswordStrength.MEDIUM) {
-            stringBuilder += `<td class="mediumPassword">(warning: weak password)</td>`;
-        } else {
-            stringBuilder += '<td class="empty"></td>';
-        }
 
         if (e.reuse_count > 0) {
             stringBuilder += `<td class="reuse">(warning: re-used ${e.reuse_count} times)</td>`;

@@ -83,7 +83,11 @@ html, body {
     color: transparent;
 }
 
-.blurred .highlight0, .blurred .highlight1, .blurred .highlight2, .blurred .highlight3, .blurred .highlight4 {
+.blurred .highlight0,
+.blurred .highlight1,
+.blurred .highlight2,
+.blurred .highlight3,
+.blurred .highlight4 {
     color: transparent;
 }
 
@@ -92,8 +96,30 @@ html, body {
     color: #0c0;
 }
 
-.blurred:hover .highlight1, .blurred:hover .highlight2, .blurred:hover .highlight3, .blurred:hover .highlight4, .blurred:hover .highlight5 {
+.mediumPassword {
+    text-shadow: 0px 0px 6px yellow;
+}
+
+.weakPassword {
+    text-shadow: 0px 0px 6px orange;
+}
+
+.blurred:hover .highlight0,
+.blurred:hover .highlight1,
+.blurred:hover .highlight2,
+.blurred:hover .highlight3,
+.blurred:hover .highlight4 {
     color: #0c0;
+}
+
+.mediumPassword:hover {
+    text-shadow: 0px 0px 0px rgb(0, 0, 0);
+    color: yellow;
+}
+
+.weakPassword:hover {
+    text-shadow: 0px 0px 0px rgb(0, 0, 0);
+    color: orange;
 }
 
 
@@ -140,15 +166,6 @@ a, a:hover, a:visited {
 .entryCollection td {
     padding-right: 10px !important;
     padding-left: 10px !important;
-}
-
-.mediumPassword {
-    color: yellow;
-}
-
-.weakPassword {
-    color: yellow;
-    font-weight: bold;
 }
 
 td.empty {
