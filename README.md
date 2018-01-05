@@ -38,6 +38,14 @@ vaultage-server
 
 *NOTE: If deployed remotely, please deploy it behind a *reverse-proxy* with TLS; contacting Vaultage remotely over HTTP is very insecure.
 
+### _Alternative_ run in docker
+
+We provide a prebuilt docker image you can use to run vaultage:
+
+Defined the two variables `$LOCAL_PORT` and `$DATA_FOLDER` to be the port where you will expose vaultage and the directory containing the encrypted vault on the server, respectively.
+Then running docker is just a one-liner:
+`sudo docker run -d --init -p $LOCAL_PORT:3000 -v $DATA_FOLDER:/home/node/.vaultage hmil/vaultage`
+
 ## Config
 
 When starting, `vaultage-server` will look for config settings in `~/.vaultage/config.json`. If this file does not exist it will be automatically generated. This file should be included in any backup as instructed in the backup section below.
