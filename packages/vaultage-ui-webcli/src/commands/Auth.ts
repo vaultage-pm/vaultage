@@ -27,9 +27,7 @@ export class AuthCommand implements ICommand {
 
         this.shell.echo(`Attempting to login ${username}@${this.defaultURL}...`);
 
-        const salts = this.config.getSalts();
-
-        await new Promise((resolve, reject) => this.vault.auth(serverUrl, username, masterpwd, salts, (err) => {
+        await new Promise((resolve, reject) => this.vault.auth(serverUrl, username, masterpwd, (err) => {
             if (err == null) {
                 resolve();
             } else {

@@ -1,8 +1,5 @@
-import { ISaltsConfig } from '../../vaultage-client/src/Crypto';
 import { IVaultageConfig } from '../../vaultage/src/VaultageConfig';
 
-
-import * as lang from './lang';
 import { Shell } from './webshell/Shell';
 
 export const PWD_GEN_LENGTH = 16;
@@ -42,28 +39,5 @@ export class Config {
             return this._pulledConfig.default_user;
         }
         return '';
-    }
-
-    public getSalts(): ISaltsConfig {
-        if (this._pulledConfig.salts != null) {
-            const salts: ISaltsConfig = {
-                LOCAL_KEY_SALT: this._pulledConfig.salts.local_key_salt,
-                REMOTE_KEY_SALT: this._pulledConfig.salts.remote_key_salt,
-            };
-
-            return salts;
-        }
-
-        $.ajax({
-            async: false,
-            type: 'GET',
-            url: this.defaultURL + 'config',
-            success: (data) => {
-                this._pulledConfig = (data as IVaultageConfig);
-                return this._pulledConfig.salts;
-            }
-        });
-
-        throw new Error(lang.ERR_NO_SALTS);
     }
 }

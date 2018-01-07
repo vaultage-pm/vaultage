@@ -2,8 +2,13 @@ import { ISaltsConfig } from '../src/Crypto';
 import { ApiCallFunction, Vault } from '../src/Vault';
 import { ERROR_CODE, VaultageError } from '../src/VaultageError';
 
+import { IVaultageConfig } from '../../vaultage/src/VaultageConfig';
 
-const salts: ISaltsConfig = { LOCAL_KEY_SALT: 'deadbeef', REMOTE_KEY_SALT: '0123456789'};
+const config: IVaultageConfig = {
+    salts: { local_key_salt: 'deadbeef', remote_key_salt: '0123456789'},
+    version: 1,
+    default_user: 'John'
+};
 
 let apiCallsFired: any[] = [];
 const mockAPI: ApiCallFunction = (parameters: any, cb: (err: any, resp: any) => void) => {
@@ -30,15 +35,20 @@ describe('Vault.ts can', () => {
         callbacksFired = [];
 
         const vault = new Vault(mockAPI);
-        vault.auth('url', 'username', 'passwd', salts, errorCb);
+        vault.auth('url', 'username', 'passwd', errorCb);
 
-        expect(apiCallsFired.length).toBe(1); // one request to the server
+        apiCallsFired[0].cb(null, { body: JSON.stringify(config)});
+
+        expect(apiCallsFired.length).toBe(2); // one request to the server
         expect(callbacksFired.length).toBe(0);
         expect(apiCallsFired[0].parameters).toEqual({
+            url: 'url/config'
+        });
+        expect(apiCallsFired[1].parameters).toEqual({
             url: 'url/username/483c29af947d335ed2851c62f1daa12227126b00035387f66f2d1492036d4dcb/vaultage_api'
         });
 
-        const apiAnswerFn = apiCallsFired[0].cb;
+        const apiAnswerFn = apiCallsFired[1].cb;
         apiCallsFired = [];
         callbacksFired = [];
 
@@ -55,15 +65,20 @@ describe('Vault.ts can', () => {
         callbacksFired = [];
 
         const vault = new Vault(mockAPI);
-        vault.auth('url', 'username', 'passwd', salts, errorCb);
+        vault.auth('url', 'username', 'passwd', errorCb);
 
-        expect(apiCallsFired.length).toBe(1); // one request to the server
+        apiCallsFired[0].cb(null, { body: JSON.stringify(config)});
+
+        expect(apiCallsFired.length).toBe(2); // one request to the server
         expect(callbacksFired.length).toBe(0);
         expect(apiCallsFired[0].parameters).toEqual({
+            url: 'url/config'
+        });
+        expect(apiCallsFired[1].parameters).toEqual({
             url: 'url/username/483c29af947d335ed2851c62f1daa12227126b00035387f66f2d1492036d4dcb/vaultage_api'
         });
 
-        const apiAnswerFn = apiCallsFired[0].cb;
+        const apiAnswerFn = apiCallsFired[1].cb;
         apiCallsFired = [];
         callbacksFired = [];
 
@@ -97,15 +112,20 @@ describe('Vault.ts can', () => {
         callbacksFired = [];
 
         const vault = new Vault(mockAPI);
-        vault.auth('url', 'username', 'passwd', salts, errorCb);
+        vault.auth('url', 'username', 'passwd', errorCb);
 
-        expect(apiCallsFired.length).toBe(1); // one request to the server
+        apiCallsFired[0].cb(null, { body: JSON.stringify(config)});
+
+        expect(apiCallsFired.length).toBe(2); // one request to the server
         expect(callbacksFired.length).toBe(0);
         expect(apiCallsFired[0].parameters).toEqual({
+            url: 'url/config'
+        });
+        expect(apiCallsFired[1].parameters).toEqual({
             url: 'url/username/483c29af947d335ed2851c62f1daa12227126b00035387f66f2d1492036d4dcb/vaultage_api'
         });
 
-        let apiAnswerFn = apiCallsFired[0].cb;
+        let apiAnswerFn = apiCallsFired[1].cb;
         apiCallsFired = [];
         callbacksFired = [];
 
@@ -160,12 +180,14 @@ describe('Vault.ts can', () => {
         // suppose the server accepted this message, const's create a new vault with some fixed data data
 
         const vault3 = new Vault(mockAPI);
-        vault3.auth('url', 'ninja', 'passwd', salts, errorCb);
+        vault3.auth('url', 'ninja', 'passwd', errorCb);
 
-        expect(apiCallsFired.length).toBe(1);
+        apiCallsFired[0].cb(null, { body: JSON.stringify(config)});
+
+        expect(apiCallsFired.length).toBe(2);
         expect(callbacksFired.length).toBe(0);
 
-        apiAnswerFn = apiCallsFired[0].cb;
+        apiAnswerFn = apiCallsFired[1].cb;
         apiCallsFired = [];
         callbacksFired = [];
 
@@ -204,15 +226,20 @@ describe('Vault.ts can', () => {
         callbacksFired = [];
 
         const vault = new Vault(mockAPI);
-        vault.auth('url', 'username', 'passwd', salts, errorCb);
+        vault.auth('url', 'username', 'passwd', errorCb);
 
-        expect(apiCallsFired.length).toBe(1); // one request to the server
+        apiCallsFired[0].cb(null, { body: JSON.stringify(config)});
+
+        expect(apiCallsFired.length).toBe(2); // one request to the server
         expect(callbacksFired.length).toBe(0);
         expect(apiCallsFired[0].parameters).toEqual({
+            url: 'url/config'
+        });
+        expect(apiCallsFired[1].parameters).toEqual({
             url: 'url/username/483c29af947d335ed2851c62f1daa12227126b00035387f66f2d1492036d4dcb/vaultage_api'
         });
 
-        const apiAnswerFn = apiCallsFired[0].cb;
+        const apiAnswerFn = apiCallsFired[1].cb;
         apiCallsFired = [];
         callbacksFired = [];
 

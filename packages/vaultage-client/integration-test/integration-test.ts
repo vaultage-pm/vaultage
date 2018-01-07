@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-import { IVaultDBEntryAttrs } from '../src/VaultDB';
 import { ISaltsConfig, Vault } from '../vaultage';
 
 async function runIntegrationTest() {
@@ -9,33 +8,11 @@ async function runIntegrationTest() {
         const username = 'any';
         const masterpwd = 'masterpwd';
 
-        // fetch config
-        console.log('Trying to contact Vaultage server on', serverUrl);
-        let config: any;
-        try {
-            config = (await axios.get(serverUrl + 'config')).data;
-        } catch (err) {
-            // make this common error more verbose
-            if (err.code === 'ECONNREFUSED') {
-                console.log('Error: cannot contact the server on ' + serverUrl + '. For this integration test, ' +
-                'you need to manually start a vaultage server, or use the top-level script ./tools/integration-test.sh.');
-                process.exit(1);
-            }
-            throw err;
-        }
-
-        console.log('Got the config, continuing...');
-
         // create vault
         let vault = new Vault();
 
-        const deeperSalt: ISaltsConfig = {
-            LOCAL_KEY_SALT: config.salts.local_key_salt,
-            REMOTE_KEY_SALT: config.salts.remote_key_salt
-        };
-
         // authenticate and pull ciphers
-        await new Promise((resolve, reject) => vault.auth(serverUrl, username, masterpwd, deeperSalt, (err) => {
+        await new Promise((resolve, reject) => vault.auth(serverUrl, username, masterpwd, (err) => {
             if (err == null) {
                 resolve();
             } else {
@@ -83,7 +60,7 @@ async function runIntegrationTest() {
 
 
         // authenticate and pull ciphers
-        await new Promise((resolve, reject) => vault.auth(serverUrl, username, masterpwd, deeperSalt, (err) => {
+        await new Promise((resolve, reject) => vault.auth(serverUrl, username, masterpwd, (err) => {
             if (err == null) {
                 resolve();
             } else {
@@ -181,7 +158,7 @@ async function runIntegrationTest() {
         vault = new Vault();
 
         // authenticate and pull ciphers
-        await new Promise((resolve, reject) => vault.auth(serverUrl, username, newMasterPassword, deeperSalt, (err) => {
+        await new Promise((resolve, reject) => vault.auth(serverUrl, username, newMasterPassword, (err) => {
             if (err == null) {
                 resolve();
             } else {
