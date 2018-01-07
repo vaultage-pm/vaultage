@@ -1,6 +1,5 @@
-import axios from 'axios';
-
-import { ISaltsConfig, Vault } from '../vaultage';
+import { IVaultDBEntryAttrs } from '../src/VaultDB';
+import { Vault } from '../vaultage';
 
 async function runIntegrationTest() {
     try {

@@ -1,4 +1,3 @@
-import { ISaltsConfig } from '../src/Crypto';
 import { ApiCallFunction, Vault } from '../src/Vault';
 import { ERROR_CODE, VaultageError } from '../src/VaultageError';
 
