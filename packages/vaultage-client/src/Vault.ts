@@ -338,7 +338,7 @@ export class Vault {
 
     private _pullConfig(serverURL: string, cb: (err: (VaultageError|null), config?: IVaultageConfig) => void): void {
         this._apiCallFunction({
-            url: serverURL + '/config'
+            url: serverURL + 'config'
         }, (err, res) => {
             if (err) {
                 return cb(err);
