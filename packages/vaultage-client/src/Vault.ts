@@ -71,7 +71,7 @@ export class Vault {
             remoteKey: 'null'
         };
 
-        this._pullConfig(serverURL, (err, config?) => {
+        this._pullConfig(creds.serverURL, (err, config?) => {
 
             if (err || !config) {
                 throw err;
@@ -338,7 +338,7 @@ export class Vault {
 
     private _pullConfig(serverURL: string, cb: (err: (VaultageError|null), config?: IVaultageConfig) => void): void {
         this._apiCallFunction({
-            url: serverURL + 'config'
+            url: serverURL + '/config'
         }, (err, res) => {
             if (err) {
                 return cb(err);
