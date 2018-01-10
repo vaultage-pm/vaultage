@@ -58,7 +58,7 @@ export interface ITerminalOptions {
 
 const defaultHandler: ICommandHandler = {
     onKeyDown(evt) { evt.preventDefault(); },
-    onKeyUp() { }
+    onKeyUp() { /* noop */ }
 };
 
 

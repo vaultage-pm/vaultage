@@ -17,7 +17,7 @@ export class HelpCommand implements ICommand {
         this.shell.echoHTML(' ************************************************* ');
         this.shell.echoHTML(this.space(19) + '_ _                   ');
         this.shell.echoHTML(this.space(18) + '| | |                  ');
-        this.shell.echoHTML(this.space(1) + '__' + this.space(3) + '____ _ _' + this.space(3) + '_| | |_ __ _' + this.space(2) + '__ _'+this.space(2) + '___ ');
+        this.shell.echoHTML(this.space(1) + '__' + this.space(3) + '____ _ _' + this.space(3) + '_| | |_ __ _' + this.space(2) + '__ _' + this.space(2) + '___ ');
         this.shell.echoHTML(this.space(1) + '\\ \\ / / _` | | | | | __/ _` |/ _` |/ _ \\');
         this.shell.echoHTML(this.space(2) + '\\ V / (_| | |_| | | || (_| | (_| |' + this.space(2) + '__/');
         this.shell.echoHTML(this.space(3) + '\\_/ \\__,_|\\__,_|_|\\__\\__,_|\\__, |\\___|');

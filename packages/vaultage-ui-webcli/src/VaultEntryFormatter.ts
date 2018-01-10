@@ -46,7 +46,7 @@ export class VaultEntryFormatter {
         if (e.reuse_count > 0) {
             stringBuilder += `<span class="reuse">(warning: re-used ${e.reuse_count} times)</span>`;
         }
-        
+
         stringBuilder += `<span class="copied">Copied to the clipboard!</span>`;
         stringBuilder += '</span>';
 
@@ -176,7 +176,8 @@ export class VaultEntryFormatter {
         const newRemainingNeedles = remainingNeedles.slice(1);
 
         // split each haystack given this search term, then process the resulting parts with the remaining search terms
-        const newHaystacks = haystacks.map((haystack) => this._highlight(haystack.split(needle), newRemainingNeedles, highlightId+1));
+        const newHaystacks = haystacks.map((haystack) =>
+                this._highlight(haystack.split(needle), newRemainingNeedles, highlightId + 1));
 
         // now that we subprocessed other terms, the parts that remains are the one split by our needle. Glue them back together
         // with a highlighted needle (glue)

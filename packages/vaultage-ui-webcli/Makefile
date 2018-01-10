@@ -23,7 +23,7 @@ cleanall: clean
 
 .PHONY: test
 test: node_modules
-	echo "No tests for now"
+	npm run lint
 
 
 # Other tasks

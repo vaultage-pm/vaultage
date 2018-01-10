@@ -1,7 +1,7 @@
-import { Global } from '../Global';
 import * as vaultage from 'vaultage-client';
 
 import { Config } from '../Config';
+import { Global } from '../Global';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 

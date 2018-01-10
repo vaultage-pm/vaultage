@@ -1,9 +1,8 @@
-import { Global } from '../Global';
 import { IVaultDBEntryAttrs } from 'vaultage-client';
-import { Vault } from 'vaultage-client';
 import { ConcreteRandomnessGenerator, IRandomness, Passwords } from 'vaultage-client';
 
 import * as config from '../Config';
+import { Global } from '../Global';
 import * as lang from '../lang';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';

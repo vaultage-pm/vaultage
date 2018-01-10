@@ -1,6 +1,4 @@
 import { Global } from '../Global';
-import { Vault } from 'vaultage-client';
-
 import * as lang from '../lang';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';

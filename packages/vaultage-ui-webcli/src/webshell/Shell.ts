@@ -1,13 +1,12 @@
 import * as copy from 'copy-to-clipboard';
 import { setTimeout } from 'timers';
-import { Vault } from 'vaultage-client';
+import { Global } from '../Global';
 
 import { BusyIndicator } from './BusyIndicator';
 import { Formatter } from './Formatter';
 import { History } from './History';
 import { ICommand } from './ICommand';
 import { ICommandHandler, ICompletionResponse, Terminal } from './Terminal';
-import { Global } from 'vaultage-ui-webcli/src/Global';
 
 
 /**

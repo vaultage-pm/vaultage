@@ -1,7 +1,6 @@
-import { Global } from '../Global';
 import { IVaultDBEntryAttrs } from 'vaultage-client';
-import { Vault } from 'vaultage-client';
 
+import { Global } from '../Global';
 import * as lang from '../lang';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
@@ -49,7 +48,7 @@ export class AddCommand implements ICommand {
                 } else {
                     reject(err);
                 }
-            })
+            });
         });
     }
 }

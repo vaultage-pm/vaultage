@@ -1,5 +1,3 @@
-import { Vault } from 'vaultage-client';
-
 import { AddCommand } from './commands/Add';
 import { AuthCommand } from './commands/Auth';
 import { ClearCommand } from './commands/Clear';
@@ -18,9 +16,9 @@ import { ReusedCommand } from './commands/Reused';
 import { RmCommand } from './commands/Rm';
 import { RotateCommand } from './commands/Rotate';
 import { WeakCommand } from './commands/Weak';
+import { Config } from './Config';
 import { Shell } from './webshell/Shell';
 import { Terminal } from './webshell/Terminal';
-import { Config } from 'vaultage-ui-webcli/src/Config';
 
 const terminal = new Terminal({
     root: document.body

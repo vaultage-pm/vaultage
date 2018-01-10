@@ -1,7 +1,6 @@
-import { Global } from '../Global';
 import { IVaultDBEntry } from 'vaultage-client';
-import { Vault } from 'vaultage-client';
 
+import { Global } from '../Global';
 import * as lang from '../lang';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
