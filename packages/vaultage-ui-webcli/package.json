@@ -4,7 +4,7 @@
     "description": "Vaultage web cli",
     "main": "package.json",
     "scripts": {
-        "test": "npm run lint && jest",
+        "test": "npm run lint",
         "lint": "tslint -p .",
         "build": "webpack",
         "serve": "webpack-dev-server"

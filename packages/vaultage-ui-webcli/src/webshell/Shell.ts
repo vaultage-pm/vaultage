@@ -1,6 +1,6 @@
 import * as copy from 'copy-to-clipboard';
 import { setTimeout } from 'timers';
-import { Vault } from 'vaultage-client';
+import { Global } from '../Global';
 
 import { BusyIndicator } from './BusyIndicator';
 import { Formatter } from './Formatter';
@@ -43,8 +43,7 @@ export class Shell implements ICommandHandler {
     private promptResolve: ((val: Promise<string>) => void) | null = null;
 
     constructor(
-        private terminal?: Terminal,
-        private vault?: Vault) {
+        private terminal?: Terminal) {
         if (terminal) {
             this.attach(terminal);
         }
@@ -116,8 +115,11 @@ export class Shell implements ICommandHandler {
             setTimeout(() => copiedElem.removeClass('visible'), 1000);
 
             // mark the entry as used
-            if (this.vault != null) {
-                this.vault.entryUsed(id);
+
+            // FIXME @jsonch: This breaks separation of concern. Everything under webshell is a standalone
+            // generic web shell (nothing vaultage specific).
+            if (Global.vault != null) {
+                Global.vault.entryUsed(id);
             }
         });
     }

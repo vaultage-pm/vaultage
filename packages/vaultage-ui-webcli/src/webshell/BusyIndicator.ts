@@ -11,12 +11,12 @@ export class BusyIndicator {
         this.update();
     }
 
+    public stop() {
+        clearInterval(this.interval);
+    }
+
     private update() {
         this.currentStep = (this.currentStep + 1) % this.steps.length;
         this.callback(this.steps[this.currentStep]);
-    }
-
-    public stop() {
-        clearInterval(this.interval);
     }
 }

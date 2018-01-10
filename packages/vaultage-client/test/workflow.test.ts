@@ -4,7 +4,7 @@ import { VaultDB } from '../src/VaultDB';
 
 const verbose = false;
 
-function cPrint(v) {
+function cPrint(v: any) {
     if (verbose) {
         console.log(v);
     }

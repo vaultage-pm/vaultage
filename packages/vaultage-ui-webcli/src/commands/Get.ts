@@ -1,5 +1,4 @@
-import { Vault } from 'vaultage-client';
-
+import { Global } from '../Global';
 import * as lang from '../lang';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
@@ -11,13 +10,12 @@ export class GetCommand implements ICommand {
     public readonly description = 'Get [keyword1] [keyword2] ... searches for keyword1 or keyword2 in all entries.';
 
     constructor(
-        private vault: Vault,
         private shell: Shell) {
     }
 
     public async handle(searchTerms: string[]) {
 
-        if (!this.vault.isAuth()) {
+        if (!Global.vault) {
             this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
             return;
         }
@@ -27,7 +25,7 @@ export class GetCommand implements ICommand {
             return;
         }
 
-        const results = this.vault.findEntries(...searchTerms);
+        const results = Global.vault.findEntries(...searchTerms);
         const coloredSearchString = VaultEntryFormatter.searchTermsToHighlightedString(searchTerms);
         this.shell.echoHTML('Searching for ' + coloredSearchString + ', ' + results.length + ' matching entries.');
         this.shell.echoHTML(VaultEntryFormatter.formatAndHighlightBatch(results, searchTerms));

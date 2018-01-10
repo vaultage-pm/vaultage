@@ -1,6 +1,6 @@
 import { IVaultDBEntryAttrs } from 'vaultage-client';
-import { Vault } from 'vaultage-client';
 
+import { Global } from '../Global';
 import * as lang from '../lang';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
@@ -12,13 +12,12 @@ export class EditCommand implements ICommand {
     public readonly description = 'Edits an entry in the local db, then pushes an encrypted version of the db to the server.';
 
     constructor(
-        private vault: Vault,
         private shell: Shell) {
     }
 
     public async handle(args: string[]) {
 
-        if (!this.vault.isAuth()) {
+        if (!Global.vault) {
             this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
             return;
         }
@@ -30,7 +29,7 @@ export class EditCommand implements ICommand {
             id = args[0];
         }
 
-        const entry = this.vault.getEntry(id);
+        const entry = Global.vault.getEntry(id);
 
         const title = await this.shell.prompt('Title:', entry.title);
         const username = await this.shell.prompt('Username:', entry.login);
@@ -51,12 +50,12 @@ export class EditCommand implements ICommand {
             return;
         }
 
-        this.vault.updateEntry(id, newEntry);
-        const entry2 = this.vault.getEntry(id);
+        Global.vault.updateEntry(id, newEntry);
+        const entry2 = Global.vault.getEntry(id);
         this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry2));
         this.shell.echo('Updated entry #' + id);
 
-        await new Promise((resolve, reject) => this.vault.save((err) => {
+        await new Promise((resolve, reject) => Global.vault && Global.vault.save((err) => {
             if (err == null) {
                 resolve();
             } else {
@@ -64,7 +63,7 @@ export class EditCommand implements ICommand {
             }
         }));
 
-        this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
+        this.shell.echo('Push OK, revision ' + Global.vault.getDBRevision() + '.');
         this.shell.separator();
     }
 }

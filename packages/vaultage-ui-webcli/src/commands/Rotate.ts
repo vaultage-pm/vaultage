@@ -1,6 +1,6 @@
 import { IVaultDBEntryAttrs } from 'vaultage-client';
-import { Vault } from 'vaultage-client';
 import { ConcreteRandomnessGenerator, IRandomness, Passwords } from 'vaultage-client';
+import { Global } from '../Global';
 
 import * as config from '../Config';
 import * as lang from '../lang';
@@ -14,13 +14,12 @@ export class RotateCommand implements ICommand {
     public readonly description = 'Re-generates a new password for an entry in the local db, then pushes an encrypted version of the db to the server.';
 
     constructor(
-        private vault: Vault,
         private shell: Shell) {
     }
 
     public async handle(args: string[]) {
 
-        if (!this.vault.isAuth()) {
+        if (!Global.vault) {
             this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
             return;
         }
@@ -32,7 +31,7 @@ export class RotateCommand implements ICommand {
             id = args[0];
         }
 
-        const entry = this.vault.getEntry(id);
+        const entry = Global.vault.getEntry(id);
 
         const rnd: IRandomness = new ConcreteRandomnessGenerator();
         const pwdGen = new Passwords(rnd);
@@ -49,15 +48,15 @@ export class RotateCommand implements ICommand {
             url: entry.url
         };
 
-        this.vault.updateEntry(id, newEntry);
+        Global.vault.updateEntry(id, newEntry);
 
         this.shell.echoHTML('Entry #' + id + ' was :');
         this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry));
         this.shell.echoHTML('Entry #' + id + ' now is :');
-        const entry2 = this.vault.getEntry(id);
+        const entry2 = Global.vault.getEntry(id);
         this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry2));
 
-        await new Promise((resolve, reject) => this.vault.save((err) => {
+        await new Promise((resolve, reject) => Global.vault.save((err) => {
             if (err == null) {
                 resolve();
             } else {
@@ -65,7 +64,7 @@ export class RotateCommand implements ICommand {
             }
         }));
 
-        this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
+        this.shell.echo('Push OK, revision ' + Global.vault.getDBRevision() + '.');
         this.shell.separator();
     }
 }
