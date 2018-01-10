@@ -1,5 +1,5 @@
-import { IVaultDBEntryAttrs } from '../src/VaultDB';
 import * as vaultage from '../src/vaultage';
+import { IVaultDBEntryAttrs } from '../src/VaultDB';
 
 async function runIntegrationTest() {
     try {

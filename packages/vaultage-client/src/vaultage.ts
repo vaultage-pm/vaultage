@@ -1,13 +1,8 @@
-import { IVaultageConfig } from '../../vaultage/src/VaultageConfig';
 import { Crypto } from './Crypto';
 import { ISaltsConfig } from './Crypto';
-import { PasswordStrength } from './Passwords';
-import { deepCopy } from './utils';
-import { ERROR_CODE, VaultageError } from './VaultageError';
-import { IVaultDBEntry, IVaultDBEntryAttrs, VaultDB } from './VaultDB';
-import { Vault } from './Vault';
 import { HttpApi } from './HTTPApi';
 import { ApiCallFunction, HttpService } from './HTTPService';
+import { Vault } from './Vault';
 
 
 /**
@@ -35,29 +30,29 @@ export function login(
             if (err || !config) {
                 return reject(err);
             }
-    
+
             const salts: ISaltsConfig = {
                 LOCAL_KEY_SALT: config.salts.local_key_salt,
                 REMOTE_KEY_SALT: config.salts.remote_key_salt,
             };
-    
+
             const crypto = new Crypto(salts);
-    
+
             const remoteKey = crypto.deriveRemoteKey(masterPassword);
             // possible optimization: compute the local key while the request is in the air
             const localKey = crypto.deriveLocalKey(masterPassword);
-    
+
             creds.localKey = localKey;
             creds.remoteKey = remoteKey;
-    
-            HttpApi.pullCipher(creds, (err, cipher) => {
-                if (err) {
-                    return reject(err);
+
+            HttpApi.pullCipher(creds, (err2, cipher) => {
+                if (err2) {
+                    return reject(err2);
                 }
-                const vault = new Vault(creds, cipher);
+                const vault = new Vault(creds, crypto, cipher);
                 resolve(vault);
             });
-    
+
         });
     });
 }

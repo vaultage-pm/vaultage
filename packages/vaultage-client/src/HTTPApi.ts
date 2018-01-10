@@ -1,17 +1,12 @@
-import { ICredentials } from './Vault';
 import { IVaultageConfig } from '../../vaultage/src/apiServer';
 import { HttpService } from './HTTPService';
-import { Crypto } from './Crypto';
-import { ISaltsConfig } from './Crypto';
-import { PasswordStrength } from './Passwords';
-import { deepCopy } from './utils';
+import { ICredentials } from './Vault';
 import { ERROR_CODE, VaultageError } from './VaultageError';
-import { IVaultDBEntry, IVaultDBEntryAttrs, VaultDB } from './VaultDB';
 
 /**
  * Client-side of the HTTP interface between the Vaultage server and the client.
  *
- * This class strictly takes care of formatting the data to proper HTTP payloads and 
+ * This class strictly takes care of formatting the data to proper HTTP payloads and
  * sending them over the wire (or to the mock HTTP interface if it is mocked).
  * This class does not handle crypto stuff.
  */
@@ -22,7 +17,7 @@ export abstract class HttpApi {
             url: serverURL + '/config'
         }, (err, res) => {
             if (err) {
-                return cb(err);
+                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
             }
             try {
                 cb(null, JSON.parse(res.body));
@@ -112,7 +107,7 @@ export abstract class HttpApi {
     }
 
     private static _makeURL(serverURL: string, username: string, remotePwdHash: string): string {
-        return `${serverURL}/${username}/${remotePwdHash}/vaultage_api`;
+        return `${serverURL}/${encodeURIComponent(username)}/${remotePwdHash}/vaultage_api`;
     }
 }
 

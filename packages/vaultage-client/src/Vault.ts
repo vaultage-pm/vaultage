@@ -1,11 +1,9 @@
-import { IVaultageConfig } from '../../vaultage/src/VaultageConfig';
 import { Crypto } from './Crypto';
-import { ISaltsConfig } from './Crypto';
+import { HttpApi } from './HTTPApi';
 import { PasswordStrength } from './Passwords';
 import { deepCopy } from './utils';
 import { ERROR_CODE, VaultageError } from './VaultageError';
 import { IVaultDBEntry, IVaultDBEntryAttrs, VaultDB } from './VaultDB';
-import { HttpApi } from './HTTPApi';
 
 export interface ICredentials {
     localKey: string;
@@ -28,12 +26,14 @@ export interface ICredentials {
  */
 export class Vault {
     private _creds: ICredentials;
-    private _db: VaultDB;
     private _crypto: Crypto;
+    private _db: VaultDB;
     private _lastFingerprint?: string;
 
-    constructor(creds: ICredentials, cipher?: string) {
+    constructor(creds: ICredentials, crypto: Crypto, cipher?: string) {
         this._creds = { ...creds };
+        this._crypto = crypto;
+        this._db = new VaultDB({});
         if (cipher) {
             this._setCipher(creds, cipher);
         }
@@ -132,9 +132,6 @@ export class Vault {
      * @throws If this vault is not authenticated.
      */
     public getNbEntries(): number {
-        if (!this._db) {
-            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
-        }
         return this._db.size();
     }
 
@@ -142,9 +139,6 @@ export class Vault {
      * Adds a new entry in the db
      */
     public addEntry(attrs: IVaultDBEntryAttrs): string {
-        if (!this._db) {
-            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
-        }
         return this._db.add(attrs);
     }
 
@@ -153,9 +147,6 @@ export class Vault {
      * @returns the new usage count
      */
     public entryUsed(id: string): number {
-        if (!this._db) {
-            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
-        }
         return this._db.entryUsed(id);
     }
 
@@ -163,9 +154,6 @@ export class Vault {
      * Deletes an entry
      */
     public removeEntry(id: string): void {
-        if (!this._db) {
-            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
-        }
         this._db.remove(id);
     }
 
@@ -174,9 +162,6 @@ export class Vault {
      * @param query attribute substrings to match
      */
     public findEntries(...query: string[]): IVaultDBEntry[] {
-        if (!this._db) {
-            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
-        }
         return this._db.find(...query);
     }
 
@@ -258,9 +243,9 @@ export class Vault {
     private _pullCipher(creds: ICredentials, cb: (err: (VaultageError|null)) => void): void {
         HttpApi.pullCipher(creds, (err, cipher) => {
             if (cipher) {
-                const err = this._setCipher(creds, cipher);
-                if (err) {
-                    return cb(err);
+                const err2 = this._setCipher(creds, cipher);
+                if (err2) {
+                    return cb(err2);
                 }
             } else {
                 // Create an empty DB if there is nothing on the server.
@@ -269,7 +254,7 @@ export class Vault {
             }
             cb(err);
         });
-        
+
     }
 
     private _pushCipher(creds: ICredentials, newRemoteKey: (string|null), cb: (err: (VaultageError|null)) => void): void {
@@ -295,6 +280,7 @@ export class Vault {
             const plain = this._crypto.decrypt(creds.localKey, cipher);
             this._db = VaultDB.deserialize(plain);
             this._lastFingerprint = this._crypto.getFingerprint(plain, creds.localKey);
+            return;
         } catch (e) {
             return new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occurred while decrypting the cipher', e);
         }
