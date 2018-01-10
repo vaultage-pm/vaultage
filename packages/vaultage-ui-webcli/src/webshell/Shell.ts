@@ -7,6 +7,7 @@ import { Formatter } from './Formatter';
 import { History } from './History';
 import { ICommand } from './ICommand';
 import { ICommandHandler, ICompletionResponse, Terminal } from './Terminal';
+import { Global } from 'vaultage-ui-webcli/src/Global';
 
 
 /**
@@ -43,8 +44,7 @@ export class Shell implements ICommandHandler {
     private promptResolve: ((val: Promise<string>) => void) | null = null;
 
     constructor(
-        private terminal?: Terminal,
-        private vault?: Vault) {
+        private terminal?: Terminal) {
         if (terminal) {
             this.attach(terminal);
         }
@@ -116,8 +116,11 @@ export class Shell implements ICommandHandler {
             setTimeout(() => copiedElem.removeClass('visible'), 1000);
 
             // mark the entry as used
-            if (this.vault != null) {
-                this.vault.entryUsed(id);
+
+            // FIXME @jsonch: This breaks separation of concern. Everything under webshell is a standalone
+            // generic web shell (nothing vaultage specific).
+            if (Global.vault != null) {
+                Global.vault.entryUsed(id);
             }
         });
     }

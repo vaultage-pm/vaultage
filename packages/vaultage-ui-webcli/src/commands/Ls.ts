@@ -1,3 +1,4 @@
+import { Global } from '../Global';
 import { Vault } from 'vaultage-client';
 
 import * as lang from '../lang';
@@ -11,19 +12,18 @@ export class LsCommand implements ICommand {
     public readonly description = 'If authenticated, lists the vault content.';
 
     constructor(
-        private vault: Vault,
         private shell: Shell) {
     }
 
     public async handle() {
 
-        if (!this.vault.isAuth()) {
+        if (!Global.vault) {
             this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
             return;
         }
 
-        this.shell.echo('Vault revision #' + this.vault.getDBRevision() + ', ' + this.vault.getNbEntries() + ' entries.');
-        const allEntries = this.vault.getAllEntries();
+        this.shell.echo('Vault revision #' + Global.vault.getDBRevision() + ', ' + Global.vault.getNbEntries() + ' entries.');
+        const allEntries = Global.vault.getAllEntries();
         const html = VaultEntryFormatter.formatBatch(allEntries);
         if (html !== '') {
             this.shell.echoHTML(html);

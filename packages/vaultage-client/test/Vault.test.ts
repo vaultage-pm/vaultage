@@ -1,7 +1,9 @@
-import { ApiCallFunction, Vault } from '../src/Vault';
+import { ApiCallFunction, HttpService } from '../src/HTTPService';
+import { Vault } from '../src/Vault';
 import { ERROR_CODE, VaultageError } from '../src/VaultageError';
 
 import { IVaultageConfig } from '../../vaultage/src/VaultageConfig';
+import { login } from '../src/vaultage';
 
 const config: IVaultageConfig = {
     salts: { local_key_salt: 'deadbeef', remote_key_salt: '0123456789'},
@@ -20,21 +22,26 @@ const errorCb = (err: VaultageError) => {
 };
 
 describe('Vault.ts can', () => {
+
+    beforeEach(() => {
+        HttpService.mock(mockAPI);
+    })
+
     it('create an empty vault', () => {
-        const vault = new Vault();
-        expect(vault).toEqual(vault);
-    });
-    it('cannot login without credentials', () => {
-        const vault = new Vault();
+        const vault = new Vault({
+            localKey: '1234',
+            remoteKey: 'foobar',
+            serverURL: 'john',
+            username: 'cena'
+        });
         expect(vault).toEqual(vault);
     });
 
-    it('can create a Vault with a mock API, which detects an unreachable remote', () => {
+    it('can create a Vault with a mock API, which detects an unreachable remote', async () => {
         apiCallsFired = [];
         callbacksFired = [];
 
-        const vault = new Vault(mockAPI);
-        vault.auth('url', 'username', 'passwd', errorCb);
+        const vault = await login('url', 'username', 'passwd');
 
         apiCallsFired[0].cb(null, { body: JSON.stringify(config)});
 
@@ -59,12 +66,11 @@ describe('Vault.ts can', () => {
         expect(callbacksFired[0].err.code).toEqual(ERROR_CODE.NETWORK_ERROR);
     });
 
-    it('can create a Vault with a mock API, which detects a login error', () => {
+    it('can create a Vault with a mock API, which detects a login error', async () => {
         apiCallsFired = [];
         callbacksFired = [];
 
-        const vault = new Vault(mockAPI);
-        vault.auth('url', 'username', 'passwd', errorCb);
+        const vault = await login('url', 'username', 'passwd');
 
         apiCallsFired[0].cb(null, { body: JSON.stringify(config)});
 
@@ -106,12 +112,11 @@ describe('Vault.ts can', () => {
 
     });*/
 
-    it('can create a Vault with a mock API, which interacts with a fake server', () => {
+    it('can create a Vault with a mock API, which interacts with a fake server', async () => {
         apiCallsFired = [];
         callbacksFired = [];
 
-        const vault = new Vault(mockAPI);
-        vault.auth('url', 'username', 'passwd', errorCb);
+        const vault = await login('url', 'username', 'passwd');
 
         apiCallsFired[0].cb(null, { body: JSON.stringify(config)});
 
@@ -140,7 +145,6 @@ describe('Vault.ts can', () => {
         apiCallsFired = [];
         callbacksFired = [];
 
-        expect(vault.isAuth()).toBe(true);
         expect(vault.getAllEntries().length).toBe(0);
 
         // add one entry
@@ -156,7 +160,11 @@ describe('Vault.ts can', () => {
         expect(callbacksFired.length).toBe(0);
 
         // save the current vault
-        vault.save(errorCb);
+        vault.save((err) => {
+            if (err) {
+                errorCb(err)
+            }
+        });
 
         expect(apiCallsFired.length).toBe(1); // one request to the server
         expect(callbacksFired.length).toBe(0);
@@ -178,8 +186,7 @@ describe('Vault.ts can', () => {
 
         // suppose the server accepted this message, const's create a new vault with some fixed data data
 
-        const vault3 = new Vault(mockAPI);
-        vault3.auth('url', 'ninja', 'passwd', errorCb);
+        const vault3 = await login('url', 'ninja', 'passwd');
 
         apiCallsFired[0].cb(null, { body: JSON.stringify(config)});
 
@@ -208,24 +215,13 @@ describe('Vault.ts can', () => {
         expect(entry.url).toEqual('http://example.com');
         expect(entry.login).toEqual('Bob');
         expect(entry.password).toEqual('zephyr');
-
-        // once unlogged, should not be able to add any entry
-
-        vault3.unauth();
-        expect(vault3.addEntry.bind(entry)).toThrow();
-        expect(vault3.updateEntry.bind(entry)).toThrow();
-        expect(vault3.removeEntry.bind(entry)).toThrow();
-        expect(vault3.findEntries.bind('')).toThrow();
-        expect(vault3.getAllEntries).toThrow();
-        expect(vault3.getEntry.bind(0)).toThrow();
     });
 
-    it('can create a Vault with a mock API, and play with entries', () => {
+    it('can create a Vault with a mock API, and play with entries', async () => {
         apiCallsFired = [];
         callbacksFired = [];
 
-        const vault = new Vault(mockAPI);
-        vault.auth('url', 'username', 'passwd', errorCb);
+        const vault = await login('url', 'username', 'passwd');
 
         apiCallsFired[0].cb(null, { body: JSON.stringify(config)});
 

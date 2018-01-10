@@ -1,3 +1,4 @@
+import { Global } from '../Global';
 import { PasswordStrength } from 'vaultage-client';
 import { Vault } from 'vaultage-client';
 
@@ -12,18 +13,17 @@ export class WeakCommand implements ICommand {
     public readonly description = 'Lists all the weak passwords';
 
     constructor(
-        private vault: Vault,
         private shell: Shell) {
     }
 
     public async handle() {
 
-        if (!this.vault.isAuth()) {
+        if (!Global.vault) {
             this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
             return;
         }
 
-        const results = this.vault.getWeakPasswords(PasswordStrength.MEDIUM);
+        const results = Global.vault.getWeakPasswords(PasswordStrength.MEDIUM);
         this.shell.echoHTML('Searching for entries with a weak password, ' + results.length + ' matching entries.');
         this.shell.echoHTML(VaultEntryFormatter.formatBatch(results));
         this.shell.separator();

@@ -1,5 +1,5 @@
 import { IVaultDBEntryAttrs } from '../src/VaultDB';
-import { Vault } from '../vaultage';
+import * as vaultage from '../src/vaultage';
 
 async function runIntegrationTest() {
     try {
@@ -8,22 +8,7 @@ async function runIntegrationTest() {
         const masterpwd = 'masterpwd';
 
         // create vault
-        let vault = new Vault();
-
-        // authenticate and pull ciphers
-        await new Promise((resolve, reject) => vault.auth(serverUrl, username, masterpwd, (err) => {
-            if (err == null) {
-                resolve();
-            } else {
-                // make this common error more verbose
-                if (err.message === 'Error: Invalid credentials') {
-                    console.log('Error: Invalid credentials. This integration test is meant to be ' +
-                    'run against an *empty* db - please (backup and) delete ~/.vaultage and retry.');
-                    process.exit(1);
-                }
-                reject(err);
-            }
-        }));
+        let vault = await vaultage.login(serverUrl, username, masterpwd);
 
         if (vault.getNbEntries() !== 0) {
             throw new Error('This integration test is meant to be run on a clean computer. Your DB is not empty. Aborting.');
@@ -55,17 +40,7 @@ async function runIntegrationTest() {
         // log out and pull again
         console.log('Logging out...');
 
-        vault = new Vault();
-
-
-        // authenticate and pull ciphers
-        await new Promise((resolve, reject) => vault.auth(serverUrl, username, masterpwd, (err) => {
-            if (err == null) {
-                resolve();
-            } else {
-                reject(err);
-            }
-        }));
+        vault = await vaultage.login(serverUrl, username, masterpwd);
 
         if (vault.getNbEntries() !== 1) {
             throw new Error('Could not get back the entry we just created.');
@@ -154,16 +129,7 @@ async function runIntegrationTest() {
         // log out and pull again
         console.log('Logging out...');
 
-        vault = new Vault();
-
-        // authenticate and pull ciphers
-        await new Promise((resolve, reject) => vault.auth(serverUrl, username, newMasterPassword, (err) => {
-            if (err == null) {
-                resolve();
-            } else {
-                reject(err);
-            }
-        }));
+        vault = await vaultage.login(serverUrl, username, newMasterPassword);
 
         // check if the vault content is as expected
 
@@ -194,23 +160,13 @@ async function runIntegrationTest() {
             throw new Error('Could not delete the entry.');
         }
 
-        console.log('Success. Trying to logout...');
-
-        vault.unauth();
-
-        console.log('Trying to pull the cipher (should fail)');
-
-        // try to manually pull the db (should fail - resolve/reject inverted)
-        await new Promise((resolve, reject) => vault.pull((err) => {
-            if (err != null) {
-                resolve();
-            } else {
-                reject('Managed to pull the cipher eventhough we are not authenticated !');
-            }
-        }));
-
         console.log('Everything went well ! Test OK.');
     } catch (e) {
+        if (e.message === 'Error: Invalid credentials') {
+            console.log('Error: Invalid credentials. This integration test is meant to be ' +
+            'run against an *empty* db - please (backup and) delete ~/.vaultage and retry.');
+            process.exit(1);
+        }
         console.log('Error:', e);
         process.exit(1);
     }

@@ -1,3 +1,4 @@
+import { Global } from '../Global';
 import { Vault } from 'vaultage-client';
 
 import * as lang from '../lang';
@@ -11,13 +12,12 @@ export class RmCommand implements ICommand {
     public readonly description = 'Removes an entry in the local db, then pushes an encrypted version of the db to the server.';
 
     constructor(
-        private vault: Vault,
         private shell: Shell) {
     }
 
     public async handle(args: string[]) {
 
-        if (!this.vault.isAuth()) {
+        if (!Global.vault) {
             this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
             return;
         }
@@ -29,7 +29,7 @@ export class RmCommand implements ICommand {
             id = args[0];
         }
 
-        const e = this.vault.getEntry(id);
+        const e = Global.vault.getEntry(id);
         this.shell.echoHTML(VaultEntryFormatter.formatSingle(e));
 
         const answer = await this.shell.prompt('Confirm removal of entry #' + id + ' ? [y/N]');
@@ -39,10 +39,10 @@ export class RmCommand implements ICommand {
             return;
         }
 
-        this.vault.removeEntry(id);
+        Global.vault.removeEntry(id);
         this.shell.echo('Remove entry #' + id);
 
-        await new Promise((resolve, reject) => this.vault.save((err) => {
+        await new Promise((resolve, reject) => Global.vault && Global.vault.save((err) => {
             if (err == null) {
                 resolve();
             } else {
@@ -50,7 +50,7 @@ export class RmCommand implements ICommand {
             }
         }));
 
-        this.shell.echo('Push OK, revision ' + this.vault.getDBRevision() + '.');
+        this.shell.echo('Push OK, revision ' + Global.vault.getDBRevision() + '.');
         this.shell.separator();
     }
 }

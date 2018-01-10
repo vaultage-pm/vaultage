@@ -1,5 +1,5 @@
 module.exports = {
-  entry: './vaultage.ts',
+  entry: './src/vaultage.ts',
   output: {
     filename: 'dist/vaultage.js',
     path: __dirname,

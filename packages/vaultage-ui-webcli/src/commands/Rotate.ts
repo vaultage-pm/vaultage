@@ -14,7 +14,6 @@ export class RotateCommand implements ICommand {
     public readonly description = 'Re-generates a new password for an entry in the local db, then pushes an encrypted version of the db to the server.';
 
     constructor(
-        private vault: Vault,
         private shell: Shell) {
     }
 

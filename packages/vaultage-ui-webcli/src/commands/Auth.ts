@@ -1,4 +1,5 @@
-import { Vault } from 'vaultage-client';
+import { Global } from '../Global';
+import * as vaultage from 'vaultage-client';
 
 import { Config } from '../Config';
 import { ICommand } from '../webshell/ICommand';
@@ -12,7 +13,6 @@ export class AuthCommand implements ICommand {
     private defaultURL;
 
     constructor(
-        private vault: Vault,
         private shell: Shell,
         private config: Config) {
         this.defaultURL = location.protocol + '//' + location.hostname +
@@ -27,16 +27,10 @@ export class AuthCommand implements ICommand {
 
         this.shell.echo(`Attempting to login ${username}@${this.defaultURL}...`);
 
-        await new Promise((resolve, reject) => this.vault.auth(serverUrl, username, masterpwd, (err) => {
-            if (err == null) {
-                resolve();
-            } else {
-                reject(err);
-            }
-        }));
+        Global.vault = await vaultage.login(serverUrl, username, masterpwd);
 
-        this.shell.echo('Pull OK, got ' + this.vault.getNbEntries() + ' entries (revision ' +
-            this.vault.getDBRevision() + ').');
+        this.shell.echo('Pull OK, got ' + Global.vault.getNbEntries() + ' entries (revision ' +
+            Global.vault.getDBRevision() + ').');
         this.shell.separator();
     }
 }

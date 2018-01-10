@@ -1,3 +1,4 @@
+import { Global } from '../Global';
 import { Vault } from 'vaultage-client';
 import { Passwords, PasswordStrength } from 'vaultage-client';
 
@@ -11,13 +12,12 @@ export class PwdCommand implements ICommand {
     public readonly description = 'Changes the master passwords, and updates the local encryption key and remote authentication key accordingly.';
 
     constructor(
-        private vault: Vault,
         private shell: Shell) {
     }
 
     public async handle() {
 
-        if (!this.vault.isAuth()) {
+        if (!Global.vault) {
             this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
             return;
         }
@@ -43,7 +43,7 @@ export class PwdCommand implements ICommand {
 
         this.shell.echo(`Attempting to change the master password...`);
 
-        await new Promise((resolve, reject) => this.vault.updateMasterPassword(newMasterPassword, (err) => {
+        await new Promise((resolve, reject) => Global.vault && Global.vault.updateMasterPassword(newMasterPassword, (err) => {
             if (err == null) {
                 resolve();
             } else {
@@ -51,7 +51,7 @@ export class PwdCommand implements ICommand {
             }
         }));
 
-        this.shell.echo('Password change OK (db at revision ' + this.vault.getDBRevision() + '). Please use the new password' +
+        this.shell.echo('Password change OK (db at revision ' + Global.vault.getDBRevision() + '). Please use the new password' +
         + 'from now on.');
         this.shell.separator();
     }

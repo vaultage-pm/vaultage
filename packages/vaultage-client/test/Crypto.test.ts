@@ -1,6 +1,6 @@
 import { Crypto } from '../src/Crypto';
 
-function generateString(len) {
+function generateString(len: number) {
     return Math.random().toString(36).substr(2, 2 + len);
 }
 
