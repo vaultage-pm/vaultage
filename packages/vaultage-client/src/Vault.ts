@@ -1,6 +1,8 @@
 import * as request from 'request';
 
-import { Crypto, ISaltsConfig } from './Crypto';
+import { IVaultageConfig } from '../../vaultage/src/VaultageConfig';
+import { Crypto } from './Crypto';
+import { ISaltsConfig } from './Crypto';
 import { PasswordStrength } from './Passwords';
 import { deepCopy } from './utils';
 import { ERROR_CODE, VaultageError } from './VaultageError';
@@ -59,7 +61,6 @@ export class Vault {
             serverURL: string,
             username: string,
             masterPassword: string,
-            salts: ISaltsConfig,
             cb: (err: (VaultageError | null)) => void
     ): void {
 
@@ -70,21 +71,34 @@ export class Vault {
             remoteKey: 'null'
         };
 
-        this._crypto = new Crypto(salts);
+        this._pullConfig(creds.serverURL, (err, config?) => {
 
-        const remoteKey = this._crypto.deriveRemoteKey(masterPassword);
-        // possible optimization: compute the local key while the request is in the air
-        const localKey = this._crypto.deriveLocalKey(masterPassword);
-
-        creds.localKey = localKey;
-        creds.remoteKey = remoteKey;
-
-        this._pullCipher(creds, (err) => {
-            if (!err) {
-                this._setCredentials(creds);
+            if (err || !config) {
+                throw err;
             }
-            cb(err);
+
+            const salts: ISaltsConfig = {
+                LOCAL_KEY_SALT: config.salts.local_key_salt,
+                REMOTE_KEY_SALT: config.salts.remote_key_salt,
+            };
+
+            this._crypto = new Crypto(salts);
+
+            const remoteKey = this._crypto.deriveRemoteKey(masterPassword);
+            // possible optimization: compute the local key while the request is in the air
+            const localKey = this._crypto.deriveLocalKey(masterPassword);
+
+            creds.localKey = localKey;
+            creds.remoteKey = remoteKey;
+
+            this._pullCipher(creds, (err2) => {
+                if (!err2) {
+                    this._setCredentials(creds);
+                }
+                cb(err2);
+            });
         });
+
     }
 
     /**
@@ -320,6 +334,21 @@ export class Vault {
             localKey: creds.localKey,
             remoteKey: creds.remoteKey
         };
+    }
+
+    private _pullConfig(serverURL: string, cb: (err: (VaultageError|null), config?: IVaultageConfig) => void): void {
+        this._apiCallFunction({
+            url: serverURL + '/config'
+        }, (err, res) => {
+            if (err) {
+                return cb(err);
+            }
+            try {
+                cb(null, JSON.parse(res.body));
+            } catch (e) {
+                cb(e);
+            }
+        });
     }
 
     private _pullCipher(creds: ICredentials, cb: (err: (VaultageError|null)) => void): void {
