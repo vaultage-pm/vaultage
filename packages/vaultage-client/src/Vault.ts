@@ -1,5 +1,3 @@
-import * as request from 'request';
-
 import { IVaultageConfig } from '../../vaultage/src/VaultageConfig';
 import { Crypto } from './Crypto';
 import { ISaltsConfig } from './Crypto';
@@ -7,6 +5,7 @@ import { PasswordStrength } from './Passwords';
 import { deepCopy } from './utils';
 import { ERROR_CODE, VaultageError } from './VaultageError';
 import { IVaultDBEntry, IVaultDBEntryAttrs, VaultDB } from './VaultDB';
+import { HTTPService } from './HTTPService';
 
 export interface ICredentials {
     localKey: string;
@@ -15,7 +14,6 @@ export interface ICredentials {
     username: string;
 }
 
-export type ApiCallFunction = (parameters: any, cb: (err: any, resp: any) => void) => void;
 
 
 /**
@@ -35,20 +33,6 @@ export class Vault {
     private _db?: VaultDB;
     private _crypto?: Crypto;
     private _lastFingerprint?: string;
-    private _apiCallFunction: ApiCallFunction;
-
-    constructor(apiCallFunction?: ApiCallFunction) {
-
-        // if no function was given to reach the backend, use Requests (this is for production)
-        if (apiCallFunction == null) {
-            this._apiCallFunction = (parameters: any, cb: (err: any, resp: any) => void) => {
-                request(parameters, cb);
-            };
-        } else {
-            // this is for testing
-            this._apiCallFunction = apiCallFunction;
-        }
-    }
 
     /**
      * Attempts to pull the cipher and decode it. Saves credentials on success.
@@ -337,7 +321,7 @@ export class Vault {
     }
 
     private _pullConfig(serverURL: string, cb: (err: (VaultageError|null), config?: IVaultageConfig) => void): void {
-        this._apiCallFunction({
+        HTTPService.request({
             url: serverURL + '/config'
         }, (err, res) => {
             if (err) {
@@ -401,7 +385,7 @@ export class Vault {
             cb(null);
         };
 
-        this._apiCallFunction(parameters, innerCallback);
+        HTTPService.request(parameters, innerCallback);
     }
 
     private _pushCipher(creds: ICredentials, newRemoteKey: (string|null), cb: (err: (VaultageError|null)) => void): void {
@@ -452,7 +436,7 @@ export class Vault {
             cb(null);
         };
 
-        this._apiCallFunction(parameters, innerCallback);
+        HTTPService.request(parameters, innerCallback);
     }
 
     private _makeURL(serverURL: string, username: string, remotePwdHash: string): string {
