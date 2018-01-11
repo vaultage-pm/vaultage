@@ -19,46 +19,46 @@ describe('login', () => {
     });
 
     it('detects an unreachable remote', async () => {
-        mockAPI.mockImplementationOnce((_parameters, cb) => {
+        mockAPI.mockImplementationOnce((_parameters) => {
             // bad luck, server unreachable
-            cb('404 error', null);
+            return Promise.reject('404 error');
         });
 
-        await expect(login('url', 'username', 'passwd')).rejects.toHaveProperty('code', ERROR_CODE.NETWORK_ERROR);
+        await expect(login('url', 'username', 'passwd')).rejects.toEqual('404 error');
 
         expect(mockAPI).toHaveBeenCalledTimes(1);
         expect(mockAPI).toHaveBeenCalledWith({
             url: 'url/config'
-        }, expect.any(Function));
+        });
     });
 
     it('detects a login error', async () => {
 
-        mockAPI.mockImplementationOnce((_parameters, cb) => {
-            cb(null, { body: JSON.stringify(config)});
+        mockAPI.mockImplementationOnce((_parameters) => {
+            return Promise.resolve({ body: JSON.stringify(config)});
         });
-        mockAPI.mockImplementationOnce((_parameters, cb) => {
+        mockAPI.mockImplementationOnce((_parameters) => {
             // bad luck, server reachable but wrong credentials
-            cb(null, { body: '{"error":true,"description":"Error, authentication failed."}'});
+            return Promise.resolve({ body: '{"error":true,"description":"Error, authentication failed."}'});
         });
 
         await expect(login('url', 'username', 'passwd')).rejects.toHaveProperty('code', ERROR_CODE.SERVER_ERROR);
 
         expect(mockAPI).toHaveBeenCalledWith({
             url: 'url/config'
-        }, expect.any(Function));
+        });
         expect(mockAPI).toHaveBeenCalledWith({
             url: 'url/username/483c29af947d335ed2851c62f1daa12227126b00035387f66f2d1492036d4dcb/vaultage_api'
-        }, expect.any(Function));
+        });
     });
 
     it('creates a vault on success', async () => {
 
-        mockAPI.mockImplementationOnce((_parameters, cb) => {
-            cb(null, { body: JSON.stringify(config)});
+        mockAPI.mockImplementationOnce((_parameters) => {
+            return Promise.resolve({ body: JSON.stringify(config)});
         });
-        mockAPI.mockImplementationOnce((_parameters, cb) => {
-            cb(null, {
+        mockAPI.mockImplementationOnce((_parameters) => {
+            return Promise.resolve({
                 body: '{"error":false,"description":"","data":""}'
             });
         });
@@ -67,10 +67,10 @@ describe('login', () => {
 
         expect(mockAPI).toHaveBeenCalledWith({
             url: 'url/config'
-        }, expect.any(Function));
+        });
         expect(mockAPI).toHaveBeenCalledWith({
             url: 'url/username/483c29af947d335ed2851c62f1daa12227126b00035387f66f2d1492036d4dcb/vaultage_api'
-        }, expect.any(Function));
+        });
 
         expect(vault).toBeInstanceOf(Vault);
     });

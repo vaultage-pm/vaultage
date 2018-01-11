@@ -28,14 +28,7 @@ async function runIntegrationTest() {
 
         console.log('Pushing the db...');
 
-        await new Promise((resolve, reject) => vault.save((err) => {
-            if (err == null) {
-                resolve();
-            } else {
-                console.log(err);
-                reject(err);
-            }
-        }));
+        await vault.save();
 
         // log out and pull again
         console.log('Logging out...');
@@ -76,24 +69,12 @@ async function runIntegrationTest() {
         console.log('Saving it...');
 
         // manually save
-        await new Promise((resolve, reject) => vault.save((err) => {
-            if (err == null) {
-                resolve();
-            } else {
-                reject(err);
-            }
-        }));
+        await vault.save();
 
         console.log('Manually pulling the db...');
 
         // try to manually pull the db
-        await new Promise((resolve, reject) => vault.pull((err) => {
-            if (err == null) {
-                resolve();
-            } else {
-                reject(err);
-            }
-        }));
+        await vault.pull();
 
         if (vault.getNbEntries() !== 1) {
             throw new Error('Could not get back the entry we just edited.');
@@ -118,13 +99,7 @@ async function runIntegrationTest() {
 
         const newMasterPassword = 'masterpwd2';
 
-        await new Promise((resolve, reject) => vault.updateMasterPassword(newMasterPassword, (err) => {
-            if (err == null) {
-                resolve();
-            } else {
-                reject(err);
-            }
-        }));
+        await vault.updateMasterPassword(newMasterPassword);
 
         // log out and pull again
         console.log('Logging out...');

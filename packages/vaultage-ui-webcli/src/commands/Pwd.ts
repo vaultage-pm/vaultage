@@ -42,13 +42,7 @@ export class PwdCommand implements ICommand {
 
         this.shell.echo(`Attempting to change the master password...`);
 
-        await new Promise((resolve, reject) => Global.vault && Global.vault.updateMasterPassword(newMasterPassword, (err) => {
-            if (err == null) {
-                resolve();
-            } else {
-                reject(err);
-            }
-        }));
+        await Global.vault.updateMasterPassword(newMasterPassword);
 
         this.shell.echo('Password change OK (db at revision ' + Global.vault.getDBRevision() + '). Please use the new password' +
         + 'from now on.');

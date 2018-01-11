@@ -12,60 +12,46 @@ import { ERROR_CODE, VaultageError } from './VaultageError';
  */
 export abstract class HttpApi {
 
-    public static pullConfig(serverURL: string, cb: (err: (VaultageError|null), config?: IVaultageConfig) => void): void {
-        HttpService.request({
+    public static async pullConfig(serverURL: string): Promise<IVaultageConfig> {
+        const res = await HttpService.request({
             url: serverURL + '/config'
-        }, (err, res) => {
-            if (err) {
-                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
-            }
-            try {
-                cb(null, JSON.parse(res.body));
-            } catch (e) {
-                cb(e);
-            }
         });
+        try {
+            return JSON.parse(res.body);
+        } catch (e) {
+            throw new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response', e);
+        }
     }
 
-    public static pullCipher(creds: ICredentials, cb: (err: (VaultageError|null), cipher?: string) => void): void {
+    public static async pullCipher(creds: ICredentials): Promise<string> {
 
         const parameters = {
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey)
         };
-        const innerCallback = (err: any, resp: any) => {
 
-            if (err) {
-                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
+        const resp = await HttpService.request(parameters);
+        let body: any;
+        try {
+            body = JSON.parse(resp.body);
+        } catch (e) {
+            throw new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response', e);
+        }
+        if (body.error != null && body.error === true) {
+            if (body.description != null) {
+                throw new VaultageError(ERROR_CODE.SERVER_ERROR, body.description);
+            } else {
+                throw new VaultageError(ERROR_CODE.SERVER_ERROR, 'Unknown server error');
             }
-
-            let body: any;
-            try {
-                body = JSON.parse(resp.body);
-            } catch (e) {
-                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response'));
-            }
-            if (body.error != null && body.error === true) {
-                if (body.description != null) {
-                    return cb(new VaultageError(ERROR_CODE.SERVER_ERROR, body.description));
-                } else {
-                    return cb(new VaultageError(ERROR_CODE.SERVER_ERROR, 'Unknown server error'));
-                }
-            }
-            const cipher = (body.data || '').replace(/[^a-z0-9+/:"{},]/ig, '');
-
-            cb(null, cipher);
-        };
-
-        HttpService.request(parameters, innerCallback);
+        }
+        return (body.data || '').replace(/[^a-z0-9+/:"{},]/ig, '');
     }
 
-    public static pushCipher(
+    public static async pushCipher(
             creds: ICredentials,
             newRemoteKey: (string|null),
             cipher: string,
             lastFingerprint: string | undefined,
-            fingerprint: string,
-            cb: (err: (VaultageError|null)) => void): void {
+            fingerprint: string): Promise<void> {
 
         const parameters = {
             method: 'POST',
@@ -82,28 +68,23 @@ export abstract class HttpApi {
             }
         };
 
-        HttpService.request(parameters, (err: any, resp: any) => {
-            if (err) {
-                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err));
-            }
+        const resp = await HttpService.request(parameters);
 
-            let body: any;
-            try {
-                body = JSON.parse(resp.body);
-            } catch (e) {
-                return cb(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response'));
+        let body: any;
+        try {
+            body = JSON.parse(resp.body);
+        } catch (e) {
+            throw new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response');
+        }
+        if (body.error != null && body.error === true) {
+            if (body.not_fast_forward === true) {
+                throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, 'The server has a newer version of the DB');
+            } else if (body.descrption != null) {
+                throw new VaultageError(ERROR_CODE.SERVER_ERROR, body.description);
+            } else {
+                throw new VaultageError(ERROR_CODE.SERVER_ERROR, 'Unknown server error');
             }
-            if (body.error != null && body.error === true) {
-                if (body.not_fast_forward === true) {
-                    return cb(new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, 'The server has a newer version of the DB'));
-                } else if (body.descrption != null) {
-                    return cb(new VaultageError(ERROR_CODE.SERVER_ERROR, body.description));
-                } else {
-                    return cb(new VaultageError(ERROR_CODE.SERVER_ERROR, 'Unknown server error'));
-                }
-            }
-            cb(null);
-        });
+        }
     }
 
     private static _makeURL(serverURL: string, username: string, remotePwdHash: string): string {

@@ -1,6 +1,8 @@
 import * as request from 'request';
 
-export type ApiCallFunction = (parameters: any, cb: (err: any, resp: any) => void) => void;
+import { ERROR_CODE, VaultageError } from './VaultageError';
+
+export type ApiCallFunction = (parameters: any) => Promise<any>;
 
 /**
  * Singleton providing outgoing HTTP capabilities.
@@ -16,7 +18,13 @@ export abstract class HttpService {
         this._instance = fn;
     }
 
-    private static _instance: ApiCallFunction = (parameters: any, cb: (err: any, resp: any) => void) => {
-        request(parameters, cb);
+    private static _instance: ApiCallFunction = (parameters: any) => {
+        return new Promise((resolve, reject) => request(parameters, (err, res) => {
+            if (err) {
+                reject(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
+            } else {
+                resolve(res);
+            }
+        }));
     }
 }

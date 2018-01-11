@@ -4,14 +4,14 @@ VAULTAGE_CLIENT=../vaultage-client/dist/vaultage.js
 
 # Mandatory tasks (imposed by the top-level Makefile)
 
+.PHONY: build
+build: $(VAULTAGE_CLIENT) $(BIN)
+
 .PHONY: $(VAULTAGE_CLIENT)
 $(VAULTAGE_CLIENT):
 	$(MAKE) -C ../vaultage-client build
 	mkdir -p public/dist
 	cp $(VAULTAGE_CLIENT) public/dist
-
-.PHONY: build
-build: $(VAULTAGE_CLIENT) $(BIN)
 
 .PHONY: clean
 clean:

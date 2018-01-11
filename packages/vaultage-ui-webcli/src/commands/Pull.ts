@@ -20,13 +20,7 @@ export class PullCommand implements ICommand {
 
         this.shell.echo(`Attempting to pull the encrypted database ...`);
 
-        await new Promise((resolve, reject) => Global.vault && Global.vault.pull((err) => {
-            if (err == null) {
-                resolve();
-            } else {
-                reject(err);
-            }
-        }));
+        await Global.vault.pull();
 
         this.shell.echo('Pull OK, got ' + Global.vault.getNbEntries() + ' entries (revision ' + Global.vault.getDBRevision() + ').');
         this.shell.separator();

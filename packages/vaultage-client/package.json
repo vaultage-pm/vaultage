@@ -33,6 +33,7 @@
     "dependencies": {
         "jquery": "^3.2.1",
         "request": "2.83.0",
+        "tslib": "^1.8.1",
         "xhr": "2.4.0"
     },
     "devDependencies": {

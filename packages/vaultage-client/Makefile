@@ -6,7 +6,7 @@ IT=integration-test/integration-test.ts
 WEBPACK_FLAGS = --output-library Vaultage
 
 .PHONY: all
-all: test $(BIN)
+all: test build
 
 
 # Mandatory tasks (imposed by the top-level Makefile)

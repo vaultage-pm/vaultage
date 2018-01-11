@@ -7,6 +7,7 @@
     "module": "commonjs",
     "target": "es5",
     "allowJs": false,
+    "importHelpers": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
