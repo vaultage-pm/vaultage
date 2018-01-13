@@ -4,6 +4,16 @@ import { HttpApi } from './HTTPApi';
 import { ApiCallFunction, HttpService } from './HTTPService';
 import { Vault } from './Vault';
 
+/**
+ * Returns the current version of the vaultage-client package.
+ * Might return 0.0.0 locally (if run from sources), should return
+ * something like 4.2.1 when running via npm.
+ * @return the version number
+ */
+export function version() : string {
+    const { version } = require('../package.json');
+    return version;
+}
 
 /**
  * Attempts to pull the cipher and decode it. Saves credentials on success.

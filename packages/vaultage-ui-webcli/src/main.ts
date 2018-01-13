@@ -13,6 +13,7 @@ import { PushCommand } from './commands/Push';
 import { PwdCommand } from './commands/Pwd';
 import { RawImportCommand } from './commands/RawImport';
 import { ReusedCommand } from './commands/Reused';
+import { VersionCommand } from './commands/Version';
 import { RmCommand } from './commands/Rm';
 import { RotateCommand } from './commands/Rotate';
 import { WeakCommand } from './commands/Weak';
@@ -26,6 +27,7 @@ const terminal = new Terminal({
 
 const shell = new Shell(terminal);
 const config = new Config(shell);
+const { version } = require('../package.json');
 
 shell.registerCommand(new HelpCommand(shell));
 shell.registerCommand(new AuthCommand(shell, config));
@@ -38,15 +40,16 @@ shell.registerCommand(new RotateCommand(shell));
 shell.registerCommand(new RmCommand(shell));
 shell.registerCommand(new PullCommand(shell));
 shell.registerCommand(new PushCommand(shell));
-shell.registerCommand(new ClearCommand(shell));
+shell.registerCommand(new ClearCommand(version, shell));
 shell.registerCommand(new PwdCommand(shell));
 shell.registerCommand(new LogoutCommand(shell));
 shell.registerCommand(new ReusedCommand(shell));
 shell.registerCommand(new WeakCommand(shell));
 shell.registerCommand(new DumpCommand(shell));
 shell.registerCommand(new RawImportCommand(shell));
+shell.registerCommand(new VersionCommand(version, shell));
 
-shell.echoHTML('   Vaultage v4.0');
+shell.echoHTML('   Vaultage v' + version);
 shell.echoHTML('*********************');
 shell.printShortHelp();
 shell.echoHTML('*********************');
