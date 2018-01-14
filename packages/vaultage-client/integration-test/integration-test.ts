@@ -31,7 +31,7 @@ async function runIntegrationTest() {
         await vault.save();
 
         // log out and pull again
-        console.log('Logging out...');
+        console.log('Logging back in...');
 
         vault = await vaultage.login(serverUrl, username, masterpwd);
 
