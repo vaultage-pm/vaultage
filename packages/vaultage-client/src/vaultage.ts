@@ -1,9 +1,16 @@
+export * from './Crypto';
+export * from './Passwords';
+export * from './Vault';
+export * from './VaultageError';
+export * from './VaultDB';
+// TODO: Write public interfaces in a separate file and export from there
+
+
 import { Crypto } from './Crypto';
 import { ISaltsConfig } from './Crypto';
 import { HttpApi } from './HTTPApi';
 import { HttpRequestFunction, HttpService } from './HTTPService';
 import { Vault } from './Vault';
-
 
 /**
  * Attempts to pull the cipher and decode it. Saves credentials on success.

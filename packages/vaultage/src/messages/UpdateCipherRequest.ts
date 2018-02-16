@@ -26,6 +26,7 @@ export class UpdateCipherRequest {
      * the update is rejected.
      */
     @IsString()
+    @IsOptional()
     public old_hash?: string;
 
     /**
