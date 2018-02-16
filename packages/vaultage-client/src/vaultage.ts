@@ -1,7 +1,7 @@
 import { Crypto } from './Crypto';
 import { ISaltsConfig } from './Crypto';
 import { HttpApi } from './HTTPApi';
-import { ApiCallFunction, HttpService } from './HTTPService';
+import { HttpRequestFunction, HttpService } from './HTTPService';
 import { Vault } from './Vault';
 
 
@@ -44,6 +44,6 @@ export async function login(
     return new Vault(creds, crypto, cipher);
 }
 
-export function _mockHttpRequests(fn: ApiCallFunction): void {
+export function _mockHttpRequests(fn: HttpRequestFunction): void {
     HttpService.mock(fn);
 }

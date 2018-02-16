@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "declaration": true,
+    "baseUrl": "..",
     "outDir": "dist",
     "noImplicitAny": false,
     "strictNullChecks": true,

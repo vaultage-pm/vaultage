@@ -1,5 +1,5 @@
 import { IVaultageConfig } from '../../vaultage/src/apiServer';
-import { HttpService } from './HTTPService';
+import { HttpRequestParameters, HttpService } from './HTTPService';
 import { ICredentials } from './Vault';
 import { ERROR_CODE, VaultageError } from './VaultageError';
 
@@ -25,7 +25,7 @@ export abstract class HttpApi {
 
     public static async pullCipher(creds: ICredentials): Promise<string> {
 
-        const parameters = {
+        const parameters: HttpRequestParameters = {
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey)
         };
 
@@ -53,16 +53,16 @@ export abstract class HttpApi {
             lastFingerprint: string | undefined,
             fingerprint: string): Promise<void> {
 
-        const parameters = {
+        const parameters: HttpRequestParameters = {
             method: 'POST',
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey),
-            body: JSON.stringify({
+            data: {
                 new_password: newRemoteKey,
                 new_data: cipher,
                 old_hash: lastFingerprint,
                 new_hash: fingerprint,
                 force: false,
-            }),
+            },
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -74,7 +74,7 @@ export abstract class HttpApi {
         try {
             body = JSON.parse(resp.body);
         } catch (e) {
-            throw new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response');
+            throw new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response', e);
         }
         if (body.error != null && body.error === true) {
             if (body.not_fast_forward === true) {

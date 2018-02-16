@@ -1,8 +1,11 @@
-import * as request from 'request';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
+import { IPushPullResponse } from 'vaultage-protocol';
 import { ERROR_CODE, VaultageError } from './VaultageError';
 
-export type ApiCallFunction = (parameters: any) => Promise<any>;
+export type HttpRequestParameters = AxiosRequestConfig;
+export type HttpResponse<T> = AxiosResponse<T>;
+export type HttpRequestFunction = (parameters: HttpRequestParameters) => Promise<AxiosResponse<IPushPullResponse>>;
 
 /**
  * Singleton providing outgoing HTTP capabilities.
@@ -10,21 +13,16 @@ export type ApiCallFunction = (parameters: any) => Promise<any>;
  */
 export abstract class HttpService {
 
-    public static get request(): ApiCallFunction {
+    public static get request(): HttpRequestFunction {
         return this._instance;
     }
 
-    public static mock(fn: ApiCallFunction): void {
+    public static mock(fn: HttpRequestFunction): void {
         this._instance = fn;
     }
 
-    private static _instance: ApiCallFunction = (parameters: any) => {
-        return new Promise((resolve, reject) => request(parameters, (err, res) => {
-            if (err) {
-                reject(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
-            } else {
-                resolve(res);
-            }
-        }));
+    private static _instance: HttpRequestFunction = (parameters: HttpRequestParameters) => {
+        return axios.request(parameters).catch((err) => Promise.reject(
+            new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString())));
     }
 }

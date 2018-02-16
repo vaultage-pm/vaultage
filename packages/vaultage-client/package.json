@@ -3,7 +3,7 @@
     "version": "0.0.0",
     "description": "SDK to write JavaScript clients for the Vaultage password manager",
     "main": "dist/vaultage.js",
-    "types": "dist/vaultage.d.ts",
+    "types": "dist/vaultage-client/src/vaultage.d.ts",
     "scripts": {
         "build": "webpack",
         "clean": "rimraf dist/",
@@ -31,8 +31,8 @@
     },
     "homepage": "https://github.com/lbarman/vaultage#readme",
     "dependencies": {
+        "axios": "^0.17.1",
         "jquery": "^3.2.1",
-        "request": "2.83.0",
         "tslib": "^1.8.1",
         "xhr": "2.4.0"
     },
@@ -40,7 +40,6 @@
         "@types/jest": "^21.1.6",
         "@types/jquery": "^3.2.15",
         "@types/node": "^8.0.4",
-        "axios": "^0.17.1",
         "jest": "^21.2.1",
         "ts-jest": "^21.2.3",
         "ts-loader": "3.1.1",

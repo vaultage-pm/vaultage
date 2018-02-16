@@ -12,6 +12,10 @@ import { DatabaseWithAuth } from './storage/Database';
 import { JSONDatabaseWithAuth } from './storage/JSONDatabase';
 import { initConfig, storagePath } from './tools/initConfig';
 
+// TODO: Export those to a separate package
+export { UpdateCipherRequest } from './messages/UpdateCipherRequest';
+export { IPushPullResponse } from './messages/PullResponse';
+
 
 /*
     main.ts - entry file of the vaultage server.

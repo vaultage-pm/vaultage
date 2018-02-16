@@ -102,7 +102,7 @@ export class Vault {
 
     /**
      * Gets the number of entries in the db.
-     * @return {number} the number of entries in the db.
+     * @returns {number} the number of entries in the db.
      * @throws If this vault is not authenticated.
      */
     public getNbEntries(): number {
@@ -111,6 +111,7 @@ export class Vault {
 
     /**
      * Adds a new entry in the db
+     * @returns the id of the newly created entry
      */
     public addEntry(attrs: IVaultDBEntryAttrs): string {
         return this._db.add(attrs);

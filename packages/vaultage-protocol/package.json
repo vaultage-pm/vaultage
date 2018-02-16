@@ -1,0 +1,36 @@
+{
+    "name": "vaultage-protocol",
+    "version": "0.0.0",
+    "description": "The vaultage password manager's communication protocol",
+    "main": "dist/main.js",
+    "types": "dist/main.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "clean": "rimraf dist/",
+        "lint": "tslint -p .",
+        "test": "npm run lint"
+    },
+    "files": [
+        "dist"
+    ],
+    "contributors": [
+        "Ludovic Barman <ludovic.barman@protonmail.com> (https://lbarman.ch/)",
+        "Hadrien Milano <hadrien.milano@gmail.com> (https://hmil.fr)"
+    ],
+    "license": "GPL-2.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/lbarman/vaultage"
+    },
+    "bugs": {
+        "url": "https://github.com/lbarman/vaultage/issues"
+    },
+    "homepage": "https://github.com/lbarman/vaultage#readme",
+    "dependencies": {
+        "class-validator": "^0.7.3"
+    },
+    "devDependencies": {
+        "tslint": "^5.8.0",
+        "typescript": "2.6.1"
+    }
+}
