@@ -1,11 +1,12 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 
-import { IPushPullResponse } from 'vaultage-protocol';
 import { ERROR_CODE, VaultageError } from './VaultageError';
 
+export interface IHttpResponse<T> {
+    data: T;
+}
 export type HttpRequestParameters = AxiosRequestConfig;
-export type HttpResponse<T> = AxiosResponse<T>;
-export type HttpRequestFunction = (parameters: HttpRequestParameters) => Promise<AxiosResponse<IPushPullResponse>>;
+export type HttpRequestFunction = <T>(parameters: HttpRequestParameters) => Promise<IHttpResponse<T>>;
 
 /**
  * Singleton providing outgoing HTTP capabilities.

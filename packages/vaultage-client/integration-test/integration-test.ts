@@ -1,6 +1,7 @@
 import * as util from 'util';
 import * as vaultage from '../src/vaultage';
-import { IVaultDBEntryAttrs } from '../src/VaultDB';
+
+import { IVaultDBEntryAttrs, Vault } from '../src/vaultage';
 
 async function runIntegrationTest() {
     const serverUrl = 'http://localhost:3000/';
@@ -149,7 +150,7 @@ runIntegrationTest().catch((e) => {
 });
 
 
-function fail(vault, reason) {
+function fail(vault: Vault, reason: string) {
     console.log(`=== FAILURE: ${reason} ===`);
     console.log('Dumping vault state:');
     console.log(util.inspect(vault, { showHidden: false, depth: null}));

@@ -1,7 +1,6 @@
 import { Get, JsonController } from 'routing-controllers';
 import { Inject } from 'typedi';
-
-import { IVaultageConfig } from '../VaultageConfig';
+import { IVaultageConfig } from 'vaultage-protocol';
 
 /**
  * This ConfigController provides the API method "getConfig".

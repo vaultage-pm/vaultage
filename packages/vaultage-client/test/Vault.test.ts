@@ -1,5 +1,5 @@
 import { Crypto } from '../src/Crypto';
-import { HttpService } from '../src/HTTPService';
+import { HttpService, IHttpResponse } from '../src/HTTPService';
 import { ICredentials, Vault } from '../src/Vault';
 
 const creds: ICredentials = {
@@ -13,6 +13,12 @@ const crypto = new Crypto({
     LOCAL_KEY_SALT: 'deadbeef',
     REMOTE_KEY_SALT: '0123456789',
 });
+
+function response<T>(data: T): IHttpResponse<T> {
+    return {
+        data
+    };
+}
 
 let mockAPI: jest.Mock;
 
@@ -46,9 +52,11 @@ describe('Vault.ts can', () => {
             // encrypted with master password 'passwd'. DB contains a single object Object:
             // {id: 0, title: 'Hello', url: 'http://example.com', login: 'Bob', password: 'zephyr',
             // created: 'Sat, 28 Oct 2017 12:41:50 GMT', updated: 'Sat, 28 Oct 2017 12:41:50 GMT'}
-            // tslint:disable-next-line:max-line-length
-            const bodyStr = '{"error":false,"description":"","data":"{\\"iv\\":\\"32CPCDg5TZfwMxTAkoxNnA==\\",\\"v\\":1,\\"iter\\":10000,;\\"ks\\";:128,;\\"ts\\";:64,;\\"mode\\";:\\"ccm\\",;\\"adata\\";:\\"\\",;\\"cipher\\";:\\"aes\\",;\\"salt\\";:\\"2xgYuLeaI70=\\",;\\"ct\\";:\\"VP8hRnz0h71X0AycacRmDZVy6eCjglxTMGm\/MgFxDv3YiaSHMaIxfX2Krx6IDmHZGs1KLCmZWpgqW+NxUAdo6iIhTE7yQ2+JPY4iyvtEdvCJpMY9hGPxLACFC7i7JWLkNOSgeIOj9lO5SJBVtE5DASXfW68GZjTM0rc6PevuWQyAwwTwlnoLxQivodU0hH0w6LeUDXbpPtZGbP2vmiNuFs9haj1VRhrnHFUwRUTY\\/mSE1JtClMvhjwjyfTYQdXjGA2qr9XBMiQWNFkA=\\";}"}';
-            return Promise.resolve({ body: bodyStr });
+            return Promise.resolve(response({
+                error: false,
+                // tslint:disable-next-line:max-line-length
+                data: '{"iv":"32CPCDg5TZfwMxTAkoxNnA==","v":1,"iter":10000,;"ks";:128,;"ts";:64,;"mode";:"ccm",;"adata";:"",;"cipher";:"aes",;"salt";:"2xgYuLeaI70=",;"ct";:"VP8hRnz0h71X0AycacRmDZVy6eCjglxTMGm\/MgFxDv3YiaSHMaIxfX2Krx6IDmHZGs1KLCmZWpgqW+NxUAdo6iIhTE7yQ2+JPY4iyvtEdvCJpMY9hGPxLACFC7i7JWLkNOSgeIOj9lO5SJBVtE5DASXfW68GZjTM0rc6PevuWQyAwwTwlnoLxQivodU0hH0w6LeUDXbpPtZGbP2vmiNuFs9haj1VRhrnHFUwRUTY\/mSE1JtClMvhjwjyfTYQdXjGA2qr9XBMiQWNFkA=";}'
+            }));
         });
 
         // save the current vault

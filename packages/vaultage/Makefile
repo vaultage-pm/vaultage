@@ -1,4 +1,4 @@
-BIN=dist/main.js
+BIN=dist/src/main.js
 SRC=$(shell find src/ -type f -name '*.ts')
 
 # Mandatory tasks (imposed by the top-level Makefile)

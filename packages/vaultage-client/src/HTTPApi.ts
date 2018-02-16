@@ -1,4 +1,5 @@
-import { IVaultageConfig } from '../../vaultage/src/apiServer';
+import { IErrorPushPullResponse, IVaultageConfig, PushPullResponse } from 'vaultage-protocol';
+
 import { HttpRequestParameters, HttpService } from './HTTPService';
 import { ICredentials } from './Vault';
 import { ERROR_CODE, VaultageError } from './VaultageError';
@@ -13,11 +14,11 @@ import { ERROR_CODE, VaultageError } from './VaultageError';
 export abstract class HttpApi {
 
     public static async pullConfig(serverURL: string): Promise<IVaultageConfig> {
-        const res = await HttpService.request({
+        const res = await HttpService.request<IVaultageConfig>({
             url: serverURL + '/config'
         });
         try {
-            return JSON.parse(res.body);
+            return res.data;
         } catch (e) {
             throw new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response', e);
         }
@@ -29,19 +30,11 @@ export abstract class HttpApi {
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey)
         };
 
-        const resp = await HttpService.request(parameters);
-        let body: any;
-        try {
-            body = JSON.parse(resp.body);
-        } catch (e) {
-            throw new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response', e);
-        }
+        const resp = await HttpService.request<PushPullResponse>(parameters);
+        const body = resp.data;
+
         if (body.error != null && body.error === true) {
-            if (body.description != null) {
-                throw new VaultageError(ERROR_CODE.SERVER_ERROR, body.description);
-            } else {
-                throw new VaultageError(ERROR_CODE.SERVER_ERROR, 'Unknown server error');
-            }
+            return this.throwProtocolError(body);
         }
         return (body.data || '').replace(/[^a-z0-9+/:"{},]/ig, '');
     }
@@ -68,27 +61,34 @@ export abstract class HttpApi {
             }
         };
 
-        const resp = await HttpService.request(parameters);
-
-        let body: any;
-        try {
-            body = JSON.parse(resp.body);
-        } catch (e) {
-            throw new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Bad server response', e);
-        }
-        if (body.error != null && body.error === true) {
-            if (body.not_fast_forward === true) {
-                throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, 'The server has a newer version of the DB');
-            } else if (body.descrption != null) {
-                throw new VaultageError(ERROR_CODE.SERVER_ERROR, body.description);
-            } else {
-                throw new VaultageError(ERROR_CODE.SERVER_ERROR, 'Unknown server error');
-            }
+        const resp = await HttpService.request<PushPullResponse>(parameters);
+        const body = resp.data;
+        if (body.error === true) {
+            return this.throwProtocolError(body);
         }
     }
 
     private static _makeURL(serverURL: string, username: string, remotePwdHash: string): string {
         return `${serverURL}/${encodeURIComponent(username)}/${remotePwdHash}/vaultage_api`;
+    }
+
+    private static throwProtocolError(err: IErrorPushPullResponse): never {
+        switch (err.code) {
+            case 'EFAST':
+                throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD,
+                        'The server has a newer version of the DB');
+            case 'EAUTH':
+                throw new VaultageError(ERROR_CODE.BAD_CREDENTIALS,
+                        'The credentials used to log in are no longer valid. Please re-authenticate');
+            default:
+                throw this.ensureAllErrorsHandled(err.code);
+        }
+    }
+
+    private static ensureAllErrorsHandled(_code: never) {
+        // If this function causes a type error, then it means an error type was added or changed and
+        // you forgot to update the error handling function accordingly.
+        return new Error('The response received is not defined in the protocol.');
     }
 }
 

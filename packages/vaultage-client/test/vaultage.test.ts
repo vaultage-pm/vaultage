@@ -1,8 +1,15 @@
-import { IVaultageConfig } from '../../vaultage/src/VaultageConfig';
-import { HttpService } from '../src/HTTPService';
+import { IErrorPushPullResponse, IVaultageConfig } from 'vaultage-protocol';
+
+import { HttpService, IHttpResponse } from '../src/HTTPService';
 import { Vault } from '../src/Vault';
 import { login } from '../src/vaultage';
 import { ERROR_CODE } from '../src/VaultageError';
+
+function response<T>(data: T): IHttpResponse<T> {
+    return {
+        data
+    };
+}
 
 const config: IVaultageConfig = {
     salts: { local_key_salt: 'deadbeef', remote_key_salt: '0123456789'},
@@ -35,14 +42,18 @@ describe('login', () => {
     it('detects a login error', async () => {
 
         mockAPI.mockImplementationOnce((_parameters) => {
-            return Promise.resolve({ body: JSON.stringify(config)});
+            return Promise.resolve(response<IVaultageConfig>(config));
         });
         mockAPI.mockImplementationOnce((_parameters) => {
             // bad luck, server reachable but wrong credentials
-            return Promise.resolve({ body: '{"error":true,"description":"Error, authentication failed."}'});
+            return Promise.resolve(response<IErrorPushPullResponse>({
+                error: true,
+                code: 'EAUTH',
+                description: 'Authentication error'
+            }));
         });
 
-        await expect(login('url', 'username', 'passwd')).rejects.toHaveProperty('code', ERROR_CODE.SERVER_ERROR);
+        await expect(login('url', 'username', 'passwd')).rejects.toHaveProperty('code', ERROR_CODE.BAD_CREDENTIALS);
 
         expect(mockAPI).toHaveBeenCalledWith({
             url: 'url/config'
@@ -55,12 +66,10 @@ describe('login', () => {
     it('creates a vault on success', async () => {
 
         mockAPI.mockImplementationOnce((_parameters) => {
-            return Promise.resolve({ body: JSON.stringify(config)});
+            return Promise.resolve(response<IVaultageConfig>(config));
         });
         mockAPI.mockImplementationOnce((_parameters) => {
-            return Promise.resolve({
-                body: '{"error":false,"description":"","data":""}'
-            });
+            return Promise.resolve(response({}));
         });
 
         const vault = await login('url', 'username', 'passwd');

@@ -1,5 +1,5 @@
 BIN=dist/main.js
-SRC=$(wildcard src/*.ts)
+SRC=$(shell find src/ -type f -name '*.ts')
 
 .PHONY: all
 all: test build

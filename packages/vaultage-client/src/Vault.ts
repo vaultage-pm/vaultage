@@ -90,9 +90,11 @@ export class Vault {
 
         await this._pushCipher(newCredentials, newRemoteKey);
 
+
         // at this point, the server accepted the update. Let's confirm it by trying to pull with the new
         // accesses
 
+        newCredentials.remoteKey = newRemoteKey;
         await this._pullCipher(newCredentials);
 
         // everything went fine, now we use the new credentials

@@ -56,13 +56,7 @@ export class RotateCommand implements ICommand {
         const entry2 = Global.vault.getEntry(id);
         this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry2));
 
-        await new Promise((resolve, reject) => Global.vault.save((err) => {
-            if (err == null) {
-                resolve();
-            } else {
-                reject(err);
-            }
-        }));
+        await Global.vault.save();
 
         this.shell.echo('Push OK, revision ' + Global.vault.getDBRevision() + '.');
         this.shell.separator();

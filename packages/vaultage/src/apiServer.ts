@@ -1,10 +1,8 @@
 import { json } from 'body-parser';
 import * as cors from 'cors';
-import { useExpressServer } from 'routing-controllers';
-
-export { IVaultageConfig } from './VaultageConfig';
 import * as express from 'express';
 import * as path from 'path';
+import { useExpressServer } from 'routing-controllers';
 
 /**
  * Creates an express server serving the Vaultage API (used to save and retreive the encrypted passwords).
@@ -50,7 +48,7 @@ export function createVaultageAPIServer(): express.Application {
         controllers: [
             path.join(__dirname, 'controllers/**/*.js'),
             path.join(__dirname, 'controllers/**/*.ts'),
-        ]
+        ],
     });
 
     // We don't actually start the server yet. It is left to the caller to decide what to

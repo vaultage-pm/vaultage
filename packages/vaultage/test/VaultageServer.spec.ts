@@ -3,14 +3,12 @@ import 'reflect-metadata';
 import { useContainer } from 'routing-controllers';
 import * as request from 'supertest';
 import { Container } from 'typedi';
+import { IVaultageConfig, PushPullResponse, UpdateCipherRequest } from 'vaultage-protocol';
 
 import { createVaultageAPIServer } from '../src/apiServer';
-import { IPushPullResponse } from '../src/messages/PullResponse';
-import { UpdateCipherRequest } from '../src/messages/UpdateCipherRequest';
 import { AuthenticationError } from '../src/storage/AuthenticationError';
 import { DatabaseWithAuth } from '../src/storage/Database';
 import * as db from '../src/storage/JSONDatabase';
-import { IVaultageConfig } from '../src/VaultageConfig';
 
 useContainer(Container);
 
@@ -36,15 +34,13 @@ Container.set('config', {...mockConfig});
 
 const app = createVaultageAPIServer();
 
-const okPushResponse: IPushPullResponse = {
+const okPushResponse: PushPullResponse = {
     error: false,
-    description: '',
     data: 'save OK'
 };
 
-const okPullResponse: IPushPullResponse = {
+const okPullResponse: PushPullResponse = {
     error: false,
-    description: '',
     data: 'load OK'
 };
 

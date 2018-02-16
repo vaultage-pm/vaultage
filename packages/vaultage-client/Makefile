@@ -1,6 +1,6 @@
 BIN=dist/vaultage.js
-SRC=$(wildcard src/*.ts)
-TESTS=$(wildcard test/*.ts)
+SRC=$(shell find src/ -type f -name '*.ts')
+SRC=$(shell find test/ -type f -name '*.ts')
 IT=integration-test/integration-test.ts
 
 WEBPACK_FLAGS = --output-library Vaultage
