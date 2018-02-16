@@ -3,7 +3,7 @@
     "version": "0.0.0",
     "description": "SDK to write JavaScript clients for the Vaultage password manager",
     "main": "dist/vaultage.js",
-    "types": "dist/vaultage.d.ts",
+    "types": "dist/vaultage-client/src/vaultage.d.ts",
     "scripts": {
         "build": "webpack",
         "clean": "rimraf dist/",
