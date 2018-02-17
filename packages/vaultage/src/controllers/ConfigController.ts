@@ -10,6 +10,12 @@ import { IVaultageConfig } from '../VaultageConfig';
 @JsonController()
 export class ConfigController {
 
+    @Get('/version')
+    public async version(): Promise<string> {
+        const { version } = require('../../../package.json');
+        return version;
+    }
+
     @Inject('config')
     private config: IVaultageConfig;
 
