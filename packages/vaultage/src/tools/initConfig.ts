@@ -1,8 +1,8 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { IVaultageConfig } from 'vaultage-protocol';
 
-import { IVaultageConfig } from '../../src/apiServer';
 import { CONFIG_FILENAME } from '../constants';
 
 const SALTS_LENGTH = 64;

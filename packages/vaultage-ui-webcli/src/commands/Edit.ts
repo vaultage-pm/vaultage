@@ -55,13 +55,7 @@ export class EditCommand implements ICommand {
         this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry2));
         this.shell.echo('Updated entry #' + id);
 
-        await new Promise((resolve, reject) => Global.vault && Global.vault.save((err) => {
-            if (err == null) {
-                resolve();
-            } else {
-                reject(err);
-            }
-        }));
+        await Global.vault.save();
 
         this.shell.echo('Push OK, revision ' + Global.vault.getDBRevision() + '.');
         this.shell.separator();

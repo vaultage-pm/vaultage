@@ -45,13 +45,7 @@ export class GenCommand implements ICommand {
         const newEntryID = Global.vault.addEntry(newEntry);
         this.shell.echoHTML(`Added entry #${newEntryID}, generated password is <span class='blurred'>${password}</span>`);
 
-        await new Promise((resolve, reject) => Global.vault && Global.vault.save((err) => {
-            if (err == null) {
-                resolve();
-            } else {
-                reject(err);
-            }
-        }));
+        await Global.vault.save();
 
         this.shell.echo('Push OK, revision ' + Global.vault.getDBRevision() + '.');
         this.shell.separator();

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SERVER_LOGFILE="server.log"
+SERVER_LOGFILE="$(pwd)/server.log"
 EXPECTED_LAST_LINE="Server is listening on port 3000"
 
 rm -rf "$SERVER_LOGFILE"
@@ -14,8 +14,8 @@ echo "Starting server on localhost:3000"
 make serve 1>"$SERVER_LOGFILE" 2>&1 &
 serverPid="$!"
 
-echo "Sleeping for a while (30 sec)..."
-sleep 20
+echo "Sleeping for a while (5 sec)..."
+sleep 5
 
 lastLine=$(cat "$SERVER_LOGFILE" | tail -n 1)
 if [ "$lastLine" != "$EXPECTED_LAST_LINE" ]; then

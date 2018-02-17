@@ -5,8 +5,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { useContainer } from 'routing-controllers';
 import { Container } from 'typedi';
+import { IVaultageConfig } from 'vaultage-protocol';
 
-import { createVaultageAPIServer, IVaultageConfig } from './apiServer';
+import { createVaultageAPIServer } from './apiServer';
 import { CONFIG_FILENAME, VAULT_FILENAME } from './constants';
 import { DatabaseWithAuth } from './storage/Database';
 import { JSONDatabaseWithAuth } from './storage/JSONDatabase';

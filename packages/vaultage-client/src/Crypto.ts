@@ -1,3 +1,5 @@
+import { ERROR_CODE, VaultageError } from './VaultageError';
+
 // tslint:disable-next-line:no-var-requires
 const sjcl = require('../lib/sjcl') as any;
 
@@ -58,7 +60,11 @@ export class Crypto {
      * @param cipher The ciphertext to encrypt
      */
     public decrypt(localKey: string, cipher: string): string {
-        return sjcl.decrypt(localKey, cipher);
+        try {
+            return sjcl.decrypt(localKey, cipher);
+        } catch (e) {
+            throw new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occurred while decrypting the cipher', e);
+        }
     }
 
     /**

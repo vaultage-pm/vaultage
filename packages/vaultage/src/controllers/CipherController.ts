@@ -1,9 +1,10 @@
 import { Body, Get, JsonController, Param, Post } from 'routing-controllers';
 import { Inject } from 'typedi';
+import { PushPullResponse, UpdateCipherRequest } from 'vaultage-protocol';
 
-import { IPushPullResponse } from '../messages/PullResponse';
-import { UpdateCipherRequest } from '../messages/UpdateCipherRequest';
+import { AuthenticationError } from '../storage/AuthenticationError';
 import { DatabaseWithAuth } from '../storage/Database';
+import { NotFastForwardError } from '../storage/NotFastForwardError';
 
 /**
  * This CipherController provides the API methods "pull" and "push".
@@ -19,7 +20,7 @@ export class CipherController {
     public async pull(
         @Param('user') username: string,
         @Param('key') password: string)
-        : Promise<IPushPullResponse> {
+        : Promise<PushPullResponse> {
 
         try {
             const repo = await this.db.auth({
@@ -31,15 +32,10 @@ export class CipherController {
 
             return {
                 error: false,
-                description: '',
                 data: data
             };
         } catch (err) {
-            return {
-                error: true,
-                description: ('' + err),
-                data: ''
-            };
+            return this.wrapError(err);
         }
     }
 
@@ -48,7 +44,7 @@ export class CipherController {
         @Body() request: UpdateCipherRequest,
         @Param('user') username: string,
         @Param('key') password: string)
-        : Promise<IPushPullResponse> {
+        : Promise<PushPullResponse> {
 
         try {
             const dbAccess = await this.db.auth({
@@ -60,15 +56,28 @@ export class CipherController {
 
             return {
                 error: false,
-                description: '',
                 data: data
             };
         } catch (err) {
+            return this.wrapError(err);
+        }
+    }
+
+    private wrapError(e: Error): PushPullResponse {
+        if (e instanceof NotFastForwardError) {
             return {
                 error: true,
-                description: ('' + err),
-                data: ''
+                description: 'Not fast forward',
+                code: 'EFAST'
             };
+        } else if (e instanceof AuthenticationError) {
+            return {
+                error: true,
+                description: 'Authentication error',
+                code: 'EAUTH'
+            };
+        } /* istanbul ignore next */ else {
+            throw e; // Internal errors are not part of the protocol and thus will generate 500 status codes.
         }
     }
 }

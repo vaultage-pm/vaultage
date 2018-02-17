@@ -3,22 +3,21 @@
     "outDir": "dist",
     "baseUrl": "..",
     "declaration": true,
-    "noImplicitAny": false,
-    "strictNullChecks": true,
-    "module": "commonjs",
-    "target": "es5",
+
     "allowJs": false,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "sourceMap": true,
-    "lib": [
-      "es2015",
-      "dom"
-    ]
+    "strict": true,
+
+    "module": "commonjs",
+    "target": "es5",
+    "lib": [ "es2015", "dom" ]
   },
   "include": [
     "src/**/*.ts",

@@ -95,24 +95,22 @@ export class Passwords {
         }
 
         // award every unique letter until 5 repetitions
-        const letters = new Object();
+        const letters: { [k: string]: number | undefined} = {};
         for (const l of password) {
-            letters[l] = (letters[l] || 0) + 1;
-            score += 5.0 / letters[l];
+            const letter = letters[l] = (letters[l] || 0) + 1;
+            score += 5.0 / letter;
         }
 
         // bonus points for mixing it up
-        const variations = {
-            digits: /\d/.test(password),
-            lower: /[a-z]/.test(password),
-            upper: /[A-Z]/.test(password),
-            nonWords: /\W/.test(password),
-        };
+        const variationCount = [
+            /\d/, /* digits */
+            /[a-z]/, /* upper */
+            /[A-Z]/, /* lower */
+            /\W/, /* non words */
+        ]
+        .map<number>((rx) => rx.test(password) ? 1 : 0)
+        .reduce((a, b) => a + b);
 
-        let variationCount = 0;
-        for (const check of Object.keys(variations)) {
-            variationCount += (variations[check] === true) ? 1 : 0;
-        }
         score += (variationCount - 1) * 10;
 
         return Math.floor(score);

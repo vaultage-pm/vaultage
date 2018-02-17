@@ -1,6 +1,12 @@
-import * as request from 'request';
+import axios, { AxiosRequestConfig } from 'axios';
 
-export type ApiCallFunction = (parameters: any, cb: (err: any, resp: any) => void) => void;
+import { ERROR_CODE, VaultageError } from './VaultageError';
+
+export interface IHttpResponse<T> {
+    data: T;
+}
+export type HttpRequestParameters = AxiosRequestConfig;
+export type HttpRequestFunction = <T>(parameters: HttpRequestParameters) => Promise<IHttpResponse<T>>;
 
 /**
  * Singleton providing outgoing HTTP capabilities.
@@ -8,15 +14,16 @@ export type ApiCallFunction = (parameters: any, cb: (err: any, resp: any) => voi
  */
 export abstract class HttpService {
 
-    public static get request(): ApiCallFunction {
+    public static get request(): HttpRequestFunction {
         return this._instance;
     }
 
-    public static mock(fn: ApiCallFunction): void {
+    public static mock(fn: HttpRequestFunction): void {
         this._instance = fn;
     }
 
-    private static _instance: ApiCallFunction = (parameters: any, cb: (err: any, resp: any) => void) => {
-        request(parameters, cb);
+    private static _instance: HttpRequestFunction = (parameters: HttpRequestParameters) => {
+        return axios.request(parameters).catch((err) => Promise.reject(
+            new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString())));
     }
 }

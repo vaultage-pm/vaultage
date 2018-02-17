@@ -10,9 +10,10 @@ all:
 	$(MAKE) build
 
 
-# === Dependencies
+# === Dependencies (No circular dependencies are allowed here)
 
-packages/vaultage: packages/vaultage-ui-webcli
+packages/vaultage: packages/vaultage-ui-webcli packages/vaultage-protocol
+packages/vaultage-client: packages/vaultage-protocol
 packages/vaultage-ui-webcli: packages/vaultage-client
 
 

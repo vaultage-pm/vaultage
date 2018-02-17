@@ -10,13 +10,11 @@ export class AuthCommand implements ICommand {
 
     public readonly description = 'Logs in to the remote server, pulls the encrypted database, and decrypts it.';
 
-    private defaultURL;
+    private defaultURL = `${location.protocol}//${location.hostname}${(location.port ? ':' + location.port : '')}${location.pathname}`;
 
     constructor(
         private shell: Shell,
         private config: Config) {
-        this.defaultURL = location.protocol + '//' + location.hostname +
-            (location.port ? ':' + location.port : '') + location.pathname;
     }
 
     public async handle(args: string[]) {

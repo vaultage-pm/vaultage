@@ -16,39 +16,30 @@ export class AddCommand implements ICommand {
     }
 
     public async handle() {
-        await new Promise(async (resolve, reject) => {
+        if (!Global.vault) {
+            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
+            return;
+        }
 
-            if (!Global.vault) {
-                this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
-                return;
-            }
+        const title = await this.shell.prompt('Title:');
+        const username = await this.shell.prompt('Username:');
+        const password = await this.shell.prompt('Password:');
+        const url = await this.shell.prompt('Url:');
 
-            const title = await this.shell.prompt('Title:');
-            const username = await this.shell.prompt('Username:');
-            const password = await this.shell.prompt('Password:');
-            const url = await this.shell.prompt('Url:');
+        const newEntry: IVaultDBEntryAttrs = {
+            title: title,
+            login: username,
+            password: password,
+            url: url
+        };
 
-            const newEntry: IVaultDBEntryAttrs = {
-                title: title,
-                login: username,
-                password: password,
-                url: url
-            };
+        const newEntryID = Global.vault.addEntry(newEntry);
+        const e = Global.vault.getEntry(newEntryID);
+        this.shell.echoHTML(VaultEntryFormatter.formatSingle(e));
+        this.shell.echo('Added entry #' + newEntryID);
 
-            const newEntryID = Global.vault.addEntry(newEntry);
-            const e = Global.vault.getEntry(newEntryID);
-            this.shell.echoHTML(VaultEntryFormatter.formatSingle(e));
-            this.shell.echo('Added entry #' + newEntryID);
-
-            Global.vault.save((err) => {
-                if (err == null && Global.vault) {
-                    this.shell.echo('Push OK, revision ' + Global.vault.getDBRevision() + '.');
-                    this.shell.separator();
-                    resolve();
-                } else {
-                    reject(err);
-                }
-            });
-        });
+        await Global.vault.save();
+        this.shell.echo('Push OK, revision ' + Global.vault.getDBRevision() + '.');
+        this.shell.separator();
     }
 }

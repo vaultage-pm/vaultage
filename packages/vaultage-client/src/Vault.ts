@@ -2,7 +2,6 @@ import { Crypto } from './Crypto';
 import { HttpApi } from './HTTPApi';
 import { PasswordStrength } from './Passwords';
 import { deepCopy } from './utils';
-import { ERROR_CODE, VaultageError } from './VaultageError';
 import { IVaultDBEntry, IVaultDBEntryAttrs, VaultDB } from './VaultDB';
 
 export interface ICredentials {
@@ -51,33 +50,21 @@ export class Vault {
      * Saves the Vault on the server.
      *
      * The vault must be authenticated before this method can be called.
-     *
-     * @param {function} cb Callback invoked with (err: VaultageError, this) on completion. err is null if no error occured.
      */
-    public save(cb: (err: (VaultageError|null)) => void): void {
-        if (!this._creds || !this._db) {
-            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
-        } else {
-            // Bumping the revision on each push ensures that there are no two identical consecutive fingerprints
-            // (in short we are pretending that we updated something even if we didn't)
-            this._db.newRevision();
-            this._pushCipher(this._creds, null, (err) => cb(err));
-        }
+    public save(): Promise<void> {
+        // Bumping the revision on each push ensures that there are no two identical consecutive fingerprints
+        // (in short we are pretending that we updated something even if we didn't)
+        this._db.newRevision();
+        return this._pushCipher(this._creds, null);
     }
 
     /**
      * Refreshes the local data by pulling the latest cipher from the server.
      *
      * The vault must be authenticated before this method can be called.
-     *
-     * @param {function} cb Callback invoked with (err: VaultageError, this) on completion. err is null if no error occured.
      */
-    public pull(cb: (err: (VaultageError|null)) => void): void {
-        if (!this._creds) {
-            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!'));
-        } else {
-            this._pullCipher(this._creds, (err) => cb(err));
-        }
+    public pull(): Promise<void> {
+        return this._pullCipher(this._creds);
     }
 
     /**
@@ -89,46 +76,35 @@ export class Vault {
      * @param newPassword The new master password
      * @param cb Callback invoked on completion.
      */
-    public updateMasterPassword(newPassword: string, cb: (err: (VaultageError|null)) => void): void {
-        if (!this._creds || !this._db || !this._crypto) {
-            cb(new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated'));
-        } else {
-            const oldCredentials = deepCopy(this._creds);
-            const newCredentials = deepCopy(this._creds);
-            const newLocalKey = this._crypto.deriveLocalKey(newPassword);
-            const newRemoteKey = this._crypto.deriveRemoteKey(newPassword);
+    public async updateMasterPassword(newPassword: string): Promise<void> {
+        const newCredentials = deepCopy(this._creds);
+        const newLocalKey = this._crypto.deriveLocalKey(newPassword);
+        const newRemoteKey = this._crypto.deriveRemoteKey(newPassword);
 
-            this._db.newRevision();
+        this._db.newRevision();
 
-            // first, let's do a request with (oldRemoteKey, newLocalKey), and provide new_password=newRemoteKey.
-            // This will encrypt the cipher with the newLocalKey, instruct the server to use newRemoteKey for the
-            // *** subsequent *** updates; of course, this message is still authenticated with oldRemoteKey
-            newCredentials.localKey = newLocalKey;
+        // first, let's do a request with (oldRemoteKey, newLocalKey), and provide new_password=newRemoteKey.
+        // This will encrypt the cipher with the newLocalKey, instruct the server to use newRemoteKey for the
+        // *** subsequent *** updates; of course, this message is still authenticated with oldRemoteKey
+        newCredentials.localKey = newLocalKey;
 
-            this._pushCipher(newCredentials, newRemoteKey, (err) => {
-                if (err) {
-                    this._setCredentials(oldCredentials);
-                }
-                cb(err);
-            });
+        await this._pushCipher(newCredentials, newRemoteKey);
 
-            // at this point, the server accepted the update. Let's confirm it by trying to pull with the new
-            // accesses
 
-            this._pullCipher(newCredentials, (err) => {
-                cb(new VaultageError(ERROR_CODE.SERVER_ERROR,
-                        'Something went terribly wrong; the server accepted the key update, but the new key does not work !' + err));
-            });
+        // at this point, the server accepted the update. Let's confirm it by trying to pull with the new
+        // accesses
 
-            // everything went fine, now we use the new credentials
-            newCredentials.remoteKey = newRemoteKey;
-            this._creds = newCredentials;
-        }
+        newCredentials.remoteKey = newRemoteKey;
+        await this._pullCipher(newCredentials);
+
+        // everything went fine, now we use the new credentials
+        newCredentials.remoteKey = newRemoteKey;
+        this._setCredentials(newCredentials);
     }
 
     /**
      * Gets the number of entries in the db.
-     * @return {number} the number of entries in the db.
+     * @returns {number} the number of entries in the db.
      * @throws If this vault is not authenticated.
      */
     public getNbEntries(): number {
@@ -137,6 +113,7 @@ export class Vault {
 
     /**
      * Adds a new entry in the db
+     * @returns the id of the newly created entry
      */
     public addEntry(attrs: IVaultDBEntryAttrs): string {
         return this._db.add(attrs);
@@ -185,9 +162,6 @@ export class Vault {
      * Returns the set of all entries in the DB
      */
     public getEntriesWhichReusePasswords(): IVaultDBEntry[] {
-        if (!this._db) {
-            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
-        }
         return this._db.getEntriesWhichReusePasswords();
     }
 
@@ -199,9 +173,6 @@ export class Vault {
      * @returns an updated version of the entry
      */
     public updateEntry(id: string, attrs: IVaultDBEntryAttrs): IVaultDBEntry {
-        if (!this._db) {
-            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
-        }
         this._db.update(id, attrs);
         return this._db.get(id);
     }
@@ -210,9 +181,6 @@ export class Vault {
      * Returns an entry by its id
      */
     public getEntry(id: string): IVaultDBEntry {
-        if (!this._db) {
-            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
-        }
         return this._db.get(id);
     }
 
@@ -222,9 +190,6 @@ export class Vault {
      * @param entries The entries to replace this db's entries
      */
     public replaceAllEntries(entries: IVaultDBEntry[]) {
-        if (!this._db) {
-            throw new VaultageError(ERROR_CODE.NOT_AUTHENTICATED, 'This vault is not authenticated!');
-        }
         return this._db.replaceAllEntries(entries);
     }
 
@@ -240,49 +205,35 @@ export class Vault {
         };
     }
 
-    private _pullCipher(creds: ICredentials, cb: (err: (VaultageError|null)) => void): void {
-        HttpApi.pullCipher(creds, (err, cipher) => {
-            if (cipher) {
-                const err2 = this._setCipher(creds, cipher);
-                if (err2) {
-                    return cb(err2);
-                }
-            } else {
-                // Create an empty DB if there is nothing on the server.
-                this._db = new VaultDB({});
-                this._lastFingerprint = '';
-            }
-            cb(err);
-        });
-
+    private async _pullCipher(creds: ICredentials): Promise<void> {
+        const cipher = await HttpApi.pullCipher(creds);
+        if (cipher) {
+            this._setCipher(creds, cipher);
+        } else {
+            // Create an empty DB if there is nothing on the server.
+            this._db = new VaultDB({});
+            this._lastFingerprint = '';
+        }
     }
 
-    private _pushCipher(creds: ICredentials, newRemoteKey: (string|null), cb: (err: (VaultageError|null)) => void): void {
+    private async _pushCipher(creds: ICredentials, newRemoteKey: (string|null)): Promise<void> {
         const plain = VaultDB.serialize(this._db);
         const cipher = this._crypto.encrypt(creds.localKey, plain);
         const fingerprint = this._crypto.getFingerprint(plain, creds.localKey);
 
-        HttpApi.pushCipher(
+        await HttpApi.pushCipher(
             creds,
             newRemoteKey,
             cipher,
             this._lastFingerprint,
-            fingerprint, (err) => {
-                if (err) {
-                    return cb(err);
-                }
-                this._lastFingerprint = fingerprint;
-        });
+            fingerprint);
+
+        this._lastFingerprint = fingerprint;
     }
 
-    private _setCipher(creds: ICredentials, cipher: string): undefined | VaultageError {
-        try {
-            const plain = this._crypto.decrypt(creds.localKey, cipher);
-            this._db = VaultDB.deserialize(plain);
-            this._lastFingerprint = this._crypto.getFingerprint(plain, creds.localKey);
-            return;
-        } catch (e) {
-            return new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occurred while decrypting the cipher', e);
-        }
+    private _setCipher(creds: ICredentials, cipher: string): void {
+        const plain = this._crypto.decrypt(creds.localKey, cipher);
+        this._db = VaultDB.deserialize(plain);
+        this._lastFingerprint = this._crypto.getFingerprint(plain, creds.localKey);
     }
 }

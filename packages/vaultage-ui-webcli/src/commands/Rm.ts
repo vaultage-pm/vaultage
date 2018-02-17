@@ -40,13 +40,7 @@ export class RmCommand implements ICommand {
         Global.vault.removeEntry(id);
         this.shell.echo('Remove entry #' + id);
 
-        await new Promise((resolve, reject) => Global.vault && Global.vault.save((err) => {
-            if (err == null) {
-                resolve();
-            } else {
-                reject(err);
-            }
-        }));
+        await Global.vault.save();
 
         this.shell.echo('Push OK, revision ' + Global.vault.getDBRevision() + '.');
         this.shell.separator();
