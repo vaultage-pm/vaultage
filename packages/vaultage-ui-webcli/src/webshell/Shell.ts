@@ -1,6 +1,5 @@
 import * as copy from 'copy-to-clipboard';
 import { setTimeout } from 'timers';
-import { Global } from '../Global';
 
 import { BusyIndicator } from './BusyIndicator';
 import { Formatter } from './Formatter';
@@ -98,12 +97,13 @@ export class Shell implements ICommandHandler {
         this.enablePassswordDoubleClick();
     }
 
-
+    // FIXME @jsonch: This breaks separation of concern. Everything under webshell is a standalone
+    // generic web shell (nothing vaultage-specific).
     public enablePassswordDoubleClick() {
         $('.password').off('dblclick');
         $('.password').dblclick((event) => {
             const e = event.target;
-            const id = $(e).data('id');
+            // const id = $(e).data('id');
             const pwd = $(e).html();
 
             // copy the password to the clipboard
@@ -116,11 +116,40 @@ export class Shell implements ICommandHandler {
 
             // mark the entry as used
 
-            // FIXME @jsonch: This breaks separation of concern. Everything under webshell is a standalone
-            // generic web shell (nothing vaultage specific).
-            if (Global.vault != null) {
-                Global.vault.entryUsed(id);
-            }
+            // if (Global.vault != null) {
+            //     Global.vault.entryUsed(id);
+            // }
+        });
+    }
+
+    /**
+     * Opens up a file selection dialog.
+     *
+     * The promise resolves if at least one file has been selected.
+     */
+    public async promptFile(): Promise<FileList> {
+        const term = this.safeGetTerminal();
+        const uniqueId = 'file-' + (Math.random() * 10000).toString(16);
+        term.print(`<input id="${uniqueId}" type="file" />`, { unsafe_i_know_what_i_am_doing: true });
+        const fileInput = document.getElementById(uniqueId) as HTMLInputElement;
+
+        return new Promise<FileList>((resolve, reject) => {
+            // We want to react to user-initiated abortion of the prompt: In this case we remove the element and return an error.
+            this.promptResolve = (result) => {
+                result.catch((e) => {
+                    reject(e);
+                    fileInput.remove();
+                });
+            };
+
+            fileInput.addEventListener('change', (_) => {
+                fileInput.remove();
+                if (fileInput.files != null && fileInput.files.length > 0) {
+                    resolve(fileInput.files);
+                } else {
+                    reject('No file selected');
+                }
+            });
         });
     }
 
@@ -226,38 +255,35 @@ export class Shell implements ICommandHandler {
     }
 
     public onKeyDown = (evt: KeyboardEvent, term: Terminal) => {
-        if (this.isBusy) {
-            evt.preventDefault();
-            return;
+        if (!this.isBusy) {
+            switch (evt.key) {
+                case 'Enter':
+                    evt.preventDefault();
+                    this.acceptCommand();
+                    return;
+                case 'ArrowUp':
+                    evt.preventDefault();
+                    term.promptInput = this.history.previous();
+                    return;
+                case 'ArrowDown':
+                    evt.preventDefault();
+                    term.promptInput = this.history.next();
+                    return;
+                case 'Tab':
+                    evt.preventDefault();
+                    this.autoCompleteCommand();
+                    return;
+            }
         }
         switch (evt.key) {
-            case 'Enter':
-                evt.preventDefault();
-                if (!this.isBusy) {
-                    this.acceptCommand();
-                }
-                break;
-            case 'ArrowUp':
-                evt.preventDefault();
-                term.promptInput = this.history.previous();
-                break;
-            case 'ArrowDown':
-                evt.preventDefault();
-                term.promptInput = this.history.next();
-                break;
-            case 'Tab':
-                evt.preventDefault();
-                if (!this.isBusy) {
-                    this.autoCompleteCommand();
-                }
             case 'c':
-                if (evt.ctrlKey) {
-                    this.abortPrompt();
-                }
-                break;
-            case 'Escape':
+            if (evt.ctrlKey) {
                 this.abortPrompt();
-                break;
+            }
+            return;
+        case 'Escape':
+            this.abortPrompt();
+            return;
         }
     }
 
@@ -313,8 +339,9 @@ export class Shell implements ICommandHandler {
             if (result && result.then) {
                 // Handles asynchronous workflow (error and happy path)
                 this.enterBusyMode();
-                result.catch((e) => {
-                    this.echoError('' + e);
+                result.catch((e: any) => {
+                    const message = e.hasOwnProperty('message') ? e.message : e;
+                    this.echoError('' + message);
                     console.error(e);
                 }).then(
                     () => this.exitBusyMode(),

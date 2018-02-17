@@ -1,7 +1,6 @@
 import { IVaultDBEntryAttrs } from 'vaultage-client';
 
-import { Global } from '../Global';
-import * as lang from '../lang';
+import { Context } from '../Context';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
@@ -12,14 +11,11 @@ export class AddCommand implements ICommand {
     public readonly description = 'Adds an entry to the local db, then pushes an encrypted version of the db to the server.';
 
     constructor(
-        private shell: Shell) {
+        private shell: Shell,
+        private ctx: Context) {
     }
 
     public async handle() {
-        if (!Global.vault) {
-            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
-            return;
-        }
 
         const title = await this.shell.prompt('Title:');
         const username = await this.shell.prompt('Username:');
@@ -33,13 +29,13 @@ export class AddCommand implements ICommand {
             url: url
         };
 
-        const newEntryID = Global.vault.addEntry(newEntry);
-        const e = Global.vault.getEntry(newEntryID);
+        const newEntryID = this.ctx.vault.addEntry(newEntry);
+        const e = this.ctx.vault.getEntry(newEntryID);
         this.shell.echoHTML(VaultEntryFormatter.formatSingle(e));
         this.shell.echo('Added entry #' + newEntryID);
 
-        await Global.vault.save();
-        this.shell.echo('Push OK, revision ' + Global.vault.getDBRevision() + '.');
+        await this.ctx.vault.save();
+        this.shell.echo('Push OK, revision ' + this.ctx.vault.getDBRevision() + '.');
         this.shell.separator();
     }
 }

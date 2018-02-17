@@ -1,5 +1,4 @@
-import { Global } from '../Global';
-import * as lang from '../lang';
+import { Context } from '../Context';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 
@@ -9,20 +8,17 @@ export class PullCommand implements ICommand {
     public readonly description = 'Pulls the encrypted database, and decrypts it locally.';
 
     constructor(
-        private shell: Shell) {
+        private shell: Shell,
+        private ctx: Context) {
     }
 
     public async handle() {
-        if (!Global.vault) {
-            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
-            return;
-        }
 
         this.shell.echo(`Attempting to pull the encrypted database ...`);
 
-        await Global.vault.pull();
+        await this.ctx.vault.pull();
 
-        this.shell.echo('Pull OK, got ' + Global.vault.getNbEntries() + ' entries (revision ' + Global.vault.getDBRevision() + ').');
+        this.shell.echo('Pull OK, got ' + this.ctx.vault.getNbEntries() + ' entries (revision ' + this.ctx.vault.getDBRevision() + ').');
         this.shell.separator();
     }
 }

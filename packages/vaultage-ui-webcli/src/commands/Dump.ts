@@ -1,5 +1,4 @@
-import { Global } from '../Global';
-import * as lang from '../lang';
+import { Context } from '../Context';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 
@@ -9,17 +8,12 @@ export class DumpCommand implements ICommand {
     public readonly description = 'Dumps the plaintext of the database in JSON. *store with caution*';
 
     constructor(
-        private shell: Shell) {
+        private shell: Shell,
+        private ctx: Context) {
     }
 
     public async handle() {
-
-        if (!Global.vault) {
-            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
-            return;
-        }
-
-        const allEntries = Global.vault.getAllEntries();
+        const allEntries = this.ctx.vault.getAllEntries();
         this.shell.echoHTML(JSON.stringify(allEntries));
         this.shell.separator();
     }

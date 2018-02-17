@@ -1,7 +1,7 @@
 import * as vaultage from 'vaultage-client';
 
 import { Config } from '../Config';
-import { Global } from '../Global';
+import { Context } from '../Context';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 
@@ -14,6 +14,7 @@ export class AuthCommand implements ICommand {
 
     constructor(
         private shell: Shell,
+        private ctx: Context,
         private config: Config) {
     }
 
@@ -23,12 +24,12 @@ export class AuthCommand implements ICommand {
         const username = await this.shell.prompt('Username:', this.config.getDefaultUserName());
         const masterpwd = await this.shell.promptSecret('Password:');
 
-        this.shell.echo(`Attempting to login ${username}@${this.defaultURL}...`);
+        this.shell.echo(`Attempting to login ${username}@${serverUrl}...`);
 
-        Global.vault = await vaultage.login(serverUrl, username, masterpwd);
+        this.ctx.vault = await vaultage.login(serverUrl, username, masterpwd);
 
-        this.shell.echo('Pull OK, got ' + Global.vault.getNbEntries() + ' entries (revision ' +
-            Global.vault.getDBRevision() + ').');
+        this.shell.echo('Pull OK, got ' + this.ctx.vault.getNbEntries() + ' entries (revision ' +
+            this.ctx.vault.getDBRevision() + ').');
         this.shell.separator();
     }
 }

@@ -1,10 +1,10 @@
 import { IVaultDBEntryAttrs } from 'vaultage-client';
 
-import { Global } from '../Global';
-import * as lang from '../lang';
+import { Context } from '../Context';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
+
 
 export class EditCommand implements ICommand {
     public readonly name = 'edit';
@@ -12,15 +12,11 @@ export class EditCommand implements ICommand {
     public readonly description = 'Edits an entry in the local db, then pushes an encrypted version of the db to the server.';
 
     constructor(
-        private shell: Shell) {
+        private shell: Shell,
+        private ctx: Context) {
     }
 
     public async handle(args: string[]) {
-
-        if (!Global.vault) {
-            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
-            return;
-        }
 
         let id: string;
         if (args.length === 0) {
@@ -29,7 +25,7 @@ export class EditCommand implements ICommand {
             id = args[0];
         }
 
-        const entry = Global.vault.getEntry(id);
+        const entry = this.ctx.vault.getEntry(id);
 
         const title = await this.shell.prompt('Title:', entry.title);
         const username = await this.shell.prompt('Username:', entry.login);
@@ -50,14 +46,14 @@ export class EditCommand implements ICommand {
             return;
         }
 
-        Global.vault.updateEntry(id, newEntry);
-        const entry2 = Global.vault.getEntry(id);
+        this.ctx.vault.updateEntry(id, newEntry);
+        const entry2 = this.ctx.vault.getEntry(id);
         this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry2));
         this.shell.echo('Updated entry #' + id);
 
-        await Global.vault.save();
+        await this.ctx.vault.save();
 
-        this.shell.echo('Push OK, revision ' + Global.vault.getDBRevision() + '.');
+        this.shell.echo('Push OK, revision ' + this.ctx.vault.getDBRevision() + '.');
         this.shell.separator();
     }
 }

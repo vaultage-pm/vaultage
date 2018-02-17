@@ -1,9 +1,7 @@
-import { IVaultDBEntryAttrs } from 'vaultage-client';
-import { ConcreteRandomnessGenerator, IRandomness, Passwords } from 'vaultage-client';
+import { ConcreteRandomnessGenerator, IRandomness, IVaultDBEntryAttrs, Passwords } from 'vaultage-client';
 
 import * as config from '../Config';
-import { Global } from '../Global';
-import * as lang from '../lang';
+import { Context } from '../Context';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 
@@ -13,16 +11,11 @@ export class GenCommand implements ICommand {
     public readonly description = 'Generates a new strong password, and adds an entry to the local db. Then, pushes an encrypted version of the db to the server.';
 
     constructor(
-        private shell: Shell) {
+        private shell: Shell,
+        private ctx: Context) {
     }
 
     public async handle() {
-
-        if (!Global.vault) {
-            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
-            return;
-        }
-
         const rnd: IRandomness = new ConcreteRandomnessGenerator();
         const pwdGen = new Passwords(rnd);
         const password = pwdGen.generatePassword(
@@ -42,12 +35,12 @@ export class GenCommand implements ICommand {
             url: url
         };
 
-        const newEntryID = Global.vault.addEntry(newEntry);
+        const newEntryID = this.ctx.vault.addEntry(newEntry);
         this.shell.echoHTML(`Added entry #${newEntryID}, generated password is <span class='blurred'>${password}</span>`);
 
-        await Global.vault.save();
+        await this.ctx.vault.save();
 
-        this.shell.echo('Push OK, revision ' + Global.vault.getDBRevision() + '.');
+        this.shell.echo('Push OK, revision ' + this.ctx.vault.getDBRevision() + '.');
         this.shell.separator();
     }
 }
