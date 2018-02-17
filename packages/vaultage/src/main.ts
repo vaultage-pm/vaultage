@@ -84,6 +84,9 @@ async function boot() {
     // run application on port 3000
     server.listen(3000, () => {
         console.log('Server is listening on port 3000');
+        // It is important to print an empty line here so that the integration
+        // test can detect that the server has started
+        console.log(' ');
     });
 }
 
