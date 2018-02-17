@@ -27,9 +27,8 @@ export class PwdCommand implements ICommand {
         const strength = Passwords.getPasswordStrength(newMasterPassword);
 
         if (strength === PasswordStrength.WEAK) {
-            const answer = await this.shell.prompt('WARNING: The provided master password is VERY WEAK. The whole security of this password manager depends on it. Continue anyway ? [y/N]');
-
-            if (answer !== 'y' && answer !== 'Y') {
+            const answer = await this.shell.promptYesNo(`'WARNING: The provided master password is VERY WEAK. The whole security of this password manager depends on it. Continue anyway?`);
+            if (answer !== 'yes') {
                 this.shell.echo('Cancelled.');
                 return;
             }

@@ -123,6 +123,25 @@ export class Shell implements ICommandHandler {
     }
 
     /**
+     * Asks a yes/no question.
+     */
+    public promptYesNo(question: string, defaultAnswer?: 'yes' | 'no'): Promise<'yes' | 'no'> {
+        return this.unbusyAction((term) => new Promise((resolve) => {
+            const prompt = defaultAnswer === 'yes' ? 'Y/n' : 'y/N';
+            term.prompt = `${question} ${prompt} &nbsp;`;
+            this.promptResolve = (p) => resolve(p.then((text) => {
+                if (/y(es)?/i.test(text)) {
+                    return 'yes';
+                } else if (/n(o)?/i.test(text)) {
+                    return 'no';
+                } else {
+                    return defaultAnswer || 'no';
+                }
+            }));
+        }));
+    }
+
+    /**
      * Opens up a file selection dialog.
      *
      * The promise resolves if at least one file has been selected.

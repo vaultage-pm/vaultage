@@ -44,13 +44,13 @@ export class RotateCommand implements ICommand {
 
         this.ctx.vault.updateEntry(id, newEntry);
 
+        await this.ctx.vault.save();
+
         this.shell.echoHTML('Entry #' + id + ' was :');
         this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry));
         this.shell.echoHTML('Entry #' + id + ' now is :');
         const entry2 = this.ctx.vault.getEntry(id);
         this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry2));
-
-        await this.ctx.vault.save();
 
         this.shell.echo('Push OK, revision ' + this.ctx.vault.getDBRevision() + '.');
         this.shell.separator();
