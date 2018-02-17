@@ -34,6 +34,9 @@ publish: node_modules
 	$(MAKE) build
 	node_modules/.bin/ts-node tools/publish.ts
 
+publish-docker: node_modules
+	node_modules/.bin/ts-node tools/publish-docker.ts
+
 node_modules: package.json package-lock.json
 	npm install
 

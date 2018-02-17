@@ -1,10 +1,11 @@
 FROM node:9
+ARG VAULTAGE_CHANNEL
 
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
 
 USER node
 
-RUN npm install -g vaultage
+RUN npm install -g vaultage@${VAULTAGE_CHANNEL}
 
 EXPOSE 3000
 
