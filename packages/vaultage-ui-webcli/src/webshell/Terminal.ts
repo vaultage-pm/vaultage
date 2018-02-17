@@ -127,8 +127,8 @@ export class Terminal {
 
         this.focus();
 
-        this.$el.addEventListener('keydown', (evt: KeyboardEvent) => this.handler.onKeyDown(evt, this));
-        this.$el.addEventListener('keyup', (evt: KeyboardEvent) => this.handler.onKeyUp(evt, this));
+        this.$el.addEventListener('keydown', ((evt: KeyboardEvent) => this.handler.onKeyDown(evt, this)) as EventListener);
+        this.$el.addEventListener('keyup', ((evt: KeyboardEvent) => this.handler.onKeyUp(evt, this)) as EventListener);
         this.$el.addEventListener('mouseup', () => setImmediate(() => this.onMouseUp()));
     }
 
