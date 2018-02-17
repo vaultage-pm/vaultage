@@ -76,7 +76,7 @@ export class CipherController {
                 description: 'Authentication error',
                 code: 'EAUTH'
             };
-        } else {
+        } /* istanbul ignore next */ else {
             throw e; // Internal errors are not part of the protocol and thus will generate 500 status codes.
         }
     }

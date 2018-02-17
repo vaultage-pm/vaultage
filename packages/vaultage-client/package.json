@@ -8,8 +8,8 @@
         "build": "webpack",
         "clean": "rimraf dist/",
         "lint": "tslint -p .",
-        "test": "npm run lint && jest",
-        "watch": "jest --watch"
+        "test": "npm run lint && cross-env NODE_PATH=.. jest",
+        "watch": "cross-env NODE_PATH=.. jest --watch"
     },
     "files": [
         "dist/src",
@@ -40,6 +40,7 @@
         "@types/jest": "^21.1.6",
         "@types/jquery": "^3.2.15",
         "@types/node": "^8.0.4",
+        "cross-env": "^5.1.1",
         "jest": "^21.2.1",
         "ts-jest": "^21.2.3",
         "ts-loader": "3.1.1",

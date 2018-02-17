@@ -1,4 +1,4 @@
-import { IErrorPushPullResponse, IVaultageConfig, PushPullResponse } from 'vaultage-protocol';
+import { IErrorPushPullResponse, IVaultageConfig, PushPullResponse, UpdateCipherRequest } from 'vaultage-protocol';
 
 import { HttpRequestParameters, HttpService } from './HTTPService';
 import { ICredentials } from './Vault';
@@ -46,16 +46,18 @@ export abstract class HttpApi {
             lastFingerprint: string | undefined,
             fingerprint: string): Promise<void> {
 
+        const request: UpdateCipherRequest = {
+            new_password: newRemoteKey || undefined,
+            new_data: cipher,
+            old_hash: lastFingerprint,
+            new_hash: fingerprint,
+            force: false,
+        };
+
         const parameters: HttpRequestParameters = {
             method: 'POST',
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey),
-            data: {
-                new_password: newRemoteKey,
-                new_data: cipher,
-                old_hash: lastFingerprint,
-                new_hash: fingerprint,
-                force: false,
-            },
+            data: request,
             headers: {
                 'Content-Type': 'application/json'
             }
