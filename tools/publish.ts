@@ -15,17 +15,25 @@ const packages: IPackageDefinition[] = [
     {
         name: 'vaultage',
         dependencies: [
-            'vaultage-ui-webcli'
+            'vaultage-ui-webcli',
+            'vaultage-protocol'
         ]
     },
     {
         name: 'vaultage-ui-webcli',
         dependencies: [
-            'vaultage-client'
+            'vaultage-client',
+            'vaultage-protocol'
         ]
     },
     {
         name: 'vaultage-client',
+        dependencies: [
+            'vaultage-protocol'
+        ]
+    },
+    {
+        name: 'vaultage-protocol',
         dependencies: [ ]
     }
 ];
@@ -70,7 +78,7 @@ async function configure() {
 
 function getVersion(releaseType) {
     console.log('Determining previous version');
-    const result = exec(`npm show vaultage version`);
+    const result = exec(`npm show vaultage@dev version`);
     const rawVersion = result.stdout.split('\n')[0];
 
     const previousVersion = (rawVersion != '') ? semver.valid(rawVersion) : '0.0.0';
