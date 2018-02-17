@@ -1,5 +1,4 @@
-import { Global } from '../Global';
-import * as lang from '../lang';
+import { Context } from '../Context';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
@@ -10,15 +9,11 @@ export class RmCommand implements ICommand {
     public readonly description = 'Removes an entry in the local db, then pushes an encrypted version of the db to the server.';
 
     constructor(
-        private shell: Shell) {
+        private shell: Shell,
+        private ctx: Context) {
     }
 
     public async handle(args: string[]) {
-
-        if (!Global.vault) {
-            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
-            return;
-        }
 
         let id: string;
         if (args.length === 0) {
@@ -27,7 +22,7 @@ export class RmCommand implements ICommand {
             id = args[0];
         }
 
-        const e = Global.vault.getEntry(id);
+        const e = this.ctx.vault.getEntry(id);
         this.shell.echoHTML(VaultEntryFormatter.formatSingle(e));
 
         const answer = await this.shell.prompt('Confirm removal of entry #' + id + ' ? [y/N]');
@@ -37,12 +32,12 @@ export class RmCommand implements ICommand {
             return;
         }
 
-        Global.vault.removeEntry(id);
+        this.ctx.vault.removeEntry(id);
         this.shell.echo('Remove entry #' + id);
 
-        await Global.vault.save();
+        await this.ctx.vault.save();
 
-        this.shell.echo('Push OK, revision ' + Global.vault.getDBRevision() + '.');
+        this.shell.echo('Push OK, revision ' + this.ctx.vault.getDBRevision() + '.');
         this.shell.separator();
     }
 }

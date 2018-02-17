@@ -1,5 +1,4 @@
-import { Global } from '../Global';
-import * as lang from '../lang';
+import { Context } from '../Context';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
@@ -10,18 +9,14 @@ export class LsCommand implements ICommand {
     public readonly description = 'If authenticated, lists the vault content.';
 
     constructor(
-        private shell: Shell) {
+        private shell: Shell,
+        private ctx: Context) {
     }
 
     public async handle() {
 
-        if (!Global.vault) {
-            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
-            return;
-        }
-
-        this.shell.echo('Vault revision #' + Global.vault.getDBRevision() + ', ' + Global.vault.getNbEntries() + ' entries.');
-        const allEntries = Global.vault.getAllEntries();
+        this.shell.echo('Vault revision #' + this.ctx.vault.getDBRevision() + ', ' + this.ctx.vault.getNbEntries() + ' entries.');
+        const allEntries = this.ctx.vault.getAllEntries();
         const html = VaultEntryFormatter.formatBatch(allEntries);
         if (html !== '') {
             this.shell.echoHTML(html);

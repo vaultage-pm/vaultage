@@ -1,9 +1,9 @@
 import { Passwords, PasswordStrength } from 'vaultage-client';
 
-import { Global } from '../Global';
-import * as lang from '../lang';
+import { Context } from '../Context';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
+
 
 export class PwdCommand implements ICommand {
     public readonly name = 'pwd';
@@ -11,16 +11,11 @@ export class PwdCommand implements ICommand {
     public readonly description = 'Changes the master passwords, and updates the local encryption key and remote authentication key accordingly.';
 
     constructor(
-        private shell: Shell) {
+        private shell: Shell,
+        private ctx: Context) {
     }
 
     public async handle() {
-
-        if (!Global.vault) {
-            this.shell.echoHTML(lang.ERR_NOT_AUTHENTICATED);
-            return;
-        }
-
         const newMasterPassword = await this.shell.promptSecret('New master password          :');
         const newMasterPassword2 = await this.shell.promptSecret('New master password (confirm):');
 
@@ -42,9 +37,9 @@ export class PwdCommand implements ICommand {
 
         this.shell.echo(`Attempting to change the master password...`);
 
-        await Global.vault.updateMasterPassword(newMasterPassword);
+        await this.ctx.vault.updateMasterPassword(newMasterPassword);
 
-        this.shell.echo('Password change OK (db at revision ' + Global.vault.getDBRevision() + '). Please use the new password' +
+        this.shell.echo('Password change OK (db at revision ' + this.ctx.vault.getDBRevision() + '). Please use the new password' +
         + 'from now on.');
         this.shell.separator();
     }

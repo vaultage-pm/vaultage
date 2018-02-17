@@ -2,6 +2,7 @@
 
 SERVER_LOGFILE="$(pwd)/server.log"
 EXPECTED_LAST_LINE="Server is listening on port 3000"
+ERROR_LINE="failed"
 
 rm -rf "$SERVER_LOGFILE"
 
@@ -14,11 +15,13 @@ echo "Starting server on localhost:3000"
 make serve 1>"$SERVER_LOGFILE" 2>&1 &
 serverPid="$!"
 
-echo "Sleeping for a while (5 sec)..."
-sleep 5
+echo "Waiting for the server..."
+until grep -q "$EXPECTED_LAST_LINE\|$ERROR_LINE" "$SERVER_LOGFILE"; do
+    sleep 1
+done
 
-lastLine=$(cat "$SERVER_LOGFILE" | tail -n 1)
-if [ "$lastLine" != "$EXPECTED_LAST_LINE" ]; then
+grep -q "$EXPECTED_LAST_LINE" "$SERVER_LOGFILE"
+if [ "$?" -ne 0 ]; then
     echo "Could not boot server. Trace:"
     cat "$SERVER_LOGFILE"
     echo ""

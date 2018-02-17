@@ -68,9 +68,9 @@ async function configure() {
     return { channel, preRelease, releaseType, message };
 }
 
-function getVersion(tag, releaseType) {
-    console.log('Determining previous version')
-    const result = exec(`npm show vaultage@${tag} version`);
+function getVersion(releaseType) {
+    console.log('Determining previous version');
+    const result = exec(`npm show vaultage version`);
     const rawVersion = result.stdout.split('\n')[0];
 
     const previousVersion = (rawVersion != '') ? semver.valid(rawVersion) : '0.0.0';
@@ -92,7 +92,7 @@ async function main() {
     const config = await configure();
     const channel: string = config.channel;
 
-    const version = getVersion(config.channel, config.releaseType);
+    const version = getVersion(config.releaseType);
 
     if (channel === 'latest') {
         const result = await prompt([{
