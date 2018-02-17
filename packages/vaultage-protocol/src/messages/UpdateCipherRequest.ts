@@ -42,4 +42,16 @@ export class UpdateCipherRequest {
     @IsBoolean()
     @IsOptional()
     public force?: boolean;
+
+    constructor(
+        new_data: string,
+        new_hash: string,
+        old_hash?: string,
+        new_password?: string,
+    ) {
+        this.new_password = new_password;
+        this.new_data = new_data;
+        this.old_hash = old_hash;
+        this.new_hash = new_hash;
+    }
 }

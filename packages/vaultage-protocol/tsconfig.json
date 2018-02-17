@@ -1,19 +1,21 @@
 {
   "compilerOptions": {
-    "declaration": true,
     "baseUrl": "..",
     "outDir": "dist",
-    "noImplicitAny": true,
-    "strict": true,
-    "module": "commonjs",
-    "target": "es5",
+    "declaration": true,
+
     "allowJs": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "importHelpers": true,
-    "noUnusedParameters": true,
+    "noImplicitAny": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "noUnusedParameters": true,
+    "strict": true,
+
+    "module": "commonjs",
+    "target": "es5",
     "lib": [ "es2015", "dom" ]
   },
   "include": [
