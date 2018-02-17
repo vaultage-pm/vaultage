@@ -16,7 +16,9 @@ make serve 1>"$SERVER_LOGFILE" 2>&1 &
 serverPid="$!"
 
 echo "Waiting for the server..."
-tail -f "$SERVER_LOGFILE" | grep -m 1 "$EXPECTED_LAST_LINE\|$ERROR_LINE"
+until grep -q "$EXPECTED_LAST_LINE\|$ERROR_LINE" "$SERVER_LOGFILE"; do
+    sleep 1
+done
 
 grep -q "$EXPECTED_LAST_LINE" "$SERVER_LOGFILE"
 if [ "$?" -ne 0 ]; then
