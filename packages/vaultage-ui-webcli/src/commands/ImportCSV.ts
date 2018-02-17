@@ -26,18 +26,11 @@ export class ImportCSVCommand implements ICommand {
 
         this.shell.echo('Available fields:');
         this.shell.echo(header.join(', '));
-        const [titleColumn, usernameColumn, passwordColumn, urlColumn] = [
-            await this.shell.prompt('What should I use for the title?'),
-            await this.shell.prompt('What should I use for the username?'),
-            await this.shell.prompt('What should I use for the password?'),
-            await this.shell.prompt('What should I use for the url?')
-        ].map((txt) => {
-            const id = header.indexOf(txt);
-            if (id === -1) {
-                throw new Error(`No such field: ${txt}`);
-            }
-            return id;
-        });
+
+        const titleColumn       = await this.askFieldMapping('title', ['title', 'name'], header);
+        const usernameColumn    = await this.askFieldMapping('username', ['username', 'login', 'user'], header);
+        const passwordColumn    = await this.askFieldMapping('password', ['password', 'pass', 'pwd'], header);
+        const urlColumn         = await this.askFieldMapping('url', ['url', 'href', 'site'], header);
 
         let nEntries = 0;
         while (reader.hasNext()) {
@@ -56,6 +49,34 @@ export class ImportCSVCommand implements ICommand {
         await this.ctx.vault.save();
 
         this.shell.echo('Done');
+    }
+
+    /**
+     * Asks the user to provide the name of the source column to map onto the destination column
+     * @param fieldName name of the destination column
+     * @param preferredValues List of prefered values. The first one to match a header column is used as a
+     * default value. If none match, default is blank.
+     * @param header the csv header
+     */
+    private async askFieldMapping(fieldName: string, preferredValues: string[], header: string[]): Promise<number> {
+        let id = -1;
+        let defaultValue: string | undefined;
+        for (const preferred of preferredValues) {
+            if (header.indexOf(preferred) !== -1) {
+                defaultValue = preferred;
+                break;
+            }
+        }
+        while (id === -1) {
+            const txt = await this.shell.prompt(
+                    `What should I use for the ${fieldName}?`,
+                    defaultValue);
+            id = header.indexOf(txt);
+            if (id === -1) {
+                this.shell.echoError(`No such field: ${txt}`);
+            }
+        }
+        return id;
     }
 
     private getFileContents(file: File): Promise<string> {

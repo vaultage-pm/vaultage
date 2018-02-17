@@ -127,11 +127,12 @@ export class Shell implements ICommandHandler {
      *
      * The promise resolves if at least one file has been selected.
      */
-    public async promptFile(): Promise<FileList> {
+    public promptFile(): Promise<FileList> {
         const term = this.safeGetTerminal();
         const uniqueId = 'file-' + (Math.random() * 10000).toString(16);
         term.print(`<input id="${uniqueId}" type="file" />`, { unsafe_i_know_what_i_am_doing: true });
         const fileInput = document.getElementById(uniqueId) as HTMLInputElement;
+        fileInput.click();
 
         return new Promise<FileList>((resolve, reject) => {
             // We want to react to user-initiated abortion of the prompt: In this case we remove the element and return an error.

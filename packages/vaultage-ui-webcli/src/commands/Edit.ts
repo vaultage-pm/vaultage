@@ -39,9 +39,9 @@ export class EditCommand implements ICommand {
             url: url
         };
 
-        const answer = await this.shell.prompt('Confirm edit of entry #' + id + ' ? y/Y');
+        const answer = await this.shell.prompt('Confirm edit of entry #' + id + ' ? y/N');
 
-        if (answer !== 'y' && answer !== 'Y') {
+        if (!/y(es)?/i.test(answer)) {
             this.shell.echo('Cancelled.');
             return;
         }
