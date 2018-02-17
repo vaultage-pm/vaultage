@@ -11,10 +11,8 @@ make build 1>/dev/null 2>&1
 
 # deploying back-end
 echo "Starting server on localhost:3000"
-pushd packages/vaultage
-npm start 1>"$SERVER_LOGFILE" 2>&1 &
+make serve 1>"$SERVER_LOGFILE" 2>&1 &
 serverPid="$!"
-popd
 
 echo "Sleeping for a while (5 sec)..."
 sleep 5

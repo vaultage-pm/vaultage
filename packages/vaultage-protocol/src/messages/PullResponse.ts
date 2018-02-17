@@ -21,6 +21,11 @@ export interface IErrorPushPullResponse {
 
 export interface ISuccessfulPushPullResponse {
     /**
+     * True if an error occurred. Usually, if true, data=""
+     */
+    error: false;
+
+    /**
      * If no error occured, the ciphertext of the password database
      */
     data: string;

@@ -144,7 +144,7 @@ describe('The vaultage API', () => {
                     update_key: ''
                 } as UpdateCipherRequest)
                 .set('Accept', 'application/json')
-                .expect(200, okPushResponse, (err, res) => {
+                .expect(200, okPushResponse, (_err, res) => {
                     expect(res.body).toEqual({
                         error: true,
                         description: expect.any(String),
