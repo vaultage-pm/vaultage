@@ -1,15 +1,6 @@
-Vaultage server
-===============
+vaultage
+========
 
-Storage server for Vaultage.
+This is the server package for the password manager `Vaultage`.
 
-This package is internal to the `vaultage` package.
-
-## Usage
-
-`npm start` starts a development server. You must load the client from somewhere else into your browser and then interact with this dev server by login into http://localhost:3000.
-
-For instance using `vaultage-web-cli`:
-```
-> auth http://localhost:3000
-```
+Please go to the [github homepage](https://github.com/lbarman/vaultage) to learn more about Vaultage.
