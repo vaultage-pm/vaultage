@@ -81,7 +81,7 @@ export abstract class HttpApi {
                         'The server has a newer version of the DB');
             case 'EAUTH':
                 throw new VaultageError(ERROR_CODE.BAD_CREDENTIALS,
-                        'The credentials used to log in are no longer valid. Please re-authenticate');
+                        'Invalid credentials');
             default:
                 throw this.ensureAllErrorsHandled(err.code);
         }
