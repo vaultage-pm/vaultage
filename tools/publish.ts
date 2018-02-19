@@ -11,6 +11,9 @@ interface IPackageDefinition {
     dependencies: string[];
 }
 
+type ReleaseChannel = 'dev' | 'next' | 'latest';
+type ReleaseType = 'prerelease' | 'patch' | 'minor' | 'major';
+
 const packages: IPackageDefinition[] = [
     {
         name: 'vaultage',
@@ -38,6 +41,49 @@ const packages: IPackageDefinition[] = [
     }
 ];
 
+(async function main() {
+
+    const config = await configure();
+    const channel: string = config.channel;
+
+    const version = getVersion(config.releaseType, config.channel);
+
+    const result = await prompt([{
+        type: 'confirm',
+        name: 'confirmRelease',
+        message: `You are about to release v${version} on channel ${channel}. Proceed?`,
+        default: false
+    }]);
+    if (!result.confirmRelease) {
+        process.exit(1);
+        return;
+    }
+
+    if (exec('git status --porcelain').stdout.trim() !== '') {
+        const result = await prompt([{
+            type: 'confirm',
+            name: 'releaseDirty',
+            message: `Your git repository is dirty. You should commit all local changes before moving on. Proceed anyway?`,
+            default: false
+        }]);
+        if (!result.releaseDirty) {
+            process.exit(1);
+            return;
+        }
+    }
+
+    preparePackages(version);
+
+    // Tag 'latest' and 'next' channels in git
+    if (channel === 'latest' || channel === 'next') {
+        createGitTag(config.message, version);
+    }
+
+    doNpmRelease(config.channel);
+
+    restorePackages();
+})();
+
 async function configure() {
 
     const { channel, preRelease, message } = await prompt([{
@@ -59,76 +105,46 @@ async function configure() {
         default: true
     }]);
 
-    let releaseType = 'prerelease';
+    let releaseType: ReleaseType = 'prerelease';
     
     if (!preRelease) {
         releaseType = (await prompt([{
             type: 'list',
             name: 'releaseType',
             message: 'What kind of release are you performing?',
-            choices: ['major', 'minor', 'patch'],
+            choices: ['patch', 'minor', 'major'],
             filter: function(val) {
               return val.toLowerCase();
             }
         }])).releaseType;
     }
 
-    return { channel, preRelease, releaseType, message };
+    return { channel: channel as ReleaseChannel, preRelease, releaseType, message };
 }
 
-function getVersion(releaseType) {
+function getVersion(releaseType: ReleaseType, channel: ReleaseChannel): string {
     console.log('Determining previous version');
-    const result = exec(`npm show vaultage@dev version`);
+    const result = exec(`npm show vaultage@${channel} version`);
     const rawVersion = result.stdout.split('\n')[0];
 
     const previousVersion = (rawVersion != '') ? semver.valid(rawVersion) : '0.0.0';
 
     if (previousVersion == null) {
-        console.log(`Invalid previous version (${result.stdout}). aborting`);
-        process.exit(1);
-        return;
+        throw new Error(`Invalid previous version (${result.stdout}). aborting`);
     }
     const nextVersion = semver.inc(previousVersion, releaseType);
-
-    console.log(`Next version will be ${nextVersion}`)
+    if (nextVersion === null) {
+        throw new Error(`Invalid version: ${previousVersion}`);
+    }
+    if (releaseType !== 'prerelease' && channel !== 'latest') {
+        // Automatically append a prerelease trailer on secondary channels
+        return nextVersion + `-${channel}.0`;
+    }
 
     return nextVersion;
 }
 
-async function main() {
-
-    const config = await configure();
-    const channel: string = config.channel;
-
-    const version = getVersion(config.releaseType);
-
-    if (channel === 'latest') {
-        const result = await prompt([{
-            type: 'confirm',
-            name: 'releaseOnLatest',
-            message: `You are about to release v${version} on the main channel. Proceed?`,
-            default: false
-        }]);
-        if (!result.releaseOnLatest) {
-            process.exit(1);
-            return;
-        }
-    }
-
-    if (exec('git status --porcelain').stdout.trim() !== '') {
-        const result = await prompt([{
-            type: 'confirm',
-            name: 'releaseDirty',
-            message: `Your git repository is dirty. You should commit all local changes before moving on. Proceed anyway?`,
-            default: false
-        }]);
-        if (!result.releaseDirty) {
-            process.exit(1);
-            return;
-        }
-    }
-
-    // Prepare packages
+function preparePackages(version: string) {
     for (const pkg of packages) {
         const pkgJSONPath = path.join(__dirname, '../packages', pkg.name, 'package.json');
         const pkgJSON = require(pkgJSONPath);
@@ -138,20 +154,9 @@ async function main() {
         }
         fs.writeFileSync(pkgJSONPath, JSON.stringify(pkgJSON, null, 4), { encoding: 'utf-8' });
     }
+}
 
-    // Git release
-    if (channel === 'latest') {
-        exec(`git tag -s -m "${config.message}" v${version}`);
-        exec('git push --tags');
-    }
-
-    // npm Release
-    for (const pkg of packages) {
-        cd(path.join(__dirname, '../packages', pkg.name));
-        exec(`npm publish --tag=${channel}`);
-    }
-
-    // Restore packages
+function restorePackages() {
     for (const pkg of packages) {
         const pkgJSONPath = path.join(__dirname, '../packages', pkg.name, 'package.json');
         const pkgJSON = require(pkgJSONPath);
@@ -164,4 +169,15 @@ async function main() {
     }
 }
 
-main();
+function createGitTag(message: string, version: string) {
+    exec(`git tag -s -m "${message}" v${version}`);
+    exec('git push --tags');
+}
+
+function doNpmRelease(channel: ReleaseChannel) {
+    for (const pkg of packages) {
+        cd(path.join(__dirname, '../packages', pkg.name));
+        exec(`npm publish --tag=${channel}`);
+    }
+}
+

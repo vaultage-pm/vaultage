@@ -19,7 +19,7 @@ async function release() {
 
     console.log(channel);
 
-    const result = exec(`npm show vaultage@dev version`);
+    const result = exec(`npm show vaultage@${channel} version`);
     const rawVersion = result.stdout.split('\n')[0];
     const version = semver.valid(rawVersion);
     if (version === null) {
