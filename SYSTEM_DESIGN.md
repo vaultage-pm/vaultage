@@ -84,15 +84,15 @@ LK <- PBKDF2(MP, LS)
 ```
 6) `U` sends a request `GET(RK)` to the server `S`.
 7) `S` stores `RK` and answers `CIPHER()`, the empty ciphertext.
-8) `U` sees that there is nothing to decrypt, and initialize an empty local database `DB`.
+8) `U` sees that there is nothing to decrypt, and initializes an empty local database `DB`.
 10) `U` sends `UPDATE(RK, ENC_LK(DB))`, where `ENC_LK(DB)` is the encryption under `LK` of the database `DB`.
 11) After verifying `RK`, `S` stores `ENC_LK(DB)`
 
 Normal usage phase:
 1) `U` connects to `S`.
-2) `S` sends the latest Vaultage client to `U`, as long as 
+2) `S` sends the latest Vaultage client to `U`. 
 3) `U` runs the vaultage client.
-4) The user is prompter for its **master password** `MP`.
+4) The user is prompted for its **master password** `MP`.
 5) From `MP`, `U` derivates the **remote key** `RK` and **local key** `LK` as follow :
 ```
 RK <- PBKDF2(MP, RS)
@@ -158,15 +158,15 @@ LK <- PBKDF2(MP, LS)
 ```
 6) `U` sends a request `GET(RK)` to the server `S`.
 7) `S` stores `RK` and answers `CIPHER()`, the empty ciphertext.
-8) `U` sees that there is nothing to decrypt, and initialize an empty local database `DB`.
+8) `U` sees that there is nothing to decrypt, and initializes an empty local database `DB`.
 10) `U` sends `UPDATE(RK, ENC_LK(DB), H(""), H(DB))`, where `H("")` is the hash of an empty database.
 11) After verifying `RK`, `S` stores `ENC_LK(DB)` and `H(DB)`
 
 Normal usage phase:
 1) `U` connects to `S`.
-2) `S` sends the latest Vaultage client to `U`, as long as 
+2) `S` sends the latest Vaultage client to `U`. 
 3) `U` runs the vaultage client.
-4) The user is prompter for its **master password** `MP`.
+4) The user is prompted for its **master password** `MP`.
 5) From `MP`, `U` derivates the **remote key** `RK` and **local key** `LK` as follow :
 ```
 RK <- PBKDF2(MP, RS)
@@ -190,7 +190,7 @@ We treat our system properties one by one:
 
 `S` only delivers `ENC({P})` upon proof-of-knowledge of `RK`, known only by the legitimate user. Should the adversary `A` still learn `RK`, it only allows him to get `ENC_LK({P})`. By assumption of sound encryption (Assumption 1), it leaks no information without `LK`, only known by the legitimate user.
 
-2) **Confidentiality in transit**: No 3rd parties, including `A`, can retrieve `{P}` from data at in transit.
+2) **Confidentiality in transit**: No 3rd parties, including `A`, can retrieve `{P}` from data in transit.
 
 All communications are integrity-protected (Assumption 3).
 
