@@ -29,11 +29,13 @@ const pkg = require(path.join(__dirname, '../../package.json'));
 
 program.version(pkg.version)
     .option('-p, --port <port>', 'TCP port to listen to', parseInt)
+    .option('-l, --listen <addr>', 'TCP address to bind to')
     .parse(process.argv);
 
 const PORT = program.port || 3000;
+const ADDR = program.listen;
 
-boot(PORT);
+boot(PORT, ADDR);
 
 async function loadConfig(retry: boolean): Promise<void> {
     const configPath = storagePath(CONFIG_FILENAME);
@@ -51,7 +53,7 @@ async function loadConfig(retry: boolean): Promise<void> {
     }
 }
 
-async function boot(port: number) {
+async function boot(port: number, addr: string) {
     // Tell routing-controller to use our dependency injection container
     useContainer(Container);
 
@@ -72,7 +74,7 @@ async function boot(port: number) {
     server.use(express.static(staticDirToServer));
 
     // run application on port port
-    server.listen(port, () => {
+    server.listen(port, addr, () => {
         console.log(`Server is listening on port ${port}`);
     });
 }
