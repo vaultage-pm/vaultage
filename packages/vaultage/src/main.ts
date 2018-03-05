@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 
+import * as program from 'commander';
 import * as express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -13,6 +14,8 @@ import { DatabaseWithAuth } from './storage/Database';
 import { JSONDatabaseWithAuth } from './storage/JSONDatabase';
 import { initConfig, storagePath } from './tools/initConfig';
 
+// tslint:disable-next-line:no-var-requires
+const pkg = require(path.join(__dirname, '../../package.json'));
 
 /*
     main.ts - entry file of the vaultage server.
@@ -24,26 +27,15 @@ import { initConfig, storagePath } from './tools/initConfig';
     (ie. binding to a TCP port or injecting actual I/O-bound dependencies).
 */
 
-if (process.argv.length > 2) {
-    const option = process.argv[2];
-    if (option === '-v' || option === '--version') {
-        printVersion();
-        process.exit(0);
-    } else {
-        console.log(`Unrecognized option '${option}'`);
-        printUsage();
-        process.exit(1);
-    }
-}
+program.version(pkg.version)
+    .option('-p, --port <port>', 'TCP port to listen to', parseInt)
+    .option('-l, --listen <addr>', 'TCP address to bind to')
+    .parse(process.argv);
 
-function printUsage() {
-    console.log(`usage: vaultage-server [-v|--version]`);
-}
+const PORT = program.port || 3000;
+const ADDR = program.listen;
 
-function printVersion() {
-    const pkg = require(path.join(__dirname, '../../package.json'));
-    console.log(`${pkg.name} - ${pkg.version}`);
-}
+boot(PORT, ADDR);
 
 async function loadConfig(retry: boolean): Promise<void> {
     const configPath = storagePath(CONFIG_FILENAME);
@@ -61,7 +53,7 @@ async function loadConfig(retry: boolean): Promise<void> {
     }
 }
 
-async function boot() {
+async function boot(port: number, addr: string) {
     // Tell routing-controller to use our dependency injection container
     useContainer(Container);
 
@@ -81,10 +73,8 @@ async function boot() {
     const staticDirToServer = path.join(pathToWebCliGUI, 'public');
     server.use(express.static(staticDirToServer));
 
-    // run application on port 3000
-    server.listen(3000, () => {
-        console.log('Server is listening on port 3000');
+    // run application on port port
+    server.listen(port, addr, () => {
+        console.log(`Server is listening on port ${port}`);
     });
 }
-
-boot();
