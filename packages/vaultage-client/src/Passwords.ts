@@ -1,8 +1,4 @@
-export enum PasswordStrength {
-    WEAK = 1,
-    MEDIUM,
-    STRONG
-}
+import { PasswordStrength } from './interface';
 
 export interface IRandomness {
     getRandomNumber(): number;

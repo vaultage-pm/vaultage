@@ -1,8 +1,8 @@
 import { Crypto } from './Crypto';
 import { HttpApi } from './HTTPApi';
-import { PasswordStrength } from './Passwords';
+import { IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from './interface';
 import { deepCopy } from './utils';
-import { IVaultDBEntry, IVaultDBEntryAttrs, VaultDB } from './VaultDB';
+import { VaultDB } from './VaultDB';
 
 export interface ICredentials {
     localKey: string;

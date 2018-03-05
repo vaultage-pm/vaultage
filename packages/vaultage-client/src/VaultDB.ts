@@ -1,28 +1,8 @@
-import { Passwords, PasswordStrength } from './Passwords';
+import { IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from './interface';
+import { Passwords } from './Passwords';
 import { checkParams, deepCopy } from './utils';
 import { ERROR_CODE, VaultageError } from './VaultageError';
 
-
-export interface IVaultDBEntryAttrs {
-    title?: string;
-    url?: string;
-    login?: string;
-    password?: string;
-}
-
-export interface IVaultDBEntry {
-    title: string;
-    url: string;
-    login: string;
-    password: string;
-    id: string;
-    created: string;
-    updated: string;
-    usage_count: number;
-    reuse_count: number;
-    password_strength_indication: PasswordStrength;
-    hidden: boolean;
-}
 
 /**
  * Internal class for handling the vault data.
@@ -131,7 +111,7 @@ export class VaultDB {
         // This is only needed due to typescript's inability to correlate the input
         // arguments based on the prototypes. In practice this branch is never taken.
         if (attrs == null) {
-             attrs = {};
+            attrs = {};
         }
 
         const currentDate = (new Date()).toUTCString();

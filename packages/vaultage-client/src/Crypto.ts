@@ -1,12 +1,8 @@
+import { ISaltsConfig } from './interface';
 import { ERROR_CODE, VaultageError } from './VaultageError';
 
 // tslint:disable-next-line:no-var-requires
 const sjcl = require('../lib/sjcl') as any;
-
-export interface ISaltsConfig {
-    LOCAL_KEY_SALT: string;
-    REMOTE_KEY_SALT: string;
-}
 
 /**
  * Handles the crypto stuff

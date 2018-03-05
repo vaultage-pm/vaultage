@@ -1,4 +1,5 @@
-import { IVaultDBEntry, VaultDB } from '../src/VaultDB';
+import { IVaultDBEntry } from '../src/interface';
+import { VaultDB } from '../src/VaultDB';
 
 describe('VaultDB.ts can', () => {
     it('create an empty vault from an empty string', () => {

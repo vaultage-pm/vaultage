@@ -1,4 +1,5 @@
-import { FakeRandomnessGenerator, IRandomness, Passwords, PasswordStrength } from '../src/Passwords';
+import { PasswordStrength } from '../src/interface';
+import { FakeRandomnessGenerator, IRandomness, Passwords } from '../src/Passwords';
 
 /**
  * This test suite is broken.
