@@ -38,11 +38,24 @@ export class Shell implements ICommandHandler {
 
     private promptResolve: ((val: Promise<string>) => void) | null = null;
 
+    /**
+     * Main text shown when clearing the screen
+     */
+    private bannerHTML: string = 'Welcome to my shell!';
+
     constructor(
         private terminal?: Terminal) {
         if (terminal) {
             this.attach(terminal);
         }
+    }
+
+    /**
+     * Sets the message shown at startup and when calling `printBanner`.
+     * This string may contain HTML tags AND MUST NOT CONTAIN RAW USER INPUT.
+     */
+    public setBannerHTML(banner: string) {
+        this.bannerHTML = banner;
     }
 
     /**
@@ -91,33 +104,6 @@ export class Shell implements ICommandHandler {
             return;
         }
         this.safeGetTerminal().print(value, { unsafe_i_know_what_i_am_doing: true });
-        this.enablePassswordDoubleClick();
-    }
-
-    // FIXME @jsonch: This breaks separation of concern. Everything under webshell is a standalone
-    // FIXME 2: Trying to get rid of jquery
-    // generic web shell (nothing vaultage-specific).
-    public enablePassswordDoubleClick() {
-        /*$('.password').off('dblclick');
-        $('.password').dblclick((event) => {
-            const e = event.target;
-            // const id = $(e).data('id');
-            const pwd = $(e).html();
-
-            // copy the password to the clipboard
-            copy(pwd);
-
-            // indicate to the user that we copied it in the clipboard
-            const copiedElem = $(e).siblings('.copied');
-            copiedElem.addClass('visible');
-            setTimeout(() => copiedElem.removeClass('visible'), 1000);
-
-            // mark the entry as used
-
-            // if (Global.vault != null) {
-            //     Global.vault.entryUsed(id);
-            // }
-        });*/
     }
 
     /**
@@ -242,14 +228,10 @@ export class Shell implements ICommandHandler {
     /**
      * Prints a help message describing the available commands.
      */
-    public printShortHelp(): void {
-        const availableCommands = `Available commands:
-        ${ Object.keys(this.commands)
-            .map((c) => '<i>' + c + '</>')
-            .join(',')
-        }`;
-        this.safeGetTerminal().print(availableCommands, { unsafe_i_know_what_i_am_doing: true });
-        this.safeGetTerminal().print('<span class="helpLine">Trouble beginning? First <i>auth</i> (on first use, any user/password works), then <i>ls</i>. Try to <i>gen</i> or <i>add</i> a password, then <i>get</i> it. Try to <i>rotate</i> or <i>edit</i> this entry.</span>', { unsafe_i_know_what_i_am_doing: true });
+    public printBanner(): void {
+        if (this.bannerHTML !== '') {
+            this.echoHTML(this.bannerHTML);
+        }
     }
 
     /**

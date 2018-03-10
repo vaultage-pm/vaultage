@@ -20,6 +20,7 @@ import { RotateCommand } from './commands/Rotate';
 import { WeakCommand } from './commands/Weak';
 import { Config } from './Config';
 import { Context } from './Context';
+import { installGlobalHooks } from './Globals';
 import { Shell } from './webshell/Shell';
 import { Terminal } from './webshell/Terminal';
 
@@ -30,6 +31,14 @@ const terminal = new Terminal({
 const shell = new Shell(terminal);
 const config = new Config();
 const ctx = new Context();
+
+installGlobalHooks();
+
+shell.setBannerHTML(`Vaultage v4.0
+<br>*********************
+<br>Feeling lost? Take a look at the <a href="https://github.com/lbarman/vaultage/wiki/Using-the-web-CLI" target="_blank">usage guide</a> or press [Tab] to see available commands.
+<br>*********************`);
+
 
 shell.registerCommand(new AddCommand(shell, ctx));
 shell.registerCommand(new AuthCommand(shell, ctx, config));
@@ -52,7 +61,4 @@ shell.registerCommand(new RmCommand(shell, ctx));
 shell.registerCommand(new RotateCommand(shell, ctx));
 shell.registerCommand(new WeakCommand(shell, ctx));
 
-shell.echoHTML('   Vaultage v4.0');
-shell.echoHTML('*********************');
-shell.printShortHelp();
-shell.echoHTML('*********************');
+shell.printBanner();

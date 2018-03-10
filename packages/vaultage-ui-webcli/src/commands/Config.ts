@@ -3,7 +3,8 @@ import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 
 const AVAILABLE_OPTIONS: {[key: string]: keyof Config } = {
-    default_username: 'defaultUserName'
+    username_default: 'defaultUserName',
+    host_default: 'defaultHost'
 };
 
 export class ConfigCommand implements ICommand {
@@ -24,6 +25,9 @@ export class ConfigCommand implements ICommand {
             case 'get':
                 this.get(this.parseArg('key', args[1]));
                 break;
+            case 'clear':
+                this.clear(this.parseArg('key', args[1]));
+                break;
             default:
                 this.printUsage();
         }
@@ -31,7 +35,7 @@ export class ConfigCommand implements ICommand {
 
     public handleAutoCompleteParam(n: number): string[] {
         if (n === 0) {
-            return ['set', 'get'];
+            return ['set', 'get', 'clear'];
         } else if (n === 1) {
             return Object.keys(AVAILABLE_OPTIONS);
         }
@@ -39,7 +43,13 @@ export class ConfigCommand implements ICommand {
     }
 
     private printUsage() {
-        this.shell.echo('Usage: config <set|get> key [value]');
+        this.shell.echo('Usage: config <set|get|clear> key [value]');
+    }
+
+    private clear(key: string) {
+        const configName = this.convertKeyToConfigEntry(key);
+        this.config[configName] = '';
+        this.shell.echo('OK');
     }
 
     private set(key: string, value: string) {
