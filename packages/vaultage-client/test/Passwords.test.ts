@@ -1,19 +1,23 @@
 import { PasswordStrength } from '../src/interface';
-import { FakeRandomnessGenerator, IRandomness, Passwords } from '../src/Passwords';
+import { IRandomness, Passwords } from '../src/Passwords';
 
 /**
  * This test suite is broken.
  *
  *  (#109): mock native crypto and make deterministic tests.
  */
-xdescribe('Passwords.ts', () => {
+describe('Passwords.ts', () => {
 
     const seed = 123;
-    const rnd: IRandomness = new FakeRandomnessGenerator(seed);
+    let rnd: IRandomness;
 
-    const passwords: Passwords = new Passwords(rnd);
+    let passwords: Passwords;
     const defaultLength = 10;
 
+    beforeEach(() => {
+        rnd = new FakeRandomnessGenerator(seed);
+        passwords = new Passwords(rnd);
+    });
 
     describe('the password generation function', () => {
         it('can be used with any parameters', () => {
@@ -71,3 +75,26 @@ xdescribe('Passwords.ts', () => {
         });
     });
 });
+
+export class FakeRandomnessGenerator implements IRandomness {
+
+    private maxValue: number = 256;
+
+    private primeGroup: number = 257;
+    private multiplicativeFactor = 263;
+    private currentValue: number = 0;
+
+
+    constructor(
+        private seed: number) {
+            this.currentValue = this.seed;
+    }
+
+    public getRandomNumber(): number {
+        // generates a deterministic random-looking number in Z_p, p=primeGroup
+        this.currentValue = (this.currentValue * this.multiplicativeFactor) % this.primeGroup;
+
+        // returns a result in [0, maxValue[. Uniform only if maxValue == primeGroup
+        return this.currentValue % this.maxValue;
+    }
+}

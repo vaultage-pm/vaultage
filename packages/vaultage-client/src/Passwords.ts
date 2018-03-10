@@ -32,29 +32,6 @@ export class ConcreteRandomnessGenerator implements IRandomness {
     }
 }
 
-export class FakeRandomnessGenerator implements IRandomness {
-
-    private maxValue: number = 256;
-
-    private primeGroup: number = 257;
-    private multiplicativeFactor = 263;
-    private currentValue: number = 0;
-
-
-    constructor(
-        private seed: number) {
-            this.currentValue = this.seed;
-    }
-
-    public getRandomNumber(): number {
-        // generates a deterministic random-looking number in Z_p, p=primeGroup
-        this.currentValue = (this.currentValue * this.multiplicativeFactor) % this.primeGroup;
-
-        // returns a result in [0, maxValue[. Uniform only if maxValue == primeGroup
-        return this.currentValue % this.maxValue;
-    }
-}
-
 export class Passwords {
 
     /**
@@ -113,7 +90,7 @@ export class Passwords {
     }
 
     constructor(
-        private random: IRandomness) {
+        private random: IRandomness = new ConcreteRandomnessGenerator()) {
     }
 
     /**
