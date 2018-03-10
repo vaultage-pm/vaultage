@@ -1,28 +1,8 @@
-import { Passwords, PasswordStrength } from './Passwords';
-import { checkParams, deepCopy } from './utils';
+import { IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from './interface';
+import { Passwords } from './Passwords';
+import { deepCopy } from './utils';
 import { ERROR_CODE, VaultageError } from './VaultageError';
 
-
-export interface IVaultDBEntryAttrs {
-    title?: string;
-    url?: string;
-    login?: string;
-    password?: string;
-}
-
-export interface IVaultDBEntry {
-    title: string;
-    url: string;
-    login: string;
-    password: string;
-    id: string;
-    created: string;
-    updated: string;
-    usage_count: number;
-    reuse_count: number;
-    password_strength_indication: PasswordStrength;
-    hidden: boolean;
-}
 
 /**
  * Internal class for handling the vault data.
@@ -76,25 +56,18 @@ export class VaultDB {
     }
 
     public add(attrs: IVaultDBEntryAttrs): string {
-        let checkedAttrs = {
-            title: '',
-            url: '',
-            login: '',
-            password: ''
-        };
-        checkedAttrs = checkParams(attrs, checkedAttrs);
         const currentDate = (new Date()).toUTCString();
         const entry: IVaultDBEntry = {
             id: this.nextFreeId(),
-            title: checkedAttrs.title,
-            url: checkedAttrs.url,
-            login: checkedAttrs.login,
-            password: checkedAttrs.password,
+            title: attrs.title,
+            url: attrs.url,
+            login: attrs.login,
+            password: attrs.password,
             created: currentDate,
             updated: currentDate,
             usage_count: 0,
             reuse_count: 0,
-            password_strength_indication: Passwords.getPasswordStrength(checkedAttrs.password),
+            password_strength_indication: Passwords.getPasswordStrength(attrs.password),
             hidden: false,
         };
         this._entries[entry.id] = entry;
@@ -114,24 +87,23 @@ export class VaultDB {
     }
 
     public update(entry: IVaultDBEntry): void;
-    public update(id: string, attrs: IVaultDBEntryAttrs): void;
-    public update(id: (string | IVaultDBEntry), attrs?: IVaultDBEntryAttrs): void {
+    public update(id: string, attrs: Partial<IVaultDBEntryAttrs>): void;
+    public update(id: (string | IVaultDBEntry), attrs?: Partial<IVaultDBEntryAttrs>): void {
 
         if (typeof id !== 'string') {
-            attrs = {
-                title: '',
-                url: '',
-                login: '',
-                password: ''
-            };
-            attrs = checkParams(id, attrs);
+            attrs = id;
             id = id.id;
         }
 
         // This is only needed due to typescript's inability to correlate the input
         // arguments based on the prototypes. In practice this branch is never taken.
         if (attrs == null) {
-             attrs = {};
+            attrs = {
+                title: '',
+                url: '',
+                login: '',
+                password: ''
+            };
         }
 
         const currentDate = (new Date()).toUTCString();

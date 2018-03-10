@@ -1,5 +1,5 @@
 import { Crypto } from '../src/Crypto';
-import { PasswordStrength } from '../src/Passwords';
+import { PasswordStrength } from '../src/interface';
 import { VaultDB } from '../src/VaultDB';
 
 const verbose = false;

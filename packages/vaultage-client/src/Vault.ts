@@ -1,8 +1,8 @@
 import { Crypto } from './Crypto';
 import { HttpApi } from './HTTPApi';
-import { PasswordStrength } from './Passwords';
+import { IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from './interface';
 import { deepCopy } from './utils';
-import { IVaultDBEntry, IVaultDBEntryAttrs, VaultDB } from './VaultDB';
+import { VaultDB } from './VaultDB';
 
 export interface ICredentials {
     localKey: string;
@@ -172,7 +172,7 @@ export class Vault {
      * @param attrs new set of attributes. undefined values are ignored (the entry keeps its previous value)
      * @returns an updated version of the entry
      */
-    public updateEntry(id: string, attrs: IVaultDBEntryAttrs): IVaultDBEntry {
+    public updateEntry(id: string, attrs: Partial<IVaultDBEntryAttrs>): IVaultDBEntry {
         this._db.update(id, attrs);
         return this._db.get(id);
     }

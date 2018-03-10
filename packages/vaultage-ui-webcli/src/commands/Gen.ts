@@ -1,4 +1,4 @@
-import { ConcreteRandomnessGenerator, IRandomness, IVaultDBEntryAttrs, Passwords } from 'vaultage-client';
+import { IVaultDBEntryAttrs, Passwords } from 'vaultage-client';
 
 import * as config from '../Config';
 import { Context } from '../Context';
@@ -16,8 +16,7 @@ export class GenCommand implements ICommand {
     }
 
     public async handle() {
-        const rnd: IRandomness = new ConcreteRandomnessGenerator();
-        const pwdGen = new Passwords(rnd);
+        const pwdGen = new Passwords();
         const password = pwdGen.generatePassword(
             config.PWD_GEN_LENGTH,
             config.PWD_GEN_USE_SYMBOLS,
