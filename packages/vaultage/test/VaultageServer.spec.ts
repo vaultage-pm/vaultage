@@ -22,7 +22,6 @@ const mockDB = new mockModule.JSONDatabase('', '', '');
 
 const mockConfig: IVaultageConfig = {
     version: 1,
-    default_user: '',
     salts: {
         local_key_salt: 'le salt',
         remote_key_salt: 'other salt'

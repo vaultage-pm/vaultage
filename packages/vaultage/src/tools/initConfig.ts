@@ -32,7 +32,6 @@ export function initConfig(): Promise<void> {
 
             const config: IVaultageConfig = {
                 version: 1,
-                default_user: '',
                 salts: {
                     local_key_salt: hexbytes.substr(0, SALTS_LENGTH),
                     remote_key_salt: hexbytes.substr(SALTS_LENGTH, 2 * SALTS_LENGTH)
