@@ -12,10 +12,10 @@ export interface ISaltsConfig {
  * Attributes of an entry in the Vault database.
  */
 export interface IVaultDBEntryAttrs {
-    title?: string;
-    url?: string;
-    login?: string;
-    password?: string;
+    title: string;
+    url: string;
+    login: string;
+    password: string;
 }
 
 /**
