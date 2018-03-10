@@ -309,33 +309,6 @@ export class Shell implements ICommandHandler {
         this.history.setCurrent(term.promptInput);
     }
 
-    private computeAutocompletion(line: string, pos: number): ICompletionResponse | null {
-        // For now just complete the command to demo the interface
-        const matchCmd = line.match(/^(\s*\S+)(\s?.*)$/);
-        if (matchCmd) {
-            const firstWord = matchCmd[1];
-            const restOfCommand = matchCmd[2];
-            if (pos <= firstWord.length) {
-                // We can autocomplete the first word at that point
-                const toMatch = firstWord.trim();
-                const matching = Object.keys(this.commands).filter((k) => k.startsWith(toMatch));
-                if (matching.length === 1) {
-                    return {
-                        line: matching[0] + ' ' + restOfCommand,
-                        pos: matching[0].length + 1
-                    };
-                } else if (matching.length > 1) {
-                    this.safeGetTerminal().printCurrentPrompt();
-                    this.safeGetTerminal().print(matching
-                            .map((k) => Formatter.format('<b>%</b>', k))
-                            .join('&#9;')
-                        , { unsafe_i_know_what_i_am_doing: true });
-                }
-            }
-        }
-        return null;
-    }
-
     private safeGetTerminal(): Terminal {
         if (this.terminal == null) {
             throw new Error('This shell is not attached!');
@@ -345,7 +318,7 @@ export class Shell implements ICommandHandler {
 
     private handleCommand(command: string): void | Promise<void> {
         const terminal = this.safeGetTerminal();
-        const parts = command.split(' ');
+        const parts = command.trim().split(' ');
         const handler = this.commands[parts[0]];
         if (handler == null) {
             terminal.print('unknow command "' + parts[0] + '"');
@@ -387,14 +360,78 @@ export class Shell implements ICommandHandler {
             this.history.setCurrent(command);
             this.history.commit();
             term.promptInput = '';
-            this.handleCommand(command.trim());
+            this.handleCommand(command);
         }
         setImmediate(() => term.scrollToBottom());
     }
 
+    /**
+     * Returns a list of possible autocompletion words given the cursor position
+     */
+    private getPossibleCompletions(n: number, prefix: string, line: string): string[] {
+        if (n === 0) {
+            // Autocomplete the command itself
+            return Object.keys(this.commands);
+        } else {
+            // Autocomplete a command argument
+            const cmdName = line.trim().split(' ')[0];
+            if (!cmdName) {
+                return [];
+            }
+            const cmd = this.commands[cmdName];
+            if (cmd && cmd.handleAutoCompleteParam) {
+                return cmd.handleAutoCompleteParam(n - 1, prefix, line);
+            }
+        }
+        return [];
+    }
+
+    /**
+     * Finds which word the user is trying to autocomplete and rewrites the completed input
+     * or prints the possible completions.
+     */
+    private autocompleteAlgorithm(line: string, pos: number): ICompletionResponse | null {
+        const splitted = line.split(' ');
+        let commandSoFar = '';
+
+        let currentWord = 0;
+
+        // Finds which word the user is trying to autocomplete
+        for (let i = 0 ; i < splitted.length ; i++) {
+            const word = splitted[i];
+            if (pos <= commandSoFar.length + word.length) {
+                // Autocomplete the current word
+                const matching = this.getPossibleCompletions(currentWord, word, line).filter((k) => k.startsWith(word));
+                if (matching.length === 1) {
+                    const isLastWord = i === splitted.length - 1;
+                    const outLine = commandSoFar + matching[0] + line.substr(commandSoFar.length + word.length);
+                    const addSpace = isLastWord && outLine.substr(-1) !== ' ';
+                    return {
+                        line: commandSoFar + matching[0] + line.substr(commandSoFar.length + word.length) + (addSpace ? ' ' : ''),
+                        pos: matching[0].length + (addSpace ? 1 : 0) + commandSoFar.length
+                    };
+                } else if (matching.length > 1) {
+                    this.safeGetTerminal().printCurrentPrompt();
+                    this.safeGetTerminal().print(matching
+                            .map((k) => Formatter.format('<b>%</b>', k))
+                            .join('&#9;')
+                        , { unsafe_i_know_what_i_am_doing: true });
+                    return null;
+                }
+            } else {
+                // Go to the next word
+                commandSoFar += word + ' ';
+            }
+            if (word !== '') {
+                currentWord++;
+            }
+        }
+        return null;
+    }
+
     private autoCompleteCommand() {
         const term = this.safeGetTerminal();
-        const result = this.computeAutocompletion(term.promptInput, term.carretPosition);
+        const result = this.autocompleteAlgorithm(term.promptInput, term.carretPosition);
         if (result != null) {
             term.promptInput = result.line;
             term.carretPosition = result.pos;

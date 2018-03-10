@@ -2,6 +2,10 @@ import { Config } from '../Config';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 
+const AVAILABLE_OPTIONS: {[key: string]: keyof Config } = {
+    default_username: 'defaultUserName'
+};
+
 export class ConfigCommand implements ICommand {
     public readonly name = 'config';
 
@@ -25,6 +29,15 @@ export class ConfigCommand implements ICommand {
         }
     }
 
+    public handleAutoCompleteParam(n: number): string[] {
+        if (n === 0) {
+            return ['set', 'get'];
+        } else if (n === 1) {
+            return Object.keys(AVAILABLE_OPTIONS);
+        }
+        return [];
+    }
+
     private printUsage() {
         this.shell.echo('Usage: config <set|get> key [value]');
     }
@@ -41,12 +54,11 @@ export class ConfigCommand implements ICommand {
     }
 
     private convertKeyToConfigEntry(key: string): keyof Config {
-        switch (key) {
-            case 'default_username':
-                return 'defaultUserName';
-            default:
-                throw new Error(`Invalid key: ${key}`);
+        const setting = AVAILABLE_OPTIONS[key];
+        if (!setting) {
+            throw new Error(`Invalid key: ${key}`);
         }
+        return setting;
     }
 
     private parseArg(name: string, value: string | undefined): string {
