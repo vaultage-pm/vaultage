@@ -1,6 +1,3 @@
-import * as copy from 'copy-to-clipboard';
-import { setTimeout } from 'timers';
-
 import { BusyIndicator } from './BusyIndicator';
 import { Formatter } from './Formatter';
 import { History } from './History';
@@ -98,9 +95,10 @@ export class Shell implements ICommandHandler {
     }
 
     // FIXME @jsonch: This breaks separation of concern. Everything under webshell is a standalone
+    // FIXME 2: Trying to get rid of jquery
     // generic web shell (nothing vaultage-specific).
     public enablePassswordDoubleClick() {
-        $('.password').off('dblclick');
+        /*$('.password').off('dblclick');
         $('.password').dblclick((event) => {
             const e = event.target;
             // const id = $(e).data('id');
@@ -119,7 +117,7 @@ export class Shell implements ICommandHandler {
             // if (Global.vault != null) {
             //     Global.vault.entryUsed(id);
             // }
-        });
+        });*/
     }
 
     /**

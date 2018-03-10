@@ -5,11 +5,6 @@ export interface IVaultageConfig {
     version: number;
 
     /**
-     * Default user shown in the UI.
-     */
-    default_user: string;
-
-    /**
      * Salts used for hashing
      */
     salts: {

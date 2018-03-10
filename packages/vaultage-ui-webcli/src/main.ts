@@ -1,6 +1,7 @@
 import { AddCommand } from './commands/Add';
 import { AuthCommand } from './commands/Auth';
 import { ClearCommand } from './commands/Clear';
+import { ConfigCommand } from './commands/Config';
 import { DumpCommand } from './commands/Dump';
 import { EditCommand } from './commands/Edit';
 import { GenCommand } from './commands/Gen';
@@ -27,12 +28,13 @@ const terminal = new Terminal({
 });
 
 const shell = new Shell(terminal);
-const config = new Config(shell);
+const config = new Config();
 const ctx = new Context();
 
 shell.registerCommand(new AddCommand(shell, ctx));
 shell.registerCommand(new AuthCommand(shell, ctx, config));
 shell.registerCommand(new ClearCommand(shell));
+shell.registerCommand(new ConfigCommand(shell, config));
 shell.registerCommand(new DumpCommand(shell, ctx));
 shell.registerCommand(new EditCommand(shell, ctx));
 shell.registerCommand(new GenCommand(shell, ctx));
@@ -54,5 +56,3 @@ shell.echoHTML('   Vaultage v4.0');
 shell.echoHTML('*********************');
 shell.printShortHelp();
 shell.echoHTML('*********************');
-
-config.pull();
