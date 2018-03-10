@@ -34,8 +34,12 @@ export class GenCommand implements ICommand {
             url: url
         };
 
+        const hookname: keyof Window = 'copyPasswordToClipboard';
+
         const newEntryID = this.ctx.vault.addEntry(newEntry);
-        this.shell.echoHTML(`Added entry #${newEntryID}, generated password is <span class='blurred'>${password}</span>`);
+        this.shell.echoHTML(`Added entry #${newEntryID}, generated password is
+        <span class="blurred" ondblclick="${hookname}(event)">${password}</span>
+        <span class="copied">Copied to the clipboard!</span>`);
 
         await this.ctx.vault.save();
 

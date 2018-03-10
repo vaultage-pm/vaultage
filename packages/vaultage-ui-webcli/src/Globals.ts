@@ -7,10 +7,6 @@ declare global {
     }
 }
 
-export const hooks: {[key: string]: keyof Window} = {
-    copyPasswordToClipboard: 'copyPasswordToClipboard'
-};
-
 /**
  * Installs functions on the global scope that printed content can tap into to provide
  * enhanced user interaction beyond what a naive terminal could do.

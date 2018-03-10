@@ -1,6 +1,7 @@
 import { PasswordStrength } from 'vaultage-client';
 import { IVaultDBEntry } from 'vaultage-client';
-import { hooks } from './Globals';
+
+const copyPasswordHook: keyof Window = 'copyPasswordToClipboard';
 
 export class VaultEntryFormatter {
     /**
@@ -39,7 +40,7 @@ export class VaultEntryFormatter {
             extraClass += `mediumPassword`;
         }
 
-        stringBuilder += `<span ondblclick="${hooks.copyPasswordToClipboard}(event)" class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</span>@`;
+        stringBuilder += `<span ondblclick="${copyPasswordHook}(event)" class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</span>@`;
         stringBuilder += `<span class="url">${e.url}</span>`;
 
         stringBuilder += `<span class="use">(used ${e.usage_count} times)</span>`;
@@ -125,7 +126,7 @@ export class VaultEntryFormatter {
             extraClass += `mediumPassword`;
         }
 
-        stringBuilder += `<td ondblclick="${hooks.copyPasswordToClipboard}(event)" class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</td> <td>@</td>`;
+        stringBuilder += `<td ondblclick="${copyPasswordHook}(event)" class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</td> <td>@</td>`;
         stringBuilder += `<td class="url">${e.url}</span>`;
 
         stringBuilder += `<td class="use">(used ${e.usage_count} times)</td>`;

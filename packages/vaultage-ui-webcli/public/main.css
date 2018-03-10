@@ -141,13 +141,13 @@ html, body {
     font-weight: bold;
 }
 
-.entry .copied {
+.copied {
     color: #ffda00;
     display: none;
     opacity: 1;
 }
 
-.entry .copied.visible {
+.copied.visible {
     display: block;
 }
 
