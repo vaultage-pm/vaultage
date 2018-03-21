@@ -19,9 +19,11 @@ export class AuthCommand implements ICommand {
     }
 
     public async handle(args: string[]) {
-        const serverUrl = args.length > 0 ? args[0] : this.defaultURL;
+        const serverUrl = args.length > 0 ? args[0] : (this.config.defaultHost || this.defaultURL);
 
-        const username = await this.shell.prompt('Username:', this.config.getDefaultUserName());
+        this.shell.echo(`Connecting to ${serverUrl}`);
+
+        const username = await this.shell.prompt('Username:', this.config.defaultUserName);
         const masterpwd = await this.shell.promptSecret('Password:');
 
         this.shell.echo(`Attempting to login ${username}@${serverUrl}...`);
@@ -30,6 +32,5 @@ export class AuthCommand implements ICommand {
 
         this.shell.echo('Pull OK, got ' + this.ctx.vault.getNbEntries() + ' entries (revision ' +
             this.ctx.vault.getDBRevision() + ').');
-        this.shell.separator();
     }
 }

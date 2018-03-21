@@ -19,6 +19,5 @@ export class PullCommand implements ICommand {
         await this.ctx.vault.pull();
 
         this.shell.echo('Pull OK, got ' + this.ctx.vault.getNbEntries() + ' entries (revision ' + this.ctx.vault.getDBRevision() + ').');
-        this.shell.separator();
     }
 }

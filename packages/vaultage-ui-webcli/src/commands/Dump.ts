@@ -15,6 +15,5 @@ export class DumpCommand implements ICommand {
     public async handle() {
         const allEntries = this.ctx.vault.getAllEntries();
         this.shell.echoHTML(JSON.stringify(allEntries));
-        this.shell.separator();
     }
 }

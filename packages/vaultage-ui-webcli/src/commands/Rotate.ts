@@ -52,6 +52,5 @@ export class RotateCommand implements ICommand {
         this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry2));
 
         this.shell.echo('Push OK, revision ' + this.ctx.vault.getDBRevision() + '.');
-        this.shell.separator();
     }
 }

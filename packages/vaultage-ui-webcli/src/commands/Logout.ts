@@ -16,6 +16,5 @@ export class LogoutCommand implements ICommand {
     public async handle() {
         this.ctx.unsetVault();
         this.shell.echo('Logout OK.');
-        this.shell.separator();
     }
 }

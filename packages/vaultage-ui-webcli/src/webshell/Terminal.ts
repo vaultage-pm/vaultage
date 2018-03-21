@@ -192,13 +192,19 @@ export class Terminal {
      * @param opts Advanced options
      */
     public print(text: string, opts?: IPrintOptions): Element {
-        const entry = document.createElement('span');
-        if (opts && opts.unsafe_i_know_what_i_am_doing === true) {
+        const realOpts: IPrintOptions = opts || {
+            unsafe_i_know_what_i_am_doing: false
+        };
+        if (text === '') {
+            text = '&nbsp;';
+            realOpts.unsafe_i_know_what_i_am_doing = true;
+        }
+        const entry = document.createElement('div');
+        if (realOpts.unsafe_i_know_what_i_am_doing === true) {
             entry.innerHTML = text;
         } else {
             entry.innerText = text;
         }
-        entry.appendChild(document.createElement('br'));
         this.$log.appendChild(entry);
         this.scrollToBottom();
         return entry;

@@ -1,6 +1,7 @@
 import { AddCommand } from './commands/Add';
 import { AuthCommand } from './commands/Auth';
 import { ClearCommand } from './commands/Clear';
+import { ConfigCommand } from './commands/Config';
 import { DumpCommand } from './commands/Dump';
 import { EditCommand } from './commands/Edit';
 import { GenCommand } from './commands/Gen';
@@ -19,6 +20,7 @@ import { RotateCommand } from './commands/Rotate';
 import { WeakCommand } from './commands/Weak';
 import { Config } from './Config';
 import { Context } from './Context';
+import { installGlobalHooks } from './Globals';
 import { Shell } from './webshell/Shell';
 import { Terminal } from './webshell/Terminal';
 
@@ -27,12 +29,21 @@ const terminal = new Terminal({
 });
 
 const shell = new Shell(terminal);
-const config = new Config(shell);
+const config = new Config();
 const ctx = new Context();
+
+installGlobalHooks();
+
+shell.setBannerHTML(`Vaultage v4.0
+<br>*********************
+<br>Feeling lost? Take a look at the <a href="https://github.com/lbarman/vaultage/wiki/Using-the-web-CLI" target="_blank">usage guide</a> or press [Tab] to see available commands.
+<br>*********************`);
+
 
 shell.registerCommand(new AddCommand(shell, ctx));
 shell.registerCommand(new AuthCommand(shell, ctx, config));
 shell.registerCommand(new ClearCommand(shell));
+shell.registerCommand(new ConfigCommand(shell, config));
 shell.registerCommand(new DumpCommand(shell, ctx));
 shell.registerCommand(new EditCommand(shell, ctx));
 shell.registerCommand(new GenCommand(shell, ctx));
@@ -50,9 +61,4 @@ shell.registerCommand(new RmCommand(shell, ctx));
 shell.registerCommand(new RotateCommand(shell, ctx));
 shell.registerCommand(new WeakCommand(shell, ctx));
 
-shell.echoHTML('   Vaultage v4.0');
-shell.echoHTML('*********************');
-shell.printShortHelp();
-shell.echoHTML('*********************');
-
-config.pull();
+shell.printBanner();

@@ -35,7 +35,9 @@ export function createVaultageAPIServer(): express.Application {
         res.setHeader('X-Frame-Options', 'SAMEORIGIN');
 
         // only allows javascript sources specified here
-        res.setHeader('Content-Security-Policy', 'script-src \'self\' https://cdnjs.cloudflare.com/');
+        // 'unsafe-inline' could be a threat if content was generated based on a URL (either client- or server-side)
+        // which is not the case of this application.
+        res.setHeader('Content-Security-Policy', 'script-src \'self\' \'unsafe-inline\'');
 
         // prevents MIME-confusion attacks
         res.setHeader('X-Content-Type-Options', 'nosniff');

@@ -10,6 +10,7 @@
         "object-literal-sort-keys": false,
         "quotemark": [ true, "single" ],
         "trailing-comma": false,
-        "variable-name": [ true, "check-format", "allow-leading-underscore"]
+        "variable-name": [ true, "check-format", "allow-leading-underscore"],
+        "prefer-for-of": false
     }
 }

@@ -1,6 +1,8 @@
 import { PasswordStrength } from 'vaultage-client';
 import { IVaultDBEntry } from 'vaultage-client';
 
+const copyPasswordHook: keyof Window = 'copyPasswordToClipboard';
+
 export class VaultEntryFormatter {
     /**
      * Formats a collection of VaultDBEntries to HTML
@@ -38,10 +40,10 @@ export class VaultEntryFormatter {
             extraClass += `mediumPassword`;
         }
 
-        stringBuilder += `<span class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</span>@`;
+        stringBuilder += `<span ondblclick="${copyPasswordHook}(event)" class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</span>@`;
         stringBuilder += `<span class="url">${e.url}</span>`;
 
-        stringBuilder += `<span class="use">(used ${e.usage_count} times)</span>`;
+        // stringBuilder += `<span class="use">(used ${e.usage_count} times)</span>`;
 
         if (e.reuse_count > 0) {
             stringBuilder += `<span class="reuse">(warning: re-used ${e.reuse_count} times)</span>`;
@@ -124,10 +126,10 @@ export class VaultEntryFormatter {
             extraClass += `mediumPassword`;
         }
 
-        stringBuilder += `<td class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</td> <td>@</td>`;
+        stringBuilder += `<td ondblclick="${copyPasswordHook}(event)" class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</td> <td>@</td>`;
         stringBuilder += `<td class="url">${e.url}</span>`;
 
-        stringBuilder += `<td class="use">(used ${e.usage_count} times)</td>`;
+        // stringBuilder += `<td class="use">(used ${e.usage_count} times)</td>`;
 
         if (e.reuse_count > 0) {
             stringBuilder += `<td class="reuse">(warning: re-used ${e.reuse_count} times)</td>`;

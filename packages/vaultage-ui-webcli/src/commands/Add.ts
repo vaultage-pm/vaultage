@@ -36,6 +36,5 @@ export class AddCommand implements ICommand {
 
         await this.ctx.vault.save();
         this.shell.echo('Push OK, revision ' + this.ctx.vault.getDBRevision() + '.');
-        this.shell.separator();
     }
 }
