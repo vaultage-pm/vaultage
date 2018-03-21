@@ -43,7 +43,7 @@ export class VaultEntryFormatter {
         stringBuilder += `<span ondblclick="${copyPasswordHook}(event)" class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</span>@`;
         stringBuilder += `<span class="url">${e.url}</span>`;
 
-        stringBuilder += `<span class="use">(used ${e.usage_count} times)</span>`;
+        // stringBuilder += `<span class="use">(used ${e.usage_count} times)</span>`;
 
         if (e.reuse_count > 0) {
             stringBuilder += `<span class="reuse">(warning: re-used ${e.reuse_count} times)</span>`;
@@ -129,7 +129,7 @@ export class VaultEntryFormatter {
         stringBuilder += `<td ondblclick="${copyPasswordHook}(event)" class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</td> <td>@</td>`;
         stringBuilder += `<td class="url">${e.url}</span>`;
 
-        stringBuilder += `<td class="use">(used ${e.usage_count} times)</td>`;
+        // stringBuilder += `<td class="use">(used ${e.usage_count} times)</td>`;
 
         if (e.reuse_count > 0) {
             stringBuilder += `<td class="reuse">(warning: re-used ${e.reuse_count} times)</td>`;

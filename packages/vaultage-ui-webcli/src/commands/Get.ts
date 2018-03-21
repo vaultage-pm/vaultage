@@ -24,6 +24,5 @@ export class GetCommand implements ICommand {
         const coloredSearchString = VaultEntryFormatter.searchTermsToHighlightedString(searchTerms);
         this.shell.echoHTML('Searching for ' + coloredSearchString + ', ' + results.length + ' matching entries.');
         this.shell.echoHTML(VaultEntryFormatter.formatAndHighlightBatch(results, searchTerms));
-        this.shell.separator();
     }
 }

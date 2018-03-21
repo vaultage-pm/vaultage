@@ -14,6 +14,7 @@ html, body {
     padding: 10px;
     color: #0c0;
     overflow: auto;
+    cursor: text;
 }
 
 .terminal .input,
@@ -141,12 +142,14 @@ html, body {
     font-weight: bold;
 }
 
+.entry .copied,
 .copied {
     color: #ffda00;
     display: none;
     opacity: 1;
 }
 
+.entry .copied.visible,
 .copied.visible {
     display: block;
 }
@@ -176,9 +179,4 @@ td.empty {
 
 .helpLine {
     color:#aaa;
-}
-
-.separator {
-    display:block;
-    height: 10px;
 }

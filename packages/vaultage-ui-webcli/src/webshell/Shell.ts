@@ -64,9 +64,6 @@ export class Shell implements ICommandHandler {
      * @param value text to show
      */
     public echo(value: string) {
-        if (value === '') {
-            return;
-        }
         this.safeGetTerminal().print(value);
     }
 
@@ -85,10 +82,6 @@ export class Shell implements ICommandHandler {
             Formatter.format('<span class="error">%</span>', value),
             { unsafe_i_know_what_i_am_doing: true }
         );
-    }
-
-    public separator() {
-        this.safeGetTerminal().separator();
     }
 
     /**
@@ -298,7 +291,7 @@ export class Shell implements ICommandHandler {
         return this.terminal;
     }
 
-    private handleCommand(command: string): void | Promise<void> {
+    private async handleCommand(command: string): Promise<void> {
         const terminal = this.safeGetTerminal();
         const parts = command.trim().split(' ');
         const handler = this.commands[parts[0]];
@@ -312,14 +305,11 @@ export class Shell implements ICommandHandler {
             if (result && result.then) {
                 // Handles asynchronous workflow (error and happy path)
                 this.enterBusyMode();
-                result.catch((e: any) => {
-                    const message = e.hasOwnProperty('message') ? e.message : e;
-                    this.echoError('' + message);
-                    console.error(e);
-                }).then(
-                    () => this.exitBusyMode(),
-                    () => this.exitBusyMode()
-                );
+                try {
+                    await result;
+                } finally {
+                    this.exitBusyMode();
+                }
             }
         } catch (e) {
             // This branch handles synchronous errors
@@ -328,7 +318,7 @@ export class Shell implements ICommandHandler {
         }
     }
 
-    private acceptCommand() {
+    private async acceptCommand() {
         const term = this.safeGetTerminal();
         term.printCurrentPrompt();
         const command = term.promptInput;
@@ -342,7 +332,8 @@ export class Shell implements ICommandHandler {
             this.history.setCurrent(command);
             this.history.commit();
             term.promptInput = '';
-            this.handleCommand(command);
+            await this.handleCommand(command);
+            this.echo('');
         }
         setImmediate(() => term.scrollToBottom());
     }

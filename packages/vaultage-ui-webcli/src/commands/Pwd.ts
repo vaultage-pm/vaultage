@@ -38,8 +38,6 @@ export class PwdCommand implements ICommand {
 
         await this.ctx.vault.updateMasterPassword(newMasterPassword);
 
-        this.shell.echo('Password change OK (db at revision ' + this.ctx.vault.getDBRevision() + '). Please use the new password' +
-        + 'from now on.');
-        this.shell.separator();
+        this.shell.echo('Password change OK (db at revision ' + this.ctx.vault.getDBRevision() + '). Please use the new password from now on.');
     }
 }

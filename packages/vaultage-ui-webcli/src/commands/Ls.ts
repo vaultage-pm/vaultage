@@ -21,6 +21,5 @@ export class LsCommand implements ICommand {
         if (html !== '') {
             this.shell.echoHTML(html);
         }
-        this.shell.separator();
     }
 }

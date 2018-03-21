@@ -32,6 +32,5 @@ export class AuthCommand implements ICommand {
 
         this.shell.echo('Pull OK, got ' + this.ctx.vault.getNbEntries() + ' entries (revision ' +
             this.ctx.vault.getDBRevision() + ').');
-        this.shell.separator();
     }
 }
