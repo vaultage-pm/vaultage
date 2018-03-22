@@ -436,6 +436,7 @@ export class Shell implements ICommandHandler {
             const resolve = this.promptResolve;
             this.promptResolve = null;
             term.printCurrentPrompt();
+            term.secretMode = false;
             resolve(Promise.reject('Aborted'));
         }
     }
