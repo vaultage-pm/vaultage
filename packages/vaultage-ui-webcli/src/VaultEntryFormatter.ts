@@ -41,7 +41,7 @@ export class VaultEntryFormatter {
         }
 
         stringBuilder += `<span ondblclick="${copyPasswordHook}(event)" class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</span>@`;
-        stringBuilder += `<span class="url">${e.url}</span>`;
+        stringBuilder += `<span><a target="_blank" href="${e.url}">${e.url}</a></span>`;
 
         // stringBuilder += `<span class="use">(used ${e.usage_count} times)</span>`;
 
@@ -127,7 +127,7 @@ export class VaultEntryFormatter {
         }
 
         stringBuilder += `<td ondblclick="${copyPasswordHook}(event)" class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</td> <td>@</td>`;
-        stringBuilder += `<td class="url">${e.url}</span>`;
+        stringBuilder += `<td><a target="_blank" href="${e.url}">${e.url}</a></span>`;
 
         // stringBuilder += `<td class="use">(used ${e.usage_count} times)</td>`;
 
