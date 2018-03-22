@@ -24,6 +24,8 @@ import { installGlobalHooks } from './Globals';
 import { Shell } from './webshell/Shell';
 import { Terminal } from './webshell/Terminal';
 
+import * as vaultage from 'vaultage-client';
+
 const terminal = new Terminal({
     root: document.body
 });
@@ -34,7 +36,7 @@ const ctx = new Context();
 
 installGlobalHooks();
 
-shell.setBannerHTML(`Vaultage v4.0
+shell.setBannerHTML(`Vaultage v${vaultage.version()}
 <br>*********************
 <br>Feeling lost? Take a look at the <a href="https://github.com/lbarman/vaultage/wiki/Using-the-web-CLI" target="_blank">usage guide</a> or press [Tab] to see available commands.
 <br>*********************`);

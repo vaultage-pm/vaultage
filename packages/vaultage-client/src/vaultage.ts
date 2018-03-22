@@ -9,6 +9,9 @@ import { HttpApi } from './HTTPApi';
 import { HttpRequestFunction, HttpService } from './HTTPService';
 import { Vault } from './Vault';
 
+// tslint:disable-next-line:no-var-requires
+const pkg = require('../package.json');
+
 /**
  * Attempts to pull the cipher and decode it. Saves credentials on success.
  * @param serverURL URL to the vaultage server.
@@ -50,4 +53,11 @@ export async function login(
 
 export function _mockHttpRequests(fn: HttpRequestFunction): void {
     HttpService.mock(fn);
+}
+
+/**
+ * Returns the current version of the vaultage-client package
+ */
+export function version(): string {
+    return pkg.version;
 }
