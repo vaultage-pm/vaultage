@@ -1,10 +1,12 @@
 import { Config } from '../Config';
+import { TimeoutService } from '../TimeoutService';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 
 const AVAILABLE_OPTIONS: {[key: string]: keyof Config } = {
     username_default: 'defaultUserName',
-    host_default: 'defaultHost'
+    host_default: 'defaultHost',
+    session_timeout: 'sessionTimeout'
 };
 
 export class ConfigCommand implements ICommand {
@@ -13,7 +15,8 @@ export class ConfigCommand implements ICommand {
     public readonly description = 'Configures the application.';
     constructor(
         private shell: Shell,
-        private config: Config) {
+        private config: Config,
+        private timeout: TimeoutService) {
     }
 
     public async handle(args: string[]) {
@@ -54,7 +57,13 @@ export class ConfigCommand implements ICommand {
 
     private set(key: string, value: string) {
         const configName = this.convertKeyToConfigEntry(key);
+        if (configName === 'sessionTimeout') {
+            this.timeout.validateTimeoutFormat(value);
+        }
         this.config[configName] = value;
+        if (configName === 'sessionTimeout') {
+            this.timeout.resetTimeout();
+        }
         this.shell.echo('OK');
     }
 

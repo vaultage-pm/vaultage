@@ -38,6 +38,20 @@ export class Vault {
         }
     }
 
+    /**
+     * Returns the username associated with this Vault.
+     */
+    public get username(): string {
+        return this._creds.username;
+    }
+
+    /**
+     * Returns the server URL associated with this Vault.
+     */
+    public get serverURL(): string {
+        return this._creds.serverURL;
+    }
+
     public getDBRevision(): number {
         if (!this._db) {
             return -1;
