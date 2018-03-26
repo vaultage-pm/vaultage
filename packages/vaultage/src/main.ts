@@ -30,6 +30,7 @@ const pkg = require(path.join(__dirname, '../../package.json'));
 program.version(pkg.version)
     .option('-p, --port <port>', 'TCP port to listen to', parseInt)
     .option('-l, --listen <addr>', 'TCP address to bind to')
+    .option('-d, --data <dir>', 'Manually specify the data directory (defaults to ~/.vaultage)')
     .parse(process.argv);
 
 const PORT = program.port || 3000;
@@ -38,14 +39,14 @@ const ADDR = program.listen;
 boot(PORT, ADDR);
 
 async function loadConfig(retry: boolean): Promise<void> {
-    const configPath = storagePath(CONFIG_FILENAME);
+    const configPath = storagePath(CONFIG_FILENAME, program.data);
     try {
         const config = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf-8' })) as IVaultageConfig;
         Container.set('config', config);
     } catch (e) {
         if (retry && e.code === 'ENOENT') {
             console.log('No config found, writing initial config.');
-            await initConfig();
+            await initConfig(program.data);
             return loadConfig(false);
         }
         console.error(`Unable to read config file. Make sure ${configPath} exists and is readable`);
@@ -58,7 +59,7 @@ async function boot(port: number, addr: string) {
     useContainer(Container);
 
     // Wires all dependencies
-    const vaultPath = storagePath(VAULT_FILENAME);
+    const vaultPath = storagePath(VAULT_FILENAME, program.data);
     Container.set('cipherLocation', vaultPath);
 
     await loadConfig(true);
