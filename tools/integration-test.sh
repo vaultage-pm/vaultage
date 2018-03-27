@@ -1,7 +1,7 @@
 #!/bin/bash
-
+SERVER_PORT=3000
 SERVER_LOGFILE="$(pwd)/server.log"
-EXPECTED_LAST_LINE="Server is listening on port 3000"
+EXPECTED_LAST_LINE="Server is listening on port $SERVER_PORT"
 ERROR_LINE="failed"
 
 rm -rf "$SERVER_LOGFILE"
@@ -11,9 +11,8 @@ echo "Making build all"
 make build 1>/dev/null 2>&1
 
 # deploying back-end
-echo "Starting server on localhost:3000"
+echo "Starting server on localhost:$SERVER_PORT"
 make serve 1>"$SERVER_LOGFILE" 2>&1 &
-serverPid="$!"
 
 echo "Waiting for the server..."
 until grep -q "$EXPECTED_LAST_LINE\|$ERROR_LINE" "$SERVER_LOGFILE"; do
@@ -26,9 +25,7 @@ if [ "$?" -ne 0 ]; then
     cat "$SERVER_LOGFILE"
     echo ""
     echo "Cleaning up server..."
-    kill "$serverPid"
     rm -rf "$SERVER_LOGFILE"
-
     exit 1
 fi
 
@@ -37,7 +34,8 @@ make -C packages/vaultage-client integration-test
 res=$?
 
 echo "Cleaning up server..."
-kill "$serverPid"
 rm -rf "$SERVER_LOGFILE"
+# Kill our process based on port usage (proved to be more reliable than a pid based solution)
+lsof -ti tcp:$SERVER_PORT | xargs kill
 
 exit "$res"

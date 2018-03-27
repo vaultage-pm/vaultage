@@ -1,5 +1,6 @@
 BIN=dist/src/main.js
 SRC=$(shell find src/ -type f -name '*.ts')
+DATA_DIR=.data
 
 # Mandatory tasks (imposed by the top-level Makefile)
 
@@ -26,6 +27,10 @@ $(BIN): node_modules $(SRC)
 node_modules: package.json package-lock.json
 	npm install
 
+.PHONY: clean-storage
+clean-storage:
+	rm -rf $(DATA_DIR)
+
 .PHONY: serve
 serve: $(BIN)
-	npm start
+	npm start -- -d $(DATA_DIR)

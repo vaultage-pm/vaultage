@@ -22,6 +22,7 @@ packages/vaultage-ui-webcli: packages/vaultage-client
 .PHONY: serve
 serve:
 	$(MAKE) build
+	$(MAKE) -C packages/vaultage clean-storage
 	$(MAKE) -C packages/vaultage serve
 
 .PHONY: integration-test
