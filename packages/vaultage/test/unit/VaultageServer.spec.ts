@@ -5,15 +5,15 @@ import * as request from 'supertest';
 import { Container } from 'typedi';
 import { IVaultageConfig, PushPullResponse, UpdateCipherRequest } from 'vaultage-protocol';
 
-import { createVaultageAPIServer } from '../src/apiServer';
-import { AuthenticationError } from '../src/storage/AuthenticationError';
-import { DatabaseWithAuth } from '../src/storage/Database';
-import * as db from '../src/storage/JSONDatabase';
-import { NotFastForwardError } from '../src/storage/NotFastForwardError';
+import { createVaultageAPIServer } from '../../src/apiServer';
+import { AuthenticationError } from '../../src/storage/AuthenticationError';
+import { DatabaseWithAuth } from '../../src/storage/Database';
+import * as db from '../../src/storage/JSONDatabase';
+import { NotFastForwardError } from '../../src/storage/NotFastForwardError';
 
 useContainer(Container);
 
-const mockModule = jest.genMockFromModule('../src/storage/JSONDatabase') as typeof db;
+const mockModule = jest.genMockFromModule('../../src/storage/JSONDatabase') as typeof db;
 const mockAuthDB = new mockModule.JSONDatabaseWithAuth();
 const mockDB = new mockModule.JSONDatabase('', '', '');
 (mockAuthDB.auth as jest.Mock).mockImplementation(() => Promise.resolve(mockDB));
