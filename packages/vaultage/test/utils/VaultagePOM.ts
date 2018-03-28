@@ -30,6 +30,10 @@ export class VaultagePOM {
         await this.waitFinishProcessing();
     }
 
+    public async clearInput(): Promise<void> {
+        return this.page.$eval('#main_input', (input: Element) => (input as HTMLInputElement).value = '');
+    }
+
     public async waitFinishProcessing(): Promise<void> {
         let result;
         do {
@@ -45,7 +49,7 @@ export class VaultagePOM {
     }
 
     public getInputContents(): Promise<string> {
-        return this.page.evaluate(() => {
+        return this.page.$eval('#main_input', () => {
             const el = document.querySelector('#main_input');
             if (el == null) {
                 return '';
@@ -64,6 +68,13 @@ export class VaultagePOM {
         });
     }
 
+    public hasError(): Promise<string> {
+        return this.page.evaluate(() => {
+            const error = document.querySelector('.error');
+            return error != null;
+        });
+    }
+
     public isLoggedIn(): Promise<boolean> {
         return this.getLogContents().then((log) => /Pull OK/.test(log));
     }
@@ -79,7 +90,7 @@ export class VaultagePOM {
             for (let i = 0 ; i < items.length ; i++) {
                 const item = items[i];
                 ret.push({
-                    id: (item.querySelector('.id') as HTMLElement).innerText,
+                    id: (item.querySelector('.id') as HTMLElement).innerText.replace(/[\(\)]/g, ''),
                     login: (item.querySelector('.login') as HTMLElement).innerText,
                     password: (item.querySelector('.password') as HTMLElement).innerText,
                     title: (item.querySelector('.title') as HTMLElement).innerText,
