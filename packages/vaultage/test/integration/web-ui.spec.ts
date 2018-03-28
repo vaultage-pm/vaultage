@@ -115,7 +115,6 @@ describe('Commands of the web UI', () => {
             throw new Error('There are no entries to remove');
         }
         const id = table[0].id;
-        const prevLength = table.length;
 
         await model.type(`edit ${id}`);
 
