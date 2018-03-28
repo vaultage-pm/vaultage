@@ -16,7 +16,7 @@ cleanall: clean
 	rm -rf node_modules
 
 .PHONY: test
-test: node_modules
+test: node_modules build
 	npm test
 
 # Other tasks
