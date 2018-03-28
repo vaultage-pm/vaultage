@@ -17,7 +17,9 @@ const randTestId = (Math.random() * 0x1000000).toString(16).substring(0, 6);
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
 beforeAll(async () => {
-    browser = await puppeteer.launch();
+    browser = await puppeteer.launch({
+        args: [ '--no-sandbox' ]
+    });
 
     // Spawn the server on our port and with a random, hopefully empty, data folder
     server = spawn('node', ['dist/src/main.js', '-p', `${PORT}`, '-d', `.data/${randTestId}`]);
@@ -225,7 +227,5 @@ describe('Commands of the web UI', () => {
         await model.type('y'); // Confirm weak password
         await model.login('john', '1234');
         expect(await model.hasError()).toBe(false);
-
-        await page.screenshot({ path: 'screenshot.png' });
     });
 });
