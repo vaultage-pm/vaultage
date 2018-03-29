@@ -29,7 +29,7 @@ node_modules: package.json package-lock.json
 
 .PHONY: clean-storage
 clean-storage:
-	rm -rf $(DATA_DIR)
+	rm -rf $(DATA_DIR)/*
 
 .PHONY: serve
 serve: $(BIN)
