@@ -25,6 +25,7 @@ import { Shell } from './webshell/Shell';
 import { Terminal } from './webshell/Terminal';
 
 import * as vaultage from 'vaultage-client';
+import { TimeoutService } from './TimeoutService';
 
 const terminal = new Terminal({
     root: document.body
@@ -33,6 +34,12 @@ const terminal = new Terminal({
 const shell = new Shell(terminal);
 const config = new Config();
 const ctx = new Context();
+
+const timeout = new TimeoutService(shell, ctx, config);
+
+timeout.resetTimeout();
+window.addEventListener('keydown', () => timeout.resetTimeout());
+window.addEventListener('mousemove', () => timeout.resetTimeout());
 
 installGlobalHooks();
 
@@ -43,9 +50,9 @@ shell.setBannerHTML(`Vaultage v${vaultage.version()}
 
 
 shell.registerCommand(new AddCommand(shell, ctx));
-shell.registerCommand(new AuthCommand(shell, ctx, config));
+shell.registerCommand(new AuthCommand(shell, ctx, config, timeout));
 shell.registerCommand(new ClearCommand(shell));
-shell.registerCommand(new ConfigCommand(shell, config));
+shell.registerCommand(new ConfigCommand(shell, config, timeout));
 shell.registerCommand(new DumpCommand(shell, ctx));
 shell.registerCommand(new EditCommand(shell, ctx));
 shell.registerCommand(new GenCommand(shell, ctx));

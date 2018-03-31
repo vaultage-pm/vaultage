@@ -11,6 +11,7 @@ export class Config {
 
     private static readonly USERNAME_KEY = 'DEFAULT_USERNAME';
     private static readonly HOST_KEY = 'DEFAULT_HOST';
+    private static readonly TIMEOUT_KEY = 'TIMEOUT_TIME';
 
     /**
      * Default username to show in an auth prompt. This value is local to the browser.
@@ -42,5 +43,21 @@ export class Config {
 
     public set defaultHost(host: string) {
         localStorage.setItem(Config.HOST_KEY, host);
+    }
+
+    /**
+     * Time delay in seconds after which the UI should log out automatically.
+     */
+    public get sessionTimeout(): string {
+        const seconds = localStorage.getItem(Config.TIMEOUT_KEY);
+        if (seconds == null) {
+            return '';
+        } else {
+            return seconds;
+        }
+    }
+
+    public set sessionTimeout(seconds: string) {
+        localStorage.setItem(Config.TIMEOUT_KEY, seconds);
     }
 }

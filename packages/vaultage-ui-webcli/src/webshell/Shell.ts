@@ -284,6 +284,25 @@ export class Shell implements ICommandHandler {
         this.history.setCurrent(term.promptInput);
     }
 
+    public async runCommand(command: ICommand, args: string[]) {
+        try {
+            const result = command.handle(args);
+            if (result && result.then) {
+                // Handles asynchronous workflow (error and happy path)
+                this.enterBusyMode();
+                try {
+                    await result;
+                } finally {
+                    this.exitBusyMode();
+                }
+            }
+        } catch (e) {
+            // This branch handles synchronous errors
+            this.echoError('' + e);
+            console.error(e);
+        }
+    }
+
     private safeGetTerminal(): Terminal {
         if (this.terminal == null) {
             throw new Error('This shell is not attached!');
@@ -300,22 +319,7 @@ export class Shell implements ICommandHandler {
             this.printHelp();
             return;
         }
-        try {
-            const result = handler.handle(parts.slice(1));
-            if (result && result.then) {
-                // Handles asynchronous workflow (error and happy path)
-                this.enterBusyMode();
-                try {
-                    await result;
-                } finally {
-                    this.exitBusyMode();
-                }
-            }
-        } catch (e) {
-            // This branch handles synchronous errors
-            this.echoError('' + e);
-            console.error(e);
-        }
+        await this.runCommand(handler, parts.slice(1));
     }
 
     private async acceptCommand() {

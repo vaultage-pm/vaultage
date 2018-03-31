@@ -2,6 +2,7 @@ import * as vaultage from 'vaultage-client';
 
 import { Config } from '../Config';
 import { Context } from '../Context';
+import { TimeoutService } from '../TimeoutService';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 
@@ -15,7 +16,8 @@ export class AuthCommand implements ICommand {
     constructor(
         private shell: Shell,
         private ctx: Context,
-        private config: Config) {
+        private config: Config,
+        private timeout: TimeoutService) {
     }
 
     public async handle(args: string[]) {
@@ -32,5 +34,7 @@ export class AuthCommand implements ICommand {
 
         this.shell.echo('Pull OK, got ' + this.ctx.vault.getNbEntries() + ' entries (revision ' +
             this.ctx.vault.getDBRevision() + ').');
+
+        this.timeout.resetTimeout();
     }
 }
