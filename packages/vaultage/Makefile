@@ -16,7 +16,7 @@ cleanall: clean
 	rm -rf node_modules
 
 .PHONY: test
-test: node_modules
+test: node_modules build
 	npm test
 
 # Other tasks
@@ -29,7 +29,7 @@ node_modules: package.json package-lock.json
 
 .PHONY: clean-storage
 clean-storage:
-	rm -rf $(DATA_DIR)
+	rm -rf $(DATA_DIR)/*
 
 .PHONY: serve
 serve: $(BIN)

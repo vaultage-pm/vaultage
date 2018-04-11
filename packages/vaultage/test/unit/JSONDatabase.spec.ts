@@ -3,9 +3,9 @@ import 'reflect-metadata';
 import * as fs from 'fs';
 import { Container } from 'typedi';
 
-import { AuthenticationError } from '../src/storage/AuthenticationError';
-import { IDatabaseContents, JSONDatabase, JSONDatabaseWithAuth } from '../src/storage/JSONDatabase';
-import { NotFastForwardError } from '../src/storage/NotFastForwardError';
+import { AuthenticationError } from '../../src/storage/AuthenticationError';
+import { IDatabaseContents, JSONDatabase, JSONDatabaseWithAuth } from '../../src/storage/JSONDatabase';
+import { NotFastForwardError } from '../../src/storage/NotFastForwardError';
 
 jest.mock('fs');
 

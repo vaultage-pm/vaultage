@@ -5,8 +5,8 @@ import { IVaultDBEntryAttrs, Vault } from '../src/vaultage';
 
 async function runIntegrationTest() {
     const serverUrl = 'http://localhost:3000/';
-    const username = 'any';
-    const masterpwd = 'masterpwd';
+    const username = 'john';
+    const masterpwd = '1234';
 
     // create vault
     let vault = await vaultage.login(serverUrl, username, masterpwd);
