@@ -1,0 +1,54 @@
+#################################################
+## Sample Vaultage reverse proxy configuration ##
+#################################################
+
+#
+# This section allows certbot to verify that you own the domain
+#
+server {
+  listen 80;
+  server_name ${VAULTAGE_DOMAIN};
+
+  location / {
+    return 302 https://${VAULTAGE_DOMAIN};
+  }
+
+  location /.well-known {
+    root /var/www/letsencrypt/vaultage;
+  }
+}
+
+server {
+
+  ###
+  # Uncomment the 5 lines below once you have generated the certificates.
+  # Nginx won't accept the configuration if the certificates are missing hence we have
+  # a chicken and egg issue.
+  ###
+
+  # listen 443 ssl;
+  # ssl_certificate   /etc/letsencrypt/live/${VAULTAGE_DOMAIN}/fullchain.pem;
+  # ssl_certificate_key /etc/letsencrypt/live/${VAULTAGE_DOMAIN}/privkey.pem;
+  # ssl_protocols   SSLv3 TLSv1 TLSv1.1 TLSv1.2;
+  # ssl_ciphers   HIGH:!aNULL:!MD5;
+
+  server_name ${VAULTAGE_DOMAIN};
+  
+  location / {
+
+    ###
+    # If your vaultage server is listening on a port different than 8080, change the line below
+    ###
+    proxy_pass http://localhost:8080/;
+
+    proxy_set_header Host ${DOLLAR}host;
+    proxy_set_header X-Forwarded-Proto ${DOLLAR}scheme;
+  }
+
+  ###
+  # Used by certbot to renew your SSL certificate
+  ###
+  location /.well-known {
+    root /var/www/letsencrypt/vaultage;
+  }
+}
