@@ -20,12 +20,12 @@ server {
 
 server {
 
-  ###
-  # Uncomment the 5 lines below once you have generated the certificates.
-  # Nginx won't accept the configuration if the certificates are missing hence we have
-  # a chicken and egg issue.
-  ###
-
+#####################################
+# THERE ARE THINGS TO CHANGE HERE ! #
+#####################################
+# Remove the '#' symbols on the lines below this arrow:
+# || 
+# \/
   # listen 443 ssl;
   # ssl_certificate   /etc/letsencrypt/live/${VAULTAGE_DOMAIN}/fullchain.pem;
   # ssl_certificate_key /etc/letsencrypt/live/${VAULTAGE_DOMAIN}/privkey.pem;
