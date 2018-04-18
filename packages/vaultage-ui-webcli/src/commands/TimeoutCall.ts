@@ -22,8 +22,8 @@ export class TimeoutCall implements ICommand {
         const serverURL = this.ctx.vault.serverURL;
         this.ctx.unsetVault();
         this.shell.clearLog();
+        this.shell.echo('Session timed out. Please re-enter the master password.');
         while (1) {
-            this.shell.echo('Session timed out. Please re-enter the master password.');
             const password = await this.shell.promptSecret('Password:');
             try {
                 this.ctx.vault = await vaultage.login(serverURL, username, password);

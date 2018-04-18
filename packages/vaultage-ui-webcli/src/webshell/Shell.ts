@@ -72,14 +72,17 @@ export class Shell implements ICommandHandler {
      *
      * @param value error text to show
      */
-    public echoError(value: string) {
+    public echoError(value: string | Error) {
+
+        const message = typeof value === 'string' ? value : value.message;
+
         // cleans encapsulated errors
-        while (value.startsWith('Error: Error: ')) {
-            value = value.substring(7);
+        while (message.startsWith('Error: Error: ')) {
+            value = message.substring(7);
         }
 
         this.safeGetTerminal().print(
-            Formatter.format('<span class="error">%</span>', value),
+            Formatter.format('<span class="error">%</span>', message),
             { unsafe_i_know_what_i_am_doing: true }
         );
     }
