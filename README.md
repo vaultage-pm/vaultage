@@ -3,7 +3,7 @@
 
 # Vaultage
 
-A web-based, self-hosted password manager with client-side encryption.
+An open-source, web-based, self-hosted password manager with client-side encryption.
 
 Authors: [Ludovic Barman](https://github.com/lbarman/), [Hadrien Milano](https://github.com/hmil/)
 
@@ -16,51 +16,38 @@ Vaultage is a **password manager**.
 - It is self-hosted: install it easily on your own server. **Everything is under your control**.
 - It is open-source: please feel to audit the code, and please report any bugs.
 
-How does it work ? Please check our document [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md) for the assumptions, the adversary model and the system design.
+How is it secured? Please check our document [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md) for the assumptions, the adversary model and the system design.
 
 ## Screenshots
 
 ![Vaultage demo 1](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot1.png "Vaultage demo 1")
 
-## Installing Vaultage locally or on your server*
+## Quick start
+
+To take Vaultage for a test drive, run:
 
 ```
-# Install vaultage
 npm install -g vaultage
-
-# Start the vaultage server
 vaultage-server
-
-# then browse to http://localhost:3000/
 ```
 
-*NOTE: If deployed remotely, please deploy it behind a *reverse-proxy* with TLS; contacting Vaultage remotely over HTTP is very insecure.
+Then browse to [localhost:3000](http://localhost:3000/). Check out the wiki for [usage instructions](https://github.com/lbarman/vaultage/wiki/Using-the-web-CLI).
 
-### _Alternative_ run in docker
+_Please note that, while this setup allows you to play around with Vaultage, a real deployment involves a little bit more pieces._
 
-We provide a prebuilt docker image you can use to run vaultage:
+## Complete setup
 
-Defined the two variables `$LOCAL_PORT` and `$DATA_FOLDER` to be the port where you will expose vaultage and the directory containing the encrypted vault on the server, respectively.
-Then running docker is just a one-liner:
-`sudo docker run -d --init --name vaultage -p $LOCAL_PORT:3000 -v $DATA_FOLDER:/home/node/.vaultage hmil/vaultage`
+Ready to use Vaultage to its full potential? Check out [our guides](https://github.com/lbarman/vaultage/wiki#guides) to learn how to set up Vaultage in a secure and durable way.
 
-## Config
+## Usage Documentation
 
-When starting, `vaultage-server` will look for config settings in `~/.vaultage/config.json`. If this file does not exist it will be automatically generated. This file should be included in any backup as instructed in the backup section below.
+Vaultage exposes a command line interface which you can keep open in a pinned tab in your browser. Whenever you need a password, switch to that tab and copy-paste it where needed.
 
-Configuration settings are enumerated below:
+The command line asks you to authenticate first (type `auth`). Then get a password by typing `get` followed by some search keywords.
 
-- **default_user**  
-Value used by the web UI to prefill the username field during authentication. Use this setting if you don't want to type your username every time you log in.
-
-- **salts**  
-Cryptographic salts used for authentication and encryption. **Losing these will make you unable to decipher your vault, make sure to always have a backup of the salts along with the backup of your vault**.
-
-## Backup instructions
-
-Your configuration and encrypted vault are both stored in `~/.vaultage`. You **must** keep an up-to-date copy of this folder somewhere [safe](https://en.wikipedia.org/wiki/Information_security#Key_concepts) in case you lose the original.  
-To restore your vault from a backup, simply copy the files back to `~/.vaultage` and restart `vaultage-server`.
+[Read the full usage documentation.](https://github.com/lbarman/vaultage/wiki/Using-the-web-CLI)
 
 ## Contributing
 
-Please check [CONTRIBUTING.md](CONTRIBUTING.md)
+We welcome any contribution, whether it's a bug report, a feature request or a full-blown code contribution.
+Please check [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
