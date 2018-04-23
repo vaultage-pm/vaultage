@@ -192,7 +192,9 @@ We treat our system properties one by one:
 
 2) **Confidentiality in transit**: No 3rd parties, including `A`, can retrieve `{P}` from data in transit.
 
-All communications are integrity-protected (Assumption 3).
+All communications are integrity-protected and authenticated (e.g., through HTTPS, Assumption 3). Hence, `{U}` is talking directly to `{S}`, and at best `{A}` can eavesdrop on the communication, but not insert, delete or alter the communication. Additionally, `{S}` is honest-but-curious, `{U}` is honest, and hence both follows the protocol.
+
+Hence, from the communication defined by the protocol, the only data related to `{P}` ever transmitted is `ENC_LK({P})`. By assumption of sound encryption (Assumption 1), it leaks no information without `LK`, only known by the legitimate user.
 
 3) **Integrity protection**: No 3rd parties, including `A`, can alter or delete `{P}`.
 
