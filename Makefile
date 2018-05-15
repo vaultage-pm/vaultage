@@ -3,6 +3,9 @@
 PACKAGES=$(wildcard packages/*)
 TASKS=build clean cleanall test
 
+.PHONY: test
+test: build
+
 
 # === Default task
 .PHONY: all

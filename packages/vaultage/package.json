@@ -61,7 +61,8 @@
         "moduleFileExtensions": [
             "ts",
             "tsx",
-            "js"
+            "js",
+            "json"
         ],
         "coveragePathIgnorePatterns": [
             "/node_modules/",

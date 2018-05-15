@@ -272,7 +272,7 @@ export class Terminal {
      * Position of the carret within the prompt input (R/W)
      */
     public get carretPosition() {
-        return this.$input.selectionEnd;
+        return this.$input.selectionEnd || -1;
     }
 
     public set carretPosition(pos: number) {

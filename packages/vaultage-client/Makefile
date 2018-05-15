@@ -1,7 +1,7 @@
-BIN = "dist/vaultage.js"
+BIN =dist/vaultage.js
 SRC =$(shell find src/ -type f -name '*.ts')
 SRC +=$(shell find test/ -type f -name '*.ts')
-IT = "integration-test/integration-test.ts"
+IT =integration-test/integration-test.ts
 NODE_MODULES=node_modules/.makets
 
 WEBPACK_FLAGS = --output-library Vaultage

@@ -1,15 +1,15 @@
 SRC=$(shell find src/ -type f -name '*.ts')
 BIN=public/dist/main.js
 VAULTAGE_CLIENT=../vaultage-client/dist/vaultage.js
+LOCAL_VAULTAGE=public/dist/vaultage.js
 NODE_MODULES=node_modules/.makets
 
 # Mandatory tasks (imposed by the top-level Makefile)
 
 .PHONY: build
-build: $(VAULTAGE_CLIENT) $(BIN)
+build: $(BIN)
 
-.PHONY: $(VAULTAGE_CLIENT)
-$(VAULTAGE_CLIENT):
+$(LOCAL_VAULTAGE): $(VAULTAGE_CLIENT)
 	$(MAKE) -C ../vaultage-client build
 	mkdir -p public/dist
 	cp $(VAULTAGE_CLIENT) public/dist
@@ -28,7 +28,7 @@ test: $(NODE_MODULES)
 
 # Other tasks
 
-$(BIN): $(SRC) $(NODE_MODULES)
+$(BIN): $(SRC) $(NODE_MODULES) $(LOCAL_VAULTAGE)
 	npm run build
 
 .PHONY: serve
