@@ -27,10 +27,10 @@
     },
     "homepage": "https://github.com/lbarman/vaultage#readme",
     "dependencies": {
-        "class-validator": "^0.7.3"
+        "class-validator": "^0.8.5"
     },
     "devDependencies": {
-        "tslint": "^5.8.0",
-        "typescript": "^2.7.2"
+        "tslint": "^5.10.0",
+        "typescript": "^2.8.3"
     }
 }

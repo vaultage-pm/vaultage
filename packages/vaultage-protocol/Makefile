@@ -1,5 +1,6 @@
 BIN=dist/main.js
 SRC=$(shell find src/ -type f -name '*.ts')
+NODE_MODULES=node_modules/.makets
 
 .PHONY: all
 all: test build
@@ -19,13 +20,14 @@ cleanall: clean
 	rm -rf node_modules
 
 .PHONY: test
-test: node_modules $(BIN)
+test: $(NODE_MODULES) $(BIN)
 	npm test
 
 # Other tasks
 
-$(BIN): node_modules $(SRC)
+$(BIN): $(NODE_MODULES) $(SRC)
 	npm run build
 
-node_modules: package.json package-lock.json
+$(NODE_MODULES): package.json package-lock.json
 	npm install
+	touch $(NODE_MODULES)
