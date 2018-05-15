@@ -25,7 +25,6 @@ cleanall: clean
 test: node_modules
 	npm run lint
 
-
 # Other tasks
 
 $(BIN): $(SRC) node_modules
