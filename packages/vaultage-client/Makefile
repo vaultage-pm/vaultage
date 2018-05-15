@@ -2,6 +2,7 @@ BIN = "dist/vaultage.js"
 SRC =$(shell find src/ -type f -name '*.ts')
 SRC +=$(shell find test/ -type f -name '*.ts')
 IT = "integration-test/integration-test.ts"
+NODE_MODULES=node_modules/.makets
 
 WEBPACK_FLAGS = --output-library Vaultage
 
@@ -23,17 +24,18 @@ cleanall: clean
 	rm -rf node_modules
 
 .PHONY: test
-test: node_modules $(SRC) $(TESTS)
+test: $(NODE_MODULES) $(SRC) $(TESTS)
 	npm test
 
 # Other tasks
 
-$(BIN): node_modules $(SRC)
+$(BIN): $(NODE_MODULES) $(SRC)
 	npm run build
 
-node_modules: package.json package-lock.json
+$(NODE_MODULES): package.json package-lock.json
 	npm install
+	touch $(NODE_MODULES)
 
 .PHONY: integration-test
-integration-test: node_modules
+integration-test: $(NODE_MODULES)
 	node_modules/.bin/ts-node $(IT)

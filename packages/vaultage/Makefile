@@ -1,6 +1,7 @@
 BIN=dist/src/main.js
 SRC=$(shell find src/ -type f -name '*.ts')
 DATA_DIR=.data
+NODE_MODULES=node_modules/.makets
 
 # Mandatory tasks (imposed by the top-level Makefile)
 
@@ -8,7 +9,7 @@ DATA_DIR=.data
 build: $(BIN)
 
 .PHONY: clean
-clean: node_modules
+clean: $(NODE_MODULES)
 	npm run clean
 
 .PHONY: cleanall
@@ -16,16 +17,17 @@ cleanall: clean
 	rm -rf node_modules
 
 .PHONY: test
-test: node_modules build
+test: $(NODE_MODULES) build
 	npm test
 
 # Other tasks
 
-$(BIN): node_modules $(SRC)
+$(BIN): $(NODE_MODULES) $(SRC)
 	npm run build
 
-node_modules: package.json package-lock.json
+$(NODE_MODULES): package.json package-lock.json
 	npm install
+	touch $(NODE_MODULES)
 
 .PHONY: clean-storage
 clean-storage:

@@ -1,6 +1,7 @@
 SRC=$(shell find src/ -type f -name '*.ts')
 BIN=public/dist/main.js
 VAULTAGE_CLIENT=../vaultage-client/dist/vaultage.js
+NODE_MODULES=node_modules/.makets
 
 # Mandatory tasks (imposed by the top-level Makefile)
 
@@ -19,20 +20,21 @@ clean:
 
 .PHONY: cleanall
 cleanall: clean
-	rm -rf node_modules
+	rm -rf NODE_MODULES
 
 .PHONY: test
-test: node_modules
+test: $(NODE_MODULES)
 	npm run lint
 
 # Other tasks
 
-$(BIN): $(SRC) node_modules
+$(BIN): $(SRC) $(NODE_MODULES)
 	npm run build
 
 .PHONY: serve
 serve: build
 	npm run serve
 
-node_modules: package.json package-lock.json
+$(NODE_MODULES): package.json package-lock.json
 	npm install
+	touch $(NODE_MODULES)
