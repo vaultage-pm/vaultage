@@ -23,6 +23,9 @@ export function createVaultageAPIServer(): express.Application {
 
     expressServer.use((_, res, next) => {
 
+        // Enable access from any application
+        res.setHeader('Access-Control-Allow-Origin', '*');
+
         // disables caching
         res.setHeader('Cache-Control', 'no-cache,no-store,max-age=0,must-revalidate');
         res.setHeader('Pragma', 'no-cache');

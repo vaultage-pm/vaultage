@@ -1,14 +1,13 @@
 {
-    "name": "vaultage-ui-webcli",
+    "private": true,
+    "name": "vaultage-chrome-extension",
     "version": "0.0.0",
-    "description": "Vaultage web cli",
+    "description": "Vaultage extension for google chrome",
     "main": "package.json",
-    "types": "public/dist/dist/main.d.ts",
     "scripts": {
         "test": "npm run lint",
         "lint": "tslint -p .",
-        "build": "webpack",
-        "serve": "webpack-dev-server"
+        "build": "webpack"
     },
     "files": [
         "public"
@@ -23,21 +22,19 @@
         "url": "https://github.com/lbarman/vaultage"
     },
     "devDependencies": {
+        "@types/chrome": "0.0.65",
         "@types/node": "^10.0.9",
         "@types/webpack-env": "^1.13.6",
-        "cross-env": "^5.1.5",
-        "fork-ts-checker-webpack-plugin": "^0.4.1",
-        "shelljs": "^0.8.2",
         "ts-loader": "^4.3.0",
         "ts-node": "^6.0.3",
         "tslib": "^1.9.1",
         "tslint": "^5.10.0",
         "typescript": "^2.8.3",
         "webpack": "^4.8.3",
-        "webpack-cli": "^2.1.3",
-        "webpack-dev-server": "^3.1.4"
+        "webpack-cli": "^2.1.3"
     },
     "dependencies": {
-        "copy-to-clipboard": "^3.0.8"
+        "copy-to-clipboard": "^3.0.8",
+        "escape-html": "^1.0.3"
     }
 }

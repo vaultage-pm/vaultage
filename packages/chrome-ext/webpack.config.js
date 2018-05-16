@@ -1,4 +1,3 @@
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
 
@@ -6,24 +5,15 @@ const REPO_ROOT = __dirname;
 
 module.exports = {
     entry: {
-        'main': [
-            './src/main.ts'
-        ]
+        'background': [ './src/background.ts' ],
+        'controller': [ './src/controller.ts' ],
+        'content': [ './src/content.ts' ]
     },
 
     output: {
         filename: '[name].js',
-        path: path.resolve(REPO_ROOT, 'public/dist'),
-        publicPath: '/dist',
-        library: 'webcli'
-    },
-
-    devServer: {
-        compress: true,
-        port: 9000,
-        hot: true,
-        contentBase: 'public',
-        allowedHosts: ['localhost']
+        path: path.resolve(REPO_ROOT, 'dist'),
+        publicPath: '/dist'
     },
 
     // Currently we need to add '.ts' to the resolve.extensions array.
@@ -53,12 +43,7 @@ module.exports = {
     },
 
     plugins: [
-        new webpack.HotModuleReplacementPlugin({
-            // Compute HMR chunks first
-            multiStep: true
-        }),
         new webpack.NamedModulesPlugin(),
-        new ForkTsCheckerWebpackPlugin(),
         new webpack.DefinePlugin({
             'process.env': {
                 'NODE_ENV': JSON.stringify('development')

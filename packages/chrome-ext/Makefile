@@ -1,22 +1,20 @@
 SRC=$(shell find src/ -type f -name '*.ts')
-BIN=public/dist/main.js
+BIN=dist/background.js
 VAULTAGE_CLIENT=../vaultage-client/dist/vaultage.js
-LOCAL_VAULTAGE=public/dist/vaultage.js
+LOCAL_VAULTAGE=dist/vaultage.js
 NODE_MODULES=node_modules/.makets
-
-# Mandatory tasks (imposed by the top-level Makefile)
 
 .PHONY: build
 build: $(BIN)
 
-$(LOCAL_VAULTAGE):
-	$(MAKE) -C ../vaultage-client build
-	mkdir -p public/dist
-	cp $(VAULTAGE_CLIENT) public/dist
-
 .PHONY: clean
 clean:
-	rm -rf public/dist/
+	rm -rf dist/
+
+$(LOCAL_VAULTAGE): $(VAULTAGE_CLIENT)
+	$(MAKE) -C ../vaultage-client build
+	mkdir -p dist
+	cp $(VAULTAGE_CLIENT) dist/
 
 .PHONY: cleanall
 cleanall: clean
@@ -24,16 +22,12 @@ cleanall: clean
 
 .PHONY: test
 test: $(NODE_MODULES)
-	npm run lint
+	npm run test
 
 # Other tasks
 
 $(BIN): $(SRC) $(NODE_MODULES) $(LOCAL_VAULTAGE)
 	npm run build
-
-.PHONY: serve
-serve: build
-	npm run serve
 
 $(NODE_MODULES): package.json package-lock.json
 	npm install

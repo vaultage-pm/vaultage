@@ -3,22 +3,21 @@
 PACKAGES=$(wildcard packages/*)
 TASKS=build clean cleanall test
 
-.PHONY: test
-test: build
-
 
 # === Default task
 .PHONY: all
 all:
 	$(MAKE) build
 
+# Ensures the app is built before it is tested
+test: build
 
 # === Dependencies (No circular dependencies are allowed here)
 
 packages/vaultage: packages/vaultage-ui-webcli packages/vaultage-protocol
 packages/vaultage-client: packages/vaultage-protocol
 packages/vaultage-ui-webcli: packages/vaultage-client
-
+packages/chrome-ext: packages/vaultage-client
 
 # === Custom tasks
 
