@@ -143,8 +143,14 @@ function getVersion(releaseType: ReleaseType, channel: ReleaseChannel): string {
         throw new Error(`Invalid version: ${previousVersion}`);
     }
     if (releaseType !== 'prerelease' && channel !== 'latest') {
+        // In this particular situation, we want to actually bump the real version number. Semver will simply remove
+        // the prerelease tag and not touch the version number in the first call to semver.inc above.
+        const realNextVersion = semver.inc(nextVersion, releaseType);
+        if (realNextVersion === null) {
+            throw new Error(`Invalid version: ${previousVersion}`);
+        }
         // Automatically append a prerelease trailer on secondary channels
-        return nextVersion + `-${channel}.0`;
+        return realNextVersion + `-${channel}.0`;
     }
 
     return nextVersion;
