@@ -72,7 +72,13 @@ const packages: IPackageDefinition[] = [
         }
     }
 
-    preparePackages(version);
+    preparePackagesVersions(version);
+
+    exec('make clean');
+    exec('make build');
+    exec('make test');
+
+    updatePackagesDependencies(version);
 
     // Tag 'latest' and 'next' channels in git
     if (channel === 'latest' || channel === 'next') {
@@ -144,11 +150,19 @@ function getVersion(releaseType: ReleaseType, channel: ReleaseChannel): string {
     return nextVersion;
 }
 
-function preparePackages(version: string) {
+function preparePackagesVersions(version: string) {
     for (const pkg of packages) {
         const pkgJSONPath = path.join(__dirname, '../packages', pkg.name, 'package.json');
         const pkgJSON = require(pkgJSONPath);
         pkgJSON.version = version;
+        fs.writeFileSync(pkgJSONPath, JSON.stringify(pkgJSON, null, 4), { encoding: 'utf-8' });
+    }
+}
+
+function updatePackagesDependencies(version: string) {
+    for (const pkg of packages) {
+        const pkgJSONPath = path.join(__dirname, '../packages', pkg.name, 'package.json');
+        const pkgJSON = require(pkgJSONPath);
         for (const dep of pkg.dependencies) {
             pkgJSON.dependencies[dep] = version;
         }
