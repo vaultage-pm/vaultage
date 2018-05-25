@@ -76,6 +76,7 @@ const packages: IPackageDefinition[] = [
 
     exec('make clean');
     exec('make build');
+    exec('make test');
 
     updatePackagesDependencies(version);
 
