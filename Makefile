@@ -2,6 +2,7 @@
 
 PACKAGES=$(wildcard packages/*)
 TASKS=build clean cleanall test
+NODE_MODULES=node_modules/.makets
 
 .PHONY: test
 test: build
@@ -32,17 +33,15 @@ serve:
 integration-test:
 	./tools/integration-test.sh
 
-publish: node_modules
-	$(MAKE) test
-	$(MAKE) clean
-	$(MAKE) build
+publish: $(NODE_MODULES)
 	node_modules/.bin/ts-node tools/publish.ts
 
-publish-docker: node_modules
+publish-docker: $(NODE_MODULES)
 	node_modules/.bin/ts-node tools/publish-docker.ts
 
-node_modules: package.json package-lock.json
+$(NODE_MODULES): package.json package-lock.json
 	npm install
+	touch $(NODE_MODULES)
 
 # === Boilerplate
 
