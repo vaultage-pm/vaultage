@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Vaultage</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="login-frame" class="frame">
+        <h1>Vaultage login</h1>
+        <form id="login-form">
+            <label for="login-host">Host: </label>
+            <input type="text" name="login-host" id="login-host"> <br>
+            <label for="login-username">Username: </label>
+            <input type="text" name="login-host" id="login-username"> <br>
+            <label for="login-password">Password: </label>
+            <input type="password" name="login-host" id="login-password"> <br>
+            <div class="spacer"></div>
+            <input type="submit" id="login-submit" value="Login" class="btn btn-large center"/>
+        </form>
+    </div>
+    <div id="loading-frame" class="hidden frame">loading...</div>
+    <div id="picker-frame" class="hidden frame">
+        <div id="picker-list">
+            <div class="picker-entry">
+                <h3 class="title">Test</h3>
+                <span class="user">foobar</span>
+                <span>&nbsp;@&nbsp;</span><span class="url">https://github.com/somelong?urlwith=parameters%20and%3dnasty</span>
+            </div>
+            <div class="picker-entry">
+                <h3 class="title">Test</h3>
+                <span class="user">foobar</span>
+                <span>&nbsp;@&nbsp;</span><span class="url">https://github.com/</span>
+            </div>
+        </div>
+    </div>
+    <div id="error" class="center frame"></div>
+    <script src="dist/controller.js"></script>
+</body>
+</html>

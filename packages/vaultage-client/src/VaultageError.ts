@@ -1,12 +1,27 @@
 
 export enum ERROR_CODE {
+
+    /**
+     * An internal server error occurred.
+     */
     SERVER_ERROR = 2,
+
     CANNOT_DECRYPT,
     NETWORK_ERROR,
     NOT_FAST_FORWARD,
     DUPLICATE_ENTRY,
     NO_SUCH_ENTRY,
-    BAD_CREDENTIALS
+
+    /**
+     * Invalid Vaultage credentials
+     */
+    BAD_CREDENTIALS,
+
+    /**
+     * The server responded with an HTTP-level auth error.
+     * Most likely due to a missing or invalid Authorization header.
+     */
+    NOT_AUTHORIZED
 }
 
 /**

@@ -27,47 +27,50 @@ import { Terminal } from './webshell/Terminal';
 import * as vaultage from 'vaultage-client';
 import { TimeoutService } from './TimeoutService';
 
-const terminal = new Terminal({
-    root: document.body
-});
+export const config = new Config();
+export const ctx = new Context();
 
-const shell = new Shell(terminal);
-const config = new Config();
-const ctx = new Context();
+export function start(el: HTMLElement) {
+    const terminal = new Terminal({
+        root: el
+    });
 
-const timeout = new TimeoutService(shell, ctx, config);
+    const shell = new Shell(terminal);
 
-timeout.resetTimeout();
-window.addEventListener('keydown', () => timeout.resetTimeout());
-window.addEventListener('mousemove', () => timeout.resetTimeout());
+    const timeout = new TimeoutService(shell, ctx, config);
 
-installGlobalHooks();
+    timeout.resetTimeout();
+    window.addEventListener('keydown', () => timeout.resetTimeout());
+    window.addEventListener('mousemove', () => timeout.resetTimeout());
 
-shell.setBannerHTML(`Vaultage v${vaultage.version()}
-<br>*********************
-<br>Feeling lost? Take a look at the <a href="https://github.com/lbarman/vaultage/wiki/Using-the-web-CLI" target="_blank">usage guide</a> or press [Tab] to see available commands.
-<br>*********************`);
+    installGlobalHooks();
+
+    shell.setBannerHTML(`Vaultage v${vaultage.version()}
+    <br>*********************
+    <br>Feeling lost? Take a look at the <a href="https://github.com/lbarman/vaultage/wiki/Using-the-web-CLI" target="_blank">usage guide</a> or press [Tab] to see available commands.
+    <br>*********************`);
 
 
-shell.registerCommand(new AddCommand(shell, ctx));
-shell.registerCommand(new AuthCommand(shell, ctx, config, timeout));
-shell.registerCommand(new ClearCommand(shell));
-shell.registerCommand(new ConfigCommand(shell, config, timeout));
-shell.registerCommand(new DumpCommand(shell, ctx));
-shell.registerCommand(new EditCommand(shell, ctx));
-shell.registerCommand(new GenCommand(shell, ctx));
-shell.registerCommand(new GetCommand(shell, ctx));
-shell.registerCommand(new HelpCommand(shell));
-shell.registerCommand(new ImportCSVCommand(shell, ctx));
-shell.registerCommand(new LogoutCommand(shell, ctx));
-shell.registerCommand(new LsCommand(shell, ctx));
-shell.registerCommand(new PullCommand(shell, ctx));
-shell.registerCommand(new PushCommand(shell, ctx));
-shell.registerCommand(new PwdCommand(shell, ctx));
-shell.registerCommand(new RawImportCommand(shell, ctx));
-shell.registerCommand(new ReusedCommand(shell, ctx));
-shell.registerCommand(new RmCommand(shell, ctx));
-shell.registerCommand(new RotateCommand(shell, ctx));
-shell.registerCommand(new WeakCommand(shell, ctx));
+    shell.registerCommand(new AddCommand(shell, ctx));
+    shell.registerCommand(new AuthCommand(shell, ctx, config, timeout));
+    shell.registerCommand(new ClearCommand(shell));
+    shell.registerCommand(new ConfigCommand(shell, config, timeout));
+    shell.registerCommand(new DumpCommand(shell, ctx));
+    shell.registerCommand(new EditCommand(shell, ctx));
+    shell.registerCommand(new GenCommand(shell, ctx));
+    shell.registerCommand(new GetCommand(shell, ctx));
+    shell.registerCommand(new HelpCommand(shell));
+    shell.registerCommand(new ImportCSVCommand(shell, ctx));
+    shell.registerCommand(new LogoutCommand(shell, ctx));
+    shell.registerCommand(new LsCommand(shell, ctx));
+    shell.registerCommand(new PullCommand(shell, ctx));
+    shell.registerCommand(new PushCommand(shell, ctx));
+    shell.registerCommand(new PwdCommand(shell, ctx));
+    shell.registerCommand(new RawImportCommand(shell, ctx));
+    shell.registerCommand(new ReusedCommand(shell, ctx));
+    shell.registerCommand(new RmCommand(shell, ctx));
+    shell.registerCommand(new RotateCommand(shell, ctx));
+    shell.registerCommand(new WeakCommand(shell, ctx));
 
-shell.printBanner();
+    shell.printBanner();
+}

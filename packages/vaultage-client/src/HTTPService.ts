@@ -23,7 +23,15 @@ export abstract class HttpService {
     }
 
     private static _instance: HttpRequestFunction = (parameters: HttpRequestParameters) => {
-        return axios.request(parameters).catch((err) => Promise.reject(
-            new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString())));
+        return axios.request(parameters).catch((err) => {
+            if (err.response) {
+                if (err.response.status >= 500 && err.response.status < 600) {
+                    return Promise.reject(new VaultageError(ERROR_CODE.SERVER_ERROR, 'Server error', err.toString()));
+                } else if (err.response.status === 401) {
+                    return Promise.reject(new VaultageError(ERROR_CODE.NOT_AUTHORIZED, 'Authorization error', err.toString()));
+                }
+            }
+            return Promise.reject(new VaultageError(ERROR_CODE.NETWORK_ERROR, 'Network error', err.toString()));
+        });
     }
 }
