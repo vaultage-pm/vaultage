@@ -43,3 +43,14 @@ export interface IVaultDBEntry {
     password_strength_indication: PasswordStrength;
     hidden: boolean;
 }
+
+/**
+ * HTTP-level parameters to add to all requests
+ */
+export interface IHttpParams {
+    // Basic auth credentials
+    auth?: {
+        username: string;
+        password: string;
+    };
+}

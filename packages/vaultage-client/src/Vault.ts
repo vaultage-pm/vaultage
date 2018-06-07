@@ -1,6 +1,6 @@
 import { Crypto } from './Crypto';
 import { HttpApi } from './HTTPApi';
-import { IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from './interface';
+import { IHttpParams, IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from './interface';
 import { deepCopy } from './utils';
 import { VaultDB } from './VaultDB';
 
@@ -27,12 +27,14 @@ export class Vault {
     private _creds: ICredentials;
     private _crypto: Crypto;
     private _db: VaultDB;
+    private _httpParams?: IHttpParams;
     private _lastFingerprint?: string;
 
-    constructor(creds: ICredentials, crypto: Crypto, cipher?: string) {
+    constructor(creds: ICredentials, crypto: Crypto, cipher: string | undefined, httpParams?: IHttpParams) {
         this._creds = { ...creds };
         this._crypto = crypto;
         this._db = new VaultDB({});
+        this._httpParams = httpParams;
         if (cipher) {
             this._setCipher(creds, cipher);
         }
@@ -220,7 +222,7 @@ export class Vault {
     }
 
     private async _pullCipher(creds: ICredentials): Promise<void> {
-        const cipher = await HttpApi.pullCipher(creds);
+        const cipher = await HttpApi.pullCipher(creds, this._httpParams);
         if (cipher) {
             this._setCipher(creds, cipher);
         } else {
@@ -240,7 +242,8 @@ export class Vault {
             newRemoteKey,
             cipher,
             this._lastFingerprint,
-            fingerprint);
+            fingerprint,
+            this._httpParams);
 
         this._lastFingerprint = fingerprint;
     }
