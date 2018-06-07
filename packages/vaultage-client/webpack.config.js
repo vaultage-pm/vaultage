@@ -3,7 +3,8 @@ module.exports = {
   output: {
     filename: 'dist/vaultage.js',
     path: __dirname,
-    library: 'vaultage'
+    library: 'vaultage',
+    libraryTarget: 'umd'
   },
   module: {
     rules: [
@@ -13,9 +14,6 @@ module.exports = {
         exclude: /node_modules/,
       }
     ]
-  },
-  externals: {
-    crypto: true
   },
   resolve: {
     extensions: ['.ts', '.js'],
