@@ -1,8 +1,10 @@
 import { IErrorPushPullResponse, IVaultageConfig, PushPullResponse, UpdateCipherRequest } from 'vaultage-protocol';
 
 import { HttpRequestParameters, HttpService } from './HTTPService';
+import { IHttpParams } from './interface';
 import { ICredentials } from './Vault';
 import { ERROR_CODE, VaultageError } from './VaultageError';
+
 
 /**
  * Client-side of the HTTP interface between the Vaultage server and the client.
@@ -13,10 +15,17 @@ import { ERROR_CODE, VaultageError } from './VaultageError';
  */
 export abstract class HttpApi {
 
-    public static async pullConfig(serverURL: string): Promise<IVaultageConfig> {
-        const res = await HttpService.request<IVaultageConfig>({
+    public static async pullConfig(serverURL: string, httpParams?: IHttpParams): Promise<IVaultageConfig> {
+
+        let parameters: HttpRequestParameters = {
             url: serverURL + '/config'
-        });
+        };
+
+        if (httpParams != null) {
+            parameters = this._configureRequestParameters(parameters, httpParams);
+        }
+
+        const res = await HttpService.request<IVaultageConfig>(parameters);
         try {
             return res.data;
         } catch (e) {
@@ -24,11 +33,15 @@ export abstract class HttpApi {
         }
     }
 
-    public static async pullCipher(creds: ICredentials): Promise<string> {
+    public static async pullCipher(creds: ICredentials, httpParams?: IHttpParams): Promise<string> {
 
-        const parameters: HttpRequestParameters = {
+        let parameters: HttpRequestParameters = {
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey)
         };
+
+        if (httpParams != null) {
+            parameters = this._configureRequestParameters(parameters, httpParams);
+        }
 
         const resp = await HttpService.request<PushPullResponse>(parameters);
         const body = resp.data;
@@ -44,7 +57,8 @@ export abstract class HttpApi {
             newRemoteKey: (string|null),
             cipher: string,
             lastFingerprint: string | undefined,
-            fingerprint: string): Promise<void> {
+            fingerprint: string,
+            httpParams?: IHttpParams): Promise<void> {
 
         const request: UpdateCipherRequest = {
             new_password: newRemoteKey || undefined,
@@ -54,7 +68,7 @@ export abstract class HttpApi {
             force: false,
         };
 
-        const parameters: HttpRequestParameters = {
+        let parameters: HttpRequestParameters = {
             method: 'POST',
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey),
             data: request,
@@ -63,11 +77,23 @@ export abstract class HttpApi {
             }
         };
 
+        if (httpParams != null) {
+            parameters = this._configureRequestParameters(parameters, httpParams);
+        }
+
         const resp = await HttpService.request<PushPullResponse>(parameters);
         const body = resp.data;
         if (body.error === true) {
             return this.throwProtocolError(body);
         }
+    }
+
+    // Applies the user-provided http config parameters onto the axios request parameters
+    private static _configureRequestParameters(params: HttpRequestParameters, config: IHttpParams): HttpRequestParameters {
+        return {
+            ...params,
+            auth: (config.auth !== undefined) ? config.auth : undefined
+        };
     }
 
     private static _makeURL(serverURL: string, username: string, remotePwdHash: string): string {

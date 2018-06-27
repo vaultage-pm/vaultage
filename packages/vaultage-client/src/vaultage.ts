@@ -1,13 +1,13 @@
-import { ISaltsConfig } from './interface';
+import { Crypto } from './Crypto';
+import { HttpApi } from './HTTPApi';
+import { HttpRequestFunction, HttpService } from './HTTPService';
+import { IHttpParams, ISaltsConfig } from './interface';
+import { Vault } from './Vault';
+
 export { Passwords } from './Passwords';
 export { Vault } from './Vault';
 export { VaultageError, ERROR_CODE } from './VaultageError';
 export * from './interface';
-
-import { Crypto } from './Crypto';
-import { HttpApi } from './HTTPApi';
-import { HttpRequestFunction, HttpService } from './HTTPService';
-import { Vault } from './Vault';
 
 // tslint:disable-next-line:no-var-requires
 const pkg = require('../package.json');
@@ -22,7 +22,8 @@ const pkg = require('../package.json');
 export async function login(
         serverURL: string,
         username: string,
-        masterPassword: string): Promise<Vault> {
+        masterPassword: string,
+        httpParams?: IHttpParams): Promise<Vault> {
 
     const creds = {
         serverURL: serverURL.replace(/\/$/, ''), // Removes trailing slash
@@ -31,7 +32,7 @@ export async function login(
         remoteKey: 'null'
     };
 
-    const config = await HttpApi.pullConfig(creds.serverURL);
+    const config = await HttpApi.pullConfig(creds.serverURL, httpParams);
 
     const salts: ISaltsConfig = {
         LOCAL_KEY_SALT: config.salts.local_key_salt,
@@ -47,8 +48,8 @@ export async function login(
     creds.localKey = localKey;
     creds.remoteKey = remoteKey;
 
-    const cipher = await HttpApi.pullCipher(creds);
-    return new Vault(creds, crypto, cipher);
+    const cipher = await HttpApi.pullCipher(creds, httpParams);
+    return new Vault(creds, crypto, cipher, httpParams);
 }
 
 export function _mockHttpRequests(fn: HttpRequestFunction): void {
