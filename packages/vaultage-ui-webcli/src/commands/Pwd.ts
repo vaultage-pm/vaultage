@@ -1,6 +1,7 @@
 import { Passwords, PasswordStrength } from 'vaultage-client';
 
 import { Context } from '../Context';
+import { html } from '../security/xss';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 
@@ -27,7 +28,7 @@ export class PwdCommand implements ICommand {
         const strength = Passwords.getPasswordStrength(newMasterPassword);
 
         if (strength === PasswordStrength.WEAK) {
-            const answer = await this.shell.promptYesNo(`'WARNING: The provided master password is VERY WEAK. The whole security of this password manager depends on it. Continue anyway?`);
+            const answer = await this.shell.promptYesNo(html`'WARNING: The provided master password is VERY WEAK. The whole security of this password manager depends on it. Continue anyway?`);
             if (answer !== 'yes') {
                 this.shell.echo('Cancelled.');
                 return;

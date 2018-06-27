@@ -1,3 +1,5 @@
+import * as vaultage from 'vaultage-client';
+
 import { AddCommand } from './commands/Add';
 import { AuthCommand } from './commands/Auth';
 import { ClearCommand } from './commands/Clear';
@@ -21,11 +23,10 @@ import { WeakCommand } from './commands/Weak';
 import { Config } from './Config';
 import { Context } from './Context';
 import { installGlobalHooks } from './Globals';
+import { html } from './security/xss';
+import { TimeoutService } from './TimeoutService';
 import { Shell } from './webshell/Shell';
 import { Terminal } from './webshell/Terminal';
-
-import * as vaultage from 'vaultage-client';
-import { TimeoutService } from './TimeoutService';
 
 export const config = new Config();
 export const ctx = new Context();
@@ -45,7 +46,7 @@ export function start(el: HTMLElement) {
 
     installGlobalHooks();
 
-    shell.setBannerHTML(`Vaultage v${vaultage.version()}
+    shell.setBannerHTML(html`Vaultage v${vaultage.version()}
     <br>*********************
     <br>Feeling lost? Take a look at the <a href="https://github.com/lbarman/vaultage/wiki/Using-the-web-CLI" target="_blank">usage guide</a> or press [Tab] to see available commands.
     <br>*********************`);

@@ -17,8 +17,8 @@ export class LsCommand implements ICommand {
 
         this.shell.echo('Vault revision #' + this.ctx.vault.getDBRevision() + ', ' + this.ctx.vault.getNbEntries() + ' entries.');
         const allEntries = this.ctx.vault.getAllEntries();
-        const html = VaultEntryFormatter.formatBatch(allEntries);
-        if (html !== '') {
+        const html = VaultEntryFormatter.formatAndHighlightBatch(allEntries);
+        if (!html.isEmpty()) {
             this.shell.echoHTML(html);
         }
     }
