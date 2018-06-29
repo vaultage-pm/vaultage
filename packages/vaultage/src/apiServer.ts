@@ -40,7 +40,7 @@ export function createVaultageAPIServer(): express.Application {
         // only allows javascript sources specified here
         // 'unsafe-inline' could be a threat if content was generated based on a URL (either client- or server-side)
         // which is not the case of this application.
-        res.setHeader('Content-Security-Policy', 'script-src \'self\' \'unsafe-inline\'');
+        res.setHeader('Content-Security-Policy', 'script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'');
 
         // prevents MIME-confusion attacks
         res.setHeader('X-Content-Type-Options', 'nosniff');

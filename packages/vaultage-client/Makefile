@@ -29,7 +29,7 @@ test: $(NODE_MODULES) $(SRC) $(TESTS)
 
 # Other tasks
 
-$(BIN): $(NODE_MODULES) $(SRC) webpack.config.js $(wildcard lib/*.js)
+$(BIN): $(NODE_MODULES) $(SRC) $(wildcard webpack.config.*) $(wildcard lib/*.js) tsconfig.json
 	npm run build
 
 $(NODE_MODULES): package.json package-lock.json

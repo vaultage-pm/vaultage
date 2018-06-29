@@ -32,10 +32,10 @@ integration-test:
 	./tools/integration-test.sh
 
 publish: $(NODE_MODULES)
-	node_modules/.bin/ts-node tools/publish.ts
+	NODE_ENV=production node_modules/.bin/ts-node tools/publish.ts
 
 publish-docker: $(NODE_MODULES)
-	node_modules/.bin/ts-node tools/publish-docker.ts
+	NODE_ENV=production node_modules/.bin/ts-node tools/publish-docker.ts
 
 $(NODE_MODULES): package.json package-lock.json
 	npm install
