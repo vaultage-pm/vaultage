@@ -1,7 +1,7 @@
 import * as util from 'util';
-import * as vaultage from '../src/vaultage';
+import * as vaultage from '..';
 
-import { IVaultDBEntryAttrs, Vault } from '../src/vaultage';
+import { IVaultDBEntryAttrs, Vault } from '..';
 
 async function runIntegrationTest() {
     const serverUrl = 'http://localhost:3000/';

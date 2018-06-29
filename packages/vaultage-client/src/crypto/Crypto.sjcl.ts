@@ -1,13 +1,14 @@
-import { ISaltsConfig } from './interface';
-import { ERROR_CODE, VaultageError } from './VaultageError';
+import { ISaltsConfig } from '../interface';
+import { ERROR_CODE, VaultageError } from '../VaultageError';
+import { ICrypto } from './ICrypto';
 
 // tslint:disable-next-line:no-var-requires
-const sjcl = require('../lib/sjcl') as any;
+const sjcl = require('../../lib/sjcl') as any;
 
 /**
  * Handles the crypto stuff
  */
-export class Crypto {
+export class Crypto implements ICrypto {
 
     public PBKDF2_DIFFICULTY: number = 32768;
 
@@ -20,7 +21,7 @@ export class Crypto {
      *
      * @param masterPassword Plaintext of the master password
      */
-    public deriveLocalKey(masterPassword: string): string {
+    public async deriveLocalKey(masterPassword: string): Promise<string> {
         const masterHash = sjcl.hash.sha512.hash(masterPassword);
         return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash , this._salts.LOCAL_KEY_SALT, this.PBKDF2_DIFFICULTY));
     }
@@ -30,7 +31,7 @@ export class Crypto {
      *
      * @param masterPassword Plaintext of the master password
      */
-    public deriveRemoteKey(masterPassword: string): string {
+    public async deriveRemoteKey(masterPassword: string): Promise<string> {
         const masterHash = sjcl.hash.sha512.hash(masterPassword);
         return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash, this._salts.REMOTE_KEY_SALT, this.PBKDF2_DIFFICULTY));
     }
@@ -43,7 +44,7 @@ export class Crypto {
      * @param localKey Local encryption key
      * @param plain The plaintext to encrypt
      */
-    public encrypt(localKey: string, plain: string): string {
+    public async encrypt(localKey: string, plain: string): Promise<string> {
         return sjcl.encrypt(localKey, plain);
     }
 
@@ -55,7 +56,7 @@ export class Crypto {
      * @param localKey Local encryption key
      * @param cipher The ciphertext to encrypt
      */
-    public decrypt(localKey: string, cipher: string): string {
+    public async decrypt(localKey: string, cipher: string): Promise<string> {
         try {
             return sjcl.decrypt(localKey, cipher);
         } catch (e) {
@@ -73,7 +74,7 @@ export class Crypto {
      * @param localKey the local key
      * @param username the username is needed to salt the fingerprint
      */
-    public getFingerprint(plain: string, localKey: string): string {
+    public async getFingerprint(plain: string, localKey: string): Promise<string> {
         // We want to achieve two results:
         // 1. Ensure that we don't push old content over some newer content
         // 2. Prevent unauthorized pushes even if the remote key was compromized

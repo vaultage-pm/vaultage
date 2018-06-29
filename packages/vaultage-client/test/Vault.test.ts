@@ -1,4 +1,4 @@
-import { Crypto } from '../src/Crypto';
+import { getCrypto } from '../src/crypto';
 import { HttpService, IHttpResponse } from '../src/HTTPService';
 import { ICredentials, Vault } from '../src/Vault';
 
@@ -9,7 +9,7 @@ const creds: ICredentials = {
     username: 'john cena'
 };
 
-const crypto = new Crypto({
+const crypto = getCrypto({
     LOCAL_KEY_SALT: 'deadbeef',
     REMOTE_KEY_SALT: '0123456789',
 });

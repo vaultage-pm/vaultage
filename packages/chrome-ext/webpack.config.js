@@ -4,6 +4,8 @@ const webpack = require('webpack');
 const REPO_ROOT = __dirname;
 
 module.exports = {
+    mode: 'development',
+
     entry: {
         'background': [ './src/background.ts' ],
         'controller': [ './src/controller.ts' ],

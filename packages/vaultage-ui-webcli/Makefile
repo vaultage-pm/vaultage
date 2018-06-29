@@ -1,6 +1,6 @@
 SRC=$(shell find src/ -type f -name '*.ts')
 BIN=public/dist/main.js
-VAULTAGE_CLIENT=../vaultage-client/dist/vaultage.js
+VAULTAGE_CLIENT=../vaultage-client/dist/vaultage-sjcl.js
 LOCAL_VAULTAGE=public/dist/vaultage.js
 NODE_MODULES=node_modules/.makets
 
@@ -9,10 +9,10 @@ NODE_MODULES=node_modules/.makets
 .PHONY: build
 build: $(BIN)
 
-$(LOCAL_VAULTAGE):
+$(LOCAL_VAULTAGE): $(wildcard $(VAULTAGE_CLIENT))
 	$(MAKE) -C ../vaultage-client build
 	mkdir -p public/dist
-	cp $(VAULTAGE_CLIENT) public/dist
+	cp $(VAULTAGE_CLIENT) public/dist/vaultage.js
 
 .PHONY: clean
 clean:

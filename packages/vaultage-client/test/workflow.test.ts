@@ -1,4 +1,4 @@
-import { Crypto } from '../src/Crypto';
+import { getCrypto } from '../src/crypto';
 import { PasswordStrength } from '../src/interface';
 import { VaultDB } from '../src/VaultDB';
 
@@ -10,20 +10,20 @@ function cPrint(v: any) {
     }
 }
 
-test('Workflow', () => {
+test('Workflow', async () => {
 
     cPrint('Demoing the encryption / decryption locally...');
     cPrint('Note that this is demoing the inside of the vaultage SDK but all of this complexity' +
         ' is going to be hidden behind the Vault class.\n');
 
-    const crypto = new Crypto({
+    const crypto = getCrypto({
         LOCAL_KEY_SALT: 'abcdef',
         REMOTE_KEY_SALT: '01234576',
     });
 
     const masterKey = 'ilovesushi';
 
-    const key = crypto.deriveLocalKey(masterKey);
+    const key = await crypto.deriveLocalKey(masterKey);
     cPrint('My local key is: ' + key + '\n');
 
     // tslint:disable-next-line:object-literal-key-quotes
@@ -42,22 +42,22 @@ test('Workflow', () => {
         }
     });
     const plain = VaultDB.serialize(db);
-    const fp = crypto.getFingerprint(plain, key);
+    const fp = await crypto.getFingerprint(plain, key);
 
     cPrint('Here is what the db looks like initially: ');
     cPrint(db);
     cPrint('Fingerprint: ' + fp);
 
     cPrint('\n\nNow I\'m gonna encrypt the db');
-    const enc = crypto.encrypt(key, plain);
+    const enc = await crypto.encrypt(key, plain);
 
     cPrint('Here is the cipher:\n');
     cPrint(enc);
 
     cPrint('\n\nAnd now let\'s get back the original:');
 
-    const dec = crypto.decrypt(key, enc);
-    const decFP = crypto.getFingerprint(dec, key);
+    const dec = await crypto.decrypt(key, enc);
+    const decFP = await crypto.getFingerprint(dec, key);
     const decDB = VaultDB.deserialize(dec);
 
     cPrint(decDB);

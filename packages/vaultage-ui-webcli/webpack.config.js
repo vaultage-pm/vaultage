@@ -5,6 +5,8 @@ const webpack = require('webpack');
 const REPO_ROOT = __dirname;
 
 module.exports = {
+    mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+
     entry: {
         'main': [
             './src/main.ts'

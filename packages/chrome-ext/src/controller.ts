@@ -19,9 +19,9 @@ const $pickerFrame = document.getElementById('picker-frame') as HTMLElement;
 
 const $pickerList = document.getElementById('picker-list') as HTMLElement;
 
-$form.addEventListener('submit', (evt) => {
+$form.addEventListener('submit', async (evt) => {
     evt.preventDefault();
-    submitForm();
+    await submitForm();
 });
 
 restoreCached();
@@ -70,12 +70,12 @@ function refreshList(entries: IVaultDBEntry[]) {
                     <span class="url">${escape(e.url)}</span>
                 </div>`;
             $pickerList.appendChild($el);
-            $el.addEventListener('click', () => {
-                usePassword(e.password);
+            $el.addEventListener('click', async () => {
+                await usePassword(e.password);
             });
-            $el.addEventListener('keydown', (evt) => {
+            $el.addEventListener('keydown', async (evt) => {
                 if (evt.key === 'Enter') {
-                    usePassword(e.password);
+                    await usePassword(e.password);
                 }
             });
         });

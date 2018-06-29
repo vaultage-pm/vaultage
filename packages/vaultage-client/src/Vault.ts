@@ -1,4 +1,4 @@
-import { Crypto } from './Crypto';
+import { ICrypto } from './crypto/ICrypto';
 import { HttpApi } from './HTTPApi';
 import { IHttpParams, IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from './interface';
 import { deepCopy } from './utils';
@@ -25,19 +25,16 @@ export interface ICredentials {
  */
 export class Vault {
     private _creds: ICredentials;
-    private _crypto: Crypto;
+    private _crypto: ICrypto;
     private _db: VaultDB;
     private _httpParams?: IHttpParams;
     private _lastFingerprint?: string;
 
-    constructor(creds: ICredentials, crypto: Crypto, cipher: string | undefined, httpParams?: IHttpParams) {
+    constructor(creds: ICredentials, crypto: ICrypto, httpParams?: IHttpParams) {
         this._creds = { ...creds };
         this._crypto = crypto;
         this._db = new VaultDB({});
         this._httpParams = httpParams;
-        if (cipher) {
-            this._setCipher(creds, cipher);
-        }
     }
 
     /**
@@ -94,8 +91,8 @@ export class Vault {
      */
     public async updateMasterPassword(newPassword: string): Promise<void> {
         const newCredentials = deepCopy(this._creds);
-        const newLocalKey = this._crypto.deriveLocalKey(newPassword);
-        const newRemoteKey = this._crypto.deriveRemoteKey(newPassword);
+        const newLocalKey = await this._crypto.deriveLocalKey(newPassword);
+        const newRemoteKey = await this._crypto.deriveRemoteKey(newPassword);
 
         this._db.newRevision();
 
@@ -224,7 +221,7 @@ export class Vault {
     private async _pullCipher(creds: ICredentials): Promise<void> {
         const cipher = await HttpApi.pullCipher(creds, this._httpParams);
         if (cipher) {
-            this._setCipher(creds, cipher);
+            await this._setCipher(creds, cipher);
         } else {
             // Create an empty DB if there is nothing on the server.
             this._db = new VaultDB({});
@@ -234,8 +231,8 @@ export class Vault {
 
     private async _pushCipher(creds: ICredentials, newRemoteKey: (string|null)): Promise<void> {
         const plain = VaultDB.serialize(this._db);
-        const cipher = this._crypto.encrypt(creds.localKey, plain);
-        const fingerprint = this._crypto.getFingerprint(plain, creds.localKey);
+        const cipher = await this._crypto.encrypt(creds.localKey, plain);
+        const fingerprint = await this._crypto.getFingerprint(plain, creds.localKey);
 
         await HttpApi.pushCipher(
             creds,
@@ -248,9 +245,9 @@ export class Vault {
         this._lastFingerprint = fingerprint;
     }
 
-    private _setCipher(creds: ICredentials, cipher: string): void {
-        const plain = this._crypto.decrypt(creds.localKey, cipher);
+    private async _setCipher(creds: ICredentials, cipher: string) {
+        const plain = await this._crypto.decrypt(creds.localKey, cipher);
         this._db = VaultDB.deserialize(plain);
-        this._lastFingerprint = this._crypto.getFingerprint(plain, creds.localKey);
+        this._lastFingerprint = await this._crypto.getFingerprint(plain, creds.localKey);
     }
 }
