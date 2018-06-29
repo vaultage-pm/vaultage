@@ -35,11 +35,14 @@ export class SanitizedString {
  */
 export function escape(input: string): SanitizedString  {
     return new SanitizedString(input
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;'));
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\//g, '&#x2F;')
+            .replace(/`/g, '&#x60;')
+            .replace(/=/g, '&#x3D;'));
 }
 
 /**
@@ -65,12 +68,7 @@ export function html(literals: TemplateStringsArray, ...placeholders: Array<(str
         if (typeof placeholder === 'number' || placeholder instanceof SanitizedString) {
             result += placeholder.valueOf();
         } else {
-            result += placeholder
-                .replace(/&/g, '&amp;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
+            result += escape(placeholder);
         }
     }
 
