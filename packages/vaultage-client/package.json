@@ -5,9 +5,7 @@
     "main": "dist/vaultage.js",
     "types": "dist/src/vaultage.d.ts",
     "scripts": {
-        "build": "npm run build:node && npm run build:sjcl",
-        "build:node": "webpack --config webpack.config.node.js",
-        "build:sjcl": "webpack --config webpack.config.sjcl.js",
+        "build": "webpack",
         "clean": "rimraf dist/",
         "lint": "tslint -p .",
         "test": "npm run lint && cross-env NODE_PATH=.. jest",
