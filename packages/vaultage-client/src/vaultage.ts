@@ -1,14 +1,8 @@
 import { getCrypto } from './crypto';
 import { HttpApi } from './HTTPApi';
 import { HttpRequestFunction, HttpService } from './HTTPService';
-import { IHttpParams, ISaltsConfig, ISaltsConfig } from './interface';
+import { IHttpParams, ISaltsConfig } from './interface';
 import { Vault } from './Vault';
-
-
-export { Passwords } from './Passwords';
-export { Vault } from './Vault';
-export { VaultageError, ERROR_CODE } from './VaultageError';
-export * from './interface';
 
 export { Passwords } from './Passwords';
 export { Vault } from './Vault';
@@ -54,14 +48,9 @@ export async function login(
     creds.localKey = localKey;
     creds.remoteKey = remoteKey;
 
-<<<<<<< HEAD
-    const cipher = await HttpApi.pullCipher(creds, httpParams);
-    return new Vault(creds, crypto, cipher, httpParams);
-=======
-    const vault = new Vault(creds, crypto);
+    const vault = new Vault(creds, crypto, httpParams);
     await vault.pull();
     return vault;
->>>>>>> WIP crypto refactoring
 }
 
 export function _mockHttpRequests(fn: HttpRequestFunction): void {
