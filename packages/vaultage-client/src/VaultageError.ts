@@ -35,13 +35,13 @@ export enum ERROR_CODE {
 export class VaultageError extends Error {
     constructor(
         public readonly code: ERROR_CODE,
-        public readonly message: string,
+        message: string,
         public readonly cause?: Error) {
-            super(message);
+            super(message + (cause ? `: ${cause.message}` : ''));
     }
 
     public toString(): string {
-        let str = this.message;
+        let str = 'Error: ' + this.message;
         if (this.cause) {
             str += '\nCaused by: ' + this.cause;
         }
