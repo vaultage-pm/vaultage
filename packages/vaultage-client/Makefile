@@ -29,7 +29,7 @@ test: $(NODE_MODULES) $(SRC) $(TESTS)
 
 # Other tasks
 
-$(BIN): $(NODE_MODULES) $(SRC) $(wildcard webpack.config.*) $(wildcard lib/*.js) tsconfig.json
+$(BIN): $(NODE_MODULES) $(SRC) webpack.config.js $(wildcard lib/*.js) tsconfig.json
 	npm run build
 
 $(NODE_MODULES): package.json package-lock.json
@@ -38,4 +38,4 @@ $(NODE_MODULES): package.json package-lock.json
 
 .PHONY: integration-test
 integration-test: $(NODE_MODULES)
-	node_modules/.bin/ts-node $(IT)
+	node_modules/.bin/ts-node --project integration-test/tsconfig.json $(IT)
