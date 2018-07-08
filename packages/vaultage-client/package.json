@@ -2,8 +2,8 @@
     "name": "vaultage-client",
     "version": "0.0.0",
     "description": "SDK to write JavaScript clients for the Vaultage password manager",
-    "main": "dist/src/vaultage.js",
-    "types": "dist/src/vaultage.d.ts",
+    "main": "dist/vaultage.js",
+    "types": "dist/vaultage.d.ts",
     "scripts": {
         "build": "npm run build:browser && npm run build:node",
         "build:browser": "webpack",
@@ -14,9 +14,7 @@
         "watch": "cross-env NODE_PATH=.. jest --watch"
     },
     "files": [
-        "dist/src",
-        "dist/vaultage.js",
-        "dist/vaultage.d.ts",
+        "dist",
         "lib"
     ],
     "contributors": [
