@@ -34,7 +34,8 @@ export class Crypto implements ICrypto {
         const crypto = await this.crypto;
         const hash = crypto.createHash('sha512');
         const masterHash = hash.update(masterPassword, 'utf8').digest();
-        return crypto.pbkdf2Sync(masterHash, this._salts.LOCAL_KEY_SALT, this.PBKDF2_DIFFICULTY, 32, 'sha256').toString('hex');
+        const derived = await this._pbkdf2(masterHash, Buffer.from(this._salts.LOCAL_KEY_SALT, 'utf8'), this.PBKDF2_DIFFICULTY);
+        return derived.toString('hex');
     }
 
     /**
@@ -46,7 +47,8 @@ export class Crypto implements ICrypto {
         const crypto = await this.crypto;
         const hash = crypto.createHash('sha512');
         const masterHash = hash.update(masterPassword, 'utf8').digest();
-        return crypto.pbkdf2Sync(masterHash, this._salts.REMOTE_KEY_SALT, this.PBKDF2_DIFFICULTY, 32, 'sha256').toString('hex');
+        const derived = await this._pbkdf2(masterHash, Buffer.from(this._salts.REMOTE_KEY_SALT, 'utf8'), this.PBKDF2_DIFFICULTY);
+        return derived.toString('hex');
     }
 
     /**
@@ -113,8 +115,19 @@ export class Crypto implements ICrypto {
         // The localKey is already derived from the username, some per-deployment salt and
         // the master password so using it as a salt here should be enough to show that we know
         // all of the above information.
-        const crypto = await this.crypto;
-        return crypto.pbkdf2Sync(plain, localKey, this.PBKDF2_DIFFICULTY, 32, 'sha256').toString('hex');
+        const derived = await this._pbkdf2(Buffer.from(plain, 'utf8'), Buffer.from(localKey, 'utf8'), this.PBKDF2_DIFFICULTY);
+        return derived.toString('hex');
+    }
+
+    private _pbkdf2(plain: Buffer, key: Buffer, difficulty: number) {
+        return new Promise<Buffer>(async (resolve, reject) => {
+            (await this.crypto).pbkdf2(plain, key, difficulty, 32, 'sha256', (err, derivedKey) => {
+                if (err) {
+                    reject(err);
+                }
+                resolve(derivedKey);
+            });
+        });
     }
 
     private async _getPortableCrypto(): Promise<ICrypto> {
@@ -130,7 +143,7 @@ export class Crypto implements ICrypto {
         const ks = 128;
         const salt = crypto.randomBytes(8);
         const iv = crypto.randomBytes(16);
-        const key = crypto.pbkdf2Sync(localKey, salt, iter, 32, 'sha256');
+        const key = await this._pbkdf2(Buffer.from(localKey, 'utf8'), salt, iter);
         const pt = Buffer.from(plain, 'utf8');
 
         const c = crypto.createCipheriv('aes-128-ccm', key.slice(0, ks / 8), this.adjustIV(iv, pt.length), {
@@ -163,7 +176,7 @@ export class Crypto implements ICrypto {
         const originalIV = Buffer.from(decoded.iv, 'base64');
         const salt = Buffer.from(decoded.salt, 'base64');
         const ct = Buffer.from(decoded.ct, 'base64');
-        const key = crypto.pbkdf2Sync(localKey, salt, decoded.iter, 32, 'sha256');
+        const key =  await this._pbkdf2(Buffer.from(localKey, 'utf8'), salt, decoded.iter);
         const tag = ct.slice(ct.length - decoded.ts / 8);
         const out = ct.slice(0, ct.length - decoded.ts / 8);
 
