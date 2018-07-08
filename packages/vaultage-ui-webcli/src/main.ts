@@ -48,7 +48,7 @@ export function start(el: HTMLElement) {
 
     shell.setBannerHTML(html`Vaultage v${vaultage.version()}
     <br>*********************
-    <br>Feeling lost? Take a look at the <a href="https://github.com/lbarman/vaultage/wiki/Using-the-web-CLI" target="_blank">usage guide</a> or press [Tab] to see available commands.
+    <br>Feeling lost? Take a look at the <a href="https://github.com/vaultage-pm/vaultage/wiki/Using-the-web-CLI" target="_blank">usage guide</a> or press [Tab] to see available commands.
     <br>*********************`);
 
 

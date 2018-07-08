@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lbarman/vaultage.git"
+    "url": "git+https://github.com/vaultage-pm/vaultage.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/lbarman/vaultage/issues"
+    "url": "https://github.com/vaultage-pm/vaultage/issues"
   },
-  "homepage": "https://github.com/lbarman/vaultage#readme",
+  "homepage": "https://github.com/vaultage-pm/vaultage#readme",
   "devDependencies": {
     "@types/inquirer": "0.0.35",
     "@types/semver": "^5.4.0",

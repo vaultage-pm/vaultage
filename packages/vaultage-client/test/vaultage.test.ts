@@ -82,4 +82,37 @@ describe('login', () => {
 
         expect(vault).toBeInstanceOf(Vault);
     });
+
+    it('Uses basic auth params', async () => {
+        mockAPI.mockImplementationOnce((_parameters) => {
+            return Promise.resolve(response<IVaultageConfig>(config));
+        });
+        mockAPI.mockImplementationOnce((_parameters) => {
+            return Promise.resolve(response({}));
+        });
+
+        const vault = await login('url', 'username', 'passwd', {
+            auth: {
+                username: 'Jean',
+                password: 'j0hn'
+            }
+        });
+
+        expect(mockAPI).toHaveBeenCalledWith({
+            url: 'url/config',
+            auth: {
+                username: 'Jean',
+                password: 'j0hn'
+            }
+        });
+        expect(mockAPI).toHaveBeenCalledWith({
+            url: 'url/username/483c29af947d335ed2851c62f1daa12227126b00035387f66f2d1492036d4dcb/vaultage_api',
+            auth: {
+                username: 'Jean',
+                password: 'j0hn'
+            }
+        });
+
+        expect(vault).toBeInstanceOf(Vault);
+    });
 });
