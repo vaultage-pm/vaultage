@@ -8,6 +8,7 @@ export { Passwords } from './Passwords';
 export { Vault } from './Vault';
 export { VaultageError, ERROR_CODE } from './VaultageError';
 export * from './interface';
+export { supportsNativeCrypto } from './environment';
 
 // tslint:disable-next-line:no-var-requires
 const pkg = require('../package.json');
