@@ -1,5 +1,6 @@
 import { ICipherFormat } from '../ICipherFormat';
 import { ISaltsConfig } from '../interface';
+import { supportsNativeCrypto } from '../vaultage';
 import { ERROR_CODE, VaultageError } from '../VaultageError';
 import { ICrypto } from './ICrypto';
 
@@ -57,10 +58,15 @@ export class Crypto implements ICrypto {
      * @param plain The plaintext to encrypt
      */
     public async encrypt(localKey: string, plain: string): Promise<string> {
-        try {
-            return await this._encrypt(localKey, plain);
-        } catch (e) {
-            throw new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occurred while decrypting the cipher', e);
+        if (supportsNativeCrypto()) {
+            try {
+                return await this._encrypt(localKey, plain);
+            } catch (e) {
+                throw new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occurred while decrypting the cipher', e);
+            }
+        } else {
+            const c = await this._getPortableCrypto();
+            return c.encrypt(localKey, plain);
         }
     }
 
@@ -73,10 +79,15 @@ export class Crypto implements ICrypto {
      * @param cipher The ciphertext to encrypt
      */
     public async decrypt(localKey: string, cipher: string): Promise<string> {
-        try {
-            return await this._decrypt(localKey, cipher);
-        } catch (e) {
-            throw new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occurred while decrypting the cipher', e);
+        if (supportsNativeCrypto()) {
+            try {
+                return await this._decrypt(localKey, cipher);
+            } catch (e) {
+                throw new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occurred while decrypting the cipher', e);
+            }
+        } else {
+            const c = await this._getPortableCrypto();
+            return c.decrypt(localKey, cipher);
         }
     }
 
@@ -104,6 +115,11 @@ export class Crypto implements ICrypto {
         // all of the above information.
         const crypto = await this.crypto;
         return crypto.pbkdf2Sync(plain, localKey, this.PBKDF2_DIFFICULTY, 32, 'sha256').toString('hex');
+    }
+
+    private async _getPortableCrypto(): Promise<ICrypto> {
+        const cryptoSJCL = (await import('./Crypto.sjcl')).Crypto;
+        return new cryptoSJCL(this._salts);
     }
 
     private async _encrypt(localKey: string, plain: string) {

@@ -28,14 +28,15 @@ const defaults = {
     },
 };
 
-const nodeConfig = _.merge({}, defaults, {
-    output: {
-        filename: 'dist/vaultage.js',
-        chunkFilename: 'dist/[name].bundle.js',
-        libraryTarget: 'commonjs2'
-    },
-    target: 'node'
-});
+// const nodeConfig = _.merge({}, defaults, {
+//     output: {
+//         filename: 'vaultage.js',
+//         chunkFilename: '[name].bundle.js',
+//         libraryTarget: 'commonjs2',
+//         path: path.resolve(__dirname, 'dist')
+//     },
+//     target: 'node'
+// });
 
 const sjclConfig = _.merge({}, defaults, {
     output: {
@@ -49,4 +50,4 @@ const sjclConfig = _.merge({}, defaults, {
     }
 });
 
-module.exports = [ nodeConfig, sjclConfig ];
+module.exports = [ /* nodeConfig, */ sjclConfig ];
