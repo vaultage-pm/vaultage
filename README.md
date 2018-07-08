@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/vaultage-pm/vaultage.svg)](https://travis-ci.org/vaultage-pm/vaultage) 
+[![Build Status](https://travis-ci.org/vaultage-pm/vaultage.svg?branch=master)](https://travis-ci.org/vaultage-pm/vaultage) 
 [![Dependency Status](https://david-dm.org/vaultage-pm/vaultage.svg)](https://david-dm.org/vaultage-pm/vaultage) 
 
 # Vaultage
