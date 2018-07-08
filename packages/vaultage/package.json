@@ -22,7 +22,7 @@
     "license": "GPL-2.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/lbarman/vaultage"
+        "url": "https://github.com/vaultage-pm/vaultage"
     },
     "dependencies": {
         "body-parser": "^1.18.3",

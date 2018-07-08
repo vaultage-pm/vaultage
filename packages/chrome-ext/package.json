@@ -19,7 +19,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/lbarman/vaultage"
+        "url": "https://github.com/vaultage-pm/vaultage"
     },
     "devDependencies": {
         "@types/chrome": "0.0.65",

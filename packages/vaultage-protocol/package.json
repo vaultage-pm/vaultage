@@ -20,12 +20,12 @@
     "license": "GPL-2.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/lbarman/vaultage"
+        "url": "https://github.com/vaultage-pm/vaultage"
     },
     "bugs": {
-        "url": "https://github.com/lbarman/vaultage/issues"
+        "url": "https://github.com/vaultage-pm/vaultage/issues"
     },
-    "homepage": "https://github.com/lbarman/vaultage#readme",
+    "homepage": "https://github.com/vaultage-pm/vaultage#readme",
     "dependencies": {
         "class-validator": "^0.8.5"
     },

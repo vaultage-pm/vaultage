@@ -1,11 +1,11 @@
-[![Build Status](https://travis-ci.org/lbarman/vaultage.svg)](https://travis-ci.org/lbarman/vaultage) 
-[![Dependency Status](https://david-dm.org/lbarman/vaultage.svg)](https://david-dm.org/lbarman/vaultage) 
+[![Build Status](https://travis-ci.org/vaultage-pm/vaultage.svg)](https://travis-ci.org/vaultage-pm/vaultage) 
+[![Dependency Status](https://david-dm.org/vaultage-pm/vaultage.svg)](https://david-dm.org/vaultage-pm/vaultage) 
 
 # Vaultage
 
 An open-source, web-based, self-hosted password manager with client-side encryption.
 
-Authors: [Ludovic Barman](https://github.com/lbarman/), [Hadrien Milano](https://github.com/hmil/)
+Authors: [Ludovic Barman](https://github.com/vaultage-pm/), [Hadrien Milano](https://github.com/hmil/)
 
 ## Description
 
@@ -20,7 +20,7 @@ How is it secured? Please check our document [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md
 
 ## Screenshots
 
-![Vaultage demo 1](https://raw.githubusercontent.com/lbarman/vaultage/master/resources/screenshot1.png "Vaultage demo 1")
+![Vaultage demo 1](https://raw.githubusercontent.com/vaultage-pm/vaultage/master/resources/screenshot1.png "Vaultage demo 1")
 
 ## Quick start
 
@@ -31,13 +31,13 @@ npm install -g vaultage
 vaultage-server
 ```
 
-Then browse to [localhost:3000](http://localhost:3000/). Check out the wiki for [usage instructions](https://github.com/lbarman/vaultage/wiki/Using-the-web-CLI).
+Then browse to [localhost:3000](http://localhost:3000/). Check out the wiki for [usage instructions](https://github.com/vaultage-pm/vaultage/wiki/Using-the-web-CLI).
 
 _Please note that, while this setup allows you to play around with Vaultage, a real deployment involves a little bit more pieces._
 
 ## Complete setup
 
-Ready to use Vaultage to its full potential? Check out [our guides](https://github.com/lbarman/vaultage/wiki#guides) to learn how to set up Vaultage in a secure and durable way.
+Ready to use Vaultage to its full potential? Check out [our guides](https://github.com/vaultage-pm/vaultage/wiki#guides) to learn how to set up Vaultage in a secure and durable way.
 
 ## Usage Documentation
 
@@ -45,7 +45,7 @@ Vaultage exposes a command line interface which you can keep open in a pinned ta
 
 The command line asks you to authenticate first (type `auth`). Then get a password by typing `get` followed by some search keywords.
 
-[Read the full usage documentation.](https://github.com/lbarman/vaultage/wiki/Using-the-web-CLI)
+[Read the full usage documentation.](https://github.com/vaultage-pm/vaultage/wiki/Using-the-web-CLI)
 
 ## Contributing
 

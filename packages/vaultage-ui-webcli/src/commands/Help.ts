@@ -25,7 +25,7 @@ export class HelpCommand implements ICommand {
         this.shell.echoHTML(this.space(30) + '|___/      ');
         this.shell.echoHTML(' ');
         this.shell.echoHTML(' Authors : Ludovic Barman, Hadrien Milano');
-        this.shell.echoHTML(' Github : <a href=\'https://github.com/lbarman/vaultage/\'>github.com/lbarman/vaultage</a>');
+        this.shell.echoHTML(' Github : <a href=\'https://github.com/vaultage-pm/vaultage/\'>github.com/vaultage-pm/vaultage</a>');
         this.shell.echoHTML(' ');
         this.shell.echoHTML(' Vaultage is a password manager.');
         this.shell.echoHTML(' It is in-browser, and can be accessed from all your devices.');
