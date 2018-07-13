@@ -1,6 +1,6 @@
+import { supportsNativeCrypto } from '../environment';
 import { ICipherFormat } from '../ICipherFormat';
 import { ISaltsConfig } from '../interface';
-import { supportsNativeCrypto } from '../vaultage';
 import { ERROR_CODE, VaultageError } from '../VaultageError';
 import { ICrypto } from './ICrypto';
 
@@ -19,7 +19,7 @@ export class Crypto implements ICrypto {
 
     public PBKDF2_DIFFICULTY: number = 32768;
 
-    private crypto = import(/* webpackChunkName: "crypto" */ 'crypto');
+    private crypto = import('crypto');
 
     constructor(
             private _salts: ISaltsConfig) {
