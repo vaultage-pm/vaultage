@@ -1,9 +1,7 @@
+import * as sjcl from '../../lib/sjcl';
 import { ISaltsConfig } from '../interface';
 import { ERROR_CODE, VaultageError } from '../VaultageError';
 import { ICrypto } from './ICrypto';
-
-// tslint:disable-next-line:no-var-requires
-const sjcl = require('../../lib/sjcl') as any;
 
 /**
  * Handles the crypto stuff
