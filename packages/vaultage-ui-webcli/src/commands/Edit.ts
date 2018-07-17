@@ -1,6 +1,7 @@
 import { IVaultDBEntryAttrs } from 'vaultage-client';
 
 import { Context } from '../Context';
+import { html } from '../security/xss';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
@@ -39,7 +40,7 @@ export class EditCommand implements ICommand {
             url: url
         };
 
-        const answer = await this.shell.promptYesNo(`Confirm edit of entry #${id}?`);
+        const answer = await this.shell.promptYesNo(html`Confirm edit of entry #${id}?`);
         if (answer !== 'yes') {
             this.shell.echo('Cancelled.');
             return;

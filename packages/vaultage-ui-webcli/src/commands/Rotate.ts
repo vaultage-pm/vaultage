@@ -45,9 +45,9 @@ export class RotateCommand implements ICommand {
 
         await this.ctx.vault.save();
 
-        this.shell.echoHTML('Entry #' + id + ' was :');
+        this.shell.echo('Entry #' + id + ' was :');
         this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry));
-        this.shell.echoHTML('Entry #' + id + ' now is :');
+        this.shell.echo('Entry #' + id + ' now is :');
         const entry2 = this.ctx.vault.getEntry(id);
         this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry2));
 

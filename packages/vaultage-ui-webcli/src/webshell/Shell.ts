@@ -1,5 +1,5 @@
+import { html, SanitizedString } from '../security/xss';
 import { BusyIndicator } from './BusyIndicator';
-import { Formatter } from './Formatter';
 import { History } from './History';
 import { ICommand } from './ICommand';
 import { ICommandHandler, ICompletionResponse, Terminal } from './Terminal';
@@ -41,7 +41,7 @@ export class Shell implements ICommandHandler {
     /**
      * Main text shown when clearing the screen
      */
-    private bannerHTML: string = 'Welcome to my shell!';
+    private bannerHTML: SanitizedString = html`Welcome to my shell!`;
 
     constructor(
         private terminal?: Terminal) {
@@ -54,7 +54,7 @@ export class Shell implements ICommandHandler {
      * Sets the message shown at startup and when calling `printBanner`.
      * This string may contain HTML tags AND MUST NOT CONTAIN RAW USER INPUT.
      */
-    public setBannerHTML(banner: string) {
+    public setBannerHTML(banner: SanitizedString) {
         this.bannerHTML = banner;
     }
 
@@ -82,7 +82,7 @@ export class Shell implements ICommandHandler {
         }
 
         this.safeGetTerminal().print(
-            Formatter.format('<span class="error">%</span>', message),
+            html`<span class="error">${message}</span>`.valueOf(),
             { unsafe_i_know_what_i_am_doing: true }
         );
     }
@@ -95,17 +95,17 @@ export class Shell implements ICommandHandler {
      *
      * @param value properly escaped HTML string
      */
-    public echoHTML(value: string) {
-        if (value === '') {
+    public echoHTML(value: SanitizedString) {
+        if (value.isEmpty()) {
             return;
         }
-        this.safeGetTerminal().print(value, { unsafe_i_know_what_i_am_doing: true });
+        this.safeGetTerminal().print(value.valueOf(), { unsafe_i_know_what_i_am_doing: true });
     }
 
     /**
      * Asks a yes/no question.
      */
-    public promptYesNo(question: string, defaultAnswer?: 'yes' | 'no'): Promise<'yes' | 'no'> {
+    public promptYesNo(question: SanitizedString, defaultAnswer?: 'yes' | 'no'): Promise<'yes' | 'no'> {
         return this.unbusyAction((term) => new Promise((resolve) => {
             const prompt = defaultAnswer === 'yes' ? 'Y/n' : 'y/N';
             term.prompt = `${question} ${prompt} &nbsp;`;
@@ -225,7 +225,7 @@ export class Shell implements ICommandHandler {
      * Prints a help message describing the available commands.
      */
     public printBanner(): void {
-        if (this.bannerHTML !== '') {
+        if (!this.bannerHTML.isEmpty()) {
             this.echoHTML(this.bannerHTML);
         }
     }
@@ -237,7 +237,7 @@ export class Shell implements ICommandHandler {
         const availableCommands = `Available commands:<br>
         <table class="helptable">
         ${ Object.keys(this.commands)
-            .map((c) => Formatter.format('<tr><td>- <b>%</b></td><td>%</td></tr>', ...[c, this.commands[c].description])).join('')
+            .map((c) => html`<tr><td>- <b>${c}</b></td><td>${this.commands[c].description}</td></tr>`).join('')
         }
         </table>`;
         this.safeGetTerminal().print(availableCommands, { unsafe_i_know_what_i_am_doing: true });
@@ -393,7 +393,7 @@ export class Shell implements ICommandHandler {
                 } else if (matching.length > 1) {
                     this.safeGetTerminal().printCurrentPrompt();
                     this.safeGetTerminal().print(matching
-                            .map((k) => Formatter.format('<b>%</b>', k))
+                            .map((k) => html`<b>${k}</b>`)
                             .join('&#9;')
                         , { unsafe_i_know_what_i_am_doing: true });
                     return null;

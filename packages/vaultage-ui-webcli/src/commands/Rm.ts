@@ -1,4 +1,5 @@
 import { Context } from '../Context';
+import { html } from '../security/xss';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
@@ -25,7 +26,7 @@ export class RmCommand implements ICommand {
         const e = this.ctx.vault.getEntry(id);
         this.shell.echoHTML(VaultEntryFormatter.formatSingle(e));
 
-        const answer = await this.shell.promptYesNo(`'Confirm removal of entry #${id}?`);
+        const answer = await this.shell.promptYesNo(html`'Confirm removal of entry #${id}?`);
         if (answer !== 'yes') {
             this.shell.echo('Cancelled.');
             return;

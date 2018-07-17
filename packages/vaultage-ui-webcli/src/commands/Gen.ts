@@ -2,6 +2,7 @@ import { IVaultDBEntryAttrs, Passwords } from 'vaultage-client';
 
 import * as config from '../Config';
 import { Context } from '../Context';
+import { html } from '../security/xss';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 
@@ -37,7 +38,7 @@ export class GenCommand implements ICommand {
         const hookname: keyof Window = 'copyPasswordToClipboard';
 
         const newEntryID = this.ctx.vault.addEntry(newEntry);
-        this.shell.echoHTML(`Added entry #${newEntryID}, generated password is
+        this.shell.echoHTML(html`Added entry #${newEntryID}, generated password is
         <span class="blurred" ondblclick="${hookname}(event)">${password}</span>
         <span class="copied">Copied to the clipboard!</span>`);
 

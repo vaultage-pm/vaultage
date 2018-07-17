@@ -14,9 +14,8 @@ declare global {
 export function installGlobalHooks() {
 
     window.copyPasswordToClipboard = (evt: Event) => {
-        console.log(evt);
-        const $e = (evt.target as HTMLElement);
-        const pwd = $e.innerHTML;
+        const $e = (evt.currentTarget as HTMLElement);
+        const pwd = $e.innerText;
 
         // copy the password to the clipboard
         copy(pwd);
