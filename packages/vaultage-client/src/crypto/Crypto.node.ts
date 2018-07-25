@@ -1,4 +1,3 @@
-import { supportsNativeCrypto } from '../environment';
 import { ICipherFormat } from '../ICipherFormat';
 import { ISaltsConfig } from '../interface';
 import { ERROR_CODE, VaultageError } from '../VaultageError';
@@ -60,15 +59,15 @@ export class Crypto implements ICrypto {
      * @param plain The plaintext to encrypt
      */
     public async encrypt(localKey: string, plain: string): Promise<string> {
-        if (supportsNativeCrypto()) {
-            try {
-                return await this._encrypt(localKey, plain);
-            } catch (e) {
+        try {
+            return await this._encrypt(localKey, plain);
+        } catch (e) {
+            if (isNonFatalCipherError(e)) {
+                const c = await this._getPortableCrypto();
+                return c.encrypt(localKey, plain);
+            } else {
                 throw new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occurred while decrypting the cipher', e);
             }
-        } else {
-            const c = await this._getPortableCrypto();
-            return c.encrypt(localKey, plain);
         }
     }
 
@@ -81,15 +80,15 @@ export class Crypto implements ICrypto {
      * @param cipher The ciphertext to encrypt
      */
     public async decrypt(localKey: string, cipher: string): Promise<string> {
-        if (supportsNativeCrypto()) {
-            try {
-                return await this._decrypt(localKey, cipher);
-            } catch (e) {
+        try {
+            return await this._decrypt(localKey, cipher);
+        } catch (e) {
+            if (isNonFatalCipherError(e)) {
+                const c = await this._getPortableCrypto();
+                return c.decrypt(localKey, cipher);
+            } else {
                 throw new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occurred while decrypting the cipher', e);
             }
-        } else {
-            const c = await this._getPortableCrypto();
-            return c.decrypt(localKey, cipher);
         }
     }
 
@@ -200,3 +199,11 @@ export class Crypto implements ICrypto {
         return iv.slice(0, (15 - L));
     }
 }
+
+/**
+ * Determines if the error allows us to fall back on soft crypto.
+ */
+const isNonFatalCipherError = (() => {
+    const TEST_RX = /Invalid IV length|Not implemented/i;
+    return (e: Error) => TEST_RX.test(e.toString());
+})();
