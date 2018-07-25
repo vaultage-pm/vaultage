@@ -18,7 +18,6 @@ test: build
 packages/vaultage: packages/vaultage-ui-webcli packages/vaultage-protocol
 packages/vaultage-client: packages/vaultage-protocol
 packages/vaultage-ui-webcli: packages/vaultage-client
-packages/chrome-ext: packages/vaultage-client
 
 # === Custom tasks
 
