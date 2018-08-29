@@ -1,8 +1,10 @@
 import { json } from 'body-parser';
+import 'body-parser';
 import * as cors from 'cors';
 import * as express from 'express';
 import * as path from 'path';
 import { useExpressServer } from 'routing-controllers';
+import { EXPRESS_SERVER_POST_LIMIT } from './constants';
 
 /**
  * Creates an express server serving the Vaultage API (used to save and retreive the encrypted passwords).
@@ -11,6 +13,10 @@ import { useExpressServer } from 'routing-controllers';
  */
 export function createVaultageAPIServer(): express.Application {
     const expressServer = express();
+
+    // Increase the limit of POST queries (needed as the database grows quite large)
+    const bodyParser = require('body-parser');
+    expressServer.use(bodyParser.json({limit: EXPRESS_SERVER_POST_LIMIT}));
 
     // Allow requests from all origins.
     // We can do this because we don't have actual sessions and there is nothing more to be obtained
