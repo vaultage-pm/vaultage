@@ -31,7 +31,9 @@ export class VaultagePOM {
     }
 
     public async clearInput(): Promise<void> {
-        return this.page.$eval('#main_input', (input: Element) => (input as HTMLInputElement).value = '');
+        return this.page.$eval('#main_input', (input: Element): void => {
+            (input as HTMLInputElement).value = '';
+        });
     }
 
     public async waitFinishProcessing(): Promise<void> {
