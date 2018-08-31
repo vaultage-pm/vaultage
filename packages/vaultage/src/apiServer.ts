@@ -3,6 +3,7 @@ import * as cors from 'cors';
 import * as express from 'express';
 import * as path from 'path';
 import { useExpressServer } from 'routing-controllers';
+import { EXPRESS_SERVER_POST_LIMIT } from './constants';
 
 /**
  * Creates an express server serving the Vaultage API (used to save and retreive the encrypted passwords).
@@ -19,7 +20,8 @@ export function createVaultageAPIServer(): express.Application {
     expressServer.use(cors());
 
     // I/O protocol is JSON based
-    expressServer.use(json());
+    // Increase the limit of POST queries (needed as the database grows quite large)
+    expressServer.use(json({limit: EXPRESS_SERVER_POST_LIMIT}));
 
     expressServer.use((_, res, next) => {
 
