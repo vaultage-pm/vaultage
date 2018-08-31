@@ -89,7 +89,8 @@ export class ImportCSVCommand implements ICommand {
         return new Promise((resolve, reject) => {
             const fileReader = new FileReader();
             fileReader.onload = (_) => {
-                resolve(fileReader.result);
+                // We must force the type because TypeScript can't infer that `readAsText` below causes the result to be a string
+                resolve(fileReader.result as string);
             };
             fileReader.onerror = reject;
             fileReader.readAsText(file);
