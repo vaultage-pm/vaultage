@@ -73,7 +73,6 @@
             }
         },
         "clearMocks": true,
-        "collectCoverage": true,
-        "mapCoverage": true
+        "collectCoverage": true
     }
 }
