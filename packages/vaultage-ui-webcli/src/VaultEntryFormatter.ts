@@ -35,7 +35,7 @@ export class VaultEntryFormatter {
             <span class="login">${e.login}</span>:
             <span ondblclick="${copyPasswordHook}(event)" class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</span>@
             <span class="url"><a target="_blank" href="${e.url}">${e.url}</a></span>
-            ${/*<span class="use">(used ${e.usage_count} times)</span>*/''}
+            <span class="use">(used ${e.usage_count} times)</span>
             ${(e.reuse_count > 0) ? html`<span class="reuse">(warning: re-used ${e.reuse_count} times)</span>` : ''}
             <span class="copied">Copied to the clipboard!</span>
         </span>`;
@@ -87,7 +87,7 @@ export class VaultEntryFormatter {
                 </td>
                 <td>@</td>
                 <td class="url"><a target="_blank" href="${e.url}">${this.sanitizeAndHighlight(e.url, highlights)}</a></span>
-                ${/*stringBuilder += `<td class="use">(used ${e.usage_count} times)</td>*/''}
+                <td class="use">(used ${e.usage_count} times)</td>
                 ${(e.reuse_count > 0) ? `<td class="reuse">(warning: re-used ${e.reuse_count} times)</td>` : html`<td class="empty"></td>`}
                 <td class="copied">Copied to the clipboard!</td>
         </tr>`;
