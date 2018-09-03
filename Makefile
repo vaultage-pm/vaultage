@@ -1,6 +1,4 @@
-NODE_MODULES=node_modules/.makets
-
-.PHONY: all serve publish publish-docker clean cleanall build test node_upgrade $(NODE_MODULES)
+.PHONY: all serve publish publish-docker clean cleanall build test node_upgrade
 
 all: build
 
@@ -19,7 +17,7 @@ cleanall:
 	$(MAKE) -C packages/vaultage-client cleanall
 	$(MAKE) -C packages/vaultage-ui-webcli cleanall
 	$(MAKE) -C packages/vaultage cleanall
-	rm -rf $(NODE_MODULES)
+	rm -rf node_modules
 
 build: 
 	$(MAKE) -C packages/vaultage-protocol build
@@ -34,14 +32,13 @@ test: build
 	$(MAKE) -C packages/vaultage test
 	#./tools/integration-test.sh	
 
-$(NODE_MODULES): package.json package-lock.json
+install: package.json package-lock.json
 	npm install
-	touch $(NODE_MODULES)
 
-publish: $(NODE_MODULES)
+publish: install
 	node_modules/.bin/ts-node tools/publish.ts
 
-publish-docker: $(NODE_MODULES)
+publish-docker: install
 	node_modules/.bin/ts-node tools/publish-docker.ts
 
 # === Node package upgrade (make sure everything is comitted, overwrites package-lock.json)

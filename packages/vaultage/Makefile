@@ -12,7 +12,7 @@ install: package.json package-lock.json
 build: install
 	npm run build
 
-clean:
+clean: install
 	npm run clean
 
 cleanall: clean clean-storage
