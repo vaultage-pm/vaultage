@@ -109,6 +109,7 @@ export class Shell implements ICommandHandler {
         return this.unbusyAction((term) => new Promise((resolve) => {
             const prompt = defaultAnswer === 'yes' ? 'Y/n' : 'y/N';
             term.prompt = `${question} ${prompt} &nbsp;`;
+            term.focus();
             this.promptResolve = (p) => resolve(p.then((text) => {
                 if (/y(es)?/i.test(text)) {
                     return 'yes';
@@ -167,6 +168,7 @@ export class Shell implements ICommandHandler {
     public prompt(question: string, defaultValue?: string): Promise<string> {
         return this.unbusyAction((term) => new Promise((resolve) => {
             term.prompt = question + '&nbsp;';
+            term.focus();
 
             if (defaultValue !== undefined) {
                 term.promptInput = defaultValue;
@@ -185,6 +187,7 @@ export class Shell implements ICommandHandler {
         return this.unbusyAction((term) => new Promise((resolve) => {
             term.secretMode = true;
             term.prompt = question + '&nbsp;';
+            term.focus();
             this.promptResolve = resolve;
         }));
     }
