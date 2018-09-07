@@ -1,38 +1,31 @@
-BIN=dist/src/main.js
-SRC=$(shell find src/ -type f -name '*.ts')
 DATA_DIR=.data
-NODE_MODULES=node_modules/.makets
 
 # Mandatory tasks (imposed by the top-level Makefile)
 
-.PHONY: build
-build: $(BIN)
+.PHONY: all build clean cleanall test clean-storage serve node_upgrade integration-test
 
-.PHONY: clean
-clean: $(NODE_MODULES)
-	npm run clean
+all: test
 
-.PHONY: cleanall
-cleanall: clean
-	rm -rf node_modules
+install: package.json package-lock.json
+	npm install
 
-.PHONY: test
-test: $(NODE_MODULES) build
-	npm test
-
-# Other tasks
-
-$(BIN): $(NODE_MODULES) $(SRC)
+build: install
 	npm run build
 
-$(NODE_MODULES): package.json package-lock.json
-	npm install
-	touch $(NODE_MODULES)
+clean: install
+	npm run clean
 
-.PHONY: clean-storage
+cleanall: clean clean-storage
+	rm -rf node_modules
+
+test: build
+	npm test
+
 clean-storage:
 	rm -rf $(DATA_DIR)/*
 
-.PHONY: serve
-serve: $(BIN)
+serve: build
 	npm start -- -d $(DATA_DIR)
+
+node_upgrade:
+	ncu -u

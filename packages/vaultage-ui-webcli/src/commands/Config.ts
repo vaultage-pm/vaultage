@@ -6,7 +6,8 @@ import { Shell } from '../webshell/Shell';
 const AVAILABLE_OPTIONS: {[key: string]: keyof Config } = {
     username_default: 'defaultUserName',
     host_default: 'defaultHost',
-    session_timeout: 'sessionTimeout'
+    session_timeout: 'sessionTimeout',
+    usage_count_visibility: 'usageCountVisibility'
 };
 
 export class ConfigCommand implements ICommand {
@@ -47,6 +48,8 @@ export class ConfigCommand implements ICommand {
 
     private printUsage() {
         this.shell.echo('Usage: config <set|get|clear> key [value]');
+        this.shell.echo('');
+        this.shell.echo('keys: ' + Object.keys(AVAILABLE_OPTIONS).join(','));
     }
 
     private clear(key: string) {
@@ -69,7 +72,7 @@ export class ConfigCommand implements ICommand {
 
     private get(key: string) {
         const configName = this.convertKeyToConfigEntry(key);
-        this.shell.echo(this.config[configName]);
+        this.shell.echo(String(this.config[configName]));
     }
 
     private convertKeyToConfigEntry(key: string): keyof Config {

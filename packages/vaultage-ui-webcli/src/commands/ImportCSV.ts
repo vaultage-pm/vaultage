@@ -89,7 +89,11 @@ export class ImportCSVCommand implements ICommand {
         return new Promise((resolve, reject) => {
             const fileReader = new FileReader();
             fileReader.onload = (_) => {
-                resolve(fileReader.result);
+                const result = fileReader.result;
+                if (result == null || result instanceof ArrayBuffer) {
+                    reject();
+                }
+                resolve(result as string);
             };
             fileReader.onerror = reject;
             fileReader.readAsText(file);

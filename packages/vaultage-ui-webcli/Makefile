@@ -1,40 +1,33 @@
-SRC=$(shell find src/ -type f -name '*.ts')
-BIN=public/dist/main.js
-VAULTAGE_CLIENT=../vaultage-client/dist/vaultage.js
-LOCAL_VAULTAGE=public/dist/vaultage.js
-NODE_MODULES=node_modules/.makets
+VAULTAGE_CLIENT_LOCATION=../vaultage-client/dist/vaultage.js
+IMPORTED_VAULTAGE_CLIENT_LOCATION=public/dist/vaultage.js
 
-# Mandatory tasks (imposed by the top-level Makefile)
+.PHONY: all $(IMPORTED_VAULTAGE_CLIENT_LOCATION) build serve clean cleanall test node_upgrade
 
-.PHONY: build
-build: $(BIN)
+all: serve
 
-$(LOCAL_VAULTAGE):
-	$(MAKE) -C ../vaultage-client build
-	mkdir -p public/dist
-	cp $(VAULTAGE_CLIENT) public/dist
+install: package.json package-lock.json
+	npm install
 
-.PHONY: clean
-clean:
-	rm -rf public/dist/
-
-.PHONY: cleanall
-cleanall: clean
-	rm -rf NODE_MODULES
-
-.PHONY: test
-test: $(NODE_MODULES)
-	npm run lint
-
-# Other tasks
-
-$(BIN): $(SRC) $(NODE_MODULES) $(LOCAL_VAULTAGE)
+build: install $(IMPORTED_VAULTAGE_CLIENT_LOCATION)
 	npm run build
 
-.PHONY: serve
 serve: build
 	npm run serve
 
-$(NODE_MODULES): package.json package-lock.json
-	npm install
-	touch $(NODE_MODULES)
+# Builds the "Vaultage Client" and copies the exported .js here, ready to be served
+$(IMPORTED_VAULTAGE_CLIENT_LOCATION):
+	$(MAKE) -C ../vaultage-client build
+	mkdir -p public/dist
+	cp $(VAULTAGE_CLIENT_LOCATION) public/dist
+
+clean:
+	rm -rf public/dist/
+
+cleanall: clean
+	rm -rf node_modules
+
+test: build
+	npm run lint
+
+node_upgrade:
+	ncu -u

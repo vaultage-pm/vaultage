@@ -1,3 +1,4 @@
+import { Config } from '../Config';
 import { Context } from '../Context';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
@@ -10,6 +11,7 @@ export class LsCommand implements ICommand {
 
     constructor(
         private shell: Shell,
+        private config: Config,
         private ctx: Context) {
     }
 
@@ -17,7 +19,8 @@ export class LsCommand implements ICommand {
 
         this.shell.echo('Vault revision #' + this.ctx.vault.getDBRevision() + ', ' + this.ctx.vault.getNbEntries() + ' entries.');
         const allEntries = this.ctx.vault.getAllEntries();
-        const html = VaultEntryFormatter.formatAndHighlightBatch(allEntries);
+        const vef = new VaultEntryFormatter(this.config);
+        const html = vef.formatAndHighlightBatch(allEntries);
         if (!html.isEmpty()) {
             this.shell.echoHTML(html);
         }

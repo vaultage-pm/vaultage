@@ -137,6 +137,8 @@ export class Terminal {
      */
     public focus() {
         this.$input.focus();
+        this.$input.scrollTo();
+        this.$input.scrollIntoView();
     }
 
     /**

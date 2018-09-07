@@ -1,3 +1,4 @@
+import { Config } from '../Config';
 import { Context } from '../Context';
 import { html } from '../security/xss';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
@@ -11,6 +12,7 @@ export class RmCommand implements ICommand {
 
     constructor(
         private shell: Shell,
+        private config: Config,
         private ctx: Context) {
     }
 
@@ -24,7 +26,8 @@ export class RmCommand implements ICommand {
         }
 
         const e = this.ctx.vault.getEntry(id);
-        this.shell.echoHTML(VaultEntryFormatter.formatSingle(e));
+        const vef = new VaultEntryFormatter(this.config);
+        this.shell.echoHTML(vef.formatSingle(e));
 
         const answer = await this.shell.promptYesNo(html`'Confirm removal of entry #${id}?`);
         if (answer !== 'yes') {
