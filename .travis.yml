@@ -4,4 +4,4 @@ node_js:
 script:
   - make
   - make test
-#  - make integration-test
+  - make integration-test

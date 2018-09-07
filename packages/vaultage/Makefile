@@ -2,7 +2,7 @@ DATA_DIR=.data
 
 # Mandatory tasks (imposed by the top-level Makefile)
 
-.PHONY: all build clean cleanall test clean-storage serve node_upgrade
+.PHONY: all build clean cleanall test clean-storage serve node_upgrade integration-test
 
 all: test
 

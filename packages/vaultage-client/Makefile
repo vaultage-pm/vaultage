@@ -18,7 +18,9 @@ cleanall: clean
 
 test: build
 	npm test
-	$(MAKE) integration-test
+
+integration-test:
+	node_modules/.bin/ts-node test/integration_test.ts
 
 node_upgrade:
 	ncu -u

@@ -30,7 +30,9 @@ test: build
 	$(MAKE) -C packages/vaultage-client test
 	$(MAKE) -C packages/vaultage-ui-webcli test
 	$(MAKE) -C packages/vaultage test
-	#./tools/integration-test.sh	
+
+integration-test:
+	./tools/integration-test.sh
 
 install: package.json package-lock.json
 	npm install
