@@ -34,8 +34,12 @@ test: build
 integration-test:
 	./tools/integration-test.sh
 
-install: package.json package-lock.json
+install: node_modules/built
+
+# "built" is just there so Make sees the artifact and doesn't rebuild
+node_modules/built: package.json package-lock.json
 	npm install
+	touch node_modules/built
 
 publish: install
 	node_modules/.bin/ts-node tools/publish.ts

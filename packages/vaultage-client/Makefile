@@ -4,10 +4,14 @@ WEBPACK_FLAGS = --output-library Vaultage
 
 all: test build
 
-install: package.json package-lock.json
-	npm install
+install: node_modules/built
 
-build: install webpack.config.js $(wildcard lib/*.js)
+# "built" is just there so Make sees the artifact and doesn't rebuild
+node_modules/built: package.json package-lock.json
+	npm install
+	touch node_modules/built
+
+build: install webpack.config.js $(wildcard dist/*.js) $(wildcard lib/*.js)
 	npm run build
 
 clean:
