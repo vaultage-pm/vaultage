@@ -1,28 +1,30 @@
 DATA_DIR=.data
 
-# Mandatory tasks (imposed by the top-level Makefile)
-
 .PHONY: all build clean cleanall test clean-storage serve node_upgrade integration-test
 
 all: test
 
-install: package.json package-lock.json
+install: node_modules/built
+
+# "built" is just there so Make sees the artifact and doesn't rebuild
+node_modules/built: package.json package-lock.json
 	npm install
+	touch node_modules/built
 
 build: install
 	npm run build
 
-clean: install
-	npm run clean
+clean: 
+	rm -rf dist
+
+clean-storage:
+	rm -rf $(DATA_DIR)/*
 
 cleanall: clean clean-storage
 	rm -rf node_modules
 
 test: build
 	npm test
-
-clean-storage:
-	rm -rf $(DATA_DIR)/*
 
 serve: build
 	npm start -- -d $(DATA_DIR)
