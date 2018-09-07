@@ -13,6 +13,7 @@ export class RotateCommand implements ICommand {
 
     constructor(
         private shell: Shell,
+        private configInstance: config.Config,
         private ctx: Context) {
     }
 
@@ -45,11 +46,13 @@ export class RotateCommand implements ICommand {
 
         await this.ctx.vault.save();
 
+        const vef = new VaultEntryFormatter(this.configInstance);
+
         this.shell.echo('Entry #' + id + ' was :');
-        this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry));
+        this.shell.echoHTML(vef.formatSingle(entry));
         this.shell.echo('Entry #' + id + ' now is :');
         const entry2 = this.ctx.vault.getEntry(id);
-        this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry2));
+        this.shell.echoHTML(vef.formatSingle(entry2));
 
         this.shell.echo('Push OK, revision ' + this.ctx.vault.getDBRevision() + '.');
     }

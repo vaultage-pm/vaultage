@@ -1,3 +1,4 @@
+import { Config } from '../Config';
 import { Context } from '../Context';
 import { html } from '../security/xss';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
@@ -11,6 +12,7 @@ export class GetCommand implements ICommand {
 
     constructor(
         private shell: Shell,
+        private config: Config,
         private ctx: Context) {
     }
 
@@ -22,8 +24,10 @@ export class GetCommand implements ICommand {
         }
 
         const results = this.ctx.vault.findEntries(...searchTerms);
-        const coloredSearchString = VaultEntryFormatter.searchTermsToHighlightedString(searchTerms);
+        const vef = new VaultEntryFormatter(this.config);
+
+        const coloredSearchString = vef.searchTermsToHighlightedString(searchTerms);
         this.shell.echoHTML(html`Searching for ${coloredSearchString}, ${results.length} matching entries.`);
-        this.shell.echoHTML(VaultEntryFormatter.formatAndHighlightBatch(results, searchTerms));
+        this.shell.echoHTML(vef.formatAndHighlightBatch(results, searchTerms));
     }
 }

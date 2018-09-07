@@ -1,5 +1,5 @@
 import { IVaultDBEntryAttrs } from 'vaultage-client';
-
+import { Config } from '../Config';
 import { Context } from '../Context';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
@@ -12,6 +12,7 @@ export class AddCommand implements ICommand {
 
     constructor(
         private shell: Shell,
+        private config: Config,
         private ctx: Context) {
     }
 
@@ -31,7 +32,9 @@ export class AddCommand implements ICommand {
 
         const newEntryID = this.ctx.vault.addEntry(newEntry);
         const e = this.ctx.vault.getEntry(newEntryID);
-        this.shell.echoHTML(VaultEntryFormatter.formatSingle(e));
+        const vef = new VaultEntryFormatter(this.config);
+
+        this.shell.echoHTML(vef.formatSingle(e));
         this.shell.echo('Added entry #' + newEntryID);
 
         await this.ctx.vault.save();

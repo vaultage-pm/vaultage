@@ -12,6 +12,7 @@ export class Config {
     private static readonly USERNAME_KEY = 'DEFAULT_USERNAME';
     private static readonly HOST_KEY = 'DEFAULT_HOST';
     private static readonly TIMEOUT_KEY = 'TIMEOUT_TIME';
+    private static readonly USAGE_COUNT_VISIBILITY = 'USAGE_COUNT_VISIBILITY';
 
     /**
      * Default username to show in an auth prompt. This value is local to the browser.
@@ -27,6 +28,18 @@ export class Config {
 
     public set defaultUserName(username: string) {
         localStorage.setItem(Config.USERNAME_KEY, username);
+    }
+
+    /**
+     * Show usage count
+     */
+    public get usageCountVisibility(): boolean {
+        const visible = localStorage.getItem(Config.USAGE_COUNT_VISIBILITY);
+        return (visible === 'true');
+    }
+
+    public set usageCountVisibility(visible: boolean) {
+        localStorage.setItem(Config.USAGE_COUNT_VISIBILITY, String(visible));
     }
 
     /**

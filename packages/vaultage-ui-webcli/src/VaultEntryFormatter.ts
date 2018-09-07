@@ -1,15 +1,21 @@
 import { IVaultDBEntry, PasswordStrength } from 'vaultage-client';
 
+import { Config } from './Config';
 import { escape, html, join, SanitizedString } from './security/xss';
 
 const copyPasswordHook: keyof Window = 'copyPasswordToClipboard';
 
 export class VaultEntryFormatter {
+
+    constructor(
+        private config: Config) {
+    }
+
     /**
      * Formats a collection of VaultDBEntries to HTML
      * @param entries
      */
-    public static formatAndHighlightBatch(entries: IVaultDBEntry[], highlights?: string[]): SanitizedString {
+    public formatAndHighlightBatch(entries: IVaultDBEntry[], highlights?: string[]): SanitizedString {
         const stringBuilder = join(entries.map((e) => this._formatSingleForBatch(e, highlights)));
 
         if (stringBuilder.isEmpty()) {
@@ -23,7 +29,7 @@ export class VaultEntryFormatter {
      * Formats a VaultDBEntry to HTML
      * @param e the VaultDBEntry
      */
-    public static formatSingle(e: IVaultDBEntry): SanitizedString {
+    public formatSingle(e: IVaultDBEntry): SanitizedString {
 
         const extraClass =  (e.password_strength_indication === PasswordStrength.WEAK) ? 'weakPassword' :
                             (e.password_strength_indication === PasswordStrength.MEDIUM) ? 'mediumPassword' :
@@ -35,7 +41,7 @@ export class VaultEntryFormatter {
             <span class="login">${e.login}</span>:
             <span ondblclick="${copyPasswordHook}(event)" class="password blurred ${extraClass}" data-id="${e.id}">${e.password}</span>@
             <span class="url"><a target="_blank" href="${e.url}">${e.url}</a></span>
-            <span class="use">(used ${e.usage_count} times)</span>
+            ${this.config.usageCountVisibility ? html`<span class="use">(used ${e.usage_count} times)</span>` : ''}
             ${(e.reuse_count > 0) ? html`<span class="reuse">(warning: re-used ${e.reuse_count} times)</span>` : ''}
             <span class="copied">Copied to the clipboard!</span>
         </span>`;
@@ -46,7 +52,7 @@ export class VaultEntryFormatter {
      * when searching a text
      * @param needles
      */
-    public static searchTermsToHighlightedString(needles: string[]): SanitizedString {
+    public searchTermsToHighlightedString(needles: string[]): SanitizedString {
         const stringBuilder: SanitizedString[] = [];
         for (let i = 0; i < needles.length; i++) {
             stringBuilder.push(join([this.highlightPrefix(i), escape(needles[i]), this.highlightSuffix()]));
@@ -60,11 +66,11 @@ export class VaultEntryFormatter {
      * @param needles the words to highlight
      * @param highlightId
      */
-    public static highlight(haystack: SanitizedString, needles: string[]): SanitizedString {
+    public highlight(haystack: SanitizedString, needles: string[]): SanitizedString {
         return join(this._highlight([haystack], needles));
     }
 
-    private static sanitizeAndHighlight(haystack: string, needles?: string[]): SanitizedString {
+    private sanitizeAndHighlight(haystack: string, needles?: string[]): SanitizedString {
         if (needles != null) {
             return this.highlight(escape(haystack), needles);
         } else {
@@ -72,7 +78,7 @@ export class VaultEntryFormatter {
         }
     }
 
-    private static _formatSingleForBatch(e: IVaultDBEntry, highlights?: string[]): SanitizedString {
+    private _formatSingleForBatch(e: IVaultDBEntry, highlights?: string[]): SanitizedString {
 
         const extraClass =  (e.password_strength_indication === PasswordStrength.WEAK) ? 'weakPassword' :
                 (e.password_strength_indication === PasswordStrength.MEDIUM) ? 'mediumPassword' :
@@ -87,7 +93,7 @@ export class VaultEntryFormatter {
                 </td>
                 <td>@</td>
                 <td class="url"><a target="_blank" href="${e.url}">${this.sanitizeAndHighlight(e.url, highlights)}</a></span>
-                <td class="use">(used ${e.usage_count} times)</td>
+                ${this.config.usageCountVisibility ? html`<span class="use">(used ${e.usage_count} times)</span>` : ''}
                 ${(e.reuse_count > 0) ? `<td class="reuse">(warning: re-used ${e.reuse_count} times)</td>` : html`<td class="empty"></td>`}
                 <td class="copied">Copied to the clipboard!</td>
         </tr>`;
@@ -97,7 +103,7 @@ export class VaultEntryFormatter {
      * Every time a 'needle' is found in the haystack function, put this string before
      * @param id the index of the needle (e.g. we already search for some term, and this is the 2nd search term)
      */
-    private static highlightPrefix(id: number): SanitizedString {
+    private highlightPrefix(id: number): SanitizedString {
         return html`<span class="highlight highlight${id}">`;
     }
 
@@ -105,7 +111,7 @@ export class VaultEntryFormatter {
      * Every time a 'needle' is found in the haystack function, put this string after
      * @param id
      */
-    private static highlightSuffix(): SanitizedString {
+    private highlightSuffix(): SanitizedString {
         return html`</span>`;
     }
 
@@ -118,7 +124,7 @@ export class VaultEntryFormatter {
      * @param remainingNeedles the remaining search terms
      * @param highlightId the current search term index (for choosing the highlight color)
      */
-    private static _highlight(haystacks: SanitizedString[], remainingNeedles: string[], highlightId: number = 0): SanitizedString[] {
+    private _highlight(haystacks: SanitizedString[], remainingNeedles: string[], highlightId: number = 0): SanitizedString[] {
 
         // if we're out of search terms, the 'haystack' does not need to be processed further
         if (remainingNeedles.length === 0) {

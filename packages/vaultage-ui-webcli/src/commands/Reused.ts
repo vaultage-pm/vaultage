@@ -1,3 +1,4 @@
+import { Config } from '../Config';
 import { Context } from '../Context';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
@@ -10,12 +11,15 @@ export class ReusedCommand implements ICommand {
 
     constructor(
         private shell: Shell,
+        private config: Config,
         private ctx: Context) {
     }
 
     public async handle() {
         const results = this.ctx.vault.getEntriesWhichReusePasswords();
         this.shell.echo('Searching for entries with a non-unique password, ' + results.length + ' matching entries.');
-        this.shell.echoHTML(VaultEntryFormatter.formatAndHighlightBatch(results));
+
+        const vef = new VaultEntryFormatter(this.config);
+        this.shell.echoHTML(vef.formatAndHighlightBatch(results));
     }
 }
