@@ -94,7 +94,7 @@ export class VaultEntryFormatter {
                 <td>@</td>
                 <td class="url"><a target="_blank" href="${e.url}">${this.sanitizeAndHighlight(e.url, highlights)}</a></span>
                 ${this.config.usageCountVisibility ? html`<span class="use">(used ${e.usage_count} times)</span>` : ''}
-                ${(e.reuse_count > 0) ? `<td class="reuse">(warning: re-used ${e.reuse_count} times)</td>` : html`<td class="empty"></td>`}
+                ${(e.reuse_count > 0) ? html`<td class="reuse">(warning: re-used ${e.reuse_count} times)</td>` : html`<td class="empty"></td>`}
                 <td class="copied">Copied to the clipboard!</td>
         </tr>`;
     }
