@@ -23,9 +23,15 @@ export class AuthCommand implements ICommand {
     public async handle(args: string[]) {
         const serverUrl = args.length > 0 ? args[0] : (this.config.defaultHost || this.defaultURL);
 
-        this.shell.echo(`Connecting to ${serverUrl}`);
+        let username: string = '';
+        if (this.config.defaultUserName !== '') {
+            username = this.config.defaultUserName;
+            this.shell.echo(`Connecting to ${username}@${serverUrl}...`);
+        } else {
+            this.shell.echo(`Connecting to ${serverUrl}...`);
+            username = await this.shell.prompt('Username:', this.config.defaultUserName);
+        }
 
-        const username = await this.shell.prompt('Username:', this.config.defaultUserName);
         const masterpwd = await this.shell.promptSecret('Password:');
 
         this.shell.echo(`Attempting to login ${username}@${serverUrl}...`);
