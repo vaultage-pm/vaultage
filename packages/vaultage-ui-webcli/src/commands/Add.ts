@@ -16,9 +16,14 @@ export class AddCommand implements ICommand {
         private ctx: Context) {
     }
 
-    public async handle() {
+    public async handle(args: string[]) {
 
-        const title = await this.shell.prompt('Title:');
+        let defaultValue: string = '';
+        if (args.length > 0) {
+            defaultValue = args.join(' ');
+        }
+
+        const title = await this.shell.prompt('Title:', defaultValue);
         const username = await this.shell.prompt('Username:');
         const password = await this.shell.prompt('Password:');
         const url = await this.shell.prompt('Url:');

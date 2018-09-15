@@ -16,7 +16,7 @@ export class GenCommand implements ICommand {
         private ctx: Context) {
     }
 
-    public async handle() {
+    public async handle(args: string[]) {
         const pwdGen = new Passwords();
         const password = pwdGen.generatePassword(
             config.PWD_GEN_LENGTH,
@@ -24,7 +24,12 @@ export class GenCommand implements ICommand {
             config.PWG_GEN_AVOID_VISUALLY_SIMILAR_CHARS,
             config.PWD_GEN_AVOID_PUNCTUATION_USED_IN_PROGRAMMING);
 
-        const title = await this.shell.prompt('Title:');
+        let defaultValue: string = '';
+        if (args.length > 0) {
+            defaultValue = args.join(' ');
+        }
+
+        const title = await this.shell.prompt('Title:', defaultValue);
         const username = await this.shell.prompt('Username:');
         const url = await this.shell.prompt('Url:');
 
