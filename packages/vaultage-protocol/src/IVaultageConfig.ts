@@ -11,4 +11,8 @@ export interface IVaultageConfig {
         local_key_salt: string;
         remote_key_salt: string;
     };
+    /*
+     * Whether this instance is running in demo mode.
+     */
+    demo: boolean;
 }

@@ -16,7 +16,7 @@ export interface IErrorPushPullResponse {
      * - 'EFAST': An attempt to push was not fast-forward.
      * - 'EAUTH': The credentials provided are invalid
      */
-    code: 'EFAST' | 'EAUTH';
+    code: 'EFAST' | 'EAUTH' | 'EDEMO';
 }
 
 export interface ISuccessfulPushPullResponse {

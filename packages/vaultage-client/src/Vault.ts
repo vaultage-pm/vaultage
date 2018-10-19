@@ -29,12 +29,17 @@ export class Vault {
     private _db: VaultDB;
     private _httpParams?: IHttpParams;
     private _lastFingerprint?: string;
+    private _isServerInDemoMode: boolean;
 
-    constructor(creds: ICredentials, crypto: Crypto, cipher: string | undefined, httpParams?: IHttpParams) {
+    constructor(creds: ICredentials, crypto: Crypto, cipher: string | undefined, httpParams?: IHttpParams, demoMode?: boolean) {
         this._creds = { ...creds };
         this._crypto = crypto;
         this._db = new VaultDB({});
         this._httpParams = httpParams;
+        this._isServerInDemoMode = false;
+        if (demoMode === true) {
+            this._isServerInDemoMode = true;
+        }
         if (cipher) {
             this._setCipher(creds, cipher);
         }
@@ -64,6 +69,7 @@ export class Vault {
 
     /**
      * Saves the Vault on the server.
+     * @throws if the server is in demo-mode, the UI should not try to call "save".
      *
      * The vault must be authenticated before this method can be called.
      */
@@ -71,6 +77,13 @@ export class Vault {
         // Bumping the revision on each push ensures that there are no two identical consecutive fingerprints
         // (in short we are pretending that we updated something even if we didn't)
         this._db.newRevision();
+
+        // if in demo mode, we never push to the server
+        if (this._isServerInDemoMode) {
+            // we do not throw the error, this forces too many checks on the UI. We just pretend it worked
+            // throw new VaultageError(ERROR_CODE.DEMO_MODE, 'Server in demo mode');
+            return new Promise((resolve, _) => { resolve(); });
+        }
         return this._pushCipher(this._creds, null);
     }
 
@@ -207,6 +220,14 @@ export class Vault {
      */
     public replaceAllEntries(entries: IVaultDBEntry[]) {
         return this._db.replaceAllEntries(entries);
+    }
+
+    /**
+     * Returns true if the "demo" flag has been set on the server. This means that typically some operations will be restricted, or
+     * that the UI should indicate that the DB is reset periodically, etc.
+     */
+    public isInDemoMode(): boolean {
+        return this._isServerInDemoMode;
     }
 
 

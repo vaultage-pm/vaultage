@@ -108,6 +108,8 @@ export abstract class HttpApi {
             case 'EAUTH':
                 throw new VaultageError(ERROR_CODE.BAD_CREDENTIALS,
                         'Invalid credentials');
+            case 'EDEMO':
+                throw new VaultageError(ERROR_CODE.DEMO_MODE, 'Server in demo mode');
             default:
                 throw this.ensureAllErrorsHandled(err.code);
         }

@@ -1,10 +1,11 @@
 import { IVaultDBEntryAttrs, Passwords } from 'vaultage-client';
-
 import * as config from '../Config';
 import { Context } from '../Context';
+import { html } from '../security/xss';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
+
 
 export class RotateCommand implements ICommand {
     public readonly name = 'rotate';
@@ -44,6 +45,9 @@ export class RotateCommand implements ICommand {
 
         this.ctx.vault.updateEntry(id, newEntry);
 
+        if (this.ctx.vault.isInDemoMode()) {
+            this.shell.echoHTML(html`<span class="warning">[warning] Typically, this command pushes automatically to the server, but not in <b>demo-mode</b>. Locally, the password has been changed (try "get ${entry.title}") </span>`);
+        }
         await this.ctx.vault.save();
 
         const vef = new VaultEntryFormatter(this.configInstance);

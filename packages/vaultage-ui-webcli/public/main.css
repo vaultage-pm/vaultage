@@ -180,3 +180,7 @@ td.empty {
 .helpLine {
     color:#aaa;
 }
+
+.warning {
+    color: yellow;
+}

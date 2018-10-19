@@ -1,9 +1,9 @@
 import { Body, Get, JsonController, Param, Post } from 'routing-controllers';
 import { Inject } from 'typedi';
-import { PushPullResponse, UpdateCipherRequest } from 'vaultage-protocol';
-
+import { IVaultageConfig, PushPullResponse, UpdateCipherRequest } from 'vaultage-protocol';
 import { AuthenticationError } from '../storage/AuthenticationError';
 import { DatabaseWithAuth } from '../storage/Database';
+import { DemoModeError } from '../storage/DemoModeError';
 import { NotFastForwardError } from '../storage/NotFastForwardError';
 
 /**
@@ -15,6 +15,9 @@ export class CipherController {
 
     @Inject()
     private db: DatabaseWithAuth;
+
+    @Inject('config')
+    private config: IVaultageConfig;
 
     @Get('/:user/:key/vaultage_api')
     public async pull(
@@ -47,6 +50,10 @@ export class CipherController {
         : Promise<PushPullResponse> {
 
         try {
+            if (this.config.demo) {
+                throw new DemoModeError();
+            }
+
             const dbAccess = await this.db.auth({
                 username,
                 password
@@ -75,6 +82,12 @@ export class CipherController {
                 error: true,
                 description: 'Authentication error',
                 code: 'EAUTH'
+            };
+        } else if (e instanceof DemoModeError) {
+            return {
+                error: true,
+                description: 'Server in demo mode',
+                code: 'EDEMO'
             };
         } /* istanbul ignore next */ else {
             throw e; // Internal errors are not part of the protocol and thus will generate 500 status codes.

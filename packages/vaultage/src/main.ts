@@ -31,10 +31,12 @@ program.version(pkg.version)
     .option('-p, --port <port>', 'TCP port to listen to', parseInt)
     .option('-l, --listen <addr>', 'TCP address to bind to')
     .option('-d, --data <dir>', 'Manually specify the data directory (defaults to ~/.vaultage)')
+    .option('--demo', 'Start vaultage in demo mode.')
     .parse(process.argv);
 
-const PORT = program.port || 3000;
-const ADDR = program.listen;
+const PORT: number = program.port || 3000;
+const ADDR: string = program.listen;
+const DEMO: boolean = program.demo;
 
 boot(PORT, ADDR);
 
@@ -46,7 +48,7 @@ async function loadConfig(retry: boolean): Promise<void> {
     } catch (e) {
         if (retry && e.code === 'ENOENT') {
             console.log('No config found, writing initial config.');
-            await initConfig(program.data);
+            await initConfig(program.data, DEMO);
             return loadConfig(false);
         }
         console.error(`Unable to read config file. Make sure ${configPath} exists and is readable`);
