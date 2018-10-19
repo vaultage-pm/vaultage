@@ -49,7 +49,7 @@ export async function login(
     creds.remoteKey = remoteKey;
 
     const cipher = await HttpApi.pullCipher(creds, httpParams);
-    return new Vault(creds, crypto, cipher, httpParams);
+    return new Vault(creds, crypto, cipher, httpParams, config.demo);
 }
 
 export function _mockHttpRequests(fn: HttpRequestFunction): void {

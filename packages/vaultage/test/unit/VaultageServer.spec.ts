@@ -25,7 +25,8 @@ const mockConfig: IVaultageConfig = {
     salts: {
         local_key_salt: 'le salt',
         remote_key_salt: 'other salt'
-    }
+    },
+    demo: false,
 };
 
 Container.set(DatabaseWithAuth, mockAuthDB);

@@ -1,7 +1,7 @@
 import * as vaultage from 'vaultage-client';
-
 import { Config } from '../Config';
 import { Context } from '../Context';
+import { html } from '../security/xss';
 import { TimeoutService } from '../TimeoutService';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
@@ -40,6 +40,10 @@ export class AuthCommand implements ICommand {
 
         this.shell.echo('Pull OK, got ' + this.ctx.vault.getNbEntries() + ' entries (revision ' +
             this.ctx.vault.getDBRevision() + ').');
+
+        if (this.ctx.vault.isInDemoMode()) {
+            this.shell.echoHTML(html`<span class="warning">[warning] This vault is is <b>demo-mode</b>: you can play around, but changes you make will not persist.</span>`);
+        }
 
         this.timeout.resetTimeout();
     }

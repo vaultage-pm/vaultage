@@ -14,6 +14,7 @@ function response<T>(data: T): IHttpResponse<T> {
 const config: IVaultageConfig = {
     salts: { local_key_salt: 'deadbeef', remote_key_salt: '0123456789'},
     version: 1,
+    demo: false,
 };
 
 describe('login', () => {

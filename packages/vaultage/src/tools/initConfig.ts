@@ -31,7 +31,7 @@ export function storagePath(fileName: string, override: string | undefined): str
     return path.join(vaultageConfigDir, fileName);
 }
 
-export function initConfig(customStorage: string | undefined): Promise<void> {
+export function initConfig(customStorage: string | undefined, demoMode: boolean = false): Promise<void> {
     return new Promise((resolve, reject) => {
 
         // Get random bytes for salts generation.
@@ -52,7 +52,8 @@ export function initConfig(customStorage: string | undefined): Promise<void> {
                 salts: {
                     local_key_salt: hexBytes.substr(0, SALTS_LENGTH),
                     remote_key_salt: hexBytes.substr(SALTS_LENGTH, 2 * SALTS_LENGTH)
-                }
+                },
+                demo: demoMode,
             };
 
             const configPath = storagePath(CONFIG_FILENAME, customStorage);
