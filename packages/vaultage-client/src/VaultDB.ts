@@ -193,7 +193,10 @@ export class VaultDB {
         });
 
         arrayOfTuples.sort((e1, e2) => {
-            return e2.hitcount - e1.hitcount;
+            if (e1.hitcount !== e2.hitcount) {
+                return e2.hitcount - e1.hitcount;
+            }
+            return e2.entry.usage_count - e1.entry.usage_count;
         });
 
         const sortedEntries = arrayOfTuples.map((tuple) => deepCopy(tuple.entry));
