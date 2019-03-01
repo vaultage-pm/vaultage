@@ -13,6 +13,7 @@ export class Config {
     private static readonly HOST_KEY = 'DEFAULT_HOST';
     private static readonly TIMEOUT_KEY = 'TIMEOUT_TIME';
     private static readonly USAGE_COUNT_VISIBILITY = 'USAGE_COUNT_VISIBILITY';
+    private static readonly SHOW_MAX_N_RESULTS = 'SHOW_MAX_N_RESULTS';
 
     /**
      * Default username to show in an auth prompt. This value is local to the browser.
@@ -40,6 +41,25 @@ export class Config {
 
     public set usageCountVisibility(visible: boolean) {
         localStorage.setItem(Config.USAGE_COUNT_VISIBILITY, String(visible));
+    }
+
+
+    /**
+     * Truncates results to the top N, if N != -1
+     */
+    public get showAtMostNResults(): number {
+        const n = localStorage.getItem(Config.SHOW_MAX_N_RESULTS);
+        if (n == null) {
+            return -1;
+        }
+        if (isNaN(Number(n))) {
+            return -1;
+        }
+        return Number(n);
+    }
+
+    public set showAtMostNResults(n: number) {
+        localStorage.setItem(Config.SHOW_MAX_N_RESULTS, String(n));
     }
 
     /**

@@ -1,3 +1,4 @@
+import { IVaultDBEntry } from 'vaultage-client/dist/src/vaultage';
 import { Config } from '../Config';
 import { Context } from '../Context';
 import { html } from '../security/xss';
@@ -23,11 +24,24 @@ export class GetCommand implements ICommand {
             return;
         }
 
-        const results = this.ctx.vault.findEntries(...searchTerms);
+        let results = this.ctx.vault.findEntries(...searchTerms);
+        let hiddenResults: IVaultDBEntry[] = [];
+
+        // check if we truncate the search results
+        if (this.config.showAtMostNResults !== -1 && this.config.showAtMostNResults < results.length) {
+            hiddenResults = results.slice(this.config.showAtMostNResults);
+            results = results.slice(0, this.config.showAtMostNResults);
+
+        }
+
         const vef = new VaultEntryFormatter(this.config);
 
         const coloredSearchString = vef.searchTermsToHighlightedString(searchTerms);
         this.shell.echoHTML(html`Searching for ${coloredSearchString}, ${results.length} matching entries.`);
         this.shell.echoHTML(vef.formatAndHighlightBatch(results, searchTerms));
+
+        if (hiddenResults.length > 0) {
+            this.shell.echoHTML(vef.formatAndHighlightBatchFolded(hiddenResults, searchTerms));
+        }
     }
 }

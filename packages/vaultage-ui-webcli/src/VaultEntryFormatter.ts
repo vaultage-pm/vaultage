@@ -3,12 +3,23 @@ import { IVaultDBEntry, PasswordStrength } from 'vaultage-client';
 import { Config } from './Config';
 import { escape, html, join, SanitizedString } from './security/xss';
 
+const expandFoldedResultHook: keyof Window = 'expandFoldedResult';
 const copyPasswordHook: keyof Window = 'copyPasswordToClipboard';
 
 export class VaultEntryFormatter {
 
     constructor(
         private config: Config) {
+    }
+
+    /**
+     * Formats a collection of VaultDBEntries to HTML into a folded table (visible only after clicking on "click here to show")
+     * @param entries
+     */
+    public formatAndHighlightBatchFolded(entries: IVaultDBEntry[], highlights?: string[]): SanitizedString {
+        const table = this.formatAndHighlightBatch(entries, highlights);
+
+        return html`<div class="foldedResults">(+${entries.length} hidden results, <a href="#" onclick="${expandFoldedResultHook}(event)">show</a>)<div style="display:none">${table}</div></div>`;
     }
 
     /**
