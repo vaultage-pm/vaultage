@@ -7,7 +7,8 @@ const AVAILABLE_OPTIONS: {[key: string]: keyof Config } = {
     username_default: 'defaultUserName',
     host_default: 'defaultHost',
     session_timeout: 'sessionTimeout',
-    usage_count_visibility: 'usageCountVisibility'
+    usage_count_visibility: 'usageCountVisibility',
+    show_at_most_n_results: 'showAtMostNResults'
 };
 
 export class ConfigCommand implements ICommand {

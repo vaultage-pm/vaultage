@@ -4,6 +4,7 @@ declare global {
     // tslint:disable-next-line:interface-name
     interface Window {
         copyPasswordToClipboard: (evt: Event) => void;
+        expandFoldedResult: (evt: Event) => void;
     }
 }
 
@@ -36,5 +37,16 @@ export function installGlobalHooks() {
         $copied.classList.add('visible');
         setTimeout(() => $copied.classList.remove('visible'), 1000);
     }
+
+
+    window.expandFoldedResult = (evt: Event) => {
+        const $e = (evt.currentTarget as HTMLElement);
+        const $hiddenTable: HTMLElement | null = $e.nextElementSibling as HTMLElement;
+
+        if ($hiddenTable != null) {
+            $hiddenTable.style.display = 'block';
+        }
+        return;
+    };
 
 }

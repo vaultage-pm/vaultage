@@ -3,12 +3,23 @@ import { IVaultDBEntry, PasswordStrength } from 'vaultage-client';
 import { Config } from './Config';
 import { escape, html, join, SanitizedString } from './security/xss';
 
+const expandFoldedResultHook: keyof Window = 'expandFoldedResult';
 const copyPasswordHook: keyof Window = 'copyPasswordToClipboard';
 
 export class VaultEntryFormatter {
 
     constructor(
         private config: Config) {
+    }
+
+    /**
+     * Formats a collection of VaultDBEntries to HTML into a folded table (visible only after clicking on "click here to show")
+     * @param entries
+     */
+    public formatAndHighlightBatchFolded(entries: IVaultDBEntry[], highlights?: string[]): SanitizedString {
+        const table = this.formatAndHighlightBatch(entries, highlights);
+
+        return html`<div class="foldedResults">(+${entries.length} hidden results, <a href="#" onclick="${expandFoldedResultHook}(event)">show</a>)<div style="display:none">${table}</div></div>`;
     }
 
     /**
@@ -43,6 +54,7 @@ export class VaultEntryFormatter {
             <span class="url"><a target="_blank" href="${e.url}">${e.url}</a></span>
             ${this.config.usageCountVisibility ? html`<span class="use">(used ${e.usage_count} times)</span>` : ''}
             ${(e.reuse_count > 0) ? html`<span class="reuse">(warning: re-used ${e.reuse_count} times)</span>` : ''}
+            ${e.hidden ? html`<span class="hidden">(hidden)</span>`  : '' }
             <span class="copied">Copied to the clipboard!</span>
         </span>`;
     }
@@ -93,8 +105,9 @@ export class VaultEntryFormatter {
                 </td>
                 <td>@</td>
                 <td class="url"><a target="_blank" href="${e.url}">${this.sanitizeAndHighlight(e.url, highlights)}</a></span>
-                ${this.config.usageCountVisibility ? html`<span class="use">(used ${e.usage_count} times)</span>` : ''}
+                ${this.config.usageCountVisibility ? html`<td class="use">(used ${e.usage_count} times)</td>` : html`<td class="empty"></td>`}
                 ${(e.reuse_count > 0) ? html`<td class="reuse">(warning: re-used ${e.reuse_count} times)</td>` : html`<td class="empty"></td>`}
+                ${e.hidden ? html`<td class="hidden">(hidden)</td>` : html`<td class="empty"></td>`}
                 <td class="copied">Copied to the clipboard!</td>
         </tr>`;
     }
