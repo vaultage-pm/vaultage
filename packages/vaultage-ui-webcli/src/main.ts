@@ -3,6 +3,7 @@ import { AddCommand } from './commands/Add';
 import { AuthCommand } from './commands/Auth';
 import { ClearCommand } from './commands/Clear';
 import { ConfigCommand } from './commands/Config';
+import { CopyCommand } from './commands/Copy';
 import { DumpCommand } from './commands/Dump';
 import { EditCommand } from './commands/Edit';
 import { GenCommand } from './commands/Gen';
@@ -57,6 +58,7 @@ export function start(el: HTMLElement) {
     shell.registerCommand(new AuthCommand(shell, ctx, config, timeout));
     shell.registerCommand(new ClearCommand(shell));
     shell.registerCommand(new ConfigCommand(shell, config, timeout));
+    shell.registerCommand(new CopyCommand(shell, config, ctx));
     shell.registerCommand(new DumpCommand(shell, ctx));
     shell.registerCommand(new EditCommand(shell, config, ctx));
     shell.registerCommand(new GenCommand(shell, ctx));
