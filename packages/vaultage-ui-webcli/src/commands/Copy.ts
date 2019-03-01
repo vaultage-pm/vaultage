@@ -32,5 +32,11 @@ export class CopyCommand implements ICommand {
         const vef = new VaultEntryFormatter(this.config);
         this.shell.echoHTML(vef.formatSingle(e));
         this.shell.echoHTML(html`Copied to the clipboard !`);
+
+        // update usage count
+        this.ctx.vault.entryUsed(id);
+        await this.ctx.vault.save();
+
+        this.shell.echo('Push OK, revision ' + this.ctx.vault.getDBRevision() + '.');
     }
 }
