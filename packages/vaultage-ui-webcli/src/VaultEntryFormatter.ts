@@ -54,6 +54,7 @@ export class VaultEntryFormatter {
             <span class="url"><a target="_blank" href="${e.url}">${e.url}</a></span>
             ${this.config.usageCountVisibility ? html`<span class="use">(used ${e.usage_count} times)</span>` : ''}
             ${(e.reuse_count > 0) ? html`<span class="reuse">(warning: re-used ${e.reuse_count} times)</span>` : ''}
+            ${e.hidden ? html`<span class="hidden">(hidden)</span>`  : '' }
             <span class="copied">Copied to the clipboard!</span>
         </span>`;
     }
@@ -104,8 +105,9 @@ export class VaultEntryFormatter {
                 </td>
                 <td>@</td>
                 <td class="url"><a target="_blank" href="${e.url}">${this.sanitizeAndHighlight(e.url, highlights)}</a></span>
-                ${this.config.usageCountVisibility ? html`<span class="use">(used ${e.usage_count} times)</span>` : ''}
+                ${this.config.usageCountVisibility ? html`<td class="use">(used ${e.usage_count} times)</td>` : html`<td class="empty"></td>`}
                 ${(e.reuse_count > 0) ? html`<td class="reuse">(warning: re-used ${e.reuse_count} times)</td>` : html`<td class="empty"></td>`}
+                ${e.hidden ? html`<td class="hidden">(hidden)</td>` : html`<td class="empty"></td>`}
                 <td class="copied">Copied to the clipboard!</td>
         </tr>`;
     }

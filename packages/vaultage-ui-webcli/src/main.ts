@@ -1,5 +1,4 @@
 import * as vaultage from 'vaultage-client';
-
 import { AddCommand } from './commands/Add';
 import { AuthCommand } from './commands/Auth';
 import { ClearCommand } from './commands/Clear';
@@ -9,6 +8,7 @@ import { EditCommand } from './commands/Edit';
 import { GenCommand } from './commands/Gen';
 import { GetCommand } from './commands/Get';
 import { HelpCommand } from './commands/Help';
+import { HideCommand } from './commands/Hide';
 import { ImportCSVCommand } from './commands/ImportCSV';
 import { LogoutCommand } from './commands/Logout';
 import { LsCommand } from './commands/Ls';
@@ -27,6 +27,7 @@ import { html } from './security/xss';
 import { TimeoutService } from './TimeoutService';
 import { Shell } from './webshell/Shell';
 import { Terminal } from './webshell/Terminal';
+
 
 export const config = new Config();
 export const ctx = new Context();
@@ -70,6 +71,7 @@ export function start(el: HTMLElement) {
     shell.registerCommand(new RawImportCommand(shell, ctx));
     shell.registerCommand(new ReusedCommand(shell, config, ctx));
     shell.registerCommand(new RmCommand(shell, config, ctx));
+    shell.registerCommand(new HideCommand(shell, config, ctx));
     shell.registerCommand(new RotateCommand(shell, config, ctx));
     shell.registerCommand(new WeakCommand(shell, config, ctx));
 

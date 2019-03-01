@@ -102,7 +102,8 @@ export class VaultDB {
                 title: '',
                 url: '',
                 login: '',
-                password: ''
+                password: '',
+                hidden: false
             };
         }
 
@@ -121,6 +122,9 @@ export class VaultDB {
         }
         if (attrs.url) {
             entry.url = attrs.url;
+        }
+        if (attrs.hidden !== undefined) {
+            entry.hidden = attrs.hidden;
         }
         entry.updated = currentDate;
 
