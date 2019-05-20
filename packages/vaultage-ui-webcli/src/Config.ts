@@ -15,6 +15,7 @@ export class Config {
     private static readonly USAGE_COUNT_VISIBILITY = 'USAGE_COUNT_VISIBILITY';
     private static readonly SHOW_MAX_N_RESULTS = 'SHOW_MAX_N_RESULTS';
     private static readonly AUTO_COPY_FIRST_RESULT = 'AUTO_COPY_FIRST_RESULT';
+    private static readonly COLOR_USERNAME_PROMPT = 'COLOR_USERNAME_PROMPT';
 
     /**
      * Default username to show in an auth prompt. This value is local to the browser.
@@ -30,6 +31,18 @@ export class Config {
 
     public set defaultUserName(username: string) {
         localStorage.setItem(Config.USERNAME_KEY, username);
+    }
+
+    /**
+     * If true, the prompt for the username will have a yellow background (to prevent accidental password inputs there)
+     */
+    public get colorUsernamePrompt(): boolean {
+        const visible = localStorage.getItem(Config.COLOR_USERNAME_PROMPT);
+        return (visible === 'true');
+    }
+
+    public set colorUsernamePrompt(visible: boolean) {
+        localStorage.setItem(Config.COLOR_USERNAME_PROMPT, String(visible));
     }
 
     /**

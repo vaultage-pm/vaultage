@@ -9,7 +9,8 @@ const AVAILABLE_OPTIONS: {[key: string]: keyof Config } = {
     session_timeout: 'sessionTimeout',
     usage_count_visibility: 'usageCountVisibility',
     show_at_most_n_results: 'showAtMostNResults',
-    auto_copy_first_result: 'autoCopyFirstResult'
+    auto_copy_first_result: 'autoCopyFirstResult',
+    color_username_prompt: 'colorUsernamePrompt'
 };
 
 export class ConfigCommand implements ICommand {

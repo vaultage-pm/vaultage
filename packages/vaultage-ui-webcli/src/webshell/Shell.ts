@@ -165,10 +165,16 @@ export class Shell implements ICommandHandler {
      *
      * @param question Text shown left to the user input
      */
-    public prompt(question: string, defaultValue?: string): Promise<string> {
+    public prompt(question: string, defaultValue?: string, highlightPrompt?: boolean): Promise<string> {
         return this.unbusyAction((term) => new Promise((resolve) => {
             term.prompt = question + '&nbsp;';
             term.focus();
+
+            if (highlightPrompt === true) {
+                term.highlightPrompt();
+            } else {
+                term.resetHighlightPrompt();
+            }
 
             if (defaultValue !== undefined) {
                 term.promptInput = defaultValue;
@@ -185,6 +191,7 @@ export class Shell implements ICommandHandler {
      */
     public promptSecret(question: string): Promise<string> {
         return this.unbusyAction((term) => new Promise((resolve) => {
+            term.resetHighlightPrompt();
             term.secretMode = true;
             term.prompt = question + '&nbsp;';
             term.focus();

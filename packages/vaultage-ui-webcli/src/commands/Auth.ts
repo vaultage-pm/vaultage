@@ -29,7 +29,7 @@ export class AuthCommand implements ICommand {
             this.shell.echo(`Connecting to ${username}@${serverUrl}...`);
         } else {
             this.shell.echo(`Connecting to ${serverUrl}...`);
-            username = await this.shell.prompt('Username:', this.config.defaultUserName);
+            username = await this.shell.prompt('Username:', this.config.defaultUserName, this.config.colorUsernamePrompt);
         }
 
         const masterpwd = await this.shell.promptSecret('Password:');

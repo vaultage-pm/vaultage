@@ -184,3 +184,9 @@ td.empty {
 .warning {
     color: yellow;
 }
+
+.highlightedPrompt {
+    background-color:#ff0c !important;
+    color: black !important;
+    text-shadow: none !important;
+}

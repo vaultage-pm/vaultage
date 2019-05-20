@@ -142,6 +142,22 @@ export class Terminal {
     }
 
     /**
+     * Highlights the prompt by changing the background
+     */
+    public highlightPrompt() {
+        this.$prompt.classList.add('highlightedPrompt');
+        this.$input.classList.add('highlightedPrompt');
+    }
+
+    /**
+     * Resets the background color to transparent
+     */
+    public resetHighlightPrompt() {
+        this.$prompt.classList.remove('highlightedPrompt');
+        this.$input.classList.remove('highlightedPrompt');
+    }
+
+    /**
      * Scrolls the log to the point where the latest line is visible.
      */
     public scrollToBottom() {
