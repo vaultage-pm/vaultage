@@ -70,7 +70,7 @@ export class VaultagePOM {
         });
     }
 
-    public hasError(): Promise<string> {
+    public hasError(): Promise<boolean> {
         return this.page.evaluate(() => {
             const error = document.querySelector('.error');
             return error != null;
@@ -85,10 +85,10 @@ export class VaultagePOM {
         return this.page.evaluate(() => {
             const items = document.querySelectorAll('.entry');
 
-            if (items == null) {
-                return '';
-            }
             const ret: IEntry[] = [];
+            if (items == null) {
+                return ret;
+            }
             // tslint:disable-next-line:prefer-for-of
             for (let i = 0 ; i < items.length ; i++) {
                 const item = items[i];

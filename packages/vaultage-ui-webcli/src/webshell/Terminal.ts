@@ -301,7 +301,11 @@ export class Terminal {
      * true when the user has selected some text somewhere on the page.
      */
     public get hasSelection() {
-        return window.getSelection().type === 'Range';
+        const selection = window.getSelection();
+        if (selection === null) {
+            return false;
+        }
+        return selection.type === 'Range';
     }
 
     private onMouseUp() {
