@@ -1,3 +1,4 @@
+import * as copy from 'copy-to-clipboard';
 import { IVaultDBEntry } from 'vaultage-client/dist/src/vaultage';
 import { Config } from '../Config';
 import { Context } from '../Context';
@@ -52,6 +53,20 @@ export class GetCommand implements ICommand {
 
         if (hiddenResults.length > 0) {
             this.shell.echoHTML(vef.formatAndHighlightBatchFolded(hiddenResults, searchTerms));
+        }
+
+        // auto-copy first entry into clipboard
+        if (this.config.autoCopyFirstResult && results.length > 0) {
+            const e = results[0];
+            copy(e.password);
+
+            this.shell.echoHTML(html`Entry #${e.id} automatically copied to the clipboard !`);
+
+            // update usage count
+            this.ctx.vault.entryUsed(e.id);
+            await this.ctx.vault.save();
+
+            this.shell.echo('Push OK, revision ' + this.ctx.vault.getDBRevision() + '.');
         }
     }
 }

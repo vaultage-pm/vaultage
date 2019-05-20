@@ -8,7 +8,8 @@ const AVAILABLE_OPTIONS: {[key: string]: keyof Config } = {
     host_default: 'defaultHost',
     session_timeout: 'sessionTimeout',
     usage_count_visibility: 'usageCountVisibility',
-    show_at_most_n_results: 'showAtMostNResults'
+    show_at_most_n_results: 'showAtMostNResults',
+    auto_copy_first_result: 'autoCopyFirstResult'
 };
 
 export class ConfigCommand implements ICommand {
