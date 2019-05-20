@@ -1,10 +1,7 @@
-import * as path from 'path';
 import * as fs from 'fs';
-import { cd, exec } from 'shelljs';
-import * as inquirer from 'inquirer';
+import * as path from 'path';
 import * as semver from 'semver';
-
-const prompt = inquirer.createPromptModule();
+import { cd, exec } from 'shelljs';
 
 interface IPackageDefinition {
     name: string;
@@ -48,28 +45,10 @@ const packages: IPackageDefinition[] = [
 
     const version = getVersion(config.releaseType, config.channel);
 
-    const result = await prompt([{
-        type: 'confirm',
-        name: 'confirmRelease',
-        message: `You are about to release v${version} on channel ${channel}. Proceed?`,
-        default: false
-    }]);
-    if (!result.confirmRelease) {
+    if (exec('git status --porcelain').stdout.trim() !== '') {
+        console.log('Your git repository is dirty. You should commit all local changes before moving on.');
         process.exit(1);
         return;
-    }
-
-    if (exec('git status --porcelain').stdout.trim() !== '') {
-        const result = await prompt([{
-            type: 'confirm',
-            name: 'releaseDirty',
-            message: `Your git repository is dirty. You should commit all local changes before moving on. Proceed anyway?`,
-            default: false
-        }]);
-        if (!result.releaseDirty) {
-            process.exit(1);
-            return;
-        }
     }
 
     preparePackagesVersions(version);
@@ -92,38 +71,10 @@ const packages: IPackageDefinition[] = [
 
 async function configure() {
 
-    const { channel, preRelease, message } = await prompt([{
-        type: 'list',
-        name: 'channel',
-        message: 'To which channel would you like to release?',
-        choices: ['dev', 'next', 'latest'],
-        filter: function(val) {
-          return val.toLowerCase();
-        }
-    }, {
-        type: 'input',
-        name: 'message',
-        message: 'Short release message'
-    }, {
-        type: 'confirm',
-        name: 'preRelease',
-        message: 'Is this a pre-release?',
-        default: true
-    }]);
-
-    let releaseType: ReleaseType = 'prerelease';
-    
-    if (!preRelease) {
-        releaseType = (await prompt([{
-            type: 'list',
-            name: 'releaseType',
-            message: 'What kind of release are you performing?',
-            choices: ['patch', 'minor', 'major'],
-            filter: function(val) {
-              return val.toLowerCase();
-            }
-        }])).releaseType;
-    }
+    const channel = 'latest';
+    const preRelease = false;
+    const message = '';
+    const releaseType: ReleaseType = 'patch'; // minor major
 
     return { channel: channel as ReleaseChannel, preRelease, releaseType, message };
 }
@@ -133,7 +84,7 @@ function getVersion(releaseType: ReleaseType, channel: ReleaseChannel): string {
     const result = exec(`npm show vaultage@${channel} version`);
     const rawVersion = result.stdout.split('\n')[0];
 
-    const previousVersion = (rawVersion != '') ? semver.valid(rawVersion) : '0.0.0';
+    const previousVersion = (rawVersion !== '') ? semver.valid(rawVersion) : '0.0.0';
 
     if (previousVersion == null) {
         throw new Error(`Invalid previous version (${result.stdout}). aborting`);
