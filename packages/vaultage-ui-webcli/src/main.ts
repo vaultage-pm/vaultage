@@ -46,7 +46,7 @@ export function start(el: HTMLElement) {
     window.addEventListener('keydown', () => timeout.resetTimeout());
     window.addEventListener('mousemove', () => timeout.resetTimeout());
 
-    installGlobalHooks();
+    installGlobalHooks(ctx);
 
     shell.setBannerHTML(html`Vaultage v${vaultage.version()}
     <br>*********************

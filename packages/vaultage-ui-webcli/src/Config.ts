@@ -14,6 +14,8 @@ export class Config {
     private static readonly TIMEOUT_KEY = 'TIMEOUT_TIME';
     private static readonly USAGE_COUNT_VISIBILITY = 'USAGE_COUNT_VISIBILITY';
     private static readonly SHOW_MAX_N_RESULTS = 'SHOW_MAX_N_RESULTS';
+    private static readonly AUTO_COPY_FIRST_RESULT = 'AUTO_COPY_FIRST_RESULT';
+    private static readonly COLOR_USERNAME_PROMPT = 'COLOR_USERNAME_PROMPT';
 
     /**
      * Default username to show in an auth prompt. This value is local to the browser.
@@ -32,6 +34,18 @@ export class Config {
     }
 
     /**
+     * If true, the prompt for the username will have a yellow background (to prevent accidental password inputs there)
+     */
+    public get colorUsernamePrompt(): boolean {
+        const visible = localStorage.getItem(Config.COLOR_USERNAME_PROMPT);
+        return (visible === 'true');
+    }
+
+    public set colorUsernamePrompt(visible: boolean) {
+        localStorage.setItem(Config.COLOR_USERNAME_PROMPT, String(visible));
+    }
+
+    /**
      * Show usage count
      */
     public get usageCountVisibility(): boolean {
@@ -41,6 +55,19 @@ export class Config {
 
     public set usageCountVisibility(visible: boolean) {
         localStorage.setItem(Config.USAGE_COUNT_VISIBILITY, String(visible));
+    }
+
+
+    /**
+     * Auto copy first result into clipboard
+     */
+    public get autoCopyFirstResult(): boolean {
+        const enabled = localStorage.getItem(Config.AUTO_COPY_FIRST_RESULT);
+        return (enabled === 'true');
+    }
+
+    public set autoCopyFirstResult(enabled: boolean) {
+        localStorage.setItem(Config.AUTO_COPY_FIRST_RESULT, String(enabled));
     }
 
 
