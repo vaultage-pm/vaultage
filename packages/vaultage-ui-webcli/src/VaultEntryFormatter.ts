@@ -98,17 +98,17 @@ export class VaultEntryFormatter {
 
         return html`<tr class="entry">
                 <td class="id">(${this.sanitizeAndHighlight(e.id, highlights)})</td>
-                <td class="title">${this.sanitizeAndHighlight(e.title, highlights)}</td> <td>&rarr;</td>
-                <td class="login">${this.sanitizeAndHighlight(e.login, highlights)}</td> <td>:</td>
+                <td class="title">${this.sanitizeAndHighlight(e.title, highlights)}</td> <td class="decorator">&rarr;</td>
+                <td class="login">${this.sanitizeAndHighlight(e.login, highlights)}</td> <td class="decorator">:</td>
                 <td ondblclick="${copyPasswordHook}(event)" class="password blurred ${extraClass}" data-id="${e.id}">
                     ${this.sanitizeAndHighlight(e.password, highlights)}
                 </td>
-                <td>@</td>
+                <td class="decorator">@</td>
                 <td class="url"><a target="_blank" href="${e.url}">${this.sanitizeAndHighlight(e.url, highlights)}</a></span>
                 ${this.config.usageCountVisibility ? html`<td class="use">(used ${e.usage_count} times)</td>` : html`<td class="empty"></td>`}
                 ${(e.reuse_count > 0) ? html`<td class="reuse">(warning: re-used ${e.reuse_count} times)</td>` : html`<td class="empty"></td>`}
                 ${e.hidden ? html`<td class="hidden">(hidden)</td>` : html`<td class="empty"></td>`}
-                <td class="copied">Copied to the clipboard!</td>
+                <td class="copied decorator">Copied to the clipboard!</td>
         </tr>`;
     }
 

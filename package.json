@@ -18,14 +18,14 @@
   },
   "homepage": "https://github.com/vaultage-pm/vaultage#readme",
   "devDependencies": {
-    "@types/inquirer": "6.0.2",
-    "@types/semver": "^6.0.0",
+    "@types/inquirer": "6.0.3",
+    "@types/semver": "^6.0.1",
     "@types/shelljs": "^0.8.5",
-    "inquirer": "^6.3.1",
-    "semver": "^6.0.0",
+    "inquirer": "^6.4.1",
+    "semver": "^6.1.2",
     "shelljs": "^0.8.3",
-    "ts-node": "^8.1.0",
-    "typescript": "^3.4.5"
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.2"
   },
   "dependencies": {}
 }

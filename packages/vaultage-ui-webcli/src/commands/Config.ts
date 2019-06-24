@@ -57,16 +57,17 @@ export class ConfigCommand implements ICommand {
 
     private clear(key: string) {
         const configName = this.convertKeyToConfigEntry(key);
-        this.config[configName] = '';
+        this.config.reset(configName);
         this.shell.echo('OK');
     }
 
     private set(key: string, value: string) {
         const configName = this.convertKeyToConfigEntry(key);
+
         if (configName === 'sessionTimeout') {
             this.timeout.validateTimeoutFormat(value);
         }
-        this.config[configName] = value;
+        this.config.write(configName, value);
         if (configName === 'sessionTimeout') {
             this.timeout.resetTimeout();
         }
