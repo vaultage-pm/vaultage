@@ -190,3 +190,14 @@ td.empty {
     color: black !important;
     text-shadow: none !important;
 }
+
+@media only screen and (max-width: 600px) {
+
+    td {
+        display: inline-block !important;
+    }
+
+    .decorator {
+        display: none !important;
+    }
+}
