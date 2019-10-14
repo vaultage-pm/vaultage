@@ -454,6 +454,7 @@ export class Shell implements ICommandHandler {
             this.promptResolve = null;
             term.printCurrentPrompt();
             term.secretMode = false;
+            term.resetHighlightPrompt();
             resolve(Promise.reject('Aborted'));
         }
     }
