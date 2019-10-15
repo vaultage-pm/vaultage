@@ -78,4 +78,8 @@ export function start(el: HTMLElement) {
     shell.registerCommand(new WeakCommand(shell, config, ctx));
 
     shell.printBanner();
+
+    if (config.autoLogin) {
+        shell.runCommand(new AuthCommand(shell, ctx, config, timeout), []);
+    }
 }
