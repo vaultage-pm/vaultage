@@ -3,18 +3,10 @@ import { TimeoutService } from '../TimeoutService';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 
-const AVAILABLE_OPTIONS: {[key: string]: keyof Config } = {
-    username_default: 'defaultUserName',
-    host_default: 'defaultHost',
-    session_timeout: 'sessionTimeout',
-    usage_count_visibility: 'usageCountVisibility',
-    show_at_most_n_results: 'showAtMostNResults',
-    auto_copy_first_result: 'autoCopyFirstResult',
-    color_username_prompt: 'colorUsernamePrompt'
-};
-
 export class ConfigCommand implements ICommand {
     public readonly name = 'config';
+
+    public readonly availableKeys = Object.keys(Config.prototype).filter((key) => key !== 'reset');
 
     public readonly description = 'Configures the application.';
     constructor(
@@ -27,13 +19,17 @@ export class ConfigCommand implements ICommand {
 
         switch (args[0]) {
             case 'set':
-                this.set(this.parseArg('key', args[1]), this.parseArg('value', args[2]));
+                this.set(this.convertKeyToConfigEntry(args[1]), args[2]);
                 break;
             case 'get':
-                this.get(this.parseArg('key', args[1], false));
+                if (args.length < 2) {
+                    this.get(undefined);
+                } else {
+                    this.get(this.convertKeyToConfigEntry(args[1]));
+                }
                 break;
             case 'clear':
-                this.clear(this.parseArg('key', args[1]));
+                this.clear(this.convertKeyToConfigEntry(args[1]));
                 break;
             default:
                 this.printUsage();
@@ -44,16 +40,14 @@ export class ConfigCommand implements ICommand {
         if (n === 0) {
             return ['set', 'get', 'clear'];
         } else if (n === 1) {
-            return Object.keys(AVAILABLE_OPTIONS);
+            return this.availableKeys;
         }
         return [];
     }
 
     private printUsage() {
-        this.shell.echo('Usage: config <set|get|clear> key [value]');
-        this.shell.echo('keys: ' + Object.keys(AVAILABLE_OPTIONS).join(','));
-        this.shell.echo('');
-        this.shell.echo('Type `config get` to see current config.');
+        this.shell.echo('Usage: `config <set|get|clear> key [value]`, or `config get` to see the current config.');
+        this.shell.echo('keys: ' + this.availableKeys.join(','));
     }
 
     private clear(key: string) {
@@ -62,27 +56,43 @@ export class ConfigCommand implements ICommand {
         this.shell.echo('OK');
     }
 
-    private set(key: string, value: string) {
-        const configName = this.convertKeyToConfigEntry(key);
+    private castToType<T extends keyof Config>(key: T, value: string): Config[T] {
+        const typedPreviousValue = this.config[key];
 
-        if (configName === 'sessionTimeout') {
+        let castedValue: Config[T];
+        if (typeof this.config[key] === 'boolean') {
+            castedValue = (value === 'true') as Config[T]; // we know Config[T] is a boolean
+        } else {
+            castedValue = value as (typeof typedPreviousValue); // cast it as the type it was before
+        }
+
+        return castedValue;
+    }
+
+    private set<T extends keyof Config>(key: T, value: string | undefined) {
+        if (value === undefined) {
+            throw new Error(`Value required.`);
+        }
+
+        if (key === 'sessionTimeout') {
             this.timeout.validateTimeoutFormat(value);
         }
-        let previousValue = this.config[configName];
-        this.config.write(configName, value);
-        let newValue = this.config[configName];
-                
-        if (configName === 'sessionTimeout') {
+        const previousValue = this.config[key];
+
+        this.config[key] = this.castToType(key, value);
+        const newValue = this.config[key];
+
+        if (key === 'sessionTimeout') {
             this.timeout.resetTimeout();
         }
         this.shell.echo(`OK, previous value was ${previousValue}, new value is ${newValue}.`);
     }
 
-    private get(key: string) {
-        if (key == "") {
-            for(let key of Object.keys(AVAILABLE_OPTIONS)) {
-                const configName = this.convertKeyToConfigEntry(key);
-                this.shell.echo(`${key} => ${String(this.config[configName])}`);
+    private get<T extends keyof Config>(key: T | undefined) {
+        if (key === undefined) {
+            for (const key2 of this.availableKeys) {
+                const configName = this.convertKeyToConfigEntry(key2);
+                this.shell.echo(`${key2} => ${this.config[configName]}`);
             }
         } else {
             const configName = this.convertKeyToConfigEntry(key);
@@ -91,21 +101,16 @@ export class ConfigCommand implements ICommand {
     }
 
     private convertKeyToConfigEntry(key: string): keyof Config {
-        const setting = AVAILABLE_OPTIONS[key];
-        if (!setting) {
-            throw new Error(`Invalid key: ${key}`);
+        if (key === undefined) {
+            throw new Error(`Please provide a configuration key (${this.availableKeys.join(',')}).`);
         }
-        return setting;
+        if (this.keyInConfig(key)) {
+            return key;
+        }
+        throw new Error(`Invalid key: "${key}"`);
     }
 
-    private parseArg(name: string, value: string | undefined, required: boolean=true): string {
-        if (value !== undefined) {
-            if(required) {
-                this.printUsage();
-                throw new Error(`Missing argument '${name}'.`);
-            }
-            return value;
-        }
-        return '';
+    private keyInConfig(value: string): value is keyof Config {
+        return (value in Config.prototype);
     }
 }

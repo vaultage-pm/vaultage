@@ -15,7 +15,7 @@ export class Config {
     private static readonly USAGE_COUNT_VISIBILITY = 'USAGE_COUNT_VISIBILITY';
     private static readonly SHOW_MAX_N_RESULTS = 'SHOW_MAX_N_RESULTS';
     private static readonly AUTO_COPY_FIRST_RESULT = 'AUTO_COPY_FIRST_RESULT';
-    private static readonly COLOR_USERNAME_PROMPT = 'COLOR_USERNAME_PROMPT';
+    private static readonly COLOR_USERNAME_PROMPT = 'COLOR_USERNAUSERNAME_KEYME_PROMPT';
 
     /**
      * Default username to show in an auth prompt. This value is local to the browser.
@@ -29,6 +29,11 @@ export class Config {
         }
     }
 
+    public set defaultUserName(username: string) {
+        localStorage.setItem(Config.USERNAME_KEY, username);
+    }
+
+
     /**
      * If true, the prompt for the username will have a yellow background (to prevent accidental password inputs there)
      */
@@ -36,6 +41,11 @@ export class Config {
         const visible = localStorage.getItem(Config.COLOR_USERNAME_PROMPT);
         return (visible !== 'false'); // default is true
     }
+
+    public set colorUsernamePrompt(value: boolean) {
+        localStorage.setItem(Config.COLOR_USERNAME_PROMPT, (value ? 'true' : 'false'));
+    }
+
 
     /**
      * Show usage count
@@ -45,12 +55,20 @@ export class Config {
         return (visible === 'true');
     }
 
+    public set usageCountVisibility(value: boolean) {
+        localStorage.setItem(Config.USAGE_COUNT_VISIBILITY, (value ? 'true' : 'false'));
+    }
+
     /**
      * Auto copy first result into clipboard
      */
     public get autoCopyFirstResult(): boolean {
         const enabled = localStorage.getItem(Config.AUTO_COPY_FIRST_RESULT);
         return (enabled === 'true');
+    }
+
+    public set autoCopyFirstResult(value: boolean) {
+        localStorage.setItem(Config.AUTO_COPY_FIRST_RESULT, (value ? 'true' : 'false'));
     }
 
     /**
@@ -67,6 +85,10 @@ export class Config {
         return Number(n);
     }
 
+    public set showAtMostNResults(value: number) {
+        localStorage.setItem(Config.SHOW_MAX_N_RESULTS, value.toString());
+    }
+
     /**
      * Default host to contact.
      */
@@ -77,6 +99,10 @@ export class Config {
         } else {
             return host;
         }
+    }
+
+    public set defaultHost(host: string) {
+        localStorage.setItem(Config.HOST_KEY, host);
     }
 
 
@@ -92,25 +118,14 @@ export class Config {
         }
     }
 
+    public set sessionTimeout(seconds: string) {
+        localStorage.setItem(Config.TIMEOUT_KEY, seconds);
+    }
+
     /**
      * Reset the value behing Config.key to its default value
      */
     public reset(key: keyof Config) {
         localStorage.setItem(Config[key], '');
-    }
-
-
-    /**
-     * Sets the value behing Config.key to value
-     */
-    public write(key: keyof Config, value: string | number | boolean) {
-
-        if (typeof this[key] === 'boolean') {
-            localStorage.setItem(key, String(value));
-        } else if (typeof this[key] === 'string') {
-            localStorage.setItem(key, (value ? 'true' : 'false'));
-        } else if (typeof this[key] === 'number') {
-            localStorage.setItem(key, String(value));
-        }
     }
 }
