@@ -57,7 +57,7 @@ export function join(inputs: SanitizedString[], glue?: SanitizedString | undefin
  *
  *     const sanitized = html`Welcome ${user.name}! Would you like a ${user.favoriteDrink} ?`;
  */
-export function html(literals: TemplateStringsArray, ...placeholders: Array<(string|number|SanitizedString)>): SanitizedString {
+export function html(literals: TemplateStringsArray, ...placeholders: (string|number|SanitizedString)[]): SanitizedString {
     let result = '';
 
     // interleave the literals with the placeholders
