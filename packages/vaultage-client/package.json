@@ -33,6 +33,7 @@
     "dependencies": {
         "axios": "0.19.2",
         "jquery": "3.4.1",
+        "openpgp": "^4.9.0",
         "tslib": "1.10.0"
     },
     "devDependencies": {
