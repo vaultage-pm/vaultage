@@ -31,23 +31,23 @@
     },
     "homepage": "https://github.com/vaultage-pm/vaultage#readme",
     "dependencies": {
-        "axios": "0.19.0",
+        "axios": "0.19.2",
         "jquery": "3.4.1",
         "tslib": "1.10.0"
     },
     "devDependencies": {
-        "@types/jest": "24.0.19",
-        "@types/jquery": "3.3.31",
-        "@types/node": "12.7.12",
-        "cross-env": "6.0.3",
-        "jest": "24.9.0",
-        "ts-jest": "24.1.0",
-        "ts-loader": "6.2.0",
-        "ts-node": "8.4.1",
-        "tslint": "5.20.0",
-        "typescript": "3.6.4",
-        "webpack": "4.41.1",
-        "webpack-cli": "3.3.9"
+        "@types/jest": "25.1.2",
+        "@types/jquery": "3.3.32",
+        "@types/node": "13.7.0",
+        "cross-env": "7.0.0",
+        "jest": "25.1.0",
+        "ts-jest": "25.2.0",
+        "ts-loader": "6.2.1",
+        "ts-node": "8.6.2",
+        "tslint": "6.0.0",
+        "typescript": "3.7.5",
+        "webpack": "4.41.5",
+        "webpack-cli": "3.3.10"
     },
     "jest": {
         "transform": {
