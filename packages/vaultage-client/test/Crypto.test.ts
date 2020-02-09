@@ -12,10 +12,9 @@ describe('Crypto.ts', () => {
             LOCAL_KEY_SALT: 'deadbeef',
             REMOTE_KEY_SALT: '0123456789',
         });
-        crypto.PBKDF2_DIFFICULTY = 1;
     });
 
-    describe('  ', () => {
+    describe('the local/remote keys', () => {
         const masterKey = 'ucantseeme';
         it('gives a consistent local key', () => {
             const localKey = crypto.deriveLocalKey(masterKey);
@@ -49,7 +48,7 @@ describe('Crypto.ts', () => {
          for (let i = 0 ; i < 10 ; i++) {
             it('work together', async () => {
                 const masterKey = generateString(20);
-                const localKey = crypto.deriveLocalKey(masterKey);
+                const localKey = await crypto.deriveLocalKey(masterKey);
                 const plaintext = generateString(2000);
                 const cipher = await crypto.encrypt(localKey, plaintext);
                 const decoded = await crypto.decrypt(localKey, cipher);
@@ -62,20 +61,20 @@ describe('Crypto.ts', () => {
         for (let i = 0 ; i < 10 ; i++) {
             const database = generateString(2000);
             const masterKey = generateString(20);
-            it('works on a random database', () => {
-                const localKey = crypto.deriveLocalKey(masterKey);
+            it('works on a random database', async () => {
+                const localKey = await crypto.deriveLocalKey(masterKey);
                 const fingerprint = crypto.getFingerprint(localKey, database);
                 expect(fingerprint).not.toEqual(database);
             });
-            it('is deterministic', () => {
-                const localKey = crypto.deriveLocalKey(masterKey);
+            it('is deterministic', async () => {
+                const localKey = await crypto.deriveLocalKey(masterKey);
                 const fingerprint = crypto.getFingerprint(localKey, database);
                 const fingerprint2 = crypto.getFingerprint(localKey, database);
                 expect(fingerprint).toEqual(fingerprint2);
             });
-            it('depends on the local key', () => {
-                const localKey = crypto.deriveLocalKey(masterKey);
-                const localKey2 = crypto.deriveLocalKey(masterKey + '2');
+            it('depends on the local key', async () => {
+                const localKey = await crypto.deriveLocalKey(masterKey);
+                const localKey2 = await crypto.deriveLocalKey(masterKey + '2');
                 const fingerprint = crypto.getFingerprint(localKey, database);
                 const fingerprint2 = crypto.getFingerprint(localKey2, database);
                 expect(fingerprint).not.toEqual(fingerprint2);

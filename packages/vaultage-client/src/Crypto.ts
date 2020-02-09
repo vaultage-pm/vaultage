@@ -1,104 +1,73 @@
 import { ISaltsConfig } from './interface';
-import { ERROR_CODE, VaultageError } from './VaultageError';
-
-// tslint:disable-next-line:no-var-requires
-const sjcl = require('../lib/sjcl') as any;
-
-// tslint:disable-next-line:no-var-requires
-const openpgp = require('openpgp') as any;
+import { AES_CFB_SHA512_OPENPGPJS } from './crypto/AES_CFB_SHA512_OPENPGPJS';
+import { ICryptoSuite } from './crypto/CryptoSuite';
+import { AES_CCM_SHA512_PBKDF2_SJCL } from './crypto/AES_CCM_SHA512_PBKDF2_SJCL';
 
 /**
  * Handles the crypto stuff
  */
 export class Crypto {
 
-    public PBKDF2_DIFFICULTY: number = 32768;
+    private cryptoSuite: ICryptoSuite<string>;
 
-    constructor(
-            private _salts: ISaltsConfig) {
-    }
-
-    /**
-     * Returns the local key for a given LOCAL_KEY_SALT and master password.
-     *
-     * @param masterPassword Plaintext of the master password
-     */
-    public deriveLocalKey(masterPassword: string): string {
-        const masterHash = sjcl.hash.sha512.hash(masterPassword);
-        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash , this._salts.LOCAL_KEY_SALT, this.PBKDF2_DIFFICULTY));
-    }
-
-    /**
-     * Returns the remote key for a given REMOTE_KEY_SALT and master password.
-     *
-     * @param masterPassword Plaintext of the master password
-     */
-    public deriveRemoteKey(masterPassword: string): string {
-        const masterHash = sjcl.hash.sha512.hash(masterPassword);
-        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(masterHash, this._salts.REMOTE_KEY_SALT, this.PBKDF2_DIFFICULTY));
-    }
-
-    /**
-     * Performs the symetric encryption of a plaintext.
-     *
-     * Used to encrypt the vault's serialized data.
-     *
-     * @param localKey Local encryption key
-     * @param plain The plaintext to encrypt
-     */
-    public async encrypt(localKey: string, plain: string): Promise<string> {
-
-        const cipher = await openpgp.encrypt({
-            message: openpgp.message.fromText(plain),
-            passwords: [localKey],
-            armor: true
-        });
-
-        return cipher.data;
-    }
-
-    /**
-     * Performs the symetric decryption of a plaintext.
-     *
-     * Used to decrypt the vault's serialized data.
-     *
-     * @param localKey Local encryption key
-     * @param cipher The ciphertext to encrypt
-     */
-    public async decrypt(localKey: string, cipher: string): Promise<string> {
-        try {
-            const res = await openpgp.decrypt({
-                message: await openpgp.message.readArmored(cipher),
-                passwords: [localKey]
-            });
-            return res.data;
-        } catch (e) {
-            throw new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occurred while decrypting the cipher', e);
+    constructor(salts: ISaltsConfig, suite='AES_CFB_SHA512_OPENPGPJS') {
+        switch(suite) {
+            case 'AES_CCM_SHA512_PBKDF2_SJCL':
+                this.cryptoSuite = new AES_CCM_SHA512_PBKDF2_SJCL(salts);
+                break;
+            case 'AES_CFB_SHA512_OPENPGPJS':
+            default:
+                this.cryptoSuite = new AES_CFB_SHA512_OPENPGPJS(salts);
+                break;
         }
     }
 
     /**
-     * Computes the fingerprint of a plaintext.
-     *
-     * Used to prove to our past-self that we have access to the local key and the latest
-     * vault's plaintext and and challenge our future-self to do the same.
-     *
-     * @param plain the serialized vault's plaintext
-     * @param localKey the local key
-     * @param username the username is needed to salt the fingerprint
+     * Performs the symetric encryption of a plaintext.
      */
-    public getFingerprint(plain: string, localKey: string): string {
-        // We want to achieve two results:
-        // 1. Ensure that we don't push old content over some newer content
+    public async encrypt(localKey: string, plaintext: string): Promise<string> {
+        return this.cryptoSuite.symmetric_encrypt(localKey, plaintext);
+    }
+
+    /**
+     * Performs the symetric decryption of a plaintext.
+     */
+    public async decrypt(localKey: string, cipher: string): Promise<string> {
+        return this.cryptoSuite.symmetric_decrypt(localKey, cipher);
+    }
+
+    /**
+     * Returns the local key computed as PBKDF2(LOCAL_KEY_SALT || hash(masterHash))
+     * @param masterPassword
+     */
+    public async deriveLocalKey(masterPassword: string): Promise<string> {
+        const masterHash = await this.cryptoSuite.hash(masterPassword);
+        return await this.cryptoSuite.pbkdf(this.cryptoSuite.salts.LOCAL_KEY_SALT, masterHash);
+    }
+
+    /**
+     * Returns the local key computed as PBKDF2(REMOTE_KEY_SALT || hash(masterHash))
+     * @param masterPassword
+     */
+    public async deriveRemoteKey(masterPassword: string): Promise<string> {
+        const masterHash = await this.cryptoSuite.hash(masterPassword);
+        return await this.cryptoSuite.pbkdf(this.cryptoSuite.salts.REMOTE_KEY_SALT, masterHash);
+    }
+
+    /**
+     * Returns the "fingerprint" of the local DB, computed as PBKDF2(REMOTE_KEY_SALT || hash(masterHash))
+     * @param plain the serialized vault's plaintext
+     * @param localKey
+     */
+    public async getFingerprint(databasePlaintext: string, localKey: string): Promise<string> {
+        // Use of the "fingerprint":
+        // 1. Ensure that we don't push old content over some newer content (e.g., pushed by another device)
         // 2. Prevent unauthorized pushes even if the remote key was compromized
         //
-        // For 1, we need to fingerprint the plaintext of the DB as well as the local key.
-        // Without the local key we could not detect when the local key changed and
-        // might overwrite a DB that was re-encrypted with a new local password.
-        //
-        // The localKey is already derived from the username, some per-deployment salt and
-        // the master password so using it as a salt here should be enough to show that we know
-        // all of the above information.
-        return sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(plain, localKey, this.PBKDF2_DIFFICULTY));
+        // 1. is achieved by giving the *previous* fingerprint along with an update; if it doesn't match
+        // the one stored in the server, this is a dirty write.
+        // 2. if the remote key is compromised but not the server logic, the adversary still need to the local
+        // key to produce the fingerprint
+        return await this.cryptoSuite.pbkdf(localKey, databasePlaintext);
     }
 }
