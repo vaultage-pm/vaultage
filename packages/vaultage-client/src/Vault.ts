@@ -255,7 +255,7 @@ export class Vault {
 
     private async _pushCipher(creds: ICredentials, newRemoteKey: (string|null)): Promise<void> {
         const plain = VaultDB.serialize(this._db);
-        const cipher = this._crypto.encrypt(creds.localKey, plain);
+        const cipher = await this._crypto.encrypt(creds.localKey, plain);
         const fingerprint = this._crypto.getFingerprint(plain, creds.localKey);
 
         await HttpApi.pushCipher(
@@ -269,8 +269,8 @@ export class Vault {
         this._lastFingerprint = fingerprint;
     }
 
-    private _setCipher(creds: ICredentials, cipher: string): void {
-        const plain = this._crypto.decrypt(creds.localKey, cipher);
+    private async _setCipher(creds: ICredentials, cipher: string): Promise<void> {
+        const plain = await this._crypto.decrypt(creds.localKey, cipher);
         this._db = VaultDB.deserialize(plain);
         this._lastFingerprint = this._crypto.getFingerprint(plain, creds.localKey);
     }

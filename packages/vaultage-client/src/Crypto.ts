@@ -4,6 +4,9 @@ import { ERROR_CODE, VaultageError } from './VaultageError';
 // tslint:disable-next-line:no-var-requires
 const sjcl = require('../lib/sjcl') as any;
 
+// tslint:disable-next-line:no-var-requires
+const openpgp = require('openpgp') as any;
+
 /**
  * Handles the crypto stuff
  */
@@ -43,8 +46,15 @@ export class Crypto {
      * @param localKey Local encryption key
      * @param plain The plaintext to encrypt
      */
-    public encrypt(localKey: string, plain: string): string {
-        return sjcl.encrypt(localKey, plain);
+    public async encrypt(localKey: string, plain: string): Promise<string> {
+
+        const cipher = await openpgp.encrypt({
+            message: openpgp.message.fromText(plain),
+            passwords: [localKey],
+            armor: true
+        });
+
+        return cipher.data;
     }
 
     /**
@@ -55,9 +65,13 @@ export class Crypto {
      * @param localKey Local encryption key
      * @param cipher The ciphertext to encrypt
      */
-    public decrypt(localKey: string, cipher: string): string {
+    public async decrypt(localKey: string, cipher: string): Promise<string> {
         try {
-            return sjcl.decrypt(localKey, cipher);
+            const res = await openpgp.decrypt({
+                message: await openpgp.message.readArmored(cipher),
+                passwords: [localKey]
+            });
+            return res.data;
         } catch (e) {
             throw new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occurred while decrypting the cipher', e);
         }

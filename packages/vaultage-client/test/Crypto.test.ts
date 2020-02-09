@@ -15,7 +15,7 @@ describe('Crypto.ts', () => {
         crypto.PBKDF2_DIFFICULTY = 1;
     });
 
-    describe('the key derivation function', () => {
+    describe('  ', () => {
         const masterKey = 'ucantseeme';
         it('gives a consistent local key', () => {
             const localKey = crypto.deriveLocalKey(masterKey);
@@ -32,9 +32,9 @@ describe('Crypto.ts', () => {
             const localKey = generateString(20);
             const plaintext = generateString(2000);
 
-            it('work together', () => {
-                const cipher = crypto.encrypt(localKey, plaintext);
-                const decoded = crypto.decrypt(localKey, cipher);
+            it('work together', async () => {
+                const cipher = await crypto.encrypt(localKey, plaintext);
+                const decoded = await crypto.decrypt(localKey, cipher);
                 expect(plaintext).toEqual(decoded);
             });
 
@@ -47,12 +47,12 @@ describe('Crypto.ts', () => {
 
     describe('the key derivation works with encryption and decryption', () => {
          for (let i = 0 ; i < 10 ; i++) {
-            it('work together', () => {
+            it('work together', async () => {
                 const masterKey = generateString(20);
                 const localKey = crypto.deriveLocalKey(masterKey);
                 const plaintext = generateString(2000);
-                const cipher = crypto.encrypt(localKey, plaintext);
-                const decoded = crypto.decrypt(localKey, cipher);
+                const cipher = await crypto.encrypt(localKey, plaintext);
+                const decoded = await crypto.decrypt(localKey, cipher);
                 expect(plaintext).toEqual(decoded);
             });
         }

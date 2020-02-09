@@ -10,7 +10,7 @@ function cPrint(v: any) {
     }
 }
 
-test('Workflow', () => {
+test('Workflow', async () => {
 
     cPrint('Demoing the encryption / decryption locally...');
     cPrint('Note that this is demoing the inside of the vaultage SDK but all of this complexity' +
@@ -49,14 +49,14 @@ test('Workflow', () => {
     cPrint('Fingerprint: ' + fp);
 
     cPrint('\n\nNow I\'m gonna encrypt the db');
-    const enc = crypto.encrypt(key, plain);
+    const enc = await crypto.encrypt(key, plain);
 
     cPrint('Here is the cipher:\n');
     cPrint(enc);
 
     cPrint('\n\nAnd now let\'s get back the original:');
 
-    const dec = crypto.decrypt(key, enc);
+    const dec = await crypto.decrypt(key, enc);
     const decFP = crypto.getFingerprint(dec, key);
     const decDB = VaultDB.deserialize(dec);
 
