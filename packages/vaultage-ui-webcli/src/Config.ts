@@ -2,7 +2,7 @@ export const PWD_GEN_LENGTH = 16;
 export const PWD_GEN_USE_SYMBOLS = false;
 export const PWG_GEN_AVOID_VISUALLY_SIMILAR_CHARS = true;
 export const PWD_GEN_AVOID_PUNCTUATION_USED_IN_PROGRAMMING = true;
-
+const DEFAULT_MAX_NUMBER_OF_PASSWORD_RETURNED = 10
 
 /**
  * Configuration settings of the webui client application.
@@ -52,7 +52,7 @@ export class Config {
      */
     public get autoLogin(): boolean {
         const autoLogin = localStorage.getItem(Config.AUTOLOGIN_KEY);
-        return (autoLogin === 'true');
+        return (autoLogin !== 'false'); // default is true
     }
 
     public set autoLogin(value: boolean) {
@@ -89,10 +89,10 @@ export class Config {
     public get showAtMostNResults(): number {
         const n = localStorage.getItem(Config.SHOW_MAX_N_RESULTS_KEY);
         if (n == null) {
-            return -1;
+            return DEFAULT_MAX_NUMBER_OF_PASSWORD_RETURNED;
         }
         if (isNaN(Number(n))) {
-            return -1;
+            return DEFAULT_MAX_NUMBER_OF_PASSWORD_RETURNED;
         }
         return Number(n);
     }
