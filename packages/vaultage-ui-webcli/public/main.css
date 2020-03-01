@@ -171,6 +171,12 @@ a, a:hover, a:visited {
     padding-left: 10px !important;
 }
 
+.entryCollection td.password {
+    padding-right: 10px !important;
+    padding-left: 10px !important;
+    word-wrap: anywhere;
+}
+
 td.empty {
     padding: 0 !important;
     margin: 0 !important;
