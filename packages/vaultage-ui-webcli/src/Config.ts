@@ -52,7 +52,7 @@ export class Config {
      */
     public get autoLogin(): boolean {
         const autoLogin = localStorage.getItem(Config.AUTOLOGIN_KEY);
-        return (autoLogin !== 'false'); // default is true
+        return (autoLogin !== 'false') && (this.defaultUserName !== '');
     }
 
     public set autoLogin(value: boolean) {

@@ -3,6 +3,7 @@ import { HttpApi } from './HTTPApi';
 import { IHttpParams, IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from './interface';
 import { deepCopy } from './utils';
 import { VaultDB } from './VaultDB';
+import { VaultageError, ERROR_CODE } from './VaultageError';
 
 export interface ICredentials {
     localKey: string;
@@ -258,15 +259,122 @@ export class Vault {
         const cipher = this._crypto.encrypt(creds.localKey, plain);
         const fingerprint = this._crypto.getFingerprint(plain, creds.localKey);
 
-        await HttpApi.pushCipher(
-            creds,
-            newRemoteKey,
-            cipher,
-            this._lastFingerprint,
-            fingerprint,
-            this._httpParams);
+        try {
+            await HttpApi.pushCipher(
+                creds,
+                newRemoteKey,
+                cipher,
+                this._lastFingerprint,
+                fingerprint,
+                this._httpParams);
+        } catch (exception) {
+            if (exception.code === ERROR_CODE.NOT_FAST_FORWARD) {
+                console.log('Push is not fast-forward, attempting merge...');
+                this._merge(creds);
+            } else {
+                // not our concern, continue throwing
+                throw exception;
+            }
+        }
 
         this._lastFingerprint = fingerprint;
+    }
+
+    private async _merge(creds: ICredentials): Promise<void> {
+        const clientEntries = this._db.getAll();
+        const oldCipher = await HttpApi.pullCipher(creds, this._httpParams);
+        const oldPlain = this._crypto.decrypt(creds.localKey, oldCipher);
+        const serverEntries = VaultDB.deserialize(oldPlain).getAll();
+
+        const arrayToMap = (array: IVaultDBEntry[]) => {
+            const map = new Map<string, IVaultDBEntry>();
+            for(const entry of array) {
+                map.set(entry.id, entry);
+            }
+            return map;
+        }
+
+        const clientEntriesMap = arrayToMap(clientEntries);
+        const serverEntriesMap = arrayToMap(serverEntries);
+
+        const entriesArePerfectlyEqual = (e1: IVaultDBEntry, e2: IVaultDBEntry) => {
+            return entriesAreSemanticallyEqual(e1, e2) &&
+            (e1.created === e2.created) &&
+            (e1.updated === e2.updated) &&
+            (e1.usage_count === e2.usage_count) &&
+            (e1.reuse_count === e2.reuse_count) &&
+            (e1.hidden === e2.hidden)
+        }
+
+        const entriesAreSemanticallyEqual = (e1: IVaultDBEntry, e2: IVaultDBEntry) => {
+            return (e1.id === e2.id) &&
+            (e1.title === e2.title) &&
+            (e1.url === e2.url) &&
+            (e1.login === e2.login) &&
+            (e1.password === e2.password)
+            // do not compare usage count, etc
+        }
+
+        const mergeEntries = (e1: IVaultDBEntry, e2: IVaultDBEntry): IVaultDBEntry => {
+            if(!entriesAreSemanticallyEqual(e1, e2)) {
+                throw new Error('Something went terribly wrong; can\'t merge: ' + JSON.stringify([e1, e2]));
+            }
+            const result: IVaultDBEntry = JSON.parse(JSON.stringify(e1))
+            result.usage_count = Math.max(e1.usage_count, e2.usage_count)
+            result.reuse_count = Math.max(e1.reuse_count, e2.reuse_count)
+            return result
+        }
+
+        // find differences
+        const newClientEntries: IVaultDBEntry[] = [];
+        const newServerEntries: IVaultDBEntry[] = [];
+        const commonEntries: IVaultDBEntry[] = [];
+
+        const mergedEntries: IVaultDBEntry[] = [];
+        type VaultTuple = [IVaultDBEntry, IVaultDBEntry]; // client version, server version
+        const nonMergedEntries: VaultTuple[] = [];
+
+        for(const entry of clientEntries) {
+            if(!serverEntriesMap.has(entry.id)) {
+                newClientEntries.push(entry);
+            }
+            commonEntries.push(entry);
+        }
+        for(const entry of serverEntries) {
+            if(!serverEntriesMap.has(entry.id)) {
+                newServerEntries.push(entry);
+            }
+        }
+
+        for(const clientEntry of commonEntries) {
+            const serverEntry = serverEntriesMap.get(clientEntry.id);
+            if (serverEntry === undefined) {
+                throw new Error('Something went terribly wrong in the comparison.')
+            }
+            if(!entriesArePerfectlyEqual(clientEntry, serverEntry)) {
+                if(entriesAreSemanticallyEqual(clientEntry, serverEntry)) {
+                    mergedEntries.push(mergeEntries(clientEntry, serverEntry))
+                } else {
+                    nonMergedEntries.push([clientEntry, serverEntry]);
+                }
+            }
+        }
+
+        if(nonMergedEntries.length > 0) {
+            throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, 'The server has a newer version of the DB, couldn\'t merge automatically');
+        }
+
+        // HERE
+
+        console.log('New Server Entries:')
+        for(const e of newServerEntries) {
+            console.log(JSON.stringify(e))
+        }
+
+        console.log('Entries automatically merged:')
+        for(const e of mergedEntries) {
+            console.log(JSON.stringify(e))
+        }
     }
 
     private _setCipher(creds: ICredentials, cipher: string): void {
