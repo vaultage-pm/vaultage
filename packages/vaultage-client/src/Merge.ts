@@ -6,10 +6,10 @@ export class Merge {
     public static mergeVaultsIfPossible(v1: IVaultDBEntry[], v2: IVaultDBEntry[]): IVaultDBEntry[] {
 
         if (v1 === undefined || v1.length === 0) {
-            return v2;
+            return Merge.deepClone(v2);
         }
         if (v2 === undefined || v2.length === 0) {
-            return v1;
+            return Merge.deepClone(v1);
         }
 
         const arrayToMap = (array: IVaultDBEntry[]) => {
@@ -49,32 +49,50 @@ export class Merge {
         // At this stage, we have the following possible scenarios (mutually exclusive):
         // 1. no changes, DB are the same => return v1
         // 2. deleted entries => those will be remerged, sadly, because a deletion on v1 looks like an add on v2
-        // 3. added entries: at most 1 new in each v1 and v2
+        // 3. added entries: at most 1 new in each v1 and v2 -> they will have the same ID, unmergeable. if Abort
         // 4. modified entries: at most 2 changes
 
         const numberNew = newV1Entries.length + newV2Entries.length;
         const numberEdited = modifiedBothWays.length;
 
         if (numberNew + numberEdited === 0) {
-            return v1;
+            return Merge.deepClone(v1);
         }
 
-        if (numberNew === 2) {
-            if (newV1Entries.length > 1 || newV2Entries.length > 1 || numberEdited !== 0) {
+        console.log(`Detected ${numberNew} additions (${newV1Entries.length} on v1 and ${newV2Entries.length} on v2) and ${numberEdited} edits.`);
+
+
+        if (numberNew > 1 || numberEdited > 2) {
+            throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, too many changes. Detected ${numberNew} additions (${newV1Entries.length} on v1 and ${newV2Entries.length} on v2) and ${numberEdited} edits.`);
+        }
+
+        if (numberNew === 1) {
+
+            if (numberEdited > 1) {
                 throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, too many changes. Detected ${numberNew} additions (${newV1Entries.length} on v1 and ${newV2Entries.length} on v2) and ${numberEdited} edits.`);
             }
 
-            // add v2 new to v1
-            const result = Merge.deepClone(v1);
-            result.push(newV2Entries[0]);
-            return result;
+            // if we reach here, we have one addition, and 0-1 edits. There is no entry-merge to do !
+            // the edited entry is more recent than its counterpart.
+            // Locate on which side is the addition, apply it to the other side with the edition.
+
+            if(newV1Entries.length === 0 && newV2Entries.length === 1) {
+                // add v2 new to v1
+                const result = Merge.deepClone(v1);
+                result.push(newV2Entries[0]);
+                return result;
+            }
+            else if (newV1Entries.length === 1 && newV2Entries.length === 0) {
+                // add v2 new to v1
+                const result = Merge.deepClone(v2);
+                result.push(newV1Entries[0]);
+                return result;
+            }
         }
 
-        if (numberEdited === 2) {
-            if (newV1Entries.length > 0 || newV2Entries.length > 0) {
-                throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, too many changes. Detected ${numberNew} additions (${newV1Entries.length} on v1 and ${newV2Entries.length} on v2) and ${numberEdited} edits.`);
-            }
+        // numberNew is 0, numberEdited is 0, 1 or 2
 
+        if (numberEdited > 0) {
             // merge the two
             const mergedEntries: IVaultDBEntry[] = [];
             for(const entries of modifiedBothWays) {
@@ -88,7 +106,7 @@ export class Merge {
                 }
             }
 
-            if (mergedEntries.length !== 2) {
+            if (mergedEntries.length !== numberEdited) {
                 throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, too many changes. Pre-merge, we had ${numberEdited} differences; Post-merge, we have ${mergedEntries.length} edits.`);
             }
 
@@ -107,24 +125,9 @@ export class Merge {
             if (result.length !== v1.length) {
                 throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically. Pre-merge, we had ${v1.length} entries; Post-merge, we have ${result.length} entries.`);
             }
-
-            throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, end of algorithm. Detected ${numberNew} additions (${newV1Entries.length} on v1 and ${newV2Entries.length} on v2) and ${numberEdited} edits.`);
         }
 
-        // if we reach here, we have one addition, and one edit. There is no merge to do ! the edited entry is more recent.
-        // Locate on which side is the addition, apply it to the other side
-        if(newV1Entries.length === 0 && newV2Entries.length === 1) {
-            // add v2 new to v1
-            const result = Merge.deepClone(v1);
-            result.push(newV2Entries[0]);
-            return result;
-        }
-        else if (newV1Entries.length === 1 && newV2Entries.length === 0) {
-            // add v2 new to v1
-            const result = Merge.deepClone(v1);
-            result.push(newV1Entries[0]);
-            return result;
-        }
+        throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, end of algorithm. Detected ${numberNew} additions (${newV1Entries.length} on v1 and ${newV2Entries.length} on v2) and ${numberEdited} edits.`);
 
         return []
     }

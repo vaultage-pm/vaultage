@@ -290,6 +290,8 @@ export class Vault {
 
         // the following will throw NON_FAST_FORWARD if the algo doesn't know how to merge
         const merged = Merge.mergeVaultsIfPossible(clientEntries, serverEntries)
+
+        // change our DB to the merged one
         const jsonData = JSON.stringify({
             entries: merged,
             revision: this._db.getRevision() + 10

@@ -38,6 +38,140 @@ describe('Merge.ts', () => {
             const merged = Merge.mergeVaultsIfPossible(entries1, entries1)
             expect(vaultEntriesDeepEqual(entries1, merged)).toBeTruthy();
         });
+
+        it('same parameters 2', () => {
+            const v1 = getBaseLineVaultEntries();
+            const entries1 = v1.getAllEntries();
+            const v2 = getBaseLineVaultEntries();
+            const entries2 = v2.getAllEntries();
+
+            const merged = Merge.mergeVaultsIfPossible(entries1, entries2)
+            expect(vaultEntriesDeepEqual(entries1, merged)).toBeTruthy();
+        });
+
+        it('one new entry', () => {
+            const v1 = getBaseLineVaultEntries();
+            v1.addEntry(newRandomEntry())
+            const entries1 = v1.getAllEntries();
+            const v2 = getBaseLineVaultEntries();
+            const entries2 = v2.getAllEntries();
+
+            expect(entries1.length).toEqual(entries2.length + 1)
+
+            const merged = Merge.mergeVaultsIfPossible(entries1, entries2)
+            expect(merged.length).toEqual(entries1.length)
+            expect(merged.length).toEqual(entries2.length + 1)
+            expect(vaultEntriesDeepEqual(entries1, merged)).toBeTruthy();
+            expect(vaultEntriesDeepEqual(entries2, merged)).toBeFalsy();
+
+            // test the symmetrical
+            const merged2 = Merge.mergeVaultsIfPossible(entries2, entries1)
+            expect(merged2.length).toEqual(entries1.length)
+            expect(merged2.length).toEqual(entries2.length + 1)
+            expect(vaultEntriesDeepEqual(entries1, merged2)).toBeTruthy();
+            expect(vaultEntriesDeepEqual(entries2, merged2)).toBeFalsy();
+        });
+
+        it('one edit (usage_count)', () => {
+            const v1 = getBaseLineVaultEntries();
+            v1.entryUsed('0')
+            const entries1 = v1.getAllEntries();
+            const v2 = getBaseLineVaultEntries();
+            const entries2 = v2.getAllEntries();
+
+            expect(entries1.length).toEqual(entries2.length)
+
+            const merged = Merge.mergeVaultsIfPossible(entries1, entries2)
+            expect(merged.length).toEqual(entries1.length)
+            expect(merged.length).toEqual(entries2.length)
+            expect(vaultEntriesDeepEqual(entries1, merged)).toBeTruthy();
+            expect(vaultEntriesDeepEqual(entries2, merged)).toBeFalsy();
+
+            // test the symmetrical
+            const merged2 = Merge.mergeVaultsIfPossible(entries2, entries1)
+            expect(merged2.length).toEqual(entries1.length)
+            expect(merged2.length).toEqual(entries2.length)
+            expect(vaultEntriesDeepEqual(entries1, merged2)).toBeTruthy();
+            expect(vaultEntriesDeepEqual(entries2, merged2)).toBeFalsy();
+        });
+
+        it('twp edit (usage_count)', () => {
+            const v1 = getBaseLineVaultEntries();
+            v1.entryUsed('0')
+            const entries1 = v1.getAllEntries();
+            const v2 = getBaseLineVaultEntries();
+            v2.entryUsed('1')
+            const entries2 = v2.getAllEntries();
+
+            expect(entries1.length).toEqual(entries2.length)
+
+            const merged = Merge.mergeVaultsIfPossible(entries1, entries2)
+            expect(merged.length).toEqual(entries1.length)
+            expect(merged.length).toEqual(entries2.length)
+            expect(vaultEntriesDeepEqual(entries1, merged)).toBeTruthy();
+            expect(vaultEntriesDeepEqual(entries2, merged)).toBeFalsy();
+
+            // test the symmetrical
+            const merged2 = Merge.mergeVaultsIfPossible(entries2, entries1)
+            expect(merged2.length).toEqual(entries1.length)
+            expect(merged2.length).toEqual(entries2.length)
+            expect(vaultEntriesDeepEqual(entries1, merged2)).toBeTruthy();
+            expect(vaultEntriesDeepEqual(entries2, merged2)).toBeFalsy();
+        });
+
+        it('two new entries with the same ID', () => {
+            const v1 = getBaseLineVaultEntries();
+            v1.addEntry(newRandomEntry())
+            const entries1 = v1.getAllEntries();
+            const v2 = getBaseLineVaultEntries();
+            v2.addEntry(newRandomEntry())
+            const entries2 = v2.getAllEntries();
+
+            expect(entries1.length).toEqual(entries2.length)
+
+            try {
+                Merge.mergeVaultsIfPossible(entries1, entries2)
+                fail('Should not allow impossible merge of two different entries with same ID');
+            } catch (e) {
+                // should get there
+            }
+
+            // test the symmetrical
+            try {
+                Merge.mergeVaultsIfPossible(entries2, entries1)
+                fail('Should not allow impossible merge of two different entries with same ID');
+            } catch (e) {
+                // should get there
+            }
+        });
+
+        it('two new entries with the same ID', () => {
+            const v1 = getBaseLineVaultEntries();
+            const e = newRandomEntry()
+            v1.addEntry(e)
+            const entries1 = v1.getAllEntries();
+            const v2 = getBaseLineVaultEntries();
+            e.login += 'padding';
+            v2.addEntry(e)
+            const entries2 = v2.getAllEntries();
+
+            expect(entries1.length).toEqual(entries2.length)
+
+            try {
+                Merge.mergeVaultsIfPossible(entries1, entries2)
+                fail('Should not allow impossible merge of two different entries with same ID');
+            } catch (e) {
+                // should get there
+            }
+
+            // test the symmetrical
+            try {
+                Merge.mergeVaultsIfPossible(entries2, entries1)
+                fail('Should not allow impossible merge of two different entries with same ID');
+            } catch (e) {
+                // should get there
+            }
+        });
     });
 });
 
@@ -65,6 +199,19 @@ function getVaultWithEntries(entries: IVaultDBEntryAttrs[]): Vault {
     }
 
     return vault
+}
+
+function generateString(len: number) {
+    return Math.random().toString(36).substr(2, 2 + len);
+}
+
+function newRandomEntry(): IVaultDBEntryAttrs {
+    return {
+        title: generateString(20),
+        login: generateString(20),
+        password: generateString(20),
+        url: generateString(20)
+    };
 }
 
 function getBaseLineVaultEntries(): Vault {
