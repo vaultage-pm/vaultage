@@ -100,7 +100,7 @@ export class Merge {
                 const v2Entry = entries[1];
 
                 if(Merge.entriesAreSemanticallyEqual(v1Entry, v2Entry)) {
-                    mergedEntries.push(this.mergeEntries(v1Entry, v2Entry))
+                    mergedEntries.push(this.mergeEntries(v1Entry, v2Entry));
                 } else {
                     throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, entries modified but not semantically equal anymore: ${JSON.stringify(v1Entry)}, ${JSON.stringify(v2Entry)}`);
                 }
@@ -110,10 +110,11 @@ export class Merge {
                 throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, too many changes. Pre-merge, we had ${numberEdited} differences; Post-merge, we have ${mergedEntries.length} edits.`);
             }
 
+            const alreadyMergedIDs = new Set(mergedEntries.map((e) => e.id));
             const result: IVaultDBEntry[] = [];
             for(const v1Entry of v1) {
                 // copy non-edited entries
-                if (v1Entry.id !== mergedEntries[0].id && v1Entry.id !== mergedEntries[1].id) {
+                if (!alreadyMergedIDs.has(v1Entry.id)) {
                     result.push(Merge.deepCloneEntry(v1Entry))
                 }
             }
@@ -125,6 +126,8 @@ export class Merge {
             if (result.length !== v1.length) {
                 throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically. Pre-merge, we had ${v1.length} entries; Post-merge, we have ${result.length} entries.`);
             }
+
+            return result
         }
 
         throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, end of algorithm. Detected ${numberNew} additions (${newV1Entries.length} on v1 and ${newV2Entries.length} on v2) and ${numberEdited} edits.`);
