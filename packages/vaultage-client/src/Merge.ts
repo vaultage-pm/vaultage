@@ -1,17 +1,76 @@
 import { IVaultDBEntry } from './interface';
 import { VaultageError, ERROR_CODE } from './VaultageError';
 
+
+export enum MERGE_STATUS {
+
+    DIDNT_MERGE = 2,
+    NOTHING_TO_MERGE,
+    SUCCESSFUL
+}
+
+/**
+ * Class for errors coming from the Vaultage lib.
+ * @constructor
+ *
+ * @member {number} code Code as defined in Vaultage.ERROR_CODES. Rely on this when processing the error.
+ * @member {string} message Human readable error message. Do not rely on this when processing the error.
+ * @member {?Error} cause Exception causing this error
+ */
+export class MergeStatus {
+    constructor(
+        public code: MERGE_STATUS,
+        public result: IVaultDBEntry[] = [],
+        public message: string = '',) {
+    }
+
+    public newLine(s: string) {
+        this.message += s + '\n';
+    }
+
+    public newAddition(s: string, side: string='') {
+        this.message += `[${side}+] ` + s + '\n';
+    }
+
+    public newDelete(s: string, side: string='') {
+        this.message += `[${side}-] ` + s + '\n';
+    }
+
+    public newEdit(s: string) {
+        this.message += '[ *] ' + s + '\n';
+    }
+
+    public toString(): string {
+        let str = '';
+        switch(this.code) {
+            case MERGE_STATUS.NOTHING_TO_MERGE:
+                str += 'Nothing To Merge';
+                break;
+            case MERGE_STATUS.DIDNT_MERGE:
+                str += 'Did Not Merge';
+                break;
+            case MERGE_STATUS.SUCCESSFUL:
+                str += 'Successful';
+                break;
+        }
+        return str + ': ' +this.message;
+    }
+}
+
+
 export class Merge {
 
-    public static mergeVaultsIfPossible(v1: IVaultDBEntry[], v2: IVaultDBEntry[]): IVaultDBEntry[] {
+    public static mergeVaultsIfPossible(v1: IVaultDBEntry[], v2: IVaultDBEntry[]): MergeStatus {
 
+        // corner cases
         if (v1 === undefined || v1.length === 0) {
-            return Merge.deepClone(v2);
+            return new MergeStatus(MERGE_STATUS.NOTHING_TO_MERGE, Merge.deepClone(v2))
         }
         if (v2 === undefined || v2.length === 0) {
-            return Merge.deepClone(v1);
+            return new MergeStatus(MERGE_STATUS.NOTHING_TO_MERGE, Merge.deepClone(v1))
         }
 
+        // prepare maps for mapping one onto the other
         const arrayToMap = (array: IVaultDBEntry[]) => {
             const map = new Map<string, IVaultDBEntry>();
             for(const entry of array) {
@@ -19,10 +78,10 @@ export class Merge {
             }
             return map;
         }
-
         const v1Map = arrayToMap(v1);
         const v2Map = arrayToMap(v2);
 
+        // find the differences
         const newV1Entries: IVaultDBEntry[] = [];
         const newV2Entries: IVaultDBEntry[] = [];
         type VaultTuple = [IVaultDBEntry, IVaultDBEntry]; // v1 version, v2 version
@@ -56,43 +115,18 @@ export class Merge {
         const numberEdited = modifiedBothWays.length;
 
         if (numberNew + numberEdited === 0) {
-            return Merge.deepClone(v1);
+            return new MergeStatus(MERGE_STATUS.NOTHING_TO_MERGE, Merge.deepClone(v1))
         }
 
-        console.log(`Detected ${numberNew} additions (${newV1Entries.length} on v1 and ${newV2Entries.length} on v2) and ${numberEdited} edits.`);
+        const status = new MergeStatus(MERGE_STATUS.DIDNT_MERGE);
+
+        status.newLine(`Detected ${numberNew} additions (${newV1Entries.length} on v1 and ${newV2Entries.length} on v2) and ${numberEdited} edits.`);
 
 
         if (numberNew > 1 || numberEdited > 2) {
             throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, too many changes. Detected ${numberNew} additions (${newV1Entries.length} on v1 and ${newV2Entries.length} on v2) and ${numberEdited} edits.`);
         }
 
-        if (numberNew === 1) {
-
-            if (numberEdited > 1) {
-                throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, too many changes. Detected ${numberNew} additions (${newV1Entries.length} on v1 and ${newV2Entries.length} on v2) and ${numberEdited} edits.`);
-            }
-
-            // if we reach here, we have one addition, and 0-1 edits. There is no entry-merge to do !
-            // the edited entry is more recent than its counterpart.
-            // Locate on which side is the addition, apply it to the other side with the edition.
-
-            if(newV1Entries.length === 0 && newV2Entries.length === 1) {
-                // add v2 new to v1
-                const result = Merge.deepClone(v1);
-                result.push(newV2Entries[0]);
-                return result;
-            }
-            else if (newV1Entries.length === 1 && newV2Entries.length === 0) {
-                // add v2 new to v1
-                const result = Merge.deepClone(v2);
-                result.push(newV1Entries[0]);
-                return result;
-            }
-        }
-
-        // numberNew is 0, numberEdited is 0, 1 or 2
-
-        if (numberEdited > 0) {
             // merge the two
             const mergedEntries: IVaultDBEntry[] = [];
             for(const entries of modifiedBothWays) {
@@ -100,22 +134,43 @@ export class Merge {
                 const v2Entry = entries[1];
 
                 if(Merge.entriesAreSemanticallyEqual(v1Entry, v2Entry)) {
-                    mergedEntries.push(this.mergeEntries(v1Entry, v2Entry));
+                    const mergedEntry = this.mergeEntries(v1Entry, v2Entry);
+                    status.newDelete(JSON.stringify(v1Entry), 'l');
+                    status.newDelete(JSON.stringify(v2Entry), 'r');
+                    status.newEdit(JSON.stringify(mergedEntry));
+                    mergedEntries.push(mergedEntry);
                 } else {
                     throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, entries modified but not semantically equal anymore: ${JSON.stringify(v1Entry)}, ${JSON.stringify(v2Entry)}`);
                 }
             }
-
             if (mergedEntries.length !== numberEdited) {
                 throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, too many changes. Pre-merge, we had ${numberEdited} differences; Post-merge, we have ${mergedEntries.length} edits.`);
             }
 
             const alreadyMergedIDs = new Set(mergedEntries.map((e) => e.id));
+            const v1EntriesAdded = new Set();
             const result: IVaultDBEntry[] = [];
+
+            // copy v1->result
             for(const v1Entry of v1) {
                 // copy non-edited entries
                 if (!alreadyMergedIDs.has(v1Entry.id)) {
-                    result.push(Merge.deepCloneEntry(v1Entry))
+
+                    const clone = Merge.deepCloneEntry(v1Entry);
+                    if (!v2Map.has(v1Entry.id)) {
+                        status.newAddition(JSON.stringify(clone), 'l');
+                    }
+                    result.push(clone);
+                    v1EntriesAdded.add(v1Entry.id);
+                }
+            }
+            // copy v2->result
+            for(const v2Entry of v2) {
+                // copy non-edited entries
+                if (!v1EntriesAdded.has(v2Entry.id) && !alreadyMergedIDs.has(v2Entry.id)) {
+                    const clone = Merge.deepCloneEntry(v2Entry);
+                    status.newAddition(JSON.stringify(clone), 'r');
+                    result.push(Merge.deepCloneEntry(v2Entry))
                 }
             }
             // now add merged entries
@@ -123,16 +178,11 @@ export class Merge {
                 result.push(Merge.deepCloneEntry(mergedEntry))
             }
 
-            if (result.length !== v1.length) {
-                throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically. Pre-merge, we had ${v1.length} entries; Post-merge, we have ${result.length} entries.`);
-            }
-
-            return result
-        }
+            status.code = MERGE_STATUS.SUCCESSFUL;
+            status.result = result;
+            return status;
 
         throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, end of algorithm. Detected ${numberNew} additions (${newV1Entries.length} on v1 and ${newV2Entries.length} on v2) and ${numberEdited} edits.`);
-
-        return []
     }
 
     public static deepCloneEntry (entry: IVaultDBEntry): IVaultDBEntry {
