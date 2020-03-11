@@ -189,7 +189,7 @@ export class Merge {
         delete e2.updated;
         delete e2.created;
         delete e2.password_strength_indication;
-        return JSON.stringify(e2);
+        return JSON.stringify(e2).replace(/"/g, '');
     }
 
     public static deepCloneEntry (entry: IVaultDBEntry): IVaultDBEntry {
