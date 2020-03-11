@@ -3,7 +3,6 @@ import { HttpApi } from './HTTPApi';
 import { IHttpParams, IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from './interface';
 import { deepCopy } from './utils';
 import { VaultDB } from './VaultDB';
-import { ERROR_CODE } from './VaultageError';
 import { Merge } from './Merge';
 
 export interface ICredentials {
@@ -27,8 +26,8 @@ export interface ICredentials {
  */
 export class Vault {
     private _creds: ICredentials;
-    private _crypto: Crypto;
-    private _db: VaultDB;
+    public _crypto: Crypto;
+    public _db: VaultDB;
     private _httpParams?: IHttpParams;
     private _lastFingerprint?: string;
     private _isServerInDemoMode: boolean;
@@ -120,7 +119,6 @@ export class Vault {
         newCredentials.localKey = newLocalKey;
 
         await this._pushCipher(newCredentials, newRemoteKey);
-
 
         // at this point, the server accepted the update. Let's confirm it by trying to pull with the new
         // accesses
@@ -244,10 +242,39 @@ export class Vault {
         };
     }
 
-    private async _pullCipher(creds: ICredentials): Promise<void> {
-        const cipher = await HttpApi.pullCipher(creds, this._httpParams);
-        if (cipher) {
-            this._setCipher(creds, cipher);
+    private async _pullCipher(creds: ICredentials, tryMerge: boolean = true): Promise<void> {
+        const serverCipher = await HttpApi.pullCipher(creds, this._httpParams);
+        if (serverCipher) {
+
+            // if we have already something locally, merge
+            if (tryMerge && this._db.getAll().length > 0) {
+                try {
+                    const clientEntries = this._db.getAll();
+                    const serverPlain = this._crypto.decrypt(creds.localKey, serverCipher);
+                    const serverEntries = VaultDB.deserialize(serverPlain).getAll();
+
+                    // the following will throw NON_FAST_FORWARD if the algo doesn't know how to merge
+                    const merged = Merge.mergeVaultsIfPossible(clientEntries, serverEntries)
+                    console.log(merged.toString())
+
+                    // change our DB to the merged one
+                    const jsonData = JSON.stringify({
+                        entries: merged.result,
+                        revision: this._db.getRevision() + 10
+                    });
+                    this._db = VaultDB.deserialize(jsonData);
+
+                    // important: fingerprint is the one of the server before the merge
+                    this._lastFingerprint = this._crypto.getFingerprint(serverPlain, creds.localKey);
+
+                } catch (exception) {
+                    console.log('Could not merge:', exception);
+                    this._setCipher(creds, serverCipher);
+                }
+            } else {
+                // otherwise, just overwrite with the server version
+                this._setCipher(creds, serverCipher);
+            }
         } else {
             // Create an empty DB if there is nothing on the server.
             this._db = new VaultDB({});
@@ -255,51 +282,21 @@ export class Vault {
         }
     }
 
-    private async _pushCipher(creds: ICredentials, newRemoteKey: (string|null), tryMerge: boolean = true): Promise<void> {
+
+    private async _pushCipher(creds: ICredentials, newRemoteKey: (string|null)): Promise<void> {
         const plain = VaultDB.serialize(this._db);
         const cipher = this._crypto.encrypt(creds.localKey, plain);
         const fingerprint = this._crypto.getFingerprint(plain, creds.localKey);
 
-        try {
-            await HttpApi.pushCipher(
+        await HttpApi.pushCipher(
                 creds,
                 newRemoteKey,
                 cipher,
                 this._lastFingerprint,
                 fingerprint,
                 this._httpParams);
-        } catch (exception) {
-            if (exception.code === ERROR_CODE.NOT_FAST_FORWARD && tryMerge) {
-                console.log('Push is not fast-forward, attempting merge...');
-                this._tryMerge(creds);
-                await this._pushCipher(creds, newRemoteKey, false);
-            } else {
-                // not our concern, continue throwing
-                throw exception;
-            }
-        }
 
         this._lastFingerprint = fingerprint;
-    }
-
-    private async _tryMerge(creds: ICredentials): Promise<void> {
-        const clientEntries = this._db.getAll();
-        const oldCipher = await HttpApi.pullCipher(creds, this._httpParams);
-        const oldPlain = this._crypto.decrypt(creds.localKey, oldCipher);
-        const serverEntries = VaultDB.deserialize(oldPlain).getAll();
-
-        // the following will throw NON_FAST_FORWARD if the algo doesn't know how to merge
-        const merged = Merge.mergeVaultsIfPossible(clientEntries, serverEntries)
-
-        // change our DB to the merged one
-        const jsonData = JSON.stringify({
-            entries: merged,
-            revision: this._db.getRevision() + 10
-        });
-
-        this._db = VaultDB.deserialize(jsonData);
-        // important: fingerprint is the one of the server
-        this._lastFingerprint = this._crypto.getFingerprint(oldPlain, creds.localKey);
     }
 
     private _setCipher(creds: ICredentials, cipher: string): void {
