@@ -93,8 +93,8 @@ export class Vault {
      *
      * The vault must be authenticated before this method can be called.
      */
-    public pull(): Promise<void> {
-        return this._pullCipher(this._creds);
+    public pull(tryMerge: boolean = true): Promise<string> {
+        return this._pullCipher(this._creds, tryMerge);
     }
 
     /**
@@ -242,7 +242,7 @@ export class Vault {
         };
     }
 
-    private async _pullCipher(creds: ICredentials, tryMerge: boolean = true): Promise<void> {
+    private async _pullCipher(creds: ICredentials, tryMerge: boolean = true): Promise<string> {
         const serverCipher = await HttpApi.pullCipher(creds, this._httpParams);
         if (serverCipher) {
 
@@ -255,7 +255,6 @@ export class Vault {
 
                     // the following will throw NON_FAST_FORWARD if the algo doesn't know how to merge
                     const merged = Merge.mergeVaultsIfPossible(clientEntries, serverEntries)
-                    console.log(merged.toString())
 
                     // change our DB to the merged one
                     const jsonData = JSON.stringify({
@@ -266,6 +265,8 @@ export class Vault {
 
                     // important: fingerprint is the one of the server before the merge
                     this._lastFingerprint = this._crypto.getFingerprint(serverPlain, creds.localKey);
+
+                    return merged.toString()
 
                 } catch (exception) {
                     console.log('Could not merge:', exception);
@@ -280,6 +281,7 @@ export class Vault {
             this._db = new VaultDB({});
             this._lastFingerprint = '';
         }
+        return '';
     }
 
 

@@ -120,69 +120,76 @@ export class Merge {
 
         const status = new MergeStatus(MERGE_STATUS.DIDNT_MERGE);
 
-        status.newLine(`Detected ${numberNew} additions (${newV1Entries.length} on v1 and ${newV2Entries.length} on v2) and ${numberEdited} edits.`);
+        status.newLine(`Detected ${numberNew} additions (${newV1Entries.length} on local and ${newV2Entries.length} on remote) and ${numberEdited} edits.`);
 
 
         if (numberNew > 1 || numberEdited > 2) {
             throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, too many changes. Detected ${numberNew} additions (${newV1Entries.length} on v1 and ${newV2Entries.length} on v2) and ${numberEdited} edits.`);
         }
 
-            // merge the two
-            const mergedEntries: IVaultDBEntry[] = [];
-            for(const entries of modifiedBothWays) {
-                const v1Entry = entries[0];
-                const v2Entry = entries[1];
+        // merge the two
+        const mergedEntries: IVaultDBEntry[] = [];
+        for(const entries of modifiedBothWays) {
+            const v1Entry = entries[0];
+            const v2Entry = entries[1];
 
-                if(Merge.entriesAreSemanticallyEqual(v1Entry, v2Entry)) {
-                    const mergedEntry = this.mergeEntries(v1Entry, v2Entry);
-                    status.newDelete(JSON.stringify(v1Entry), 'l');
-                    status.newDelete(JSON.stringify(v2Entry), 'r');
-                    status.newEdit(JSON.stringify(mergedEntry));
-                    mergedEntries.push(mergedEntry);
-                } else {
-                    throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, entries modified but not semantically equal anymore: ${JSON.stringify(v1Entry)}, ${JSON.stringify(v2Entry)}`);
+            if(Merge.entriesAreSemanticallyEqual(v1Entry, v2Entry)) {
+                const mergedEntry = this.mergeEntries(v1Entry, v2Entry);
+                status.newDelete(Merge.entryToShortString(v1Entry), 'l');
+                status.newDelete(Merge.entryToShortString(v2Entry), 'r');
+                status.newEdit(Merge.entryToShortString(mergedEntry));
+                mergedEntries.push(mergedEntry);
+            } else {
+                throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, entries modified but not semantically equal anymore: ${JSON.stringify(v1Entry)}, ${JSON.stringify(v2Entry)}`);
+            }
+        }
+        if (mergedEntries.length !== numberEdited) {
+            throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, too many changes. Pre-merge, we had ${numberEdited} differences; Post-merge, we have ${mergedEntries.length} edits.`);
+        }
+
+        const alreadyMergedIDs = new Set(mergedEntries.map((e) => e.id));
+        const v1EntriesAdded = new Set();
+        const result: IVaultDBEntry[] = [];
+
+        // copy v1->result
+        for(const v1Entry of v1) {
+            // copy non-edited entries
+            if (!alreadyMergedIDs.has(v1Entry.id)) {
+
+                const clone = Merge.deepCloneEntry(v1Entry);
+                if (!v2Map.has(v1Entry.id)) {
+                    status.newAddition(Merge.entryToShortString(clone), 'l');
                 }
+                result.push(clone);
+                v1EntriesAdded.add(v1Entry.id);
             }
-            if (mergedEntries.length !== numberEdited) {
-                throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, too many changes. Pre-merge, we had ${numberEdited} differences; Post-merge, we have ${mergedEntries.length} edits.`);
+        }
+        // copy v2->result
+        for(const v2Entry of v2) {
+            // copy non-edited entries
+            if (!v1EntriesAdded.has(v2Entry.id) && !alreadyMergedIDs.has(v2Entry.id)) {
+                const clone = Merge.deepCloneEntry(v2Entry);
+                status.newAddition(Merge.entryToShortString(clone), 'r');
+                result.push(Merge.deepCloneEntry(v2Entry))
             }
+        }
+        // now add merged entries
+        for(const mergedEntry of mergedEntries) {
+            result.push(Merge.deepCloneEntry(mergedEntry))
+        }
 
-            const alreadyMergedIDs = new Set(mergedEntries.map((e) => e.id));
-            const v1EntriesAdded = new Set();
-            const result: IVaultDBEntry[] = [];
+        status.code = MERGE_STATUS.SUCCESSFUL;
+        status.result = result;
+        return status;
+    }
 
-            // copy v1->result
-            for(const v1Entry of v1) {
-                // copy non-edited entries
-                if (!alreadyMergedIDs.has(v1Entry.id)) {
 
-                    const clone = Merge.deepCloneEntry(v1Entry);
-                    if (!v2Map.has(v1Entry.id)) {
-                        status.newAddition(JSON.stringify(clone), 'l');
-                    }
-                    result.push(clone);
-                    v1EntriesAdded.add(v1Entry.id);
-                }
-            }
-            // copy v2->result
-            for(const v2Entry of v2) {
-                // copy non-edited entries
-                if (!v1EntriesAdded.has(v2Entry.id) && !alreadyMergedIDs.has(v2Entry.id)) {
-                    const clone = Merge.deepCloneEntry(v2Entry);
-                    status.newAddition(JSON.stringify(clone), 'r');
-                    result.push(Merge.deepCloneEntry(v2Entry))
-                }
-            }
-            // now add merged entries
-            for(const mergedEntry of mergedEntries) {
-                result.push(Merge.deepCloneEntry(mergedEntry))
-            }
-
-            status.code = MERGE_STATUS.SUCCESSFUL;
-            status.result = result;
-            return status;
-
-        throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, end of algorithm. Detected ${numberNew} additions (${newV1Entries.length} on v1 and ${newV2Entries.length} on v2) and ${numberEdited} edits.`);
+    public static entryToShortString(e: IVaultDBEntry): string {
+        const e2 = Merge.deepCloneEntry(e);
+        delete e2.updated;
+        delete e2.created;
+        delete e2.password_strength_indication;
+        return JSON.stringify(e2);
     }
 
     public static deepCloneEntry (entry: IVaultDBEntry): IVaultDBEntry {

@@ -72,6 +72,42 @@ export class Shell implements ICommandHandler {
      *
      * @param value error text to show
      */
+    public echoMergeReport(report: string) {
+
+        const lines = report.split('\n');
+
+        for(const line of lines){
+            if (line === '') {
+                continue;
+            }
+            if (line.startsWith('[ *]')) {
+                this.safeGetTerminal().print(
+                    html`<span class="merge merged">${line}</span>`.valueOf(),
+                    { unsafe_i_know_what_i_am_doing: true }
+                );
+            } else if (line.startsWith('[l+]') || line.startsWith('[r+]')) {
+                this.safeGetTerminal().print(
+                    html`<span class="merge new">${line}</span>`.valueOf(),
+                    { unsafe_i_know_what_i_am_doing: true }
+                );
+            }
+            else if (line.startsWith('[l-]') || line.startsWith('[r-]')) {
+                this.safeGetTerminal().print(
+                    html`<span class="merge del">${line}</span>`.valueOf(),
+                    { unsafe_i_know_what_i_am_doing: true }
+                );
+            }
+            else {
+                this.safeGetTerminal().print(line);
+            }
+        }
+    }
+
+    /**
+     * Appends some error text to the console.
+     *
+     * @param value error text to show
+     */
     public echoError(value: string | Error) {
 
         const message = typeof value === 'string' ? value : value.message;

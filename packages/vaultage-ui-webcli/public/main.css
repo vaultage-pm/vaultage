@@ -197,6 +197,17 @@ td.empty {
     text-shadow: none !important;
 }
 
+.merge.del {
+    color: 
+    #F92672;
+}
+.merge.new {
+    color: #66D9EF;
+}
+.merge.merged {
+    color: #3E7ED9;
+}
+
 @media only screen and (max-width: 600px) {
 
     td {
