@@ -10,8 +10,8 @@ export class PullCommand implements ICommand {
 
     constructor(
         private shell: Shell,
-        private ctx: Context,
-        private config: Config) {
+        private config: Config,
+        private ctx: Context) {
     }
 
     public async handle(params: string[]) {

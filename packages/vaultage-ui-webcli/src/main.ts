@@ -67,7 +67,7 @@ export function start(el: HTMLElement) {
     shell.registerCommand(new ImportCSVCommand(shell, ctx));
     shell.registerCommand(new LogoutCommand(shell, ctx));
     shell.registerCommand(new LsCommand(shell, config, ctx));
-    shell.registerCommand(new PullCommand(shell, ctx));
+    shell.registerCommand(new PullCommand(shell, config, ctx));
     shell.registerCommand(new PushCommand(shell, ctx));
     shell.registerCommand(new PwdCommand(shell, ctx));
     shell.registerCommand(new RawImportCommand(shell, ctx));
