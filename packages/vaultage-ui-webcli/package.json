@@ -23,21 +23,21 @@
         "url": "https://github.com/vaultage-pm/vaultage"
     },
     "devDependencies": {
-        "@types/node": "12.7.12",
-        "@types/webpack-env": "1.14.1",
-        "cross-env": "6.0.3",
-        "fork-ts-checker-webpack-plugin": "1.5.1",
+        "@types/node": "13.9.0",
+        "@types/webpack-env": "1.15.1",
+        "cross-env": "7.0.2",
+        "fork-ts-checker-webpack-plugin": "4.0.5",
         "shelljs": "0.8.3",
-        "ts-loader": "6.2.0",
-        "ts-node": "8.4.1",
-        "tslib": "1.10.0",
-        "tslint": "5.20.0",
-        "typescript": "3.6.4",
-        "webpack": "4.41.1",
-        "webpack-cli": "3.3.9",
-        "webpack-dev-server": "^3.8.2"
+        "ts-loader": "6.2.1",
+        "ts-node": "8.6.2",
+        "tslib": "1.11.1",
+        "tslint": "6.0.0",
+        "typescript": "3.8.3",
+        "webpack": "4.42.0",
+        "webpack-cli": "3.3.11",
+        "webpack-dev-server": "^3.10.3"
     },
     "dependencies": {
-        "copy-to-clipboard": "3.2.0"
+        "copy-to-clipboard": "3.3.1"
     }
 }

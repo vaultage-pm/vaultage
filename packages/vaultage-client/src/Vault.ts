@@ -3,6 +3,7 @@ import { HttpApi } from './HTTPApi';
 import { IHttpParams, IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from './interface';
 import { deepCopy } from './utils';
 import { VaultDB } from './VaultDB';
+import { Merge } from './Merge';
 
 export interface ICredentials {
     localKey: string;
@@ -25,8 +26,8 @@ export interface ICredentials {
  */
 export class Vault {
     private _creds: ICredentials;
-    private _crypto: Crypto;
-    private _db: VaultDB;
+    public _crypto: Crypto;
+    public _db: VaultDB;
     private _httpParams?: IHttpParams;
     private _lastFingerprint?: string;
     private _isServerInDemoMode: boolean;
@@ -92,8 +93,8 @@ export class Vault {
      *
      * The vault must be authenticated before this method can be called.
      */
-    public pull(): Promise<void> {
-        return this._pullCipher(this._creds);
+    public pull(tryMerge: boolean = true): Promise<string> {
+        return this._pullCipher(this._creds, tryMerge);
     }
 
     /**
@@ -118,7 +119,6 @@ export class Vault {
         newCredentials.localKey = newLocalKey;
 
         await this._pushCipher(newCredentials, newRemoteKey);
-
 
         // at this point, the server accepted the update. Let's confirm it by trying to pull with the new
         // accesses
@@ -242,16 +242,48 @@ export class Vault {
         };
     }
 
-    private async _pullCipher(creds: ICredentials): Promise<void> {
-        const cipher = await HttpApi.pullCipher(creds, this._httpParams);
-        if (cipher) {
-            this._setCipher(creds, cipher);
+    private async _pullCipher(creds: ICredentials, tryMerge: boolean = true): Promise<string> {
+        const serverCipher = await HttpApi.pullCipher(creds, this._httpParams);
+        if (serverCipher) {
+
+            // if we have already something locally, merge
+            if (tryMerge && this._db.getAll().length > 0) {
+                try {
+                    const clientEntries = this._db.getAll();
+                    const serverPlain = this._crypto.decrypt(creds.localKey, serverCipher);
+                    const serverEntries = VaultDB.deserialize(serverPlain).getAll();
+
+                    // the following will throw NON_FAST_FORWARD if the algo doesn't know how to merge
+                    const merged = Merge.mergeVaultsIfPossible(clientEntries, serverEntries)
+
+                    // change our DB to the merged one
+                    const jsonData = JSON.stringify({
+                        entries: merged.result,
+                        revision: this._db.getRevision() + 10
+                    });
+                    this._db = VaultDB.deserialize(jsonData);
+
+                    // important: fingerprint is the one of the server before the merge
+                    this._lastFingerprint = this._crypto.getFingerprint(serverPlain, creds.localKey);
+
+                    return merged.toString()
+
+                } catch (exception) {
+                    console.log('Could not merge:', exception);
+                    this._setCipher(creds, serverCipher);
+                }
+            } else {
+                // otherwise, just overwrite with the server version
+                this._setCipher(creds, serverCipher);
+            }
         } else {
             // Create an empty DB if there is nothing on the server.
             this._db = new VaultDB({});
             this._lastFingerprint = '';
         }
+        return '';
     }
+
 
     private async _pushCipher(creds: ICredentials, newRemoteKey: (string|null)): Promise<void> {
         const plain = VaultDB.serialize(this._db);
@@ -259,12 +291,12 @@ export class Vault {
         const fingerprint = this._crypto.getFingerprint(plain, creds.localKey);
 
         await HttpApi.pushCipher(
-            creds,
-            newRemoteKey,
-            cipher,
-            this._lastFingerprint,
-            fingerprint,
-            this._httpParams);
+                creds,
+                newRemoteKey,
+                cipher,
+                this._lastFingerprint,
+                fingerprint,
+                this._httpParams);
 
         this._lastFingerprint = fingerprint;
     }
