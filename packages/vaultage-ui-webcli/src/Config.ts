@@ -17,6 +17,7 @@ export class Config {
     private static readonly AUTO_COPY_FIRST_RESULT_KEY = 'AUTO_COPY_FIRST_RESULT';
     private static readonly COLOR_USERNAME_PROMPT_KEY = 'COLOR_USERNAME_PROMPT';
     private static readonly AUTOLOGIN_KEY = 'AUTO_LOGIN';
+    private static readonly AUTOMERGE_KEY = 'AUTO_MERGE';
 
     /**
      * Default username to show in an auth prompt. This value is local to the browser.
@@ -57,6 +58,18 @@ export class Config {
 
     public set autoLogin(value: boolean) {
         localStorage.setItem(Config.AUTOLOGIN_KEY, (value ? 'true' : 'false'));
+    }
+
+    /**
+     * Immediately proposes to login when the UI starts
+     */
+    public get autoMerge(): boolean {
+        const autoMerge = localStorage.getItem(Config.AUTOMERGE_KEY);
+        return (autoMerge === 'true');
+    }
+
+    public set autoMerge(value: boolean) {
+        localStorage.setItem(Config.AUTOMERGE_KEY, (value ? 'true' : 'false'));
     }
 
     /**
