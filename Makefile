@@ -1,8 +1,8 @@
-.PHONY: all serve publish publish-docker clean cleanall build test node_upgrade
+.PHONY: all serve publish publish-docker clean cleanall build test node_upgrade install
 
 all: build
 
-serve: build
+serve: build install
 	$(MAKE) -C packages/vaultage clean-storage
 	$(MAKE) -C packages/vaultage serve
 
@@ -19,7 +19,7 @@ cleanall:
 	$(MAKE) -C packages/vaultage cleanall
 	rm -rf node_modules
 
-build: 
+build: install
 	$(MAKE) -C packages/vaultage-protocol build
 	$(MAKE) -C packages/vaultage-client build
 	$(MAKE) -C packages/vaultage-ui-webcli build
@@ -37,8 +37,8 @@ integration-test:
 install: node_modules/built
 
 # "built" is just there so Make sees the artifact and doesn't rebuild
-node_modules/built: package.json package-lock.json
-	npm install
+node_modules/built: package.json yarn.lock
+	yarn
 	touch node_modules/built
 
 publish: install
