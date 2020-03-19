@@ -1,4 +1,4 @@
-import { getCrypto } from 'vaultage-client/src/Crypto';
+import { getCrypto } from 'vaultage-client/src/crypto';
 import { ICredentials, Vault } from 'vaultage-client/src/Vault';
 import { IVaultDBEntry, IVaultDBEntryAttrs } from 'vaultage-client/src/vaultage';
 import { Merge } from 'vaultage-client/src/Merge';
