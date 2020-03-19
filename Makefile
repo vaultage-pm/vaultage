@@ -37,15 +37,15 @@ integration-test:
 install: node_modules/built
 
 # "built" is just there so Make sees the artifact and doesn't rebuild
-node_modules/built: package.json yarn.lock
+node_modules/built: package.json yarn.lock package.json $(wildcard packages/vaultage-*/package.json)
 	yarn
 	touch node_modules/built
 
 publish: install
-	node_modules/.bin/ts-node tools/publish.ts
+	NODE_ENV=production node_modules/.bin/ts-node tools/publish.ts
 
 publish-docker: install
-	node_modules/.bin/ts-node tools/publish-docker.ts
+	NODE_ENV=production node_modules/.bin/ts-node tools/publish-docker.ts
 
 # === Node package upgrade (make sure everything is comitted, overwrites package-lock.json)
 # Requires NCU (https://github.com/tjunnone/npm-check-updates)

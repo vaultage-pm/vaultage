@@ -1,4 +1,4 @@
-import { Crypto } from './Crypto';
+import { getCrypto } from './crypto';
 import { HttpApi } from './HTTPApi';
 import { HttpRequestFunction, HttpService } from './HTTPService';
 import { IHttpParams, ISaltsConfig } from './interface';
@@ -17,7 +17,7 @@ const pkg = require('../package.json');
  * @param serverURL URL to the vaultage server.
  * @param username The username used to locate the cipher on the server
  * @param masterPassword Plaintext of the master password
- * @param cb Callback invoked on completion. err is null if no error occured.
+ * @return A promise which resolves with the authenticated vault upon successful login
  */
 export async function login(
         serverURL: string,
@@ -39,17 +39,17 @@ export async function login(
         REMOTE_KEY_SALT: config.salts.remote_key_salt,
     };
 
-    const crypto = new Crypto(salts);
+    const crypto = getCrypto(salts);
 
-    const remoteKey = crypto.deriveRemoteKey(masterPassword);
+    const remoteKey = await crypto.deriveRemoteKey(masterPassword);
     // possible optimization: compute the local key while the request is in the air
-    const localKey = crypto.deriveLocalKey(masterPassword);
+    const localKey = await crypto.deriveLocalKey(masterPassword);
 
     creds.localKey = localKey;
     creds.remoteKey = remoteKey;
 
     const cipher = await HttpApi.pullCipher(creds, httpParams);
-    return new Vault(creds, crypto, cipher, httpParams, config.demo);
+    return Vault.create(creds, crypto, cipher, httpParams, config.demo);
 }
 
 export function _mockHttpRequests(fn: HttpRequestFunction): void {

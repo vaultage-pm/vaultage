@@ -3,18 +3,18 @@
     "version": "0.0.0",
     "description": "SDK to write JavaScript clients for the Vaultage password manager",
     "main": "dist/vaultage.js",
-    "types": "dist/src/vaultage.d.ts",
+    "types": "dist/vaultage.d.ts",
     "scripts": {
-        "build": "webpack",
+        "build": "npm run build:browser && npm run build:node",
+        "build:browser": "webpack",
+        "build:node": "tsc -p . --module commonjs",
         "clean": "rimraf dist/",
         "lint": "tslint -p .",
         "test": "npm run lint && cross-env NODE_PATH=.. jest",
         "watch": "cross-env NODE_PATH=.. jest --watch"
     },
     "files": [
-        "dist/src",
-        "dist/vaultage.js",
-        "dist/vaultage.d.ts",
+        "dist",
         "lib"
     ],
     "contributors": [
@@ -36,17 +36,17 @@
         "tslib": "1.11.1"
     },
     "devDependencies": {
-        "@types/jest": "25.1.4",
-        "@types/jquery": "3.3.33",
-        "@types/node": "13.9.0",
-        "cross-env": "7.0.2",
-        "jest": "25.1.0",
-        "ts-jest": "25.2.1",
-        "ts-loader": "6.2.1",
-        "ts-node": "8.6.2",
-        "tslint": "6.0.0",
-        "typescript": "3.8.3",
-        "webpack": "4.42.0",
+        "@types/jest": "25.1.4",	
+        "@types/jquery": "3.3.33",	
+        "@types/node": "13.9.2",	
+        "cross-env": "7.0.2",	
+        "jest": "25.1.0",	
+        "ts-jest": "25.2.1",	
+        "ts-loader": "6.2.1",	
+        "ts-node": "8.6.2",	
+        "tslint": "6.0.0",	
+        "typescript": "3.8.3",	
+        "webpack": "4.42.0",	
         "webpack-cli": "3.3.11"
     },
     "jest": {

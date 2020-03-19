@@ -1,5 +1,5 @@
 import * as copy from 'copy-to-clipboard';
-import { IVaultDBEntry } from 'vaultage-client/dist/src/vaultage';
+import { IVaultDBEntry } from 'vaultage-client';
 import { Config } from '../Config';
 import { Context } from '../Context';
 import { html } from '../security/xss';

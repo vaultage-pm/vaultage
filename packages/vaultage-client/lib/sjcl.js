@@ -2533,14 +2533,7 @@ sjcl.random = new sjcl.prng(6);
   // function for getting nodejs crypto module. catches and ignores errors.
   function getCryptoModule() {
     try {
-      // @hmil
-      // Ugly hack notice: Some smart-ass bundlers panic when they see an import they cannot resolve.
-      // It is stupid because here we just want to check whether the crypto package exists and we
-      // have a fallback if it doesn't. Using a variable in the require call is the official hack to
-      // tell a bundler that it has to ignore this import.
-      // see https://github.com/facebook/metro/pull/69
-      const crypto = 'crypto';
-      return require(crypto);
+      return require('crypto');
     }
     catch (e) {
       return null;

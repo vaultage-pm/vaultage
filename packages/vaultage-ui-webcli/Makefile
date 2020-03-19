@@ -1,3 +1,4 @@
+SRC=$(shell find src/ -type f -name '*.ts')
 VAULTAGE_CLIENT_LOCATION=../vaultage-client/dist/vaultage.js
 IMPORTED_VAULTAGE_CLIENT_LOCATION=public/dist/vaultage.js
 
@@ -5,7 +6,7 @@ IMPORTED_VAULTAGE_CLIENT_LOCATION=public/dist/vaultage.js
 
 all: serve
 
-build: $(wildcard dist/*.js) $(wildcard dist/messages/*.js) $(IMPORTED_VAULTAGE_CLIENT_LOCATION)
+build: $(SRC) $(wildcard dist/messages/*.js) $(IMPORTED_VAULTAGE_CLIENT_LOCATION)
 	npm run build
 
 serve: build

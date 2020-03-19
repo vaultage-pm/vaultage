@@ -1,5 +1,5 @@
 {
-    "extends": "tslint:recommended",
+    "extends": "../../tslint.json",
     "rules": {
         "max-classes-per-file": false,
         "no-consecutive-blank-lines": [ true, 2 ],
@@ -9,6 +9,7 @@
         "quotemark": [ true, "single" ],
         "trailing-comma": false,
         "variable-name": [ true, "check-format", "allow-leading-underscore"],
-        "max-line-length": [ true, 140 ]
+        "max-line-length": [ true, 140 ],
+        "no-bitwise": false
     }
 }

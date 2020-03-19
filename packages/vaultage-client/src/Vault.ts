@@ -1,4 +1,4 @@
-import { Crypto } from './Crypto';
+import { ICrypto } from './crypto/ICrypto';
 import { HttpApi } from './HTTPApi';
 import { IHttpParams, IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from './interface';
 import { deepCopy } from './utils';
@@ -25,25 +25,33 @@ export interface ICredentials {
  * });
  */
 export class Vault {
-    private _creds: ICredentials;
-    public _crypto: Crypto;
-    public _db: VaultDB;
-    private _httpParams?: IHttpParams;
-    private _lastFingerprint?: string;
-    private _isServerInDemoMode: boolean;
 
-    constructor(creds: ICredentials, crypto: Crypto, cipher: string | undefined, httpParams?: IHttpParams, demoMode?: boolean) {
-        this._creds = { ...creds };
-        this._crypto = crypto;
-        this._db = new VaultDB({});
-        this._httpParams = httpParams;
-        this._isServerInDemoMode = false;
-        if (demoMode === true) {
-            this._isServerInDemoMode = true;
-        }
+    public static async create(
+            creds: ICredentials,
+            crypto: ICrypto,
+            cipher: string | undefined,
+            httpParams?: IHttpParams,
+            demoMode?: boolean
+        ): Promise<Vault> {
+
+        let db = new VaultDB({});
+        let lastFingerprint: string | undefined;
+
         if (cipher) {
-            this._setCipher(creds, cipher);
+            const plain = await crypto.decrypt(creds.localKey, cipher);
+            db = VaultDB.deserialize(plain);
+            lastFingerprint = await crypto.getFingerprint(plain, creds.localKey);
         }
+
+        return new Vault({...creds}, crypto, db, demoMode || false, httpParams, lastFingerprint);
+    }
+
+    private constructor(private _creds: ICredentials,
+            private _crypto: ICrypto,
+            private _db: VaultDB,
+            private _isServerInDemoMode: boolean,
+            private _httpParams?: IHttpParams,
+            private _lastFingerprint?: string) {
     }
 
     /**
@@ -108,8 +116,8 @@ export class Vault {
      */
     public async updateMasterPassword(newPassword: string): Promise<void> {
         const newCredentials = deepCopy(this._creds);
-        const newLocalKey = this._crypto.deriveLocalKey(newPassword);
-        const newRemoteKey = this._crypto.deriveRemoteKey(newPassword);
+        const newLocalKey = await this._crypto.deriveLocalKey(newPassword);
+        const newRemoteKey = await this._crypto.deriveRemoteKey(newPassword);
 
         this._db.newRevision();
 
@@ -250,7 +258,7 @@ export class Vault {
             if (tryMerge && this._db.getAll().length > 0) {
                 try {
                     const clientEntries = this._db.getAll();
-                    const serverPlain = this._crypto.decrypt(creds.localKey, serverCipher);
+                    const serverPlain = await this._crypto.decrypt(creds.localKey, serverCipher);
                     const serverEntries = VaultDB.deserialize(serverPlain).getAll();
 
                     // the following will throw NON_FAST_FORWARD if the algo doesn't know how to merge
@@ -264,17 +272,17 @@ export class Vault {
                     this._db = VaultDB.deserialize(jsonData);
 
                     // important: fingerprint is the one of the server before the merge
-                    this._lastFingerprint = this._crypto.getFingerprint(serverPlain, creds.localKey);
+                    this._lastFingerprint = await this._crypto.getFingerprint(serverPlain, creds.localKey);
 
                     return merged.toString()
 
                 } catch (exception) {
                     console.log('Could not merge:', exception);
-                    this._setCipher(creds, serverCipher);
+                    await this._setCipher(creds, serverCipher);
                 }
             } else {
                 // otherwise, just overwrite with the server version
-                this._setCipher(creds, serverCipher);
+                await this._setCipher(creds, serverCipher);
             }
         } else {
             // Create an empty DB if there is nothing on the server.
@@ -287,8 +295,8 @@ export class Vault {
 
     private async _pushCipher(creds: ICredentials, newRemoteKey: (string|null)): Promise<void> {
         const plain = VaultDB.serialize(this._db);
-        const cipher = this._crypto.encrypt(creds.localKey, plain);
-        const fingerprint = this._crypto.getFingerprint(plain, creds.localKey);
+        const cipher = await this._crypto.encrypt(creds.localKey, plain);
+        const fingerprint = await this._crypto.getFingerprint(plain, creds.localKey);
 
         await HttpApi.pushCipher(
                 creds,
@@ -301,9 +309,9 @@ export class Vault {
         this._lastFingerprint = fingerprint;
     }
 
-    private _setCipher(creds: ICredentials, cipher: string): void {
-        const plain = this._crypto.decrypt(creds.localKey, cipher);
+    private async _setCipher(creds: ICredentials, cipher: string) {
+        const plain = await this._crypto.decrypt(creds.localKey, cipher);
         this._db = VaultDB.deserialize(plain);
-        this._lastFingerprint = this._crypto.getFingerprint(plain, creds.localKey);
+        this._lastFingerprint = await this._crypto.getFingerprint(plain, creds.localKey);
     }
 }
