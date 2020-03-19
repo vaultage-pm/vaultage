@@ -5,14 +5,7 @@ IMPORTED_VAULTAGE_CLIENT_LOCATION=public/dist/vaultage.js
 
 all: serve
 
-install: node_modules/built
-
-# "built" is just there so Make sees the artifact and doesn't rebuild
-node_modules/built: package.json package-lock.json
-	npm install
-	touch node_modules/built
-
-build: install $(wildcard dist/*.js) $(wildcard dist/messages/*.js) $(IMPORTED_VAULTAGE_CLIENT_LOCATION)
+build: $(wildcard dist/*.js) $(wildcard dist/messages/*.js) $(IMPORTED_VAULTAGE_CLIENT_LOCATION)
 	npm run build
 
 serve: build
