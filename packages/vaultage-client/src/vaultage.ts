@@ -8,7 +8,6 @@ export { Passwords } from './Passwords';
 export { Vault } from './Vault';
 export { VaultageError, ERROR_CODE } from './VaultageError';
 export * from './interface';
-export { supportsNativeCrypto } from './environment';
 
 // tslint:disable-next-line:no-var-requires
 const pkg = require('../package.json');
@@ -18,7 +17,7 @@ const pkg = require('../package.json');
  * @param serverURL URL to the vaultage server.
  * @param username The username used to locate the cipher on the server
  * @param masterPassword Plaintext of the master password
- * @param cb Callback invoked on completion. err is null if no error occured.
+ * @return A promise which resolves with the authenticated vault upon successful login
  */
 export async function login(
         serverURL: string,
@@ -49,14 +48,8 @@ export async function login(
     creds.localKey = localKey;
     creds.remoteKey = remoteKey;
 
-<<<<<<< HEAD
     const cipher = await HttpApi.pullCipher(creds, httpParams);
-    return new Vault(creds, crypto, cipher, httpParams, config.demo);
-=======
-    const vault = new Vault(creds, crypto, httpParams);
-    await vault.pull();
-    return vault;
->>>>>>> 45a70a81d43c84614ce645954e9c702a9cf270cf
+    return Vault.create(creds, crypto, cipher, httpParams, config.demo);
 }
 
 export function _mockHttpRequests(fn: HttpRequestFunction): void {

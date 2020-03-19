@@ -25,32 +25,33 @@ export interface ICredentials {
  * });
  */
 export class Vault {
-    private _creds: ICredentials;
-    private _crypto: ICrypto;
-    private _db: VaultDB;
-    private _httpParams?: IHttpParams;
-    private _lastFingerprint?: string;
-    private _isServerInDemoMode: boolean;
 
-<<<<<<< HEAD
-    constructor(creds: ICredentials, crypto: ICrypto, cipher: string | undefined, httpParams?: IHttpParams, demoMode?: boolean) {
-=======
-    constructor(creds: ICredentials, crypto: ICrypto, httpParams?: IHttpParams) {
->>>>>>> 45a70a81d43c84614ce645954e9c702a9cf270cf
-        this._creds = { ...creds };
-        this._crypto = crypto;
-        this._db = new VaultDB({});
-        this._httpParams = httpParams;
-<<<<<<< HEAD
-        this._isServerInDemoMode = false;
-        if (demoMode === true) {
-            this._isServerInDemoMode = true;
-        }
+    public static async create(
+            creds: ICredentials,
+            crypto: ICrypto,
+            cipher: string | undefined,
+            httpParams?: IHttpParams,
+            demoMode?: boolean
+        ): Promise<Vault> {
+
+        let db = new VaultDB({});
+        let lastFingerprint: string | undefined;
+
         if (cipher) {
-            this._setCipher(creds, cipher);
+            const plain = await crypto.decrypt(creds.localKey, cipher);
+            db = VaultDB.deserialize(plain);
+            lastFingerprint = await crypto.getFingerprint(plain, creds.localKey);
         }
-=======
->>>>>>> 45a70a81d43c84614ce645954e9c702a9cf270cf
+
+        return new Vault({...creds}, crypto, db, demoMode || false, httpParams, lastFingerprint);
+    }
+
+    private constructor(private _creds: ICredentials,
+            private _crypto: ICrypto,
+            private _db: VaultDB,
+            private _isServerInDemoMode: boolean,
+            private _httpParams?: IHttpParams,
+            private _lastFingerprint?: string) {
     }
 
     /**
@@ -249,7 +250,6 @@ export class Vault {
         };
     }
 
-<<<<<<< HEAD
     private async _pullCipher(creds: ICredentials, tryMerge: boolean = true): Promise<string> {
         const serverCipher = await HttpApi.pullCipher(creds, this._httpParams);
         if (serverCipher) {
@@ -284,12 +284,6 @@ export class Vault {
                 // otherwise, just overwrite with the server version
                 await this._setCipher(creds, serverCipher);
             }
-=======
-    private async _pullCipher(creds: ICredentials): Promise<void> {
-        const cipher = await HttpApi.pullCipher(creds, this._httpParams);
-        if (cipher) {
-            await this._setCipher(creds, cipher);
->>>>>>> 45a70a81d43c84614ce645954e9c702a9cf270cf
         } else {
             // Create an empty DB if there is nothing on the server.
             this._db = new VaultDB({});

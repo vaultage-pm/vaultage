@@ -29,13 +29,13 @@ describe('Vault.ts can', () => {
         HttpService.mock(mockAPI);
     });
 
-    it('create an empty vault', () => {
-        const vault = new Vault(creds, crypto, undefined);
+    it('create an empty vault', async () => {
+        const vault = await Vault.create(creds, crypto, undefined);
         expect(vault.getAllEntries().length).toBe(0);
     });
 
     it('can create a Vault with a mock API, which interacts with a fake server', async () => {
-        const vault = new Vault(creds, crypto, undefined);
+        const vault = await Vault.create(creds, crypto, undefined);
 
         // add one entry
         vault.addEntry({
@@ -76,7 +76,7 @@ describe('Vault.ts can', () => {
     });
 
     it('can create a Vault with a mock API, and play with entries', async () => {
-        const vault = new Vault(creds, crypto, undefined);
+        const vault = await Vault.create(creds, crypto, undefined);
 
         // add one entry
         vault.addEntry({
@@ -123,7 +123,7 @@ describe('Vault.ts can', () => {
             serverURL: 'http://url',
             username: 'john cena'
         };
-        const vault = new Vault(creds2, crypto, undefined);
+        const vault = await Vault.create(creds2, crypto, undefined);
 
         expect(vault.getAllEntries().length).toBe(0);
         expect(mockAPI).not.toHaveBeenCalled();
@@ -163,7 +163,7 @@ describe('Vault.ts can', () => {
             serverURL: 'http://url',
             username: 'john cena'
         };
-        const vault = new Vault(creds2, crypto, undefined);
+        const vault = await Vault.create(creds2, crypto, undefined);
 
         // add one entry which will be exactly the same as the one in the DB - only with higher usage count
         vault.addEntry({
@@ -211,7 +211,7 @@ describe('Vault.ts can', () => {
             serverURL: 'http://url',
             username: 'john cena'
         };
-        const vault = new Vault(creds2, crypto, undefined);
+        const vault = await Vault.create(creds2, crypto, undefined);
 
         // add one entry which will be exactly the same as the one in the DB - only with higher usage count
         vault.addEntry({
@@ -292,7 +292,7 @@ describe('Vault.ts can', () => {
     });
 
     it('can create a Vault with a mock API, and play with entries', async () => {
-        const vault = new Vault(creds, crypto, undefined);
+        const vault = await Vault.create(creds, crypto, undefined);
 
         // add one entry
         vault.addEntry({

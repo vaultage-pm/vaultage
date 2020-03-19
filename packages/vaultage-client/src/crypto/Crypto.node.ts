@@ -3,14 +3,6 @@ import { ISaltsConfig } from '../interface';
 import { ERROR_CODE, VaultageError } from '../VaultageError';
 import { ICrypto } from './ICrypto';
 
-// Monkey-patch wrong type definitions
-declare module 'crypto' {
-    // tslint:disable:no-shadowed-variable
-    export function createDecipheriv(algorithm: string, key: any, iv: any, options?: any): Decipher;
-    export function createCipheriv(algorithm: string, key: any, iv: any, options?: any): Cipher;
-    // tslint:enable:no-shadowed-variable
-}
-
 /**
  * Handles the crypto stuff
  */

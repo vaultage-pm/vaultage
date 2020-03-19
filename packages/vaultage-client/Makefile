@@ -20,7 +20,7 @@ test: build
 # Other tasks
 
 integration-test:
-	node_modules/.bin/ts-node test/integration_test.ts
+	node_modules/.bin/ts-node -P integration-test/tsconfig.json integration-test/integration_test.ts
 
 node_upgrade:
 	ncu -u

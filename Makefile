@@ -37,7 +37,7 @@ integration-test:
 install: node_modules/built
 
 # "built" is just there so Make sees the artifact and doesn't rebuild
-node_modules/built: package.json yarn.lock
+node_modules/built: package.json yarn.lock package.json $(wildcard packages/vaultage-*/package.json)
 	yarn
 	touch node_modules/built
 
