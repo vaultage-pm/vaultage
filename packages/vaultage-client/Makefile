@@ -23,23 +23,11 @@ cleanall: clean
 test: build
 	npm test
 
-<<<<<<< HEAD
+
 # Other tasks
 
-$(BIN): $(NODE_MODULES) $(SRC) webpack.config.js $(wildcard lib/*.js) tsconfig.json
-	npm run build
-
-$(NODE_MODULES): package.json package-lock.json
-	npm install
-	touch $(NODE_MODULES)
-
-.PHONY: integration-test
-integration-test: $(NODE_MODULES)
-	node_modules/.bin/ts-node --project integration-test/tsconfig.json $(IT)
-=======
 integration-test:
 	node_modules/.bin/ts-node test/integration_test.ts
 
 node_upgrade:
 	ncu -u
->>>>>>> master

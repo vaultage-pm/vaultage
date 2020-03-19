@@ -49,8 +49,14 @@ export async function login(
     creds.localKey = localKey;
     creds.remoteKey = remoteKey;
 
+<<<<<<< HEAD
     const cipher = await HttpApi.pullCipher(creds, httpParams);
     return new Vault(creds, crypto, cipher, httpParams, config.demo);
+=======
+    const vault = new Vault(creds, crypto, httpParams);
+    await vault.pull();
+    return vault;
+>>>>>>> 45a70a81d43c84614ce645954e9c702a9cf270cf
 }
 
 export function _mockHttpRequests(fn: HttpRequestFunction): void {
