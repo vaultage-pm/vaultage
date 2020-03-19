@@ -1,10 +1,10 @@
 import { IVaultDBEntryAttrs } from 'vaultage-client';
-
+import { Config } from '../Config';
 import { Context } from '../Context';
+import { html } from '../security/xss';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
-
 
 export class EditCommand implements ICommand {
     public readonly name = 'edit';
@@ -13,6 +13,7 @@ export class EditCommand implements ICommand {
 
     constructor(
         private shell: Shell,
+        private config: Config,
         private ctx: Context) {
     }
 
@@ -39,7 +40,7 @@ export class EditCommand implements ICommand {
             url: url
         };
 
-        const answer = await this.shell.promptYesNo(`Confirm edit of entry #${id}?`);
+        const answer = await this.shell.promptYesNo(html`Confirm edit of entry #${id}?`);
         if (answer !== 'yes') {
             this.shell.echo('Cancelled.');
             return;
@@ -47,7 +48,8 @@ export class EditCommand implements ICommand {
 
         this.ctx.vault.updateEntry(id, newEntry);
         const entry2 = this.ctx.vault.getEntry(id);
-        this.shell.echoHTML(VaultEntryFormatter.formatSingle(entry2));
+        const vef = new VaultEntryFormatter(this.config);
+        this.shell.echoHTML(vef.formatSingle(entry2));
         this.shell.echo('Updated entry #' + id);
 
         await this.ctx.vault.save();

@@ -2,6 +2,7 @@ import { IVaultDBEntryAttrs, Passwords } from 'vaultage-client';
 
 import * as config from '../Config';
 import { Context } from '../Context';
+import { html } from '../security/xss';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 
@@ -15,7 +16,7 @@ export class GenCommand implements ICommand {
         private ctx: Context) {
     }
 
-    public async handle() {
+    public async handle(args: string[]) {
         const pwdGen = new Passwords();
         const password = pwdGen.generatePassword(
             config.PWD_GEN_LENGTH,
@@ -23,7 +24,12 @@ export class GenCommand implements ICommand {
             config.PWG_GEN_AVOID_VISUALLY_SIMILAR_CHARS,
             config.PWD_GEN_AVOID_PUNCTUATION_USED_IN_PROGRAMMING);
 
-        const title = await this.shell.prompt('Title:');
+        let defaultValue: string = '';
+        if (args.length > 0) {
+            defaultValue = args.join(' ');
+        }
+
+        const title = await this.shell.prompt('Title:', defaultValue);
         const username = await this.shell.prompt('Username:');
         const url = await this.shell.prompt('Url:');
 
@@ -37,7 +43,7 @@ export class GenCommand implements ICommand {
         const hookname: keyof Window = 'copyPasswordToClipboard';
 
         const newEntryID = this.ctx.vault.addEntry(newEntry);
-        this.shell.echoHTML(`Added entry #${newEntryID}, generated password is
+        this.shell.echoHTML(html`Added entry #${newEntryID}, generated password is
         <span class="blurred" ondblclick="${hookname}(event)">${password}</span>
         <span class="copied">Copied to the clipboard!</span>`);
 

@@ -5,10 +5,11 @@ import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 
-export class RmCommand implements ICommand {
-    public readonly name = 'rm';
 
-    public readonly description = 'Removes an entry in the local db, then pushes an encrypted version of the db to the server.';
+export class HideCommand implements ICommand {
+    public readonly name = 'hide';
+
+    public readonly description = 'Hides (but does not remove) an entry in the local db, then pushes an encrypted version of the db to the server.';
 
     constructor(
         private shell: Shell,
@@ -26,20 +27,22 @@ export class RmCommand implements ICommand {
         }
 
         const e = this.ctx.vault.getEntry(id);
+
+        // toggle hidden
+        e.hidden = !e.hidden;
+
+        this.ctx.vault.updateEntry(id, e);
+        const entry2 = this.ctx.vault.getEntry(id);
+
         const vef = new VaultEntryFormatter(this.config);
-        this.shell.echoHTML(vef.formatSingle(e));
-
-        const answer = await this.shell.promptYesNo(html`'Confirm removal of entry #${id}?`);
-        if (answer !== 'yes') {
-            this.shell.echo('Cancelled.');
-            return;
+        if (entry2.hidden) {
+            this.shell.echoHTML(html`This entry is now <b>hidden</b> :`);
+        } else {
+            this.shell.echoHTML(html`This entry is now <b>visible</b> :`);
         }
-
-        this.ctx.vault.removeEntry(id);
-        this.shell.echo('Remove entry #' + id);
+        this.shell.echoHTML(vef.formatSingle(entry2));
 
         await this.ctx.vault.save();
-
         this.shell.echo('Push OK, revision ' + this.ctx.vault.getDBRevision() + '.');
     }
 }

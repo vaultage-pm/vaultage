@@ -1,32 +1,29 @@
-BIN =dist/vaultage.js
-SRC =$(shell find src/ -type f -name '*.ts')
-SRC +=$(shell find test/ -type f -name '*.ts')
-IT =integration-test/integration-test.ts
-NODE_MODULES=node_modules/.makets
-
 WEBPACK_FLAGS = --output-library Vaultage
 
-.PHONY: all
+.PHONY: all build clean cleanall test integration-test node_upgrade
+
 all: test build
 
+install: node_modules/built
 
-# Mandatory tasks (imposed by the top-level Makefile)
+# "built" is just there so Make sees the artifact and doesn't rebuild
+node_modules/built: package.json package-lock.json
+	npm install
+	touch node_modules/built
 
-.PHONY: build
-build: $(BIN)
+build: install webpack.config.js $(wildcard dist/*.js) $(wildcard lib/*.js)
+	npm run build
 
-.PHONY: clean
 clean:
 	rm -rf dist/ tmp/ integration-test/tmp
 
-.PHONY: cleanall
 cleanall: clean
 	rm -rf node_modules
 
-.PHONY: test
-test: $(NODE_MODULES) $(SRC) $(TESTS)
+test: build
 	npm test
 
+<<<<<<< HEAD
 # Other tasks
 
 $(BIN): $(NODE_MODULES) $(SRC) webpack.config.js $(wildcard lib/*.js) tsconfig.json
@@ -39,3 +36,10 @@ $(NODE_MODULES): package.json package-lock.json
 .PHONY: integration-test
 integration-test: $(NODE_MODULES)
 	node_modules/.bin/ts-node --project integration-test/tsconfig.json $(IT)
+=======
+integration-test:
+	node_modules/.bin/ts-node test/integration_test.ts
+
+node_upgrade:
+	ncu -u
+>>>>>>> master

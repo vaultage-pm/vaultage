@@ -16,6 +16,7 @@ export interface IVaultDBEntryAttrs {
     url: string;
     login: string;
     password: string;
+    hidden?: boolean;
 }
 
 /**

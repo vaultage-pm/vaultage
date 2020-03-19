@@ -3,6 +3,7 @@ import { HttpApi } from './HTTPApi';
 import { IHttpParams, IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from './interface';
 import { deepCopy } from './utils';
 import { VaultDB } from './VaultDB';
+import { Merge } from './Merge';
 
 export interface ICredentials {
     localKey: string;
@@ -29,12 +30,20 @@ export class Vault {
     private _db: VaultDB;
     private _httpParams?: IHttpParams;
     private _lastFingerprint?: string;
+    private _isServerInDemoMode: boolean;
 
-    constructor(creds: ICredentials, crypto: ICrypto, httpParams?: IHttpParams) {
+    constructor(creds: ICredentials, crypto: ICrypto, cipher: string | undefined, httpParams?: IHttpParams, demoMode?: boolean) {
         this._creds = { ...creds };
         this._crypto = crypto;
         this._db = new VaultDB({});
         this._httpParams = httpParams;
+        this._isServerInDemoMode = false;
+        if (demoMode === true) {
+            this._isServerInDemoMode = true;
+        }
+        if (cipher) {
+            this._setCipher(creds, cipher);
+        }
     }
 
     /**
@@ -61,6 +70,7 @@ export class Vault {
 
     /**
      * Saves the Vault on the server.
+     * @throws if the server is in demo-mode, the UI should not try to call "save".
      *
      * The vault must be authenticated before this method can be called.
      */
@@ -68,6 +78,13 @@ export class Vault {
         // Bumping the revision on each push ensures that there are no two identical consecutive fingerprints
         // (in short we are pretending that we updated something even if we didn't)
         this._db.newRevision();
+
+        // if in demo mode, we never push to the server
+        if (this._isServerInDemoMode) {
+            // we do not throw the error, this forces too many checks on the UI. We just pretend it worked
+            // throw new VaultageError(ERROR_CODE.DEMO_MODE, 'Server in demo mode');
+            return new Promise((resolve, _) => { resolve(); });
+        }
         return this._pushCipher(this._creds, null);
     }
 
@@ -76,8 +93,8 @@ export class Vault {
      *
      * The vault must be authenticated before this method can be called.
      */
-    public pull(): Promise<void> {
-        return this._pullCipher(this._creds);
+    public pull(tryMerge: boolean = true): Promise<string> {
+        return this._pullCipher(this._creds, tryMerge);
     }
 
     /**
@@ -102,7 +119,6 @@ export class Vault {
         newCredentials.localKey = newLocalKey;
 
         await this._pushCipher(newCredentials, newRemoteKey);
-
 
         // at this point, the server accepted the update. Let's confirm it by trying to pull with the new
         // accesses
@@ -206,6 +222,14 @@ export class Vault {
         return this._db.replaceAllEntries(entries);
     }
 
+    /**
+     * Returns true if the "demo" flag has been set on the server. This means that typically some operations will be restricted, or
+     * that the UI should indicate that the DB is reset periodically, etc.
+     */
+    public isInDemoMode(): boolean {
+        return this._isServerInDemoMode;
+    }
+
 
     // Private methods
     private _setCredentials(creds: ICredentials): void {
@@ -218,16 +242,48 @@ export class Vault {
         };
     }
 
-    private async _pullCipher(creds: ICredentials): Promise<void> {
-        const cipher = await HttpApi.pullCipher(creds, this._httpParams);
-        if (cipher) {
-            await this._setCipher(creds, cipher);
+    private async _pullCipher(creds: ICredentials, tryMerge: boolean = true): Promise<string> {
+        const serverCipher = await HttpApi.pullCipher(creds, this._httpParams);
+        if (serverCipher) {
+
+            // if we have already something locally, merge
+            if (tryMerge && this._db.getAll().length > 0) {
+                try {
+                    const clientEntries = this._db.getAll();
+                    const serverPlain = await this._crypto.decrypt(creds.localKey, serverCipher);
+                    const serverEntries = VaultDB.deserialize(serverPlain).getAll();
+
+                    // the following will throw NON_FAST_FORWARD if the algo doesn't know how to merge
+                    const merged = Merge.mergeVaultsIfPossible(clientEntries, serverEntries)
+
+                    // change our DB to the merged one
+                    const jsonData = JSON.stringify({
+                        entries: merged.result,
+                        revision: this._db.getRevision() + 10
+                    });
+                    this._db = VaultDB.deserialize(jsonData);
+
+                    // important: fingerprint is the one of the server before the merge
+                    this._lastFingerprint = await this._crypto.getFingerprint(serverPlain, creds.localKey);
+
+                    return merged.toString()
+
+                } catch (exception) {
+                    console.log('Could not merge:', exception);
+                    await this._setCipher(creds, serverCipher);
+                }
+            } else {
+                // otherwise, just overwrite with the server version
+                await this._setCipher(creds, serverCipher);
+            }
         } else {
             // Create an empty DB if there is nothing on the server.
             this._db = new VaultDB({});
             this._lastFingerprint = '';
         }
+        return '';
     }
+
 
     private async _pushCipher(creds: ICredentials, newRemoteKey: (string|null)): Promise<void> {
         const plain = VaultDB.serialize(this._db);
@@ -235,12 +291,12 @@ export class Vault {
         const fingerprint = await this._crypto.getFingerprint(plain, creds.localKey);
 
         await HttpApi.pushCipher(
-            creds,
-            newRemoteKey,
-            cipher,
-            this._lastFingerprint,
-            fingerprint,
-            this._httpParams);
+                creds,
+                newRemoteKey,
+                cipher,
+                this._lastFingerprint,
+                fingerprint,
+                this._httpParams);
 
         this._lastFingerprint = fingerprint;
     }

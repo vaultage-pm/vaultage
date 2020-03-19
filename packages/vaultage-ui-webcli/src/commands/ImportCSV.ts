@@ -1,4 +1,5 @@
 import { Context } from '../Context';
+import { html } from '../security/xss';
 import { ICommand } from '../webshell/ICommand';
 import { Shell } from '../webshell/Shell';
 
@@ -46,6 +47,9 @@ export class ImportCSVCommand implements ICommand {
 
         this.shell.echo(`Saving ${nEntries} new entries...`);
 
+        if (this.ctx.vault.isInDemoMode()) {
+            this.shell.echoHTML(html`<span class="warning">[warning] Typically, this command pushes automatically to the server, but not in <b>demo-mode</b>. You can still explore the imported data with "get", etc. </span>`);
+        }
         await this.ctx.vault.save();
 
         this.shell.echo('Done');
@@ -89,7 +93,11 @@ export class ImportCSVCommand implements ICommand {
         return new Promise((resolve, reject) => {
             const fileReader = new FileReader();
             fileReader.onload = (_) => {
-                resolve(fileReader.result);
+                const result = fileReader.result;
+                if (result == null || result instanceof ArrayBuffer) {
+                    reject();
+                }
+                resolve(result as string);
             };
             fileReader.onerror = reject;
             fileReader.readAsText(file);

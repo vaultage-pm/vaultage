@@ -1,4 +1,4 @@
-FROM node:9
+FROM node:10-alpine
 ARG VAULTAGE_CHANNEL
 
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global

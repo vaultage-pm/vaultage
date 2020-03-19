@@ -1,38 +1,33 @@
-BIN=dist/src/main.js
-SRC=$(shell find src/ -type f -name '*.ts')
 DATA_DIR=.data
-NODE_MODULES=node_modules/.makets
 
-# Mandatory tasks (imposed by the top-level Makefile)
+.PHONY: all build clean cleanall test clean-storage serve node_upgrade integration-test
 
-.PHONY: build
-build: $(BIN)
+all: test
 
-.PHONY: clean
-clean: $(NODE_MODULES)
-	npm run clean
+install: node_modules/built
 
-.PHONY: cleanall
-cleanall: clean
-	rm -rf node_modules
+# "built" is just there so Make sees the artifact and doesn't rebuild
+node_modules/built: package.json package-lock.json
+	npm install
+	touch node_modules/built
 
-.PHONY: test
-test: $(NODE_MODULES) build
-	npm test
-
-# Other tasks
-
-$(BIN): $(NODE_MODULES) $(SRC)
+build: install
 	npm run build
 
-$(NODE_MODULES): package.json package-lock.json
-	npm install
-	touch $(NODE_MODULES)
+clean: 
+	rm -rf dist
 
-.PHONY: clean-storage
 clean-storage:
 	rm -rf $(DATA_DIR)/*
 
-.PHONY: serve
-serve: $(BIN)
+cleanall: clean clean-storage
+	rm -rf node_modules
+
+test: build
+	npm test
+
+serve: build
 	npm start -- -d $(DATA_DIR)
+
+node_upgrade:
+	ncu -u

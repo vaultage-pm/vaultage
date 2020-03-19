@@ -21,7 +21,12 @@ export enum ERROR_CODE {
      * The server responded with an HTTP-level auth error.
      * Most likely due to a missing or invalid Authorization header.
      */
-    NOT_AUTHORIZED
+    NOT_AUTHORIZED,
+
+    /**
+     * The server is in demo mode and is refusing "push" operations.
+     */
+    DEMO_MODE
 }
 
 /**

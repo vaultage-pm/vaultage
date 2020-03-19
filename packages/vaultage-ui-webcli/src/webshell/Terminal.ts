@@ -137,6 +137,24 @@ export class Terminal {
      */
     public focus() {
         this.$input.focus();
+        this.$input.scrollTo();
+        this.$input.scrollIntoView();
+    }
+
+    /**
+     * Highlights the prompt by changing the background
+     */
+    public highlightPrompt() {
+        this.$prompt.classList.add('highlightedPrompt');
+        this.$input.classList.add('highlightedPrompt');
+    }
+
+    /**
+     * Resets the background color to transparent
+     */
+    public resetHighlightPrompt() {
+        this.$prompt.classList.remove('highlightedPrompt');
+        this.$input.classList.remove('highlightedPrompt');
     }
 
     /**
@@ -283,7 +301,11 @@ export class Terminal {
      * true when the user has selected some text somewhere on the page.
      */
     public get hasSelection() {
-        return window.getSelection().type === 'Range';
+        const selection = window.getSelection();
+        if (selection === null) {
+            return false;
+        }
+        return selection.type === 'Range';
     }
 
     private onMouseUp() {

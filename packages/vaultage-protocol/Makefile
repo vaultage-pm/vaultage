@@ -1,33 +1,25 @@
-BIN=dist/main.js
-SRC=$(shell find src/ -type f -name '*.ts')
-NODE_MODULES=node_modules/.makets
+.PHONY: all build test clean cleanall node_upgrade
 
-.PHONY: all
-all: test build
+all: test
 
+install: node_modules/built
 
-# Mandatory tasks (imposed by the top-level Makefile)
+# "built" is just there so Make sees the artifact and doesn't rebuild
+node_modules/built: package.json package-lock.json
+	npm install
+	touch node_modules/built
 
-.PHONY: build
-build: $(BIN)
+build: install $(wildcard dist/*.js) $(wildcard dist/messages/*.js)
+	npm run build
 
-.PHONY: clean
 clean:
 	rm -rf dist/
 
-.PHONY: cleanall
 cleanall: clean
 	rm -rf node_modules
 
-.PHONY: test
-test: $(NODE_MODULES) $(BIN)
+test: build
 	npm test
 
-# Other tasks
-
-$(BIN): $(NODE_MODULES) $(SRC)
-	npm run build
-
-$(NODE_MODULES): package.json package-lock.json
-	npm install
-	touch $(NODE_MODULES)
+node_upgrade:
+	ncu -u

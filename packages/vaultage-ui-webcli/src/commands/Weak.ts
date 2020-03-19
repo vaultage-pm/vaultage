@@ -1,5 +1,6 @@
 import { PasswordStrength } from 'vaultage-client';
 
+import { Config } from '../Config';
 import { Context } from '../Context';
 import { VaultEntryFormatter } from '../VaultEntryFormatter';
 import { ICommand } from '../webshell/ICommand';
@@ -12,12 +13,15 @@ export class WeakCommand implements ICommand {
 
     constructor(
         private shell: Shell,
+        private config: Config,
         private ctx: Context) {
     }
 
     public async handle() {
         const results = this.ctx.vault.getWeakPasswords(PasswordStrength.MEDIUM);
-        this.shell.echoHTML('Searching for entries with a weak password, ' + results.length + ' matching entries.');
-        this.shell.echoHTML(VaultEntryFormatter.formatBatch(results));
+        this.shell.echo('Searching for entries with a weak password, ' + results.length + ' matching entries.');
+
+        const vef = new VaultEntryFormatter(this.config);
+        this.shell.echoHTML(vef.formatAndHighlightBatch(results));
     }
 }

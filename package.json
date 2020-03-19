@@ -9,22 +9,23 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lbarman/vaultage.git"
+    "url": "git+https://github.com/vaultage-pm/vaultage.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/lbarman/vaultage/issues"
+    "url": "https://github.com/vaultage-pm/vaultage/issues"
   },
-  "homepage": "https://github.com/lbarman/vaultage#readme",
+  "homepage": "https://github.com/vaultage-pm/vaultage#readme",
   "devDependencies": {
-    "@types/inquirer": "0.0.35",
-    "@types/semver": "^5.4.0",
-    "@types/shelljs": "^0.7.6",
-    "inquirer": "^4.0.0",
-    "semver": "^5.4.1",
-    "shelljs": "^0.7.8",
-    "ts-node": "^3.3.0",
-    "typescript": "^2.6.1"
-  }
+    "@types/inquirer": "6.5.0",
+    "@types/semver": "^7.1.0",
+    "@types/shelljs": "^0.8.6",
+    "inquirer": "^7.1.0",
+    "semver": "^7.1.3",
+    "shelljs": "^0.8.3",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {}
 }

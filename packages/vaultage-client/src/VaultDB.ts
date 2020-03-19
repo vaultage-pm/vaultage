@@ -102,7 +102,8 @@ export class VaultDB {
                 title: '',
                 url: '',
                 login: '',
-                password: ''
+                password: '',
+                hidden: false
             };
         }
 
@@ -121,6 +122,9 @@ export class VaultDB {
         }
         if (attrs.url) {
             entry.url = attrs.url;
+        }
+        if (attrs.hidden !== undefined) {
+            entry.hidden = attrs.hidden;
         }
         entry.updated = currentDate;
 
@@ -189,7 +193,10 @@ export class VaultDB {
         });
 
         arrayOfTuples.sort((e1, e2) => {
-            return e2.hitcount - e1.hitcount;
+            if (e1.hitcount !== e2.hitcount) {
+                return e2.hitcount - e1.hitcount;
+            }
+            return e2.entry.usage_count - e1.entry.usage_count;
         });
 
         const sortedEntries = arrayOfTuples.map((tuple) => deepCopy(tuple.entry));
