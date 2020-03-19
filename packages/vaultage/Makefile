@@ -4,14 +4,7 @@ DATA_DIR=.data
 
 all: test
 
-install: node_modules/built
-
-# "built" is just there so Make sees the artifact and doesn't rebuild
-node_modules/built: package.json package-lock.json
-	npm install
-	touch node_modules/built
-
-build: install
+build:
 	npm run build
 
 clean: 

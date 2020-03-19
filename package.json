@@ -27,5 +27,11 @@
     "ts-node": "^8.6.2",
     "typescript": "^3.8.3"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "workspaces": [
+    "packages/vaultage",
+    "packages/vaultage-client",
+    "packages/vaultage-protocol",
+    "packages/vaultage-ui-webcli"
+  ]
 }
