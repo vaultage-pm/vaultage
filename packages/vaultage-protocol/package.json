@@ -27,10 +27,7 @@
     },
     "homepage": "https://github.com/vaultage-pm/vaultage#readme",
     "dependencies": {
-        "class-validator": "^0.11.0"
-    },
-    "devDependencies": {
-        "tslint": "6.0.0",
-        "typescript": "3.8.3"
+        "rest-ts-core": "0.6.1",
+        "runtypes": "4.2.0"
     }
 }

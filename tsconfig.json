@@ -5,6 +5,7 @@
     "noImplicitAny": false,
     "strictNullChecks": true,
     "sourceMap": true,
+    "declarationMap": true,
     "module": "commonjs",
     "target": "es5",
     "allowJs": false,
