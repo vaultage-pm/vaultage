@@ -29,9 +29,6 @@
   },
   "dependencies": {},
   "workspaces": [
-    "packages/vaultage",
-    "packages/vaultage-client",
-    "packages/vaultage-protocol",
-    "packages/vaultage-ui-webcli"
+    "packages/*"
   ]
 }
