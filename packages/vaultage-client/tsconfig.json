@@ -1,19 +1,19 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist",
+    "outDir": "build/tsc",
     "baseUrl": ".",
     "declaration": true,
     "sourceMap": true,
     "lib": [ "es2015", "dom" ],
     "module": "esnext",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
   },
   "include": [
-    "src/**/*.ts"
+      "src/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "dist"
+      "node_modules",
+      "dist"
   ]
 }

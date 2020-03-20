@@ -1,4 +1,4 @@
-import { IVaultDBEntryAttrs, Passwords } from 'vaultage-client';
+import { IVaultDBEntryAttrs, passwords } from 'vaultage-client';
 
 import * as config from '../Config';
 import { Context } from '../Context';
@@ -17,8 +17,7 @@ export class GenCommand implements ICommand {
     }
 
     public async handle(args: string[]) {
-        const pwdGen = new Passwords();
-        const password = pwdGen.generatePassword(
+        const password = passwords.generatePassword(
             config.PWD_GEN_LENGTH,
             config.PWD_GEN_USE_SYMBOLS,
             config.PWG_GEN_AVOID_VISUALLY_SIMILAR_CHARS,

@@ -1,10 +1,10 @@
-import { injectable } from 'inversify';
+import { injectable } from 'tsyringe';
 import { IErrorPushPullResponse, IVaultageConfig, PushPullResponse, UpdateCipherRequest } from 'vaultage-protocol';
 
-import { HttpRequestParameters, HttpService } from 'src/transport/http-service';
-import { IHttpParams } from 'src/interface';
-import { ICredentials } from 'src/vault/Vault';
-import { ERROR_CODE, VaultageError } from 'src/VaultageError';
+import { IHttpParams } from '../interface';
+import { ICredentials } from '../vault/Vault';
+import { ERROR_CODE, VaultageError } from '../VaultageError';
+import { HttpRequestParameters, HttpService } from './http-service';
 
 
 /**

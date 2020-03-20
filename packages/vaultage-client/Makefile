@@ -1,11 +1,16 @@
 WEBPACK_FLAGS = --output-library Vaultage
 
+BIN=bundle/vaultage-sjcl.js
+
 .PHONY: all build clean cleanall test integration-test node_upgrade
 
 all: test build
 
-build: webpack.config.js $(wildcard dist/*.js) $(wildcard lib/*.js)
+build: $(BIN)
+
+$(BIN): webpack.config.js $(wildcard src/*.ts) $(wildcard src/*/*.ts) $(wildcard lib/*.js)
 	npm run build
+	npm run build:api
 
 clean:
 	rm -rf dist/ tmp/ integration-test/tmp

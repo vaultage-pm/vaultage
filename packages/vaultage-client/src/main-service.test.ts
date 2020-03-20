@@ -1,12 +1,12 @@
 import { instance, Mock, mock, mockInstance, verify, when } from 'omnimock';
-import { MainService } from 'src/main-service';
-import { HttpApi } from 'src/transport/http-api';
 
 import { CryptoService } from './crypto/crypto-service';
-import { VaultService } from './vault/vault-service';
-import { ICredentials, Vault } from './vault/Vault';
-import { ISaltsConfig, IHttpParams } from './interface';
 import { ICrypto } from './crypto/ICrypto';
+import { IHttpParams, ISaltsConfig } from './interface';
+import { MainService } from './main-service';
+import { HttpApi } from './transport/http-api';
+import { ICredentials, Vault } from './vault/Vault';
+import { VaultService } from './vault/vault-service';
 
 
 function fakeSalts(): ISaltsConfig {

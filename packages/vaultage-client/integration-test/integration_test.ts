@@ -1,5 +1,5 @@
 import * as util from 'util';
-import * as vaultage from '..';
+import vaultage from '..';
 
 import { IVaultDBEntryAttrs, Vault } from '..';
 

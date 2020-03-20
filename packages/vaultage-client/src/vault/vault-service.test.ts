@@ -1,329 +1,91 @@
-// import { HttpService, IHttpResponse } from 'src/transport/http-service';
-// import { ICredentials, Vault } from 'src/vault/Vault';
-// import { VaultService } from './vault-service';
+import { anything, instance, Mock, mock, verify, when } from 'omnimock';
 
-// const creds: ICredentials = {
-//     localKey: 'the_local_key',
-//     remoteKey: 'the_remote_key',
-//     serverURL: 'http://url',
-//     username: 'john cena'
-// };
+import { ICrypto } from '../crypto/ICrypto';
+import { MergeService } from '../merge-service';
+import { HttpApi } from '../transport/http-api';
+import { ICredentials } from './Vault';
+import { VaultService } from './vault-service';
+import { VaultDB } from './VaultDB';
+import { VaultDBService } from './vaultdb-service';
 
-// function response<T>(data: T): IHttpResponse<T> {
-//     return {
-//         data
-//     };
-// }
+const creds: ICredentials = {
+    localKey: 'the_local_key',
+    remoteKey: 'the_remote_key',
+    serverURL: 'http://url',
+    username: 'john cena'
+};
 
-// let mockAPI: jest.Mock;
+describe('VaultService', () => {
 
-// describe('VaultService', () => {
+    let service: VaultService;
+    let mockHttpApi: Mock<HttpApi>;
+    let mockMergeService: Mock<MergeService>;
+    let mockVaultDBService: Mock<VaultDBService>;
+    let mockCrypto: Mock<ICrypto>;
+    let mockDB: Mock<VaultDB>;
 
-//     let service: VaultService;
+    beforeEach(() => {
+        mockHttpApi = mock(HttpApi);
+        mockMergeService = mock(MergeService);
+        mockVaultDBService = mock(VaultDBService);
+        mockCrypto = mock<ICrypto>('Crypto');
+        mockDB = mock(VaultDB);
 
-//     beforeEach(() => {
-//         service = new VaultService();
-//     });
+        when(mockVaultDBService.createEmpty()).return(instance(mockDB)).anyTimes();
 
-//     it('can create an empty vault', async () => {
-//         const vault = await Vault.create(creds, crypto, undefined);
-//         expect(vault.getAllEntries().length).toBe(0);
-//     });
+        service = new VaultService(instance(mockHttpApi), instance(mockMergeService), instance(mockVaultDBService));
+    });
 
-//     it('can create a Vault with a mock API, which interacts with a fake server', async () => {
-//         const vault = await Vault.create(creds, crypto, undefined);
+    afterEach(() => {
+        verify(mockHttpApi);
+        verify(mockMergeService);
+        verify(mockVaultDBService);
+        verify(mockCrypto);
+        verify(mockDB);
+    })
 
-//         // add one entry
-//         vault.addEntry({
-//             title: 'Hello',
-//             login: 'Bob',
-//             password: 'zephyr',
-//             url: 'http://example.com'
-//         });
+    it('can create an empty vault', async () => {
+        const vault = await service.create(creds, instance(mockCrypto), undefined);
+        // Workaround until this is merged: https://github.com/hmil/omnimock/pull/19
+        when(mockDB.find.apply(anything(), [''])).return([]);
+        expect(vault.getAllEntries().length).toBe(0);
+    });
 
-//         expect(vault.getAllEntries().length).toBe(1);
-//         expect(mockAPI).not.toHaveBeenCalled();
+    it('encrypts and pushes a cipher', async () => {
+        const vault = await service.create(creds, instance(mockCrypto), undefined);
 
-//         mockAPI.mockImplementationOnce((_parameters) => {
-//             // encrypted with master password 'passwd'. DB contains a single object Object:
-//             // {id: 0, title: 'Hello', url: 'http://example.com', login: 'Bob', password: 'zephyr',
-//             // created: 'Sat, 28 Oct 2017 12:41:50 GMT', updated: 'Sat, 28 Oct 2017 12:41:50 GMT'}
-//             return Promise.resolve(response({
-//                 error: false,
-//                 // tslint:disable-next-line:max-line-length
-//                 data: '{"iv":"32CPCDg5TZfwMxTAkoxNnA==","v":1,"iter":10000,;"ks";:128,;"ts";:64,;"mode";:"ccm",;"adata";:"",;"cipher";:"aes",;"salt";:"2xgYuLeaI70=",;"ct";:"VP8hRnz0h71X0AycacRmDZVy6eCjglxTMGm\/MgFxDv3YiaSHMaIxfX2Krx6IDmHZGs1KLCmZWpgqW+NxUAdo6iIhTE7yQ2+JPY4iyvtEdvCJpMY9hGPxLACFC7i7JWLkNOSgeIOj9lO5SJBVtE5DASXfW68GZjTM0rc6PevuWQyAwwTwlnoLxQivodU0hH0w6LeUDXbpPtZGbP2vmiNuFs9haj1VRhrnHFUwRUTY\/mSE1JtClMvhjwjyfTYQdXjGA2qr9XBMiQWNFkA=";}'
-//             }));
-//         });
+        when(mockVaultDBService.serialize(anything())).return('opaque_ser');
+        when(mockDB.newRevision()).return(undefined);
+        when(mockCrypto.encrypt('the_local_key', 'opaque_ser')).resolve('opaque_cipher');
+        when(mockCrypto.getFingerprint('opaque_ser', 'the_local_key')).resolve('opaque_fingerprint');
 
-//         // save the current vault
-//         await vault.save();
+        when(mockHttpApi.pushCipher({
+            serverURL: 'http://url',
+            localKey: 'the_local_key',
+            remoteKey: 'the_remote_key',
+            username: 'john cena'
+        }, null, 'opaque_cipher', undefined, 'opaque_fingerprint', undefined)).resolve(undefined);
 
-//         expect(mockAPI).toHaveBeenCalledTimes(1);
-//         expect(mockAPI).toHaveBeenCalledWith(expect.objectContaining({
-//             url: 'http://url/john%20cena/the_remote_key/vaultage_api',
-//             method: 'POST',
-//         }));
+        // save the current vault
+        await vault.save();
+    });
 
-//         const entry = vault.getEntry('0');
-//         expect(entry.title).toEqual('Hello');
-//         expect(entry.url).toEqual('http://example.com');
-//         expect(entry.login).toEqual('Bob');
-//         expect(entry.password).toEqual('zephyr');
-//     });
+    it('adds a new entry', async () => {
+        const vault = await service.create(creds, instance(mockCrypto), undefined);
 
-//     it('can create a Vault with a mock API, and play with entries', async () => {
-//         const vault = await Vault.create(creds, crypto, undefined);
+        when(mockDB.add({
+            title: 'Hello',
+            login: 'Bob',
+            password: 'zephyr',
+            url: 'http://example.com'
+        })).return('1');
 
-//         // add one entry
-//         vault.addEntry({
-//             title: 'github',
-//             login: 'json',
-//             password: 'zephyr',
-//             url: 'http://github.com'
-//         });
-
-//         expect(vault.getAllEntries().length).toBe(1);
-
-//         // add one entry
-//         vault.addEntry({
-//             title: 'gitlab',
-//             login: 'jasongit',
-//             password: 'jackson',
-//             url: 'http://lab.git.com'
-//         });
-
-//         expect(vault.getAllEntries().length).toBe(2);
-
-//         const entries2 = vault.getWeakPasswords();
-//         expect(entries2.length).toEqual(2);
-
-//         vault.updateEntry('0', {
-//             password: 'N1N$a23489zasdél123',
-//         });
-
-//         const entries = vault.findEntries('git');
-//         expect(entries.length).toEqual(2);
-//         expect(entries[0].title).toEqual('gitlab');
-//         expect(entries[1].title).toEqual('github');
-
-//         const entries3 = vault.getWeakPasswords();
-//         expect(entries3.length).toEqual(1);
-//         expect(entries3[0].title).toEqual('gitlab');
-//     });
-
-
-//     it('can create a Vault by pulling a mock API', async () => {
-//         const creds2: ICredentials = {
-//             localKey: 'the_local_key',
-//             remoteKey: 'the_remote_key',
-//             serverURL: 'http://url',
-//             username: 'john cena'
-//         };
-//         const vault = await Vault.create(creds2, crypto, undefined);
-
-//         expect(vault.getAllEntries().length).toBe(0);
-//         expect(mockAPI).not.toHaveBeenCalled();
-
-//         mockAPI.mockImplementationOnce((_parameters) => {
-//             // encrypted with master password 'the_local_key'. DB contains a single object Object:
-//             // {id: 0, title: 'Hello', url: 'http://example.com', login: 'Bob', password: 'zephyr',
-//             // created: 'Sat, 28 Oct 2017 12:41:50 GMT', updated: 'Sat, 28 Oct 2017 12:41:50 GMT'}
-//             return Promise.resolve(response({
-//                 error: false,
-//                 // tslint:disable-next-line:max-line-length
-//                 data: '{"iv":"cGBEwUfGmZD9w2/xo8TBow==","v":1,"iter":10000,"ks":128,"ts":64,"mode":"ccm","adata":"","cipher":"aes","salt":"QTFhFByDdWM=","ct":"1akmXM9BIP4kgDlYdbDCwL3yHYpjtOSrdZfTWi/MskyiJdnEZgQGD9o4yGr53hvGIbePC1yrLoWGTHy4Y6USxmMy8ovxtxF2z6TKWsN7EsWl8rdE+w7xT8Aj7qge2iKS2wqmF5XqggRa01Phclb1tFCxjCTGDeQcTl2JGijO490SCq1EYIr+XGjCy6I5K4sd3xDBY7UtUgnNZLr8+eHHhCkO9joMSwDvdRCZqgqA3GUjS57tYvU9ubZ0HvGN7HN6vAoArxeJqiPzvzQcSgsTTcC+jD0FmIuWRtueHhM6hNONYWOgZefhxI8Fb40PQ0UFYHLU9ihncsSln7Q7Cd7dUfL8RzbUkLbOnEc25Mt+tSnO3CgaHMvff0XidoyDxJnNQcyR6wzuqMqkCg=="}'
-//             }));
-//         });
-
-//         // pull the current vault
-//         await vault.pull();
-
-//         expect(mockAPI).toHaveBeenCalledTimes(1);
-//         expect(mockAPI).toHaveBeenCalledWith(expect.objectContaining({
-//             url: 'http://url/john%20cena/the_remote_key/vaultage_api'
-//         }));
-
-//         expect(vault.getAllEntries().length).toBe(1);
-
-//         const entry = vault.getEntry('0');
-//         expect(entry.title).toEqual('Hello');
-//         expect(entry.url).toEqual('http://example.com');
-//         expect(entry.login).toEqual('Bob');
-//         expect(entry.password).toEqual('zephyr');
-//     });
-
-//     it('can create a Vault with a mock API and automatically merge edited things', async () => {
-//         const creds2: ICredentials = {
-//             localKey: 'the_local_key',
-//             remoteKey: 'the_remote_key',
-//             serverURL: 'http://url',
-//             username: 'john cena'
-//         };
-//         const vault = await Vault.create(creds2, crypto, undefined);
-
-//         // add one entry which will be exactly the same as the one in the DB - only with higher usage count
-//         vault.addEntry({
-//             title: 'Hello',
-//             login: 'Bob',
-//             password: 'zephyr',
-//             url: 'http://example.com'
-//         });
-//         vault.entryUsed('0');
-
-//         expect(vault.getAllEntries().length).toBe(1);
-//         expect(mockAPI).not.toHaveBeenCalled();
-
-//         mockAPI.mockImplementationOnce((_parameters) => {
-//             // encrypted with master password 'the_local_key'. DB contains a single object Object:
-//             // {id: 0, title: 'Hello', url: 'http://example.com', login: 'Bob', password: 'zephyr',
-//             // created: 'Sat, 28 Oct 2017 12:41:50 GMT', updated: 'Sat, 28 Oct 2017 12:41:50 GMT'}
-//             return Promise.resolve(response({
-//                 error: false,
-//                 // tslint:disable-next-line:max-line-length
-//                 data: '{"iv":"cGBEwUfGmZD9w2/xo8TBow==","v":1,"iter":10000,"ks":128,"ts":64,"mode":"ccm","adata":"","cipher":"aes","salt":"QTFhFByDdWM=","ct":"1akmXM9BIP4kgDlYdbDCwL3yHYpjtOSrdZfTWi/MskyiJdnEZgQGD9o4yGr53hvGIbePC1yrLoWGTHy4Y6USxmMy8ovxtxF2z6TKWsN7EsWl8rdE+w7xT8Aj7qge2iKS2wqmF5XqggRa01Phclb1tFCxjCTGDeQcTl2JGijO490SCq1EYIr+XGjCy6I5K4sd3xDBY7UtUgnNZLr8+eHHhCkO9joMSwDvdRCZqgqA3GUjS57tYvU9ubZ0HvGN7HN6vAoArxeJqiPzvzQcSgsTTcC+jD0FmIuWRtueHhM6hNONYWOgZefhxI8Fb40PQ0UFYHLU9ihncsSln7Q7Cd7dUfL8RzbUkLbOnEc25Mt+tSnO3CgaHMvff0XidoyDxJnNQcyR6wzuqMqkCg=="}'
-//             }));
-//         });
-
-//         // pull the current vault
-//         await vault.pull();
-
-//         expect(mockAPI).toHaveBeenCalledTimes(1);
-//         expect(mockAPI).toHaveBeenCalledWith(expect.objectContaining({
-//             url: 'http://url/john%20cena/the_remote_key/vaultage_api'
-//         }));
-
-//         const entry = vault.getEntry('0');
-//         expect(entry.title).toEqual('Hello');
-//         expect(entry.url).toEqual('http://example.com');
-//         expect(entry.login).toEqual('Bob');
-//         expect(entry.password).toEqual('zephyr');
-//         expect(entry.usage_count).toEqual(1);
-//     });
-
-//     it('can create a Vault with a mock API and automatically merge new things', async () => {
-//         const creds2: ICredentials = {
-//             localKey: 'the_local_key',
-//             remoteKey: 'the_remote_key',
-//             serverURL: 'http://url',
-//             username: 'john cena'
-//         };
-//         const vault = await Vault.create(creds2, crypto, undefined);
-
-//         // add one entry which will be exactly the same as the one in the DB - only with higher usage count
-//         vault.addEntry({
-//             title: 'Hello',
-//             login: 'Bob',
-//             password: 'zephyr',
-//             url: 'http://example.com'
-//         });
-//         vault.entryUsed('0');
-//         vault.addEntry({
-//             title: 'A totally new entry',
-//             login: 'new login',
-//             password: 'new password',
-//             url: 'http://example2.com'
-//         });
-
-//         expect(vault.getAllEntries().length).toBe(2);
-//         expect(mockAPI).not.toHaveBeenCalled();
-
-//         mockAPI.mockImplementationOnce((_parameters) => {
-//             // encrypted with master password 'the_local_key'. DB contains a single object Object:
-//             // {id: 0, title: 'Hello', url: 'http://example.com', login: 'Bob', password: 'zephyr',
-//             // created: 'Sat, 28 Oct 2017 12:41:50 GMT', updated: 'Sat, 28 Oct 2017 12:41:50 GMT'}
-//             // its fingerprint is 7103083b1245cf7843cd4d7dee33301b4bb70ecee5c8e531fecb874120d6f1ba
-//             return Promise.resolve(response({
-//                 error: false,
-//                 // tslint:disable-next-line:max-line-length
-//                 data: '{"iv":"cGBEwUfGmZD9w2/xo8TBow==","v":1,"iter":10000,"ks":128,"ts":64,"mode":"ccm","adata":"","cipher":"aes","salt":"QTFhFByDdWM=","ct":"1akmXM9BIP4kgDlYdbDCwL3yHYpjtOSrdZfTWi/MskyiJdnEZgQGD9o4yGr53hvGIbePC1yrLoWGTHy4Y6USxmMy8ovxtxF2z6TKWsN7EsWl8rdE+w7xT8Aj7qge2iKS2wqmF5XqggRa01Phclb1tFCxjCTGDeQcTl2JGijO490SCq1EYIr+XGjCy6I5K4sd3xDBY7UtUgnNZLr8+eHHhCkO9joMSwDvdRCZqgqA3GUjS57tYvU9ubZ0HvGN7HN6vAoArxeJqiPzvzQcSgsTTcC+jD0FmIuWRtueHhM6hNONYWOgZefhxI8Fb40PQ0UFYHLU9ihncsSln7Q7Cd7dUfL8RzbUkLbOnEc25Mt+tSnO3CgaHMvff0XidoyDxJnNQcyR6wzuqMqkCg=="}'
-//             }));
-//         });
-
-//         // pull the current vault
-//         await vault.pull();
-
-//         expect(mockAPI).toHaveBeenCalledTimes(1);
-//         expect(mockAPI).toHaveBeenCalledWith(expect.objectContaining({
-//             url: 'http://url/john%20cena/the_remote_key/vaultage_api'
-//         }));
-
-//         const entry = vault.getEntry('0');
-//         expect(entry.title).toEqual('Hello');
-//         expect(entry.url).toEqual('http://example.com');
-//         expect(entry.login).toEqual('Bob');
-//         expect(entry.password).toEqual('zephyr');
-//         expect(entry.usage_count).toEqual(1);
-
-//         const entry2 = vault.getEntry('1');
-//         expect(entry2.title).toEqual('A totally new entry');
-//         expect(entry2.url).toEqual('http://example2.com');
-//         expect(entry2.login).toEqual('new login');
-//         expect(entry2.password).toEqual('new password');
-//         expect(entry2.usage_count).toEqual(0);
-
-
-//         mockAPI = jest.fn();
-//         HttpService.mock(mockAPI);
-
-//         mockAPI.mockImplementationOnce((_parameters) => {
-//             if (_parameters.data.old_hash !== '7103083b1245cf7843cd4d7dee33301b4bb70ecee5c8e531fecb874120d6f1ba') {
-//                 throw new Error('Wrong old hash !');
-//             }
-//             // encrypted with master password 'the_local_key'. DB contains a single object Object:
-//             // {id: 0, title: 'Hello', url: 'http://example.com', login: 'Bob', password: 'zephyr',
-//             // created: 'Sat, 28 Oct 2017 12:41:50 GMT', updated: 'Sat, 28 Oct 2017 12:41:50 GMT'}
-//             return Promise.resolve(response({
-//                 error: false,
-//                 // tslint:disable-next-line:max-line-length
-//                 data: '{"iv":"cGBEwUfGmZD9w2/xo8TBow==","v":1,"iter":10000,"ks":128,"ts":64,"mode":"ccm","adata":"","cipher":"aes","salt":"QTFhFByDdWM=","ct":"1akmXM9BIP4kgDlYdbDCwL3yHYpjtOSrdZfTWi/MskyiJdnEZgQGD9o4yGr53hvGIbePC1yrLoWGTHy4Y6USxmMy8ovxtxF2z6TKWsN7EsWl8rdE+w7xT8Aj7qge2iKS2wqmF5XqggRa01Phclb1tFCxjCTGDeQcTl2JGijO490SCq1EYIr+XGjCy6I5K4sd3xDBY7UtUgnNZLr8+eHHhCkO9joMSwDvdRCZqgqA3GUjS57tYvU9ubZ0HvGN7HN6vAoArxeJqiPzvzQcSgsTTcC+jD0FmIuWRtueHhM6hNONYWOgZefhxI8Fb40PQ0UFYHLU9ihncsSln7Q7Cd7dUfL8RzbUkLbOnEc25Mt+tSnO3CgaHMvff0XidoyDxJnNQcyR6wzuqMqkCg=="}'
-//             }));
-//         });
-
-//         await vault.save();
-//         expect(mockAPI).toHaveBeenCalledTimes(1);
-//         expect(mockAPI).toHaveBeenCalledWith(expect.objectContaining({
-//             url: 'http://url/john%20cena/the_remote_key/vaultage_api',
-//             method: 'POST',
-//         }));
-//     });
-
-//     it('can create a Vault with a mock API, and play with entries', async () => {
-//         const vault = await Vault.create(creds, crypto, undefined);
-
-//         // add one entry
-//         vault.addEntry({
-//             title: 'github',
-//             login: 'json',
-//             password: 'zephyr',
-//             url: 'http://github.com'
-//         });
-
-//         expect(vault.getAllEntries().length).toBe(1);
-
-//         // add one entry
-//         vault.addEntry({
-//             title: 'gitlab',
-//             login: 'jasongit',
-//             password: 'jackson',
-//             url: 'http://lab.git.com'
-//         });
-
-//         expect(vault.getAllEntries().length).toBe(2);
-
-//         const entries2 = vault.getWeakPasswords();
-//         expect(entries2.length).toEqual(2);
-
-//         vault.updateEntry('0', {
-//             password: 'N1N$a23489zasdél123',
-//         });
-
-//         const entries = vault.findEntries('git');
-//         expect(entries.length).toEqual(2);
-//         expect(entries[0].title).toEqual('gitlab');
-//         expect(entries[1].title).toEqual('github');
-
-//         const entries3 = vault.getWeakPasswords();
-//         expect(entries3.length).toEqual(1);
-//         expect(entries3[0].title).toEqual('gitlab');
-//     });
-// });
+        // add one entry
+        vault.addEntry({
+            title: 'Hello',
+            login: 'Bob',
+            password: 'zephyr',
+            url: 'http://example.com'
+        });
+    });
+});

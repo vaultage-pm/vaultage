@@ -1,7 +1,7 @@
-import { Crypto as CryptoNode } from 'src/crypto/Crypto.node';
-import { Crypto as CryptoSJCL } from 'src/crypto/Crypto.sjcl';
-import { ICrypto } from 'src/crypto/ICrypto';
-import { ISaltsConfig } from 'src/public-api';
+import { Crypto as CryptoNode } from './Crypto.node';
+import { Crypto as CryptoSJCL } from './Crypto.sjcl';
+import { ICrypto } from './ICrypto';
+import { ISaltsConfig } from '../interface';
 
 function generateString(len: number) {
     return Math.random().toString(36).substr(2, 2 + len);

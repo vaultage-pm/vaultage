@@ -1,6 +1,7 @@
-import { PasswordStrength } from 'src/interface';
-import { injectable, inject } from 'inversify';
-import { IRandomness } from 'src/passwords/randomness-generator';
+import { inject, injectable } from 'tsyringe';
+
+import { PasswordStrength } from '../interface';
+import { IRandomness } from './randomness-generator';
 
 
 @injectable()

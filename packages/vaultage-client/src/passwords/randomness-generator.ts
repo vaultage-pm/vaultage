@@ -1,4 +1,4 @@
-import { injectable } from 'inversify';
+import { injectable } from 'tsyringe';
 import { W3CCryptoProvider } from './w3c-crypto-provider';
 
 export interface IRandomness {

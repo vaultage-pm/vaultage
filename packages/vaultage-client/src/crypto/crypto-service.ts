@@ -1,7 +1,7 @@
-import { injectable } from 'inversify';
-import { Crypto } from 'src/crypto/Crypto.node';
-import { ICrypto } from 'src/crypto/ICrypto';
-import { ISaltsConfig } from 'src/interface';
+import { injectable } from 'tsyringe';
+import { Crypto } from './Crypto.node';
+import { ICrypto } from './ICrypto';
+import { ISaltsConfig } from '../interface';
 
 @injectable()
 export class CryptoService {

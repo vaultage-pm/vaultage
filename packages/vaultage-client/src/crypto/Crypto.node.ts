@@ -1,7 +1,7 @@
-import { ICipherFormat } from 'src/ICipherFormat';
-import { ISaltsConfig } from 'src/interface';
-import { ERROR_CODE, VaultageError } from 'src/VaultageError';
-import { ICrypto } from 'src/crypto/ICrypto';
+import { ICipherFormat } from '../ICipherFormat';
+import { ISaltsConfig } from '../interface';
+import { ERROR_CODE, VaultageError } from '../VaultageError';
+import { ICrypto } from './ICrypto';
 
 /**
  * Handles the crypto stuff

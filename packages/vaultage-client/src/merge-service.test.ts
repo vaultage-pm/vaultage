@@ -1,5 +1,5 @@
-import { MergeService } from 'src/merge-service';
-import { IVaultDBEntry } from 'src/public-api';
+import { MergeService } from './merge-service';
+import { IVaultDBEntry } from './public-api';
 
 describe('MergeService', () => {
 
@@ -59,7 +59,7 @@ describe('MergeService', () => {
 
         it('one edit (usage_count)', async () => {
             const entries1 = getBaseLineVaultEntries();
-            // v1.entryUsed('0')
+            entries1[0].usage_count ++;
             const entries2 = getBaseLineVaultEntries();
 
             expect(entries1.length).toEqual(entries2.length)
@@ -80,13 +80,13 @@ describe('MergeService', () => {
 
         it('two edits (usage_count)', async () => {
             const entries1 = getBaseLineVaultEntries();
-            // v1.entryUsed('0')
+            entries1[0].usage_count++;
             const entries2 = getBaseLineVaultEntries();
-            // v2.entryUsed('1')
+            entries2[1].usage_count++;
 
             const expectedEntries = getBaseLineVaultEntries();
-            // expectedResult.entryUsed('0');
-            // expectedResult.entryUsed('1');
+            expectedEntries[0].usage_count++;
+            expectedEntries[1].usage_count++;
 
             expect(entries1.length).toEqual(entries2.length)
 
@@ -107,22 +107,22 @@ describe('MergeService', () => {
         });
 
         it('one edit, one new entry', async () => {
-            // const newRndEntry = newRandomEntry();
+            const newRndEntry = newRandomEntry();
             const entries1 = getBaseLineVaultEntries();
-            // v1.addEntry(newRndEntry)
+            entries1.push({...newRndEntry});
             const entries2 = getBaseLineVaultEntries();
-            // v2.entryUsed('0');
+            entries2[0].usage_count++;
 
             expect(entries1.length).toEqual(entries2.length + 1)
 
             const expectedEntries = getBaseLineVaultEntries();
-            // expectedResult.entryUsed('0');
-            // expectedResult.addEntry(newRndEntry)
+            expectedEntries[0].usage_count++;
+            expectedEntries.push({...newRndEntry});
 
             // swap order
             const expectedEntries2 = getBaseLineVaultEntries();
-            // expectedResult2.addEntry(newRndEntry)
-            // expectedResult2.entryUsed('0');
+            expectedEntries2.push({...newRndEntry});
+            expectedEntries2[0].usage_count++;
 
             const merged = service.mergeVaultsIfPossible(entries1, entries2)
             expect(merged.result.length).toEqual(entries1.length)
@@ -131,19 +131,15 @@ describe('MergeService', () => {
             expect(vaultEntriesDeepEqual(entries2, merged.result)).toBeFalsy();
             expect(vaultEntriesDeepEqual(merged.result, expectedEntries)).toBeTruthy();
             expect(vaultEntriesDeepEqual(merged.result, expectedEntries2)).toBeTruthy();
-
-            // test output
-            const strOutput = merged.toString();
-            console.log(strOutput);
         });
 
         it('two new entries with the same ID', async () => {
-            // const e = newRandomEntry()
+            const e = newRandomEntry()
             const entries1 = getBaseLineVaultEntries();
-            // v1.addEntry(e)
+            entries1.push({...e});
             const entries2 = getBaseLineVaultEntries();
-            // e.login += 'padding';
-            // v2.addEntry(e)
+            e.login += 'padding';
+            entries2.push({...e});
 
             expect(entries1.length).toEqual(entries2.length)
 

@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import { injectable } from 'inversify';
+import { injectable } from 'tsyringe';
 
-import { ERROR_CODE, VaultageError } from 'src/VaultageError';
+import { ERROR_CODE, VaultageError } from '../VaultageError';
 
 export interface IHttpResponse<T> {
     data: T;

@@ -1,9 +1,9 @@
-import { ICrypto } from 'src/crypto/ICrypto';
-import { HttpApi } from 'src/transport/http-api';
-import { IHttpParams, IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from 'src/interface';
-import { deepCopy } from 'src/utils';
-import { VaultDB } from 'src/vault/VaultDB';
-import { MergeService } from 'src/merge-service';
+import { ICrypto } from '../crypto/ICrypto';
+import { IHttpParams, IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from '../interface';
+import { MergeService } from '../merge-service';
+import { HttpApi } from '../transport/http-api';
+import { deepCopy } from '../utils';
+import { VaultDB } from './VaultDB';
 import { VaultDBService } from './vaultdb-service';
 
 export interface ICredentials {
@@ -45,9 +45,6 @@ export class Vault {
     }
 
     public getDBRevision(): number {
-        if (!this._db) {
-            return -1;
-        }
         return this._db.revision;
     }
 
@@ -67,7 +64,7 @@ export class Vault {
         if (this._isServerInDemoMode) {
             // we do not throw the error, this forces too many checks on the UI. We just pretend it worked
             // throw new VaultageError(ERROR_CODE.DEMO_MODE, 'Server in demo mode');
-            return new Promise((resolve, _) => { resolve(); });
+            return Promise.resolve();
         }
         return this._pushCipher(this._creds, null);
     }

@@ -1,7 +1,8 @@
-import { IVaultDBEntry } from 'src/interface';
-import { VaultageError, ERROR_CODE } from 'src/VaultageError';
-import { injectable } from 'inversify';
-import { deepCopy } from 'src/utils';
+import { injectable } from 'tsyringe';
+
+import { IVaultDBEntry } from './interface';
+import { deepCopy } from './utils';
+import { ERROR_CODE, VaultageError } from './VaultageError';
 
 
 export enum MERGE_STATUS {

@@ -1,4 +1,4 @@
-import { injectable } from 'inversify';
+import { injectable } from 'tsyringe';
 
 /**
  * Provides a W3C crypto implementation if available.

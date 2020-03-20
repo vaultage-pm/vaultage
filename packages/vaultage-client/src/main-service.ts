@@ -1,9 +1,10 @@
-import { CryptoService } from 'src/crypto/crypto-service';
-import { HttpApi } from 'src/transport/http-api';
-import { IHttpParams, ISaltsConfig } from 'src/interface';
-import { Vault } from 'src/vault/Vault';
-import { injectable } from 'inversify';
-import { VaultService } from 'src/vault/vault-service';
+import { injectable } from 'tsyringe';
+
+import { CryptoService } from './crypto/crypto-service';
+import { IHttpParams, ISaltsConfig } from './interface';
+import { HttpApi } from './transport/http-api';
+import { Vault } from './vault/Vault';
+import { VaultService } from './vault/vault-service';
 
 // tslint:disable-next-line:no-var-requires
 const pkg = require('../package.json');

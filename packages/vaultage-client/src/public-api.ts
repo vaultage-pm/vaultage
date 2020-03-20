@@ -1,17 +1,20 @@
-import { createMainContainer } from 'src/main-module';
-import { MainService } from 'src/main-service';
-import { PasswordsService } from 'src/passwords/passwords-service';
+import 'reflect-metadata';
 
-export { PasswordsService } from 'src/passwords/passwords-service';
-export { Vault } from 'src/vault/Vault';
-export { VaultageError, ERROR_CODE } from 'src/VaultageError';
-export * from 'src/interface';
+import { createMainContainer } from './main-module';
+import { MainService } from './main-service';
+import { PasswordsService } from './passwords/passwords-service';
+
+export { PasswordsService } from './passwords/passwords-service';
+export { Vault } from './vault/Vault';
+export { VaultageError, ERROR_CODE } from './VaultageError';
+export * from './interface';
 
 
 const container = createMainContainer();
 
-
-const vaultage = container.get(MainService);
+// @public
+const vaultage = container.resolve(MainService);
 export default vaultage;
 
-export const passwords = container.get(PasswordsService);
+// @public
+export const passwords = container.resolve(PasswordsService);

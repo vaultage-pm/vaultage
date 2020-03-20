@@ -1,8 +1,9 @@
-import { injectable } from 'inversify';
-import { VaultDB } from 'src/vault/VaultDB';
-import { IVaultDBEntry } from 'src/interface';
-import { VaultageError, ERROR_CODE } from 'src/VaultageError';
-import { PasswordsService } from 'src/passwords/passwords-service';
+import { injectable } from 'tsyringe';
+
+import { IVaultDBEntry } from '../interface';
+import { PasswordsService } from '../passwords/passwords-service';
+import { ERROR_CODE, VaultageError } from '../VaultageError';
+import { VaultDB } from './VaultDB';
 
 @injectable()
 export class VaultDBService {

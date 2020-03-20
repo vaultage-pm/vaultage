@@ -1,7 +1,7 @@
-import { IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from 'src/interface';
-import { VaultageError, ERROR_CODE } from 'src/VaultageError';
-import { PasswordsService } from 'src/passwords/passwords-service';
-import { deepCopy } from 'src/utils';
+import { IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from '../interface';
+import { PasswordsService } from '../passwords/passwords-service';
+import { deepCopy } from '../utils';
+import { ERROR_CODE, VaultageError } from '../VaultageError';
 
 /**
  * Internal class for handling the vault data.
