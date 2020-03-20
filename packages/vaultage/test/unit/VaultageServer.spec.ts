@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 
 import { useContainer } from 'routing-controllers';
-import * as request from 'supertest';
+import request from 'supertest';
 import { Container } from 'typedi';
 import { IVaultageConfig, PushPullResponse, UpdateCipherRequest } from 'vaultage-protocol';
 

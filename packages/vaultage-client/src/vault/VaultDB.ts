@@ -1,8 +1,7 @@
-import { IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from './interface';
-import { Passwords } from './Passwords';
-import { deepCopy } from './utils';
-import { ERROR_CODE, VaultageError } from './VaultageError';
-
+import { IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from '../interface';
+import { PasswordsService } from '../passwords/passwords-service';
+import { deepCopy } from '../utils';
+import { ERROR_CODE, VaultageError } from '../VaultageError';
 
 /**
  * Internal class for handling the vault data.
@@ -11,44 +10,10 @@ import { ERROR_CODE, VaultageError } from './VaultageError';
  */
 export class VaultDB {
 
-    public static serialize(db: VaultDB): string {
-        const entries = db.getAll();
-
-        const serialized = JSON.stringify({
-            entries: entries,
-            version: VaultDB.VERSION,
-            revision: db._revision
-        });
-
-        return serialized;
-    }
-
-    public static deserialize(json: string): VaultDB {
-
-        const entries: {
-            [key: string]: IVaultDBEntry
-        } = {};
-
-        // return empty DB
-        if (json === '') {
-            return new VaultDB(entries, 0);
-        }
-
-        const data = JSON.parse(json);
-
-        for (const entry of data.entries) {
-            if (entries[entry.id] != null) {
-                throw new VaultageError(ERROR_CODE.DUPLICATE_ENTRY, 'Duplicate entry with id: ' + entry.id + ' in vault.');
-            }
-            entries[entry.id] = entry;
-        }
-
-        return new VaultDB(entries, data.revision);
-    }
-
-    private static VERSION: number = 0;
+    public static readonly VERSION: number = 0;
 
     public constructor(
+            private readonly passwordsService: PasswordsService,
             private _entries: { [key: string]: IVaultDBEntry },
             private _revision: number = 0) {
                 this.refreshReUseCount();
@@ -67,7 +32,7 @@ export class VaultDB {
             updated: currentDate,
             usage_count: 0,
             reuse_count: 0,
-            password_strength_indication: Passwords.getPasswordStrength(attrs.password),
+            password_strength_indication: this.passwordsService.getPasswordStrength(attrs.password),
             hidden: false,
         };
         this._entries[entry.id] = entry;
@@ -115,7 +80,7 @@ export class VaultDB {
         }
         if (attrs.password) {
             entry.password = attrs.password;
-            entry.password_strength_indication = Passwords.getPasswordStrength(attrs.password);
+            entry.password_strength_indication = this.passwordsService.getPasswordStrength(attrs.password);
         }
         if (attrs.title) {
             entry.title = attrs.title;
@@ -263,7 +228,7 @@ export class VaultDB {
         this._revision++;
     }
 
-    public getRevision(): number {
+    public get revision(): number {
         return this._revision;
     }
 
@@ -347,7 +312,7 @@ export class VaultDB {
         // re-update all entries
         const keys = Object.keys(this._entries);
         for (const key of keys) {
-            this._entries[key].password_strength_indication = Passwords.getPasswordStrength(this._entries[key].password);
+            this._entries[key].password_strength_indication = this.passwordsService.getPasswordStrength(this._entries[key].password);
         }
     }
 

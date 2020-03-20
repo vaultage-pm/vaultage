@@ -1,17 +1,26 @@
-import { IVaultDBEntry } from '../src/interface';
-import { VaultDB } from '../src/VaultDB';
+import { IVaultDBEntry } from '../interface';
+import { VaultDB } from './VaultDB';
+import { Mock, verify, mock, instance, when, anyString } from 'omnimock';
+import { PasswordsService } from '../passwords/passwords-service';
 
 describe('VaultDB.ts can', () => {
-    it('create an empty vault from an empty string', () => {
-        const db = VaultDB.deserialize('');
-        expect(db.getAll().length).toEqual(0);
+
+    let mockPasswordsService: Mock<PasswordsService>;
+    beforeEach(() => {
+        mockPasswordsService = mock(PasswordsService);
+        when(mockPasswordsService.getPasswordStrength(anyString())).return(1).anyTimes();
     });
+
+    afterEach(() => {
+        verify(mockPasswordsService);
+    });
+
     it('create an empty vault', () => {
-        const db = new VaultDB({});
+        const db = new VaultDB(instance(mockPasswordsService), {});
         expect(db.getAll().length).toEqual(0);
     });
     it('create a vault, in which one can add an entry, and get it, edit it, deconste it', () => {
-        const db = new VaultDB({});
+        const db = new VaultDB(instance(mockPasswordsService), {});
         const e = {
             title: 'Hello',
             login: 'Bob',
@@ -44,48 +53,8 @@ describe('VaultDB.ts can', () => {
         expect(db.getAll().length).toEqual(0);
     });
 
-    it('serialize and deserialize a vault', () => {
-        const db = new VaultDB({});
-        const e = {
-            title: 'Hello',
-            login: 'Bob',
-            password: 'zephyr',
-            url: 'http://example.com'
-        };
-        db.add(e);
-        expect(db.getAll().length).toEqual(1);
-
-        const serialized = VaultDB.serialize(db);
-        const db2 = VaultDB.deserialize(serialized);
-
-        expect(db2.getAll().length).toEqual(1);
-
-        const e2 = db2.get('0');
-        expect(e2.id).toEqual('0');
-        expect(e.title).toEqual(e2.title);
-        expect(e.login).toEqual(e2.login);
-        expect(e.password).toEqual(e2.password);
-        expect(e.url).toEqual(e2.url);
-
-        // deserialized vault does not lose the count when adding new data
-        db2.add(e);
-        const e3 = db2.get('1');
-        expect(e3.id).toEqual('1');
-        expect(e3.title).toEqual(e.title);
-        expect(e3.login).toEqual(e.login);
-        expect(e3.password).toEqual(e.password);
-        expect(e3.url).toEqual(e.url);
-
-        expect(db2.getAll().length).toEqual(2);
-        // original db did non change
-        expect(db.getAll().length).toEqual(1);
-        expect(db2.nextFreeId()).toEqual('2');
-        expect(db.nextFreeId()).toEqual('1');
-    });
-
-
     it('create a vault, in which one can add an entry, and get it, edit it, deconste it', () => {
-        const db = new VaultDB({});
+        const db = new VaultDB(instance(mockPasswordsService), {});
         const e = {
             title: 'Hello',
             login: 'Bob',
@@ -146,7 +115,7 @@ describe('VaultDB.ts can', () => {
 
 
     it('create a vault that handles IDs correctly', () => {
-        const db = new VaultDB({});
+        const db = new VaultDB(instance(mockPasswordsService), {});
         const e = {
             title: 'Title1',
             login: 'Bob',
@@ -206,7 +175,7 @@ describe('VaultDB.ts can', () => {
     });
 
     it('create a vault, in which one can add an entry, and get it, edit it, deconste it', () => {
-        const db = new VaultDB({});
+        const db = new VaultDB(instance(mockPasswordsService), {});
         const e = {
             title: 'Hello',
             login: 'Bob',
@@ -227,7 +196,7 @@ describe('VaultDB.ts can', () => {
     });
 
     it('create a vault, which can be parsed to JSON and unparsed', () => {
-        const db = new VaultDB({});
+        const db = new VaultDB(instance(mockPasswordsService), {});
         const e = {
             title: 'Hello',
             login: 'Bob',
@@ -239,7 +208,7 @@ describe('VaultDB.ts can', () => {
         const json = JSON.stringify(db.getAll());
         const parsedEntries: IVaultDBEntry[] = JSON.parse(json);
 
-        const db2 = new VaultDB({});
+        const db2 = new VaultDB(instance(mockPasswordsService), {});
         db2.replaceAllEntries(parsedEntries);
 
         expect(db2.getAll().length).toEqual(1);
@@ -256,7 +225,7 @@ describe('VaultDB.ts can', () => {
         const invalidJson = '[{"id":"0","title":"Hello","url":"http://example.com","login":"Bob","password":"zephyr","created":"Sun, 05 Nov 2017 17:01:57 GMT","updated":"Sun, 05 Nov 2017 17:01:57 GMT","usage_count":0,"reuse_count":0,"password_strength_indication":1}]';
         const parsedEntries: IVaultDBEntry[] = JSON.parse(invalidJson);
 
-        const db2 = new VaultDB({});
+        const db2 = new VaultDB(instance(mockPasswordsService), {});
         try {
             db2.replaceAllEntries(parsedEntries);
             fail('Should not allow invalid JSON');

@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 
-import * as program from 'commander';
-import * as express from 'express';
-import * as fs from 'fs';
-import * as path from 'path';
+import program from 'commander';
+import express from 'express';
+import fs from 'fs';
+import path from 'path';
 import { useContainer } from 'routing-controllers';
 import { Container } from 'typedi';
 import { IVaultageConfig } from 'vaultage-protocol';

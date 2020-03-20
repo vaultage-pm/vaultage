@@ -1,45 +1,22 @@
-import { PasswordStrength } from './interface';
+import { inject, injectable } from 'tsyringe';
 
-export interface IRandomness {
-    getRandomNumber(): number;
-}
+import { PasswordStrength } from '../interface';
+import { IRandomness } from './randomness-generator';
 
-export class ConcreteRandomnessGenerator implements IRandomness {
 
-    /**
-     * Returns a random number using window.crypto if possible
-     * @return {number} a random number
-     * @throws If window.crypto is not accessible (old browsers)
-     */
-    public getRandomNumber(): number {
-        // crypto.getRandomValues needs a TypedArray; Uint8Array is the smallest one (don’t waste entropy)
-        try {
-            const typedArrayWithRandomNumber = new Uint8Array(1);
-            // Use crypto random functionality if the browser supports it
-            if (window.crypto && window.crypto.getRandomValues) {
-                window.crypto.getRandomValues(typedArrayWithRandomNumber);
-                return typedArrayWithRandomNumber[0];
-            }
-        } catch (e) {
-            // If the browser doesn’t support crypto random functionality, use Math.random
-            if (!window.crypto || !window.crypto.getRandomValues) {
+@injectable()
+export class PasswordsService {
 
-                throw new Error('Your browser only supports Math.Random as an entropy source. ' +
-                        'Refusing to generate a weak password. Please update your browser.');
-            }
-        }
-        return -1;
+    constructor(
+        @inject(IRandomness) private readonly random: IRandomness) {
     }
-}
-
-export class Passwords {
 
     /**
      * Returns an indication (heuristic) on the strength of a password (higher is better)
      * @param password the password to test
      * @return {PasswordStrength} an indication on the strength of a password
      */
-    public static getPasswordStrength(password: string): PasswordStrength {
+    public getPasswordStrength(password: string): PasswordStrength {
         const index = this._getPasswordStrength(password);
 
         if (index < 30) {
@@ -50,7 +27,7 @@ export class Passwords {
         return PasswordStrength.STRONG;
     }
 
-    private static _getPasswordStrength(password: string): number {
+    private _getPasswordStrength(password: string): number {
 
         if (password.length < 8) {
             return 0;
@@ -87,10 +64,6 @@ export class Passwords {
         score += (variationCount - 1) * 10;
 
         return Math.floor(score);
-    }
-
-    constructor(
-        private random: IRandomness = new ConcreteRandomnessGenerator()) {
     }
 
     /**

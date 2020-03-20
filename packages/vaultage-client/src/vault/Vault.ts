@@ -1,9 +1,10 @@
-import { ICrypto } from './crypto/ICrypto';
-import { HttpApi } from './HTTPApi';
-import { IHttpParams, IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from './interface';
-import { deepCopy } from './utils';
+import { ICrypto } from '../crypto/ICrypto';
+import { IHttpParams, IVaultDBEntry, IVaultDBEntryAttrs, PasswordStrength } from '../interface';
+import { MergeService } from '../merge-service';
+import { HttpApi } from '../transport/http-api';
+import { deepCopy } from '../utils';
 import { VaultDB } from './VaultDB';
-import { Merge } from './Merge';
+import { VaultDBService } from './vaultdb-service';
 
 export interface ICredentials {
     localKey: string;
@@ -14,39 +15,14 @@ export interface ICredentials {
 
 /**
  * The vault class.
- *
- * @example
- * var vault = new Vault();
- * vault.auth(some_url, some_username, some_pwd, function(err) {
- *   if (err) throw err;
- *
- *   var nb_entries = vault.getNbEntries();
- *   console.log('Success! Fetched ' + nb_entries + ' entries.');
- * });
  */
 export class Vault {
 
-    public static async create(
-            creds: ICredentials,
-            crypto: ICrypto,
-            cipher: string | undefined,
-            httpParams?: IHttpParams,
-            demoMode?: boolean
-        ): Promise<Vault> {
-
-        let db = new VaultDB({});
-        let lastFingerprint: string | undefined;
-
-        if (cipher) {
-            const plain = await crypto.decrypt(creds.localKey, cipher);
-            db = VaultDB.deserialize(plain);
-            lastFingerprint = await crypto.getFingerprint(plain, creds.localKey);
-        }
-
-        return new Vault({...creds}, crypto, db, demoMode || false, httpParams, lastFingerprint);
-    }
-
-    private constructor(private _creds: ICredentials,
+    constructor(
+            private readonly httpApi: HttpApi,
+            private readonly mergeService: MergeService,
+            private readonly vaultDBService: VaultDBService,
+            private _creds: ICredentials,
             private _crypto: ICrypto,
             private _db: VaultDB,
             private _isServerInDemoMode: boolean,
@@ -69,10 +45,7 @@ export class Vault {
     }
 
     public getDBRevision(): number {
-        if (!this._db) {
-            return -1;
-        }
-        return this._db.getRevision();
+        return this._db.revision;
     }
 
 
@@ -91,7 +64,7 @@ export class Vault {
         if (this._isServerInDemoMode) {
             // we do not throw the error, this forces too many checks on the UI. We just pretend it worked
             // throw new VaultageError(ERROR_CODE.DEMO_MODE, 'Server in demo mode');
-            return new Promise((resolve, _) => { resolve(); });
+            return Promise.resolve();
         }
         return this._pushCipher(this._creds, null);
     }
@@ -251,7 +224,7 @@ export class Vault {
     }
 
     private async _pullCipher(creds: ICredentials, tryMerge: boolean = true): Promise<string> {
-        const serverCipher = await HttpApi.pullCipher(creds, this._httpParams);
+        const serverCipher = await this.httpApi.pullCipher(creds, this._httpParams);
         if (serverCipher) {
 
             // if we have already something locally, merge
@@ -259,17 +232,17 @@ export class Vault {
                 try {
                     const clientEntries = this._db.getAll();
                     const serverPlain = await this._crypto.decrypt(creds.localKey, serverCipher);
-                    const serverEntries = VaultDB.deserialize(serverPlain).getAll();
+                    const serverEntries = this.vaultDBService.deserialize(serverPlain).getAll();
 
                     // the following will throw NON_FAST_FORWARD if the algo doesn't know how to merge
-                    const merged = Merge.mergeVaultsIfPossible(clientEntries, serverEntries)
+                    const merged = this.mergeService.mergeVaultsIfPossible(clientEntries, serverEntries)
 
                     // change our DB to the merged one
                     const jsonData = JSON.stringify({
                         entries: merged.result,
-                        revision: this._db.getRevision() + 10
+                        revision: this._db.revision + 10
                     });
-                    this._db = VaultDB.deserialize(jsonData);
+                    this._db = this.vaultDBService.deserialize(jsonData);
 
                     // important: fingerprint is the one of the server before the merge
                     this._lastFingerprint = await this._crypto.getFingerprint(serverPlain, creds.localKey);
@@ -286,7 +259,7 @@ export class Vault {
             }
         } else {
             // Create an empty DB if there is nothing on the server.
-            this._db = new VaultDB({});
+            this._db = this.vaultDBService.createEmpty();
             this._lastFingerprint = '';
         }
         return '';
@@ -294,11 +267,11 @@ export class Vault {
 
 
     private async _pushCipher(creds: ICredentials, newRemoteKey: (string|null)): Promise<void> {
-        const plain = VaultDB.serialize(this._db);
+        const plain = this.vaultDBService.serialize(this._db);
         const cipher = await this._crypto.encrypt(creds.localKey, plain);
         const fingerprint = await this._crypto.getFingerprint(plain, creds.localKey);
 
-        await HttpApi.pushCipher(
+        await this.httpApi.pushCipher(
                 creds,
                 newRemoteKey,
                 cipher,
@@ -311,7 +284,7 @@ export class Vault {
 
     private async _setCipher(creds: ICredentials, cipher: string) {
         const plain = await this._crypto.decrypt(creds.localKey, cipher);
-        this._db = VaultDB.deserialize(plain);
+        this._db = this.vaultDBService.deserialize(plain);
         this._lastFingerprint = await this._crypto.getFingerprint(plain, creds.localKey);
     }
 }
