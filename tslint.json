@@ -14,6 +14,7 @@
         "variable-name": [ true, "check-format", "allow-leading-underscore"],
         "prefer-for-of": false,
         "no-floating-promises": true,
-        "await-promise": true
+        "await-promise": true,
+        "no-bitwise": false
     }
 }

@@ -1,7 +1,7 @@
-import * as sjcl from '../../lib/sjcl';
-import { ISaltsConfig } from '../interface';
-import { ERROR_CODE, VaultageError } from '../VaultageError';
-import { ICrypto } from './ICrypto';
+import * as sjcl from 'lib/sjcl';
+import { ISaltsConfig } from 'src/interface';
+import { ERROR_CODE, VaultageError } from 'src/VaultageError';
+import { ICrypto } from 'src/crypto/ICrypto';
 
 /**
  * Handles the crypto stuff

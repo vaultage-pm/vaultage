@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "baseUrl": "..",
+    "baseUrl": ".",
     "declaration": true,
     "sourceMap": true,
     "lib": [ "es2015", "dom" ],

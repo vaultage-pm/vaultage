@@ -1,5 +1,7 @@
-import { IVaultDBEntry } from './interface';
-import { VaultageError, ERROR_CODE } from './VaultageError';
+import { IVaultDBEntry } from 'src/interface';
+import { VaultageError, ERROR_CODE } from 'src/VaultageError';
+import { injectable } from 'inversify';
+import { deepCopy } from 'src/utils';
 
 
 export enum MERGE_STATUS {
@@ -57,17 +59,17 @@ export class MergeStatus {
     }
 }
 
+@injectable()
+export class MergeService {
 
-export class Merge {
-
-    public static mergeVaultsIfPossible(v1: IVaultDBEntry[], v2: IVaultDBEntry[]): MergeStatus {
+    public mergeVaultsIfPossible(v1: IVaultDBEntry[], v2: IVaultDBEntry[]): MergeStatus {
 
         // corner cases
-        if (v1 === undefined || v1.length === 0) {
-            return new MergeStatus(MERGE_STATUS.NOTHING_TO_MERGE, Merge.deepClone(v2))
+        if (v1.length === 0) {
+            return new MergeStatus(MERGE_STATUS.NOTHING_TO_MERGE, deepCopy(v2))
         }
-        if (v2 === undefined || v2.length === 0) {
-            return new MergeStatus(MERGE_STATUS.NOTHING_TO_MERGE, Merge.deepClone(v1))
+        if (v2.length === 0) {
+            return new MergeStatus(MERGE_STATUS.NOTHING_TO_MERGE, deepCopy(v1))
         }
 
         // prepare maps for mapping one onto the other
@@ -94,7 +96,7 @@ export class Merge {
                 newV1Entries.push(v1Entry);
             }
             // find modified entries
-            else if (!Merge.entriesArePerfectlyEqual(v1Entry, v2Entry)){
+            else if (!this.entriesArePerfectlyEqual(v1Entry, v2Entry)){
                 modifiedBothWays.push([v1Entry, v2Entry]);
             }
         }
@@ -115,7 +117,7 @@ export class Merge {
         const numberEdited = modifiedBothWays.length;
 
         if (numberNew + numberEdited === 0) {
-            return new MergeStatus(MERGE_STATUS.NOTHING_TO_MERGE, Merge.deepClone(v1))
+            return new MergeStatus(MERGE_STATUS.NOTHING_TO_MERGE, deepCopy(v1))
         }
 
         const status = new MergeStatus(MERGE_STATUS.DIDNT_MERGE);
@@ -133,11 +135,11 @@ export class Merge {
             const v1Entry = entries[0];
             const v2Entry = entries[1];
 
-            if(Merge.entriesAreSemanticallyEqual(v1Entry, v2Entry)) {
+            if(this.entriesAreSemanticallyEqual(v1Entry, v2Entry)) {
                 const mergedEntry = this.mergeEntries(v1Entry, v2Entry);
-                status.newDelete(Merge.entryToShortString(v1Entry), 'l');
-                status.newDelete(Merge.entryToShortString(v2Entry), 'r');
-                status.newEdit(Merge.entryToShortString(mergedEntry));
+                status.newDelete(this.entryToShortString(v1Entry), 'l');
+                status.newDelete(this.entryToShortString(v2Entry), 'r');
+                status.newEdit(this.entryToShortString(mergedEntry));
                 mergedEntries.push(mergedEntry);
             } else {
                 throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD, `Couldn't merge automatically, entries modified but not semantically equal anymore: ${JSON.stringify(v1Entry)}, ${JSON.stringify(v2Entry)}`);
@@ -156,9 +158,9 @@ export class Merge {
             // copy non-edited entries
             if (!alreadyMergedIDs.has(v1Entry.id)) {
 
-                const clone = Merge.deepCloneEntry(v1Entry);
+                const clone = deepCopy(v1Entry);
                 if (!v2Map.has(v1Entry.id)) {
-                    status.newAddition(Merge.entryToShortString(clone), 'l');
+                    status.newAddition(this.entryToShortString(clone), 'l');
                 }
                 result.push(clone);
                 v1EntriesAdded.add(v1Entry.id);
@@ -168,14 +170,14 @@ export class Merge {
         for(const v2Entry of v2) {
             // copy non-edited entries
             if (!v1EntriesAdded.has(v2Entry.id) && !alreadyMergedIDs.has(v2Entry.id)) {
-                const clone = Merge.deepCloneEntry(v2Entry);
-                status.newAddition(Merge.entryToShortString(clone), 'r');
-                result.push(Merge.deepCloneEntry(v2Entry))
+                const clone = deepCopy(v2Entry);
+                status.newAddition(this.entryToShortString(clone), 'r');
+                result.push(deepCopy(v2Entry))
             }
         }
         // now add merged entries
         for(const mergedEntry of mergedEntries) {
-            result.push(Merge.deepCloneEntry(mergedEntry))
+            result.push(deepCopy(mergedEntry))
         }
 
         status.code = MERGE_STATUS.SUCCESSFUL;
@@ -184,24 +186,16 @@ export class Merge {
     }
 
 
-    public static entryToShortString(e: IVaultDBEntry): string {
-        const e2 = Merge.deepCloneEntry(e);
+    public entryToShortString(e: IVaultDBEntry): string {
+        const e2 = deepCopy(e);
         delete e2.updated;
         delete e2.created;
         delete e2.password_strength_indication;
         return JSON.stringify(e2).replace(/"/g, '');
     }
 
-    public static deepCloneEntry (entry: IVaultDBEntry): IVaultDBEntry {
-        return JSON.parse(JSON.stringify(entry));
-    }
-
-    public static deepClone (entries: IVaultDBEntry[]): IVaultDBEntry[] {
-        return JSON.parse(JSON.stringify(entries));
-    }
-
-    public static mergeEntries (e1: IVaultDBEntry, e2: IVaultDBEntry): IVaultDBEntry {
-        if(!Merge.entriesAreSemanticallyEqual(e1, e2)) {
+    public mergeEntries (e1: IVaultDBEntry, e2: IVaultDBEntry): IVaultDBEntry {
+        if(!this.entriesAreSemanticallyEqual(e1, e2)) {
             throw new Error('Something went terribly wrong; can\'t merge: ' + JSON.stringify([e1, e2]));
         }
         const result: IVaultDBEntry = JSON.parse(JSON.stringify(e1))
@@ -210,8 +204,8 @@ export class Merge {
         return result
     }
 
-    public static entriesArePerfectlyEqual (e1: IVaultDBEntry, e2: IVaultDBEntry) {
-        return Merge.entriesAreSemanticallyEqual(e1, e2) &&
+    public entriesArePerfectlyEqual (e1: IVaultDBEntry, e2: IVaultDBEntry) {
+        return this.entriesAreSemanticallyEqual(e1, e2) &&
         (e1.created === e2.created) &&
         (e1.updated === e2.updated) &&
         (e1.usage_count === e2.usage_count) &&
@@ -219,7 +213,7 @@ export class Merge {
         (e1.hidden === e2.hidden)
     }
 
-    public static entriesAreSemanticallyEqual (e1: IVaultDBEntry, e2: IVaultDBEntry) {
+    public entriesAreSemanticallyEqual (e1: IVaultDBEntry, e2: IVaultDBEntry) {
         return (e1.id === e2.id) &&
         (e1.title === e2.title) &&
         (e1.url === e2.url) &&

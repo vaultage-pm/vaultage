@@ -1,4 +1,4 @@
-import * as vaultage from 'vaultage-client';
+import vaultage from 'vaultage-client';
 import { Config } from '../Config';
 import { Context } from '../Context';
 import { html } from '../security/xss';

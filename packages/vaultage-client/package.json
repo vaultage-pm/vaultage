@@ -2,8 +2,8 @@
     "name": "vaultage-client",
     "version": "0.0.0",
     "description": "SDK to write JavaScript clients for the Vaultage password manager",
-    "main": "dist/vaultage.js",
-    "types": "dist/vaultage.d.ts",
+    "main": "dist/public-api.js",
+    "types": "dist/public-api.d.ts",
     "scripts": {
         "build": "npm run build:browser && npm run build:node",
         "build:browser": "webpack",
@@ -32,15 +32,16 @@
     "homepage": "https://github.com/vaultage-pm/vaultage#readme",
     "dependencies": {
         "axios": "0.19.2",
-        "jquery": "3.4.1",
+        "inversify": "5.0.1",
+        "reflect-metadata": "0.1.13",
         "tslib": "1.11.1"
     },
     "devDependencies": {
         "@types/jest": "25.1.4",	
-        "@types/jquery": "3.3.33",	
         "@types/node": "13.9.2",	
         "cross-env": "7.0.2",	
         "jest": "25.1.0",	
+        "omnimock": "0.7.0",
         "ts-jest": "25.2.1",	
         "ts-loader": "6.2.1",	
         "ts-node": "8.6.2",	
@@ -63,6 +64,12 @@
             "/node_modules/",
             "/test/",
             "sjcl.js"
+        ],
+        "modulePaths": [
+            "<rootDir>"
+        ],
+        "setupFiles": [
+            "reflect-metadata"
         ],
         "coverageThreshold": {
             "global": {

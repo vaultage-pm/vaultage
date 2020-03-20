@@ -1,9 +1,10 @@
+import { injectable } from 'inversify';
 import { IErrorPushPullResponse, IVaultageConfig, PushPullResponse, UpdateCipherRequest } from 'vaultage-protocol';
 
-import { HttpRequestParameters, HttpService } from './HTTPService';
-import { IHttpParams } from './interface';
-import { ICredentials } from './Vault';
-import { ERROR_CODE, VaultageError } from './VaultageError';
+import { HttpRequestParameters, HttpService } from 'src/transport/http-service';
+import { IHttpParams } from 'src/interface';
+import { ICredentials } from 'src/vault/Vault';
+import { ERROR_CODE, VaultageError } from 'src/VaultageError';
 
 
 /**
@@ -13,9 +14,12 @@ import { ERROR_CODE, VaultageError } from './VaultageError';
  * sending them over the wire (or to the mock HTTP interface if it is mocked).
  * This class does not handle crypto stuff.
  */
-export abstract class HttpApi {
+@injectable()
+export class HttpApi {
 
-    public static async pullConfig(serverURL: string, httpParams?: IHttpParams): Promise<IVaultageConfig> {
+    constructor(private readonly httpService: HttpService) {}
+
+    public async pullConfig(serverURL: string, httpParams?: IHttpParams): Promise<IVaultageConfig> {
 
         let parameters: HttpRequestParameters = {
             url: serverURL + '/config'
@@ -25,7 +29,7 @@ export abstract class HttpApi {
             parameters = this._configureRequestParameters(parameters, httpParams);
         }
 
-        const res = await HttpService.request<IVaultageConfig>(parameters);
+        const res = await this.httpService.request<IVaultageConfig>(parameters);
         try {
             return res.data;
         } catch (e) {
@@ -33,7 +37,7 @@ export abstract class HttpApi {
         }
     }
 
-    public static async pullCipher(creds: ICredentials, httpParams?: IHttpParams): Promise<string> {
+    public async pullCipher(creds: ICredentials, httpParams?: IHttpParams): Promise<string> {
 
         let parameters: HttpRequestParameters = {
             url: this._makeURL(creds.serverURL, creds.username, creds.remoteKey)
@@ -43,7 +47,7 @@ export abstract class HttpApi {
             parameters = this._configureRequestParameters(parameters, httpParams);
         }
 
-        const resp = await HttpService.request<PushPullResponse>(parameters);
+        const resp = await this.httpService.request<PushPullResponse>(parameters);
         const body = resp.data;
 
         if (body.error != null && body.error === true) {
@@ -52,7 +56,7 @@ export abstract class HttpApi {
         return (body.data || '').replace(/[^a-z0-9+/:"{},]/ig, '');
     }
 
-    public static async pushCipher(
+    public async pushCipher(
             creds: ICredentials,
             newRemoteKey: (string|null),
             cipher: string,
@@ -81,7 +85,7 @@ export abstract class HttpApi {
             parameters = this._configureRequestParameters(parameters, httpParams);
         }
 
-        const resp = await HttpService.request<PushPullResponse>(parameters);
+        const resp = await this.httpService.request<PushPullResponse>(parameters);
         const body = resp.data;
         if (body.error === true) {
             return this.throwProtocolError(body);
@@ -89,18 +93,18 @@ export abstract class HttpApi {
     }
 
     // Applies the user-provided http config parameters onto the axios request parameters
-    private static _configureRequestParameters(params: HttpRequestParameters, config: IHttpParams): HttpRequestParameters {
+    private _configureRequestParameters(params: HttpRequestParameters, config: IHttpParams): HttpRequestParameters {
         return {
             ...params,
             auth: (config.auth !== undefined) ? config.auth : undefined
         };
     }
 
-    private static _makeURL(serverURL: string, username: string, remotePwdHash: string): string {
+    private _makeURL(serverURL: string, username: string, remotePwdHash: string): string {
         return `${serverURL}/${encodeURIComponent(username)}/${remotePwdHash}/vaultage_api`;
     }
 
-    private static throwProtocolError(err: IErrorPushPullResponse): never {
+    private throwProtocolError(err: IErrorPushPullResponse): never {
         switch (err.code) {
             case 'EFAST':
                 throw new VaultageError(ERROR_CODE.NOT_FAST_FORWARD,
@@ -115,7 +119,7 @@ export abstract class HttpApi {
         }
     }
 
-    private static ensureAllErrorsHandled(_code: never) {
+    private ensureAllErrorsHandled(_code: never) {
         // If this function causes a type error, then it means an error type was added or changed and
         // you forgot to update the error handling function accordingly.
         return new Error('The response received is not defined in the protocol.');

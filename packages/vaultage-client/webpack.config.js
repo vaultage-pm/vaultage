@@ -6,7 +6,7 @@ const env = process.env.NODE_ENV || 'development';
 
 const defaults = {
     mode: env,
-    entry: './src/vaultage.ts',
+    entry: './src/public-api.ts',
     output: {
         library: 'vaultage',
         path: __dirname,
