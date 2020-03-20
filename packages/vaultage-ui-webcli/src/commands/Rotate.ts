@@ -1,4 +1,4 @@
-import { IVaultDBEntryAttrs, Passwords } from 'vaultage-client';
+import { IVaultDBEntryAttrs, passwords } from 'vaultage-client';
 import * as config from '../Config';
 import { Context } from '../Context';
 import { html } from '../security/xss';
@@ -29,8 +29,7 @@ export class RotateCommand implements ICommand {
 
         const entry = this.ctx.vault.getEntry(id);
 
-        const pwdGen = new Passwords();
-        const newPassword = pwdGen.generatePassword(
+        const newPassword = passwords.generatePassword(
             config.PWD_GEN_LENGTH,
             config.PWD_GEN_USE_SYMBOLS,
             config.PWG_GEN_AVOID_VISUALLY_SIMILAR_CHARS,

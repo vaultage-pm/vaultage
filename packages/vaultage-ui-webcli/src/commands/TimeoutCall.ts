@@ -1,4 +1,4 @@
-import * as vaultage from 'vaultage-client';
+import vaultage from 'vaultage-client';
 
 import { Context } from '../Context';
 import { ICommand } from '../webshell/ICommand';

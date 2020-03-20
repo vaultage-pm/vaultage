@@ -1,4 +1,4 @@
-import * as copy from 'copy-to-clipboard';
+import copy from 'copy-to-clipboard';
 import { Context } from './Context';
 
 declare global {

@@ -1,4 +1,4 @@
-import * as copy from 'copy-to-clipboard';
+import copy from 'copy-to-clipboard';
 import { Config } from '../Config';
 import { Context } from '../Context';
 import { html } from '../security/xss';

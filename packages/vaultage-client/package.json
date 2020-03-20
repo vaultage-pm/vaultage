@@ -3,11 +3,12 @@
     "version": "0.0.0",
     "description": "SDK to write JavaScript clients for the Vaultage password manager",
     "main": "dist/vaultage.js",
-    "types": "dist/vaultage.d.ts",
+    "browser": "dist/vaultage-sjcl.js",
+    "types": "dist/vaultage-client.d.ts",
+    "sideEffects": false,
     "scripts": {
-        "build": "npm run build:browser && npm run build:node",
-        "build:browser": "webpack",
-        "build:node": "tsc -p . --module commonjs",
+        "build": "webpack",
+        "build:api": "tsc -p tsconfig.lib.json && api-extractor run --local --verbose",
         "clean": "rimraf dist/",
         "lint": "tslint -p .",
         "test": "npm run lint && cross-env NODE_PATH=.. jest",
@@ -32,21 +33,26 @@
     "homepage": "https://github.com/vaultage-pm/vaultage#readme",
     "dependencies": {
         "axios": "0.19.2",
-        "jquery": "3.4.1",
+        "tsyringe": "4.1.0",
+        "reflect-metadata": "0.1.13",
         "tslib": "1.11.1"
     },
     "devDependencies": {
-        "@types/jest": "25.1.4",	
-        "@types/jquery": "3.3.33",	
-        "@types/node": "13.9.2",	
-        "cross-env": "7.0.2",	
-        "jest": "25.1.0",	
-        "ts-jest": "25.2.1",	
-        "ts-loader": "6.2.1",	
-        "ts-node": "8.6.2",	
-        "tslint": "6.0.0",	
-        "typescript": "3.8.3",	
-        "webpack": "4.42.0",	
+        "@microsoft/api-extractor": "7.7.10",
+        "@types/jest": "25.1.4",
+        "@types/node": "13.9.2",
+        "cross-env": "7.0.2",
+        "jest": "25.1.0",
+        "omnimock": "0.7.0",
+        "ts-jest": "25.2.1",
+        "ts-loader": "6.2.1",
+        "ts-node": "8.6.2",
+        "tsconfig-paths-webpack-plugin": "3.2.0",
+        "tslint": "6.0.0",
+        "typescript": "3.8.3",
+        "vaultage-protocol": "0.0.0",
+        "webpack": "4.42.0",
+        "webpack-bundle-analyzer": "3.6.1",
         "webpack-cli": "3.3.11"
     },
     "jest": {
@@ -64,15 +70,22 @@
             "/test/",
             "sjcl.js"
         ],
+        "modulePaths": [
+            "<rootDir>"
+        ],
+        "setupFiles": [
+            "reflect-metadata"
+        ],
         "coverageThreshold": {
             "global": {
                 "branches": 50,
-                "functions": 70,
+                "functions": 60,
                 "lines": 70,
                 "statements": 70
             }
         },
         "clearMocks": true,
-        "collectCoverage": true
+        "collectCoverage": true,
+        "coverageDirectory": "build/coverage"
     }
 }

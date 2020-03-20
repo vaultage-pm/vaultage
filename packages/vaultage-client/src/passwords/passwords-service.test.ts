@@ -1,60 +1,55 @@
-import { PasswordStrength } from '../src/interface';
-import { IRandomness, Passwords } from '../src/Passwords';
+import { PasswordStrength } from 'src/interface';
+import { PasswordsService } from 'src/passwords/passwords-service';
+import { IRandomness } from './randomness-generator';
 
-/**
- * This test suite is broken.
- *
- *  (#109): mock native crypto and make deterministic tests.
- */
-describe('Passwords.ts', () => {
+describe('PasswordsService', () => {
 
     const seed = 123;
-    let rnd: IRandomness;
 
-    let passwords: Passwords;
+    let passwordsService: PasswordsService;
     const defaultLength = 10;
 
     beforeEach(() => {
-        rnd = new FakeRandomnessGenerator(seed);
-        passwords = new Passwords(rnd);
+        const rnd = new FakeRandomnessGenerator(seed);
+        passwordsService = new PasswordsService(rnd);
     });
 
     describe('the password generation function', () => {
         it('can be used with any parameters', () => {
-            const pwd = passwords.generatePassword(defaultLength, false, true, true);
+            const pwd = passwordsService.generatePassword(defaultLength, false, true, true);
             expect(pwd).not.toEqual('');
         });
         it('can be used with any parameters', () => {
-            const pwd = passwords.generatePassword(defaultLength, true, true, true);
+            const pwd = passwordsService.generatePassword(defaultLength, true, true, true);
             expect(pwd).not.toEqual('');
         });
         it('can be used with any parameters', () => {
-            const pwd = passwords.generatePassword(defaultLength, false, false, true);
+            const pwd = passwordsService.generatePassword(defaultLength, false, false, true);
             expect(pwd).not.toEqual('');
         });
         it('can be used with any parameters', () => {
-            const pwd = passwords.generatePassword(defaultLength, true, false, true);
+            const pwd = passwordsService.generatePassword(defaultLength, true, false, true);
             expect(pwd).not.toEqual('');
         });
         it('can be used with any parameters', () => {
-            const pwd = passwords.generatePassword(defaultLength, false, true, false);
+            const pwd = passwordsService.generatePassword(defaultLength, false, true, false);
             expect(pwd).not.toEqual('');
         });
         it('can be used with any parameters', () => {
-            const pwd = passwords.generatePassword(defaultLength, true, true, false);
+            const pwd = passwordsService.generatePassword(defaultLength, true, true, false);
             expect(pwd).not.toEqual('');
         });
         it('can be used with any parameters', () => {
-            const pwd = passwords.generatePassword(defaultLength, false, false, false);
+            const pwd = passwordsService.generatePassword(defaultLength, false, false, false);
             expect(pwd).not.toEqual('');
         });
         it('can be used with any parameters', () => {
-            const pwd = passwords.generatePassword(defaultLength, true, false, false);
+            const pwd = passwordsService.generatePassword(defaultLength, true, false, false);
             expect(pwd).not.toEqual('');
         });
         it('can be used with any length', () => {
             for (let l = 1; l < 100; l++) {
-                const pwd = passwords.generatePassword(l, true, false, false);
+                const pwd = passwordsService.generatePassword(l, true, false, false);
                 expect(pwd).not.toEqual('');
             }
         });
@@ -63,10 +58,10 @@ describe('Passwords.ts', () => {
 
     describe('the password strength function', () => {
         it('can be used with any parameters', () => {
-            const s1 = Passwords.getPasswordStrength('ninja');
-            const s2 = Passwords.getPasswordStrength('N1N2N3N4');
-            const s3 = Passwords.getPasswordStrength('v9835sy6SP3y8mH');
-            const s4 = Passwords.getPasswordStrength('N1Naa23489zasdel123');
+            const s1 = passwordsService.getPasswordStrength('ninja');
+            const s2 = passwordsService.getPasswordStrength('N1N2N3N4');
+            const s3 = passwordsService.getPasswordStrength('v9835sy6SP3y8mH');
+            const s4 = passwordsService.getPasswordStrength('N1Naa23489zasdel123');
 
             expect(s1).toEqual(PasswordStrength.WEAK);
             expect(s2).toEqual(PasswordStrength.MEDIUM);

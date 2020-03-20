@@ -1,6 +1,10 @@
-import { getCrypto } from '../src/crypto';
+import { anyString, instance, mock, when } from 'omnimock';
+
+import { CryptoService } from '../src/crypto/crypto-service';
 import { PasswordStrength } from '../src/interface';
-import { VaultDB } from '../src/VaultDB';
+import { VaultDB } from '../src/vault/VaultDB';
+import { PasswordsService } from './passwords/passwords-service';
+import { VaultDBService } from './vault/vaultdb-service';
 
 const verbose = false;
 
@@ -16,10 +20,14 @@ test('Workflow', async () => {
     cPrint('Note that this is demoing the inside of the vaultage SDK but all of this complexity' +
         ' is going to be hidden behind the Vault class.\n');
 
-    const crypto = getCrypto({
+    const mockPasswordsService = mock(PasswordsService);
+    when(mockPasswordsService.getPasswordStrength(anyString())).return(1);
+
+    const crypto = new CryptoService().getCrypto({
         LOCAL_KEY_SALT: 'abcdef',
         REMOTE_KEY_SALT: '01234576',
     });
+    const vaultDBService = new VaultDBService(instance(mockPasswordsService));
 
     const masterKey = 'ilovesushi';
 
@@ -27,7 +35,7 @@ test('Workflow', async () => {
     cPrint('My local key is: ' + key + '\n');
 
     // tslint:disable-next-line:object-literal-key-quotes
-    const db = new VaultDB({'0': {
+    const db = new VaultDB(instance(mockPasswordsService), {'0': {
             title: 'Hello',
             id: '0',
             created: 'now',
@@ -41,7 +49,7 @@ test('Workflow', async () => {
             hidden: false,
         }
     });
-    const plain = VaultDB.serialize(db);
+    const plain = vaultDBService.serialize(db);
     const fp = await crypto.getFingerprint(plain, key);
 
     cPrint('Here is what the db looks like initially: ');
@@ -58,7 +66,7 @@ test('Workflow', async () => {
 
     const dec = await crypto.decrypt(key, enc);
     const decFP = await crypto.getFingerprint(dec, key);
-    const decDB = VaultDB.deserialize(dec);
+    const decDB = vaultDBService.deserialize(dec);
 
     cPrint(decDB);
     cPrint('Fingerprint: ' + decFP);

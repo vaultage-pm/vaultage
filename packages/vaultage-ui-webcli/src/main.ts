@@ -1,4 +1,4 @@
-import * as vaultage from 'vaultage-client';
+import vaultage from 'vaultage-client';
 import { AddCommand } from './commands/Add';
 import { AuthCommand } from './commands/Auth';
 import { ClearCommand } from './commands/Clear';

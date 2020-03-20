@@ -1,6 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
+import { injectable } from 'tsyringe';
 
-import { ERROR_CODE, VaultageError } from './VaultageError';
+import { ERROR_CODE, VaultageError } from '../VaultageError';
 
 export interface IHttpResponse<T> {
     data: T;
@@ -12,17 +13,18 @@ export type HttpRequestFunction = <T>(parameters: HttpRequestParameters) => Prom
  * Singleton providing outgoing HTTP capabilities.
  * Allows test code to mock the network.
  */
-export abstract class HttpService {
+@injectable()
+export class HttpService {
 
-    public static get request(): HttpRequestFunction {
+    public get request(): HttpRequestFunction {
         return this._instance;
     }
 
-    public static mock(fn: HttpRequestFunction): void {
+    public mock(fn: HttpRequestFunction): void {
         this._instance = fn;
     }
 
-    private static _instance: HttpRequestFunction = (parameters: HttpRequestParameters) => {
+    private _instance: HttpRequestFunction = (parameters: HttpRequestParameters) => {
         return axios.request(parameters).catch((err) => {
             if (err.response) {
                 if (err.response.status >= 500 && err.response.status < 600) {

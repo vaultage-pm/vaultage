@@ -37,10 +37,6 @@ module.exports = {
     // Source maps support ('inline-source-map' also works)
     devtool: 'source-map',
 
-    externals: {
-        'vaultage-client': 'vaultage'
-    },
-
     // Add the loader for .ts files.
     module: {
         rules: [{
@@ -55,6 +51,9 @@ module.exports = {
     },
 
     plugins: [
+        // Uncomment to analyze bundle
+        // new (require('webpack-bundle-analyzer')).BundleAnalyzerPlugin(),
+
         new webpack.HotModuleReplacementPlugin({
             // Compute HMR chunks first
             multiStep: true
