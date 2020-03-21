@@ -1,9 +1,11 @@
 import 'reflect-metadata';
+
 import { useContainer } from 'routing-controllers';
 import request from 'supertest';
 import { Container } from 'typedi';
-import { IVaultageConfig, PushPullResponse, UpdateCipherRequest } from 'vaultage-protocol';
+import { PushPullResponse, UpdateCipherRequest, VaultageConfig } from 'vaultage-protocol';
 import { DemoModeError } from 'vaultage/src/storage/DemoModeError';
+
 import { createVaultageAPIServer } from '../../src/apiServer';
 import { DatabaseWithAuth } from '../../src/storage/Database';
 import * as db from '../../src/storage/JSONDatabase';
@@ -17,7 +19,7 @@ const mockDB = new mockModule.JSONDatabase('', '', '');
 (mockDB.load as jest.Mock).mockImplementation(() => Promise.resolve('load OK'));
 (mockDB.save as jest.Mock).mockImplementation(() => Promise.resolve('save OK'));
 
-const mockConfig: IVaultageConfig = {
+const mockConfig: VaultageConfig = {
     version: 1,
     salts: {
         local_key_salt: 'le salt',

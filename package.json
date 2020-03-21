@@ -31,5 +31,20 @@
   "dependencies": {},
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "jest": {
+    "transform": {
+        ".(ts|tsx)": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.ts$",
+    "moduleFileExtensions": [
+        "ts",
+        "tsx",
+        "js"
+    ],
+    "setupFiles": [
+        "reflect-metadata"
+    ],
+    "clearMocks": true
+  }
 }

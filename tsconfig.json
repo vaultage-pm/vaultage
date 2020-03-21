@@ -7,7 +7,7 @@
     "sourceMap": true,
     "declarationMap": true,
     "module": "commonjs",
-    "target": "es5",
+    "target": "es6",
     "allowJs": false,
     "esModuleInterop": true,
     "noUnusedParameters": true,
@@ -18,7 +18,8 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "lib": [
-      "es2015"
+      "es2015",
+      "dom"
     ]
   },
   "include": [

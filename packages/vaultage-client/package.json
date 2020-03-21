@@ -35,6 +35,7 @@
         "axios": "0.19.2",
         "tsyringe": "4.1.0",
         "reflect-metadata": "0.1.13",
+        "rest-ts-axios": "0.6.1",
         "tslib": "1.11.1"
     },
     "devDependencies": {
@@ -67,7 +68,6 @@
         ],
         "coveragePathIgnorePatterns": [
             "/node_modules/",
-            "/test/",
             "sjcl.js"
         ],
         "modulePaths": [
@@ -78,8 +78,8 @@
         ],
         "coverageThreshold": {
             "global": {
-                "branches": 50,
-                "functions": 60,
+                "branches": 70,
+                "functions": 70,
                 "lines": 70,
                 "statements": 70
             }

@@ -6,10 +6,10 @@ export const api = defineAPI({
     pullConfig: GET `/config`
         .response(VaultageConfig),
 
-    pullCipher: GET `${'serverURL'}/${'username'}/${'remotePwdHash'}/vaultage_api`
+    pullCipher: GET `/${'username'}/${'remoteKey'}/vaultage_api`
         .response(PushPullResponse),
 
-    pushCipher: POST `${'serverURL'}/${'username'}/${'remotePwdHash'}/vaultage_api`
+    pushCipher: POST `/${'username'}/${'remoteKey'}/vaultage_api`
         .body(UpdateCipherRequest)
         .response(PushPullResponse)
-})
+});
