@@ -29,5 +29,8 @@
     "dependencies": {
         "rest-ts-core": "0.6.1",
         "runtypes": "4.2.0"
+    },
+    "devDependencies": {
+        "typescript": "3.8.3"
     }
 }
