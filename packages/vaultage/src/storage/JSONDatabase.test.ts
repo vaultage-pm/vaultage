@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 
 import * as fs from 'fs';
-import { Container } from 'typedi';
 
 import { AuthenticationError } from '../../src/storage/AuthenticationError';
 import { IDatabaseContents, JSONDatabase, JSONDatabaseWithAuth } from '../../src/storage/JSONDatabase';
@@ -52,14 +51,15 @@ describe('JSONDatabaseWithAuth', () => {
 
 describe('JSONDatabaseWithAuth', () => {
 
+    let db: JSONDatabaseWithAuth;
+
     beforeEach(() => {
-        Container.set('cipherLocation', '/the/location');
+        db = new JSONDatabaseWithAuth('/the/location');
     });
 
     describe('.auth', () => {
 
         it('rejects for invalid credentials', async () => {
-            const db = Container.get(JSONDatabaseWithAuth);
             (fs.readFileSync as jest.Mock).mockImplementationOnce(() => JSON.stringify(fakeDBOnDisk));
 
             const auth = db.auth({
@@ -73,7 +73,6 @@ describe('JSONDatabaseWithAuth', () => {
         });
 
         it('resolves with a JSONDatabase for valid credentials', async () => {
-            const db = Container.get(JSONDatabaseWithAuth);
             (fs.readFileSync as jest.Mock).mockImplementationOnce(() => JSON.stringify(fakeDBOnDisk));
 
             const result = await db.auth({
@@ -87,7 +86,6 @@ describe('JSONDatabaseWithAuth', () => {
         });
 
         it('resolves with an empty JSONDatabase if there is no file', async () => {
-            const db = Container.get(JSONDatabaseWithAuth);
             (fs.readFileSync as jest.Mock).mockImplementationOnce(() => {
                 throw { code: 'ENOENT' };
             });

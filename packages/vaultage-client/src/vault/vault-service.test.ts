@@ -46,8 +46,7 @@ describe('VaultService', () => {
 
     it('can create an empty vault', async () => {
         const vault = await service.create(creds, instance(mockCrypto), undefined);
-        // Workaround until this is merged: https://github.com/hmil/omnimock/pull/19
-        when(mockDB.find.apply(anything(), [''])).return([]);
+        when(mockDB.find('')).return([]);
         expect(vault.getAllEntries().length).toBe(0);
     });
 

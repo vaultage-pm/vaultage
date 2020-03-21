@@ -1,5 +1,5 @@
 import { ChildProcess, spawn } from 'child_process';
-import * as puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer';
 
 import { VaultagePOM } from '../utils/VaultagePOM';
 
@@ -16,35 +16,36 @@ const randTestId = (Math.random() * 0x1000000).toString(16).substring(0, 6);
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
-beforeAll(async () => {
-    browser = await puppeteer.launch({
-        args: [ '--no-sandbox' ]
-    });
-
-    // Spawn the server on our port and with a random, hopefully empty, data folder
-    server = spawn('node', ['dist/src/main.js', '-p', `${PORT}`, '-d', `.data/${randTestId}`]);
-
-    // Wait until the server is up
-    await new Promise((resolve) => {
-        let output = '';
-        server.stderr.on('data', (chunk: Buffer) => {
-            console.error(chunk.toString('utf-8'));
-        });
-        server.stdout.on('data', (chunk: Buffer) => {
-            output += chunk.toString('utf-8');
-            if (/Server is listening/.test(output)) {
-                resolve();
-            }
-        });
-    });
-});
-
-afterAll(async () => {
-    await browser.close();
-    server.kill();
-});
 
 describe('Commands of the web UI', () => {
+
+    beforeAll(async () => {
+        browser = await puppeteer.launch({
+            args: [ '--no-sandbox' ]
+        });
+
+        // Spawn the server on our port and with a random, hopefully empty, data folder
+        server = spawn('node', ['dist/src/main.js', '-p', `${PORT}`, '-d', `.data/${randTestId}`]);
+
+        // Wait until the server is up
+        await new Promise((resolve) => {
+            let output = '';
+            server.stderr!.on('data', (chunk: Buffer) => {
+                console.error(chunk.toString('utf-8'));
+            });
+            server.stdout!.on('data', (chunk: Buffer) => {
+                output += chunk.toString('utf-8');
+                if (/Server is listening/.test(output)) {
+                    resolve();
+                }
+            });
+        });
+    });
+
+    afterAll(async () => {
+        await browser.close();
+        server.kill();
+    });
 
     beforeEach(async () => {
         page = await browser.newPage();

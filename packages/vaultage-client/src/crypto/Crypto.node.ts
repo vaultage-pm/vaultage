@@ -54,12 +54,7 @@ export class Crypto implements ICrypto {
         try {
             return await this._encrypt(localKey, plain);
         } catch (e) {
-            if (isNonFatalCipherError(e)) {
-                const c = await this._getPortableCrypto();
-                return c.encrypt(localKey, plain);
-            } else {
-                throw new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occurred while decrypting the cipher', e);
-            }
+            throw new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occurred while decrypting the cipher, try using sjcl bundle instead.', e);
         }
     }
 
@@ -75,12 +70,7 @@ export class Crypto implements ICrypto {
         try {
             return await this._decrypt(localKey, cipher);
         } catch (e) {
-            if (isNonFatalCipherError(e)) {
-                const c = await this._getPortableCrypto();
-                return c.decrypt(localKey, cipher);
-            } else {
-                throw new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occurred while decrypting the cipher', e);
-            }
+            throw new VaultageError(ERROR_CODE.CANNOT_DECRYPT, 'An error occurred while decrypting the cipher, try using sjcl bundle instead.', e);
         }
     }
 
@@ -119,11 +109,6 @@ export class Crypto implements ICrypto {
                 resolve(derivedKey);
             });
         });
-    }
-
-    private async _getPortableCrypto(): Promise<ICrypto> {
-        const cryptoSJCL = (await import('./Crypto.sjcl')).Crypto;
-        return new cryptoSJCL(this._salts);
     }
 
     private async _encrypt(localKey: string, plain: string) {
@@ -191,11 +176,3 @@ export class Crypto implements ICrypto {
         return iv.slice(0, (15 - L));
     }
 }
-
-/**
- * Determines if the error allows us to fall back on soft crypto.
- */
-const isNonFatalCipherError = (() => {
-    const TEST_RX = /Invalid IV length|Not implemented/i;
-    return (e: Error) => TEST_RX.test(e.toString());
-})();

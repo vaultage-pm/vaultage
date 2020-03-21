@@ -1,4 +1,4 @@
-import { container } from 'tsyringe';
+import { container as rootContainer } from 'tsyringe';
 
 import { MainService } from './main-service';
 import { MergeService } from './merge-service';
@@ -10,14 +10,15 @@ import { PasswordsService } from './passwords/passwords-service';
 import { IRandomness, ConcreteRandomnessGenerator } from './passwords/randomness-generator';
 
 export function createMainContainer() {
-    container.registerSingleton(HttpApi);
-    container.registerSingleton(HttpService);
-    container.registerSingleton(MainService);
-    container.registerSingleton(MergeService);
-    container.registerSingleton(VaultService);
-    container.registerSingleton(VaultDBService);
-    container.registerSingleton(PasswordsService);
-    container.register(IRandomness, { useClass: ConcreteRandomnessGenerator});
+    const mainContainer = rootContainer.createChildContainer();
+    mainContainer.registerSingleton(HttpApi);
+    mainContainer.registerSingleton(HttpService);
+    mainContainer.registerSingleton(MainService);
+    mainContainer.registerSingleton(MergeService);
+    mainContainer.registerSingleton(VaultService);
+    mainContainer.registerSingleton(VaultDBService);
+    mainContainer.registerSingleton(PasswordsService);
+    mainContainer.register(IRandomness, { useClass: ConcreteRandomnessGenerator});
 
-    return container;
+    return mainContainer;
 }
