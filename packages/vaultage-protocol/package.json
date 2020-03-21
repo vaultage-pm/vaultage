@@ -31,6 +31,7 @@
         "runtypes": "4.2.0"
     },
     "devDependencies": {
+        "tslint": "6.0.0",
         "typescript": "3.8.3"
     }
 }
