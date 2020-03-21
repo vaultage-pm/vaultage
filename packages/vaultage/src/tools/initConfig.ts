@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
-import { IVaultageConfig } from 'vaultage-protocol';
+import { VaultageConfig } from 'vaultage-protocol';
 
 import { CONFIG_FILENAME } from '../constants';
 
@@ -47,7 +47,7 @@ export function initConfig(customStorage: string | undefined, demoMode: boolean 
                 throw new Error('An error occurred during salts initialization. Not enough randomness!');
             }
 
-            const config: IVaultageConfig = {
+            const config: VaultageConfig = {
                 version: 1,
                 salts: {
                     local_key_salt: hexBytes.substr(0, SALTS_LENGTH),

@@ -1,9 +1,9 @@
 import * as fs from 'fs';
-import { Inject, Service } from 'typedi';
 
 import { AuthenticationError } from './AuthenticationError';
 import { DatabaseWithAuth, ICredentials, IDatabase, IDatabaseSaveParameters } from './Database';
 import { NotFastForwardError } from './NotFastForwardError';
+import { injectable, inject } from 'tsyringe';
 
 /**
  * The structure of the content of this database.
@@ -81,12 +81,17 @@ export class JSONDatabase implements IDatabase {
     }
 }
 
+export const CIPHER_TOKEN = Symbol('cipher');
+
 /**
  * This class is a wrapper around JSONDatabase.
  * It exposes the "auth" methods that return a JSONDatabase.
  */
-@Service()
-export class JSONDatabaseWithAuth extends DatabaseWithAuth {
+@injectable()
+export class JSONDatabaseWithAuth implements DatabaseWithAuth {
+
+    constructor(@inject(CIPHER_TOKEN) private readonly cipherLocation: string) {
+    }
 
     /**
      * Performs a constant-time comparison of two strings.
@@ -114,9 +119,6 @@ export class JSONDatabaseWithAuth extends DatabaseWithAuth {
 
         return result;
     }
-
-    @Inject('cipherLocation')
-    private readonly cipherLocation: string;
 
     public async auth(creds: ICredentials) {
         try {

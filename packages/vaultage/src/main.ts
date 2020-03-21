@@ -4,14 +4,12 @@ import program from 'commander';
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
-import { useContainer } from 'routing-controllers';
-import { Container } from 'typedi';
-import { IVaultageConfig } from 'vaultage-protocol';
+import { container } from 'tsyringe';
+import { VaultageConfig } from 'vaultage-protocol';
 
-import { createVaultageAPIServer } from './apiServer';
+import { ApiService, CONFIG_TOKEN, DB_TOKEN } from './api-service';
 import { CONFIG_FILENAME, VAULT_FILENAME } from './constants';
-import { DatabaseWithAuth } from './storage/Database';
-import { JSONDatabaseWithAuth } from './storage/JSONDatabase';
+import { CIPHER_TOKEN, JSONDatabaseWithAuth } from './storage/JSONDatabase';
 import { initConfig, storagePath } from './tools/initConfig';
 
 // tslint:disable-next-line:no-var-requires
@@ -38,13 +36,12 @@ const PORT: number = program.port || 3000;
 const ADDR: string = program.listen;
 const DEMO: boolean = program.demo;
 
-boot(PORT, ADDR);
+boot(PORT, ADDR).catch(e => console.error(e));
 
-async function loadConfig(retry: boolean): Promise<void> {
+async function loadConfig(retry: boolean): Promise<VaultageConfig> {
     const configPath = storagePath(CONFIG_FILENAME, program.data);
     try {
-        const config = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf-8' })) as IVaultageConfig;
-        Container.set('config', config);
+        return VaultageConfig.check(JSON.parse(fs.readFileSync(configPath, { encoding: 'utf-8' })));
     } catch (e) {
         if (retry && e.code === 'ENOENT') {
             console.log('No config found, writing initial config.');
@@ -57,19 +54,16 @@ async function loadConfig(retry: boolean): Promise<void> {
 }
 
 async function boot(port: number, addr: string) {
-    // Tell routing-controller to use our dependency injection container
-    useContainer(Container);
-
     // Wires all dependencies
     const vaultPath = storagePath(VAULT_FILENAME, program.data);
-    Container.set('cipherLocation', vaultPath);
+    container.register(CIPHER_TOKEN, { useValue: vaultPath });
 
-    await loadConfig(true);
-
-    Container.set(DatabaseWithAuth, Container.get(JSONDatabaseWithAuth));
+    const config = await loadConfig(true);
+    container.register(CONFIG_TOKEN, { useValue: config });
+    container.registerSingleton(DB_TOKEN, JSONDatabaseWithAuth);
 
     // Create an express server which is preconfigured to serve the API
-    const server = createVaultageAPIServer();
+    const server = container.resolve(ApiService).createVaultageAPIServer();
 
     // Bind static content to server
     const pathToWebCliGUI = path.dirname(require.resolve('vaultage-ui-webcli'));
