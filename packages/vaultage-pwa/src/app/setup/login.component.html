@@ -38,12 +38,9 @@
             </button>
         </div>
         <div *ngIf="pageState === 'login'">
-            <button mat-flat-button color="primary" (click)="onLogin()" class="pill-button" [disabled]="isLoading">
+            <button mat-flat-button color="primary" (click)="onLogin()" class="pill-button">
                 Login
             </button>
         </div>
     </div>
-</div>
-<div class="overlay" *ngIf="isLoading">
-    <mat-spinner></mat-spinner>
 </div>

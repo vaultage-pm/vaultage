@@ -1,3 +1,4 @@
-<div class="background" [@routeAnimations]="prepareRoute(outlet)">
+<div class="background">
     <router-outlet #outlet="outlet"></router-outlet>
 </div>
+<app-busy-overlay></app-busy-overlay>

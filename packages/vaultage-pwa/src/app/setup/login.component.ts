@@ -1,5 +1,7 @@
+import { animate, group, query, stagger, state, style, transition, trigger } from '@angular/animations';
 import { Component } from '@angular/core';
-import { trigger, state, style, transition, animate, query, stagger, animateChild, group } from '@angular/animations';
+
+import { LoginConfig, SetupService } from './setup.service';
 
 type PageState = 'init' | 'login';
 
@@ -80,13 +82,13 @@ export class LoginComponent {
 
     public useBasic = false;
 
-    public isLoading = false;
+    constructor(private readonly setupService: SetupService) {}
 
     public activateLogin() {
         this.pageState = 'login';
     }
 
     public onLogin() {
-        this.isLoading = true;
+        this.setupService.login({} as LoginConfig);
     }
 }
