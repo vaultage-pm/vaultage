@@ -1,0 +1,49 @@
+<div class="flex-container">
+    <div class="flex-title">
+        <h1 [@loginTitle]="pageState">Vaultage</h1>
+    </div>
+    <div *ngIf="pageState === 'init'" class="flex-spacer"></div>
+    <div *ngIf="pageState === 'login'" class="login-form" [@loginForm]="pageState" [@basicFields]="useBasic ? 'yes' : 'no'">
+            <mat-form-field appearance="standard" class="reveal-field">
+                <mat-label>Username</mat-label>
+                <input matInput>
+            </mat-form-field>
+            <mat-form-field appearance="standard" class="reveal-field">
+                <mat-label>Password</mat-label>
+                <input matInput type="password">
+            </mat-form-field>
+            <mat-form-field appearance="standard" class="reveal-field">
+                <mat-label>Host</mat-label>
+                <input matInput placeholder="https://your-vaultage-host">
+            </mat-form-field>
+            <mat-divider class="reveal-field"></mat-divider>
+            <mat-checkbox class="basic-toggle reveal-field" [(ngModel)]="useBasic">Basic auth</mat-checkbox>
+            <div *ngIf="useBasic" class="basic-fields">
+                <mat-form-field appearance="standard">
+                    <mat-label>Username</mat-label>
+                    <input matInput>
+                </mat-form-field>
+                <mat-form-field appearance="standard">
+                    <mat-label>Password</mat-label>
+                    <input matInput type="password">
+                </mat-form-field>
+            </div>
+    </div>
+    <div class="flex-action" [@buttons]="pageState">
+        <div *ngIf="pageState === 'init'">
+            <button mat-flat-button color="primary" (click)="activateLogin()" class="start-button pill-button">
+                <div class="btn-layout">
+                    <div>Start</div><mat-icon aria-hidden="false" aria-label="Get started" inline>navigate_next</mat-icon>
+                </div>
+            </button>
+        </div>
+        <div *ngIf="pageState === 'login'">
+            <button mat-flat-button color="primary" (click)="onLogin()" class="pill-button" [disabled]="isLoading">
+                Login
+            </button>
+        </div>
+    </div>
+</div>
+<div class="overlay" *ngIf="isLoading">
+    <mat-spinner></mat-spinner>
+</div>
