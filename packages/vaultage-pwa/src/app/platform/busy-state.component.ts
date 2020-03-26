@@ -10,8 +10,8 @@ import { BusyStateService } from './busy-state.service';
         .overlay {
             position: absolute;
             background-color: #00000044;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             top: 0;
             left: 0;
         }

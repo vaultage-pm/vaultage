@@ -1,0 +1,7 @@
+<mat-toolbar color="primary">
+    <mat-toolbar-row>
+        <mat-icon (click)="onExit()" class="toolbar-icon-left">arrow_back</mat-icon>
+        <span class="toolbar-title">{{ title }}</span>
+        <mat-icon *ngIf="action != null" (click)="action.action()" class="toolbar-icon-right">{{ action.icon }}</mat-icon>
+    </mat-toolbar-row>
+</mat-toolbar>

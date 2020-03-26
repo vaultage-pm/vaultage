@@ -1,3 +1,4 @@
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { timer } from 'rxjs';
 
@@ -5,6 +6,7 @@ import { BusyStateService } from '../platform/busy-state.service';
 import { ErrorHandlingService } from '../platform/error-handling.service';
 
 
+@Injectable()
 /**
  * Handles the logic of the account setup process.
  */
@@ -34,7 +36,9 @@ export class SetupService {
     }
 
     public choseNewPin(pin: string): void {
-        this.router.navigate(['/home']);
+        this.router.navigate(['/home'], {
+            replaceUrl: true
+        });
     }
 }
 

@@ -3,6 +3,7 @@ import { SetupService } from './setup.service';
 
 @Component({
     template: `
+    <app-wallpaper></app-wallpaper>
     <app-login *ngIf="step === 'login'"></app-login>
     <app-pin-setup *ngIf="step === 'set-pin'"></app-pin-setup>
 `

@@ -4,30 +4,30 @@
     </div>
     <div *ngIf="pageState === 'init'" class="flex-spacer"></div>
     <div *ngIf="pageState === 'login'" class="login-form" [@loginForm]="pageState" [@basicFields]="useBasic ? 'yes' : 'no'">
-            <mat-form-field appearance="standard" class="reveal-field">
+        <mat-form-field appearance="standard" class="reveal-field">
+            <mat-label>Username</mat-label>
+            <input matInput>
+        </mat-form-field>
+        <mat-form-field appearance="standard" class="reveal-field">
+            <mat-label>Password</mat-label>
+            <input matInput type="password">
+        </mat-form-field>
+        <mat-form-field appearance="standard" class="reveal-field">
+            <mat-label>Host</mat-label>
+            <input matInput placeholder="https://your-vaultage-host">
+        </mat-form-field>
+        <mat-divider class="reveal-field"></mat-divider>
+        <mat-checkbox class="basic-toggle reveal-field" [(ngModel)]="useBasic">Basic auth</mat-checkbox>
+        <div *ngIf="useBasic" class="basic-fields">
+            <mat-form-field appearance="standard">
                 <mat-label>Username</mat-label>
                 <input matInput>
             </mat-form-field>
-            <mat-form-field appearance="standard" class="reveal-field">
+            <mat-form-field appearance="standard">
                 <mat-label>Password</mat-label>
                 <input matInput type="password">
             </mat-form-field>
-            <mat-form-field appearance="standard" class="reveal-field">
-                <mat-label>Host</mat-label>
-                <input matInput placeholder="https://your-vaultage-host">
-            </mat-form-field>
-            <mat-divider class="reveal-field"></mat-divider>
-            <mat-checkbox class="basic-toggle reveal-field" [(ngModel)]="useBasic">Basic auth</mat-checkbox>
-            <div *ngIf="useBasic" class="basic-fields">
-                <mat-form-field appearance="standard">
-                    <mat-label>Username</mat-label>
-                    <input matInput>
-                </mat-form-field>
-                <mat-form-field appearance="standard">
-                    <mat-label>Password</mat-label>
-                    <input matInput type="password">
-                </mat-form-field>
-            </div>
+        </div>
     </div>
     <div class="flex-action" [@buttons]="pageState">
         <div *ngIf="pageState === 'init'">
