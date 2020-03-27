@@ -1,6 +1,10 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from 'src/app/auth.service';
 import { IToolbarActionConfig } from 'src/app/platform/toolbar/toolbar.component';
+
+import { PasswordEntry } from '../domain/PasswordEntry';
 
 @Component({
     selector: 'app-view-password',
@@ -9,28 +13,45 @@ import { IToolbarActionConfig } from 'src/app/platform/toolbar/toolbar.component
 })
 export class ViewPasswordComponent {
 
-    public entry: IPasswordEntry = {
-        id: '1',
-        title: 'SomeEntry'
-    };
+    public entry: PasswordEntry;
+
+    private passwordVisible = false;
 
     public toolbarAction: IToolbarActionConfig = {
         icon: 'edit',
         action: () => this.onEdit()
     };
 
-    constructor(private readonly router: Router) {}
+    private readonly entryId: string;
 
-    onEdit() {
-        this.router.navigate(['/password/edit', '1']);
+    constructor(
+            readonly authService: AuthService,
+            private readonly clipboard: Clipboard,
+            private readonly route: ActivatedRoute,
+            private readonly router: Router) {
+        this.entryId = route.snapshot.paramMap.get('id') ?? '';
+        this.entry = authService.getVault().getEntry(this.entryId); // TODO: Is this supposed to throw when entry doesn't exist?
     }
 
-    onExit() {
+    public get printablePassword() {
+        return this.passwordVisible ? this.entry.password : '••••••••';
+    }
+
+    public onEdit() {
+        this.router.navigate(['../../edit', this.entryId], { relativeTo: this.route });
+    }
+
+    public onExit() {
         history.back();
     }
+
+    public togglePasswordVisibility() {
+        this.passwordVisible = !this.passwordVisible;
+    }
+
+    public copyToClipboard() {
+        this.clipboard.copy(this.entry.password);
+    }
 }
 
-interface IPasswordEntry {
-    title: string;
-    id: string;
-}
+

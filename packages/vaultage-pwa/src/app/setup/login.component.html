@@ -6,26 +6,26 @@
     <div *ngIf="pageState === 'login'" class="login-form" [@loginForm]="pageState" [@basicFields]="useBasic ? 'yes' : 'no'">
         <mat-form-field appearance="standard" class="reveal-field">
             <mat-label>Username</mat-label>
-            <input matInput>
+            <input [(ngModel)]="username" matInput>
         </mat-form-field>
         <mat-form-field appearance="standard" class="reveal-field">
             <mat-label>Password</mat-label>
-            <input matInput type="password">
+            <input [(ngModel)]="password" matInput type="password">
         </mat-form-field>
         <mat-form-field appearance="standard" class="reveal-field">
             <mat-label>Host</mat-label>
-            <input matInput placeholder="https://your-vaultage-host">
+            <input [(ngModel)]="url" matInput placeholder="https://your-vaultage-host">
         </mat-form-field>
         <mat-divider class="reveal-field"></mat-divider>
         <mat-checkbox class="basic-toggle reveal-field" [(ngModel)]="useBasic">Basic auth</mat-checkbox>
         <div *ngIf="useBasic" class="basic-fields">
             <mat-form-field appearance="standard">
                 <mat-label>Username</mat-label>
-                <input matInput>
+                <input [(ngModel)]="basicUsername" matInput>
             </mat-form-field>
             <mat-form-field appearance="standard">
                 <mat-label>Password</mat-label>
-                <input matInput type="password">
+                <input [(ngModel)]="basicPassword" matInput type="password">
             </mat-form-field>
         </div>
     </div>

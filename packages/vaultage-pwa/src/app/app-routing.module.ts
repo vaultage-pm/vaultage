@@ -1,42 +1,55 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { HomeComponent } from './manager/home.component';
+import { UnlockScreenComponent } from './lock/unlock-screen.component';
 import { CreatePasswordComponent } from './manager/entry/create-password.component';
 import { EditPasswordComponent } from './manager/entry/edit-password.component';
 import { ViewPasswordComponent } from './manager/entry/view-password.component';
+import { HomeComponent } from './manager/home.component';
+import { ManagerComponent } from './manager/manager.component';
+import { AuthGuard } from './routing/auth.guard';
+import { LockScreenGuard } from './routing/lock-screen.guard';
+import { UnauthGuard } from './routing/unauth.guard';
 import { SetupComponent } from './setup/setup.component';
 
 
 const routes: Routes = [
-    {
+{
+    path: '',
+    pathMatch: 'full',
+    redirectTo: 'manager'
+}, {
+    path: 'setup',
+    component: SetupComponent,
+    canActivate: [UnauthGuard]
+}, {
+    path: 'unlock',
+    component: UnlockScreenComponent,
+    canActivate: [LockScreenGuard]
+}, {
+    path: 'manager',
+    canActivate: [AuthGuard],
+    component: ManagerComponent,
+    children: [{
         path: '',
-        component: SetupComponent
-    },
-    {
-        path: 'home',
-        redirectTo: 'home/init'
-    },
-    {
-        path: 'home/:mode',
         component: HomeComponent
-    },
-    {
-        path: 'password/create',
+    }, {
+        path: 'create',
         component: CreatePasswordComponent
-    },
-    {
-        path: 'password/view/:id',
+    }, {
+        // TODO: Pre-validate route and redirect if entry does not exist
+        path: 'view/:id',
         component: ViewPasswordComponent
-    },
-    {
-        path: 'password/edit/:id',
+    }, {
+        path: 'edit/:id',
         component: EditPasswordComponent
-    },
-];
+    }]
+}];
 
 @NgModule({
-    imports: [RouterModule.forRoot(routes)],
+    imports: [RouterModule.forRoot(routes, {
+        useHash: true
+    })],
     exports: [RouterModule],
 })
 export class AppRoutingModule { }

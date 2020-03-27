@@ -1,7 +1,9 @@
 import { animate, group, query, stagger, state, style, transition, trigger } from '@angular/animations';
 import { Component } from '@angular/core';
 
-import { LoginConfig, SetupService } from './setup.service';
+import { LoginConfig } from '../auth.service';
+import { LocalStorageService } from '../platform/local-storage.service';
+import { SetupService } from './setup.service';
 
 type PageState = 'init' | 'login';
 
@@ -80,15 +82,46 @@ export class LoginComponent {
 
     public pageState: PageState = 'init';
 
-    public useBasic = false;
+    public username: string = '';
+    public password: string = '';
+    public url: string = '';
+    public useBasic: boolean = false;
+    public basicUsername: string = '';
+    public basicPassword: string = '';
 
-    constructor(private readonly setupService: SetupService) {}
+    constructor(
+        private readonly storageService: LocalStorageService,
+        private readonly setupService: SetupService) {}
+
+    ngOnInit() {
+        const item = this.storageService.getStorage().getItem('creds');
+        if (item != null) {
+            // TODO: sanitize input
+            const parsed = JSON.parse(item);
+            this.url = parsed.url;
+            this.username = parsed.username;
+        }
+    }
 
     public activateLogin() {
         this.pageState = 'login';
     }
 
     public onLogin() {
-        this.setupService.login({} as LoginConfig);
+        const creds = this.makeLoginConfig();
+        this.storageService.getStorage().setItem('creds', JSON.stringify({ url: this.url, username: this.username }));
+        this.setupService.notifyCredentials(creds);
+    }
+
+    private makeLoginConfig(): LoginConfig {
+        return {
+            username: this.username,
+            password: this.password,
+            url: this.url,
+            basic: this.useBasic === false ? undefined : {
+                username: this.basicUsername,
+                password: this.basicPassword
+            }
+        };
     }
 }

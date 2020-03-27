@@ -12,7 +12,7 @@
     </div>
 
     <div *ngIf="viewMode === 'initial'" class="add-item-pill">
-        <button mat-flat-button color="primary" class="pill-button" routerLink="/password/create">
+        <button mat-flat-button color="primary" class="pill-button" routerLink="/manager/create">
             <div class="btn-layout">
                 <mat-icon aria-hidden="false" aria-label="Add" inline>add</mat-icon> <div>New password</div>
             </div>
@@ -20,6 +20,8 @@
     </div>
 
     <div *ngIf="viewMode === 'initial'" class="bottom-actions">
+        <a class="simple-link" (click)="lock()">Lock</a>
+        -
         <a class="simple-link" (click)="logOut()">Log out</a>
     </div>
 

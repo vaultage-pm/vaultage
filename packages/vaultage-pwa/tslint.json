@@ -86,6 +86,7 @@
     "use-lifecycle-interface": true,
     "use-pipe-transform-interface": true,
     "no-floating-promises": true,
+    "await-promise": true,
     "no-unused-expression": true
   },
   "rulesDirectory": [

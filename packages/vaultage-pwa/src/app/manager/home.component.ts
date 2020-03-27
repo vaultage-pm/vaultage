@@ -2,6 +2,7 @@ import { animate, group, query, state, style, transition, trigger } from '@angul
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IPasswordListEntry } from './password-list.component';
+import { AuthService } from '../auth.service';
 
 @Component({
     selector: 'app-home',
@@ -48,14 +49,7 @@ import { IPasswordListEntry } from './password-list.component';
 })
 export class HomeComponent implements OnInit {
 
-    public readonly dummyItems: IPasswordListEntry[] = [
-        {id: '1', title: 'Salt', user: 'salt', host: 'pepper' },
-        {id: '2', title: 'Pepper', user: 'pepper', host: 'pepper.com' },
-        {id: '3', title: 'Magenta', user: 'bloom', host: 'github.com' },
-        {id: '4', title: 'Mars', user: 'moon', host: 'sun.space' },
-        {id: '5', title: 'GitHub', user: 'hmil', host: 'github.com' },
-        {id: '6', title: 'TP', user: 'toilet', host: 'paper' }
-    ];
+    public items: IPasswordListEntry[] = [];
 
     private _searchValue: string = '';
 
@@ -68,25 +62,27 @@ export class HomeComponent implements OnInit {
 
     @ViewChild('search') searchElement?: ElementRef<HTMLInputElement>;
 
-    constructor(private readonly route: ActivatedRoute, private readonly router: Router) { }
+    constructor(
+            private readonly authService: AuthService,
+            private readonly route: ActivatedRoute,
+            private readonly router: Router) { }
 
     public ngOnInit() {
         // This observable is automatically closed when the component is destroyed by the router
-        this.route.paramMap.subscribe(params => {
-            this._viewMode = params.get('mode') === 'search' ? 'search' : 'initial';
+        this.route.queryParamMap.subscribe(params => {
+            this._searchValue = params.get('q') ?? '';
+            this._viewMode = params.has('q') ? 'search' : 'initial';
             if (this._viewMode === 'initial') {
-                this.searchValue = '';
                 this.searchElement?.nativeElement.blur();
             }
         });
-        this.route.queryParamMap.subscribe(q => {
-            this._searchValue = q.get('q') ?? '';
-        });
+
+        this.initListItems();
     }
 
     public get listItems(): IPasswordListEntry[] {
         // TODO: Create a search service
-        return this.dummyItems.filter(d => d.title.toLocaleLowerCase().indexOf(this.searchValue.toLocaleLowerCase()) >= 0);
+        return this.items.filter(d => d.title.toLocaleLowerCase().indexOf(this.searchValue.toLocaleLowerCase()) >= 0);
     }
 
     public get viewMode() {
@@ -114,7 +110,11 @@ export class HomeComponent implements OnInit {
     }
 
     public logOut() {
-        this.router.navigate(['/'], { replaceUrl: true });
+        this.authService.logOut();
+    }
+
+    public lock() {
+        this.authService.lock();
     }
 
     public get searchValue(): string {
@@ -123,7 +123,7 @@ export class HomeComponent implements OnInit {
 
     public set searchValue(v: string) {
         if (this.viewMode === 'search' && v !== this.searchValue) {
-            this.router.navigate(['/home/search'], { replaceUrl: true, queryParams: { q: v } });
+            this.router.navigate(['/manager'], { replaceUrl: true, queryParams: { q: v } });
         }
     }
 
@@ -135,13 +135,32 @@ export class HomeComponent implements OnInit {
                 if (this.hasVisitedInitState) {
                     history.back();
                 } else {
-                    this.router.navigate(['/home/init'], { replaceUrl: true });
+                    this.router.navigate(['/manager'], { replaceUrl: true });
                 }
             } else {
                 this.hasVisitedInitState = true;
-                this.router.navigate(['/home/search']);
+                this.router.navigate(['/manager'], {queryParams: { q: this.searchValue }});
             }
         }
+    }
+
+    private initListItems() {
+        const vault = this.authService.getVault();
+        this.items = vault.getAllEntries().map(e => ({
+            host: this.getHost(e.url),
+            id: e.id,
+            title: e.title,
+            user: e.login,
+            password: e.password
+        }));
+    }
+
+    private getHost(url: string): string {
+        const match = url.match(/^\s*(?:\w*:?\/?\/)?(\w+(?:\.\w+)*)/);
+        if (match != null) {
+            return match[1];
+        }
+        return url;
     }
 }
 

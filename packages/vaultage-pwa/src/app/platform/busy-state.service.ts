@@ -8,7 +8,7 @@ export class BusyStateService {
         return this.busy;
     }
 
-    public setBusy(busy: boolean) {
+    public setBusy(busy: boolean): void {
         this.busy = busy;
     }
 }

@@ -24,7 +24,7 @@ export class PinSetupComponent {
 
     public onConfirm(pin: string) {
         if (pin === this.composedPin) {
-            this.setupService.choseNewPin(pin);
+            this.setupService.notifyPin(pin);
         } else {
             this.errorMessage = 'Pins did not match';
             this.step = 'compose';

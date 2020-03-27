@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { timer } from 'rxjs';
 
+import { AuthService, LoginConfig } from '../auth.service';
 import { BusyStateService } from '../platform/busy-state.service';
 import { ErrorHandlingService } from '../platform/error-handling.service';
+import { PinLockService } from '../platform/pin-lock.service';
 
 
 @Injectable()
@@ -12,44 +12,78 @@ import { ErrorHandlingService } from '../platform/error-handling.service';
  */
 export class SetupService {
 
-    private currentStep: SetupStep = 'login';
+    private _step: SetupStep = 'login';
+
+    private credentialsNotifier?: (creds: LoginConfig) => void;
+    private pinNotifier?: (pin: string) => void;
 
     constructor(
-            private readonly router: Router,
+            private readonly authService: AuthService,
+            private readonly pinService: PinLockService,
             private readonly busyService: BusyStateService,
             private readonly errorHandler: ErrorHandlingService) {}
 
     public get step(): SetupStep {
-        return this.currentStep;
+        return this._step;
     }
 
-    public login(credentials: LoginConfig): void {
-        this.busyService.setBusy(true);
-        this._login(credentials).finally(() => {
-            this.busyService.setBusy(false);
-        }).catch(e => this.errorHandler.onError(e));
+    public async doLogin() {
+        const credentials = await this.getCredentials();
+        const pin = await this.promptPin();
+
+        this.pinService.setSecret(pin, JSON.stringify(credentials));
+        this.authService.logIn(credentials, pin);
     }
 
-    private async _login(credentials: LoginConfig) {
-        await timer(1000).toPromise();
-        this.currentStep = 'set-pin';
+    private async getCredentials(): Promise<LoginConfig> {
+        let loginError: string | undefined;
+        while (true) {
+            const credentials = await this.promptCredentials();
+            this.busyService.setBusy(true);
+            try {
+                await this.authService.testCredentials(credentials);
+                return credentials;
+            } catch (e) {
+                loginError = e;
+            } finally {
+                this.busyService.setBusy(false);
+            }
+        }
     }
 
-    public choseNewPin(pin: string): void {
-        this.router.navigate(['/home'], {
-            replaceUrl: true
+    public notifyCredentials(credentials: LoginConfig) {
+        if (this.credentialsNotifier) {
+            this.credentialsNotifier(credentials);
+            this.credentialsNotifier = undefined;
+        } else {
+            this.errorHandler.onError('Not expected to receive credentials');
+        }
+    }
+
+    private async promptCredentials(): Promise<LoginConfig> {
+        this._step = 'login';
+        return new Promise(resolve => {
+            this.credentialsNotifier = resolve;
+        });
+    }
+
+    public notifyPin(pin: string) {
+        if (this.pinNotifier) {
+            this.pinNotifier(pin);
+            this.pinNotifier = undefined;
+        } else {
+            this.errorHandler.onError('Not expected to receive pin');
+        }
+    }
+
+    private async promptPin(): Promise<string> {
+        this._step = 'set-pin';
+        return new Promise(resolve => {
+            this.pinNotifier = resolve;
         });
     }
 }
 
 type SetupStep = 'login' | 'set-pin';
 
-export interface LoginConfig {
-    username: string;
-    password: string;
-    host: string;
-    basic?: {
-        username: string;
-        password: string;
-    };
-}
+
