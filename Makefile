@@ -24,6 +24,7 @@ build: install
 	$(MAKE) -C packages/vaultage-client build
 	$(MAKE) -C packages/vaultage-ui-webcli build
 	$(MAKE) -C packages/vaultage build
+	$(MAKE) -C packages/vaultage-pwa build
 
 test: build
 	$(MAKE) -C packages/vaultage-protocol test

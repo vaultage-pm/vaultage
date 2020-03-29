@@ -1,8 +1,13 @@
+DIST_ROOT=dist/main.js
+SRC=$(wildcard src/*.ts) $(wildcard src/messages/*.ts)
+
 .PHONY: all build test clean cleanall node_upgrade
 
 all: test
 
-build: $(wildcard dist/*.js) $(wildcard dist/messages/*.js)
+build: $(DIST_ROOT)
+
+$(DIST_ROOT): $(SRC)
 	npm run build
 
 clean:

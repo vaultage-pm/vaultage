@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { AuthService, LoginConfig } from '../auth.service';
 import { PinLockService } from '../pin-lock.service';
@@ -18,6 +19,7 @@ export class SetupService {
     private pinNotifier?: (pin: string) => void;
 
     constructor(
+            private readonly snackBar: MatSnackBar,
             private readonly authService: AuthService,
             private readonly pinService: PinLockService,
             private readonly busyService: BusyStateService,
@@ -41,7 +43,6 @@ export class SetupService {
     }
 
     private async getCredentials(): Promise<LoginConfig> {
-        let loginError: string | undefined;
         while (true) {
             const credentials = await this.promptCredentials();
             this.busyService.setBusy(true);
@@ -49,7 +50,8 @@ export class SetupService {
                 await this.authService.testCredentials(credentials);
                 return credentials;
             } catch (e) {
-                loginError = e;
+                this.snackBar.open(e.message);
+                this.errorHandler.onError(e);
             } finally {
                 this.busyService.setBusy(false);
             }
