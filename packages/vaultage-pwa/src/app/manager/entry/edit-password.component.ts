@@ -1,27 +1,36 @@
-import { Component } from '@angular/core';
-import { AuthService } from '../../auth.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { PasswordEntry, toVaultageEntry } from '../domain/PasswordEntry';
+import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute } from '@angular/router';
 import { BusyStateService } from 'src/app/platform/busy-state.service';
+import { IVaultDBEntry } from 'vaultage-client';
+
+import { AuthService } from '../../auth.service';
+import { PasswordEntry, toVaultageEntry } from '../domain/PasswordEntry';
 
 @Component({
     selector: 'app-edit-password',
     templateUrl: 'edit-password.component.html',
     styleUrls: [ 'edit-password.component.scss' ]
 })
-export class EditPasswordComponent {
+export class EditPasswordComponent implements OnInit {
 
-    private readonly entryId: string;
-
-    public readonly entry: PasswordEntry;
+    public entry: PasswordEntry;
 
     constructor(
             private readonly busy: BusyStateService,
             private readonly authService: AuthService,
-            private readonly route: ActivatedRoute,
-            private readonly router: Router) {
-        this.entryId = route.snapshot.paramMap.get('id') ?? '';
-        this.entry = authService.getVault().getEntry(this.entryId); // TODO: Is this supposed to throw when entry doesn't exist?
+            private readonly snackBar: MatSnackBar,
+            readonly route: ActivatedRoute) {
+        this.entry = this.route.snapshot.data.entry;
+    }
+
+    public ngOnInit() {
+        this.route.data.subscribe((data: { entry?: IVaultDBEntry }) => {
+            if (data.entry == null) {
+                throw new Error('Router did not provide mandatory "entry" parameter');
+            }
+            this.entry = data.entry;
+        });
     }
 
     public onExit() {
@@ -30,7 +39,11 @@ export class EditPasswordComponent {
 
     public onSave(entry: PasswordEntry) {
         this.busy.setBusy(true);
-        this.doSave(entry).finally(() => this.busy.setBusy(false));
+        this.doSave(entry)
+            .finally(() => this.busy.setBusy(false))
+            .catch(e => this.snackBar.open(e.message, undefined, {
+                panelClass: 'error'
+            }));
     }
 
     private async doSave(entry: PasswordEntry) {

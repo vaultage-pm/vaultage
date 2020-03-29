@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot } from '@angular/router';
-import { AuthService } from '../auth.service';
+
+import { AccessControlService } from '../access-control.service';
 
 @Injectable()
 export class LockScreenGuard implements CanActivate {
-    constructor(private readonly authService: AuthService) {}
+    constructor(private readonly accessControl: AccessControlService) {}
 
     canActivate(
             next: ActivatedRouteSnapshot,
             state: RouterStateSnapshot): boolean {
-        return this.authService.requestAccess('unlock-screen', state.url);
+        return this.accessControl.requestAccess('unlock-screen', state.url);
     }
 }

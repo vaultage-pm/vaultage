@@ -14,7 +14,7 @@ import { Observable } from 'rxjs';
                         display: 'block',
                         transform: 'scale(0, 0)'
                     }),
-                    animate('300ms')
+                    animate('200ms')
                 ])
             ]),
             transition('visible => invisible', [
@@ -23,14 +23,22 @@ import { Observable } from 'rxjs';
                         style({
                             transform: 'scale(0, 0)'
                         }),
-                        animate('300ms')
+                        animate('200ms')
                     ]),
                     query(':leave', [
                         animate('200ms', style({
                             transform: 'scale(0, 0)',
                             display: 'none'
                         })),
-                    ]),
+                    ])
+                ])
+            ]),
+            transition('* => *', [
+                query(':leave', [
+                    animate('100ms', style({
+                        transform: 'scale(0, 0)',
+                        display: 'none'
+                    })),
                 ])
             ])
         ]),
@@ -53,6 +61,12 @@ export class PinCodeComponent {
     @Output()
     public confirm: EventEmitter<string> = new EventEmitter();
 
+    @Input()
+    public altActionName?: string;
+
+    @Output()
+    public altAction: EventEmitter<void> = new EventEmitter();
+
     public digits: number[] = [];
     public visibleDigit = -1;
 
@@ -73,5 +87,9 @@ export class PinCodeComponent {
     public acceptCombination() {
         this.visibleDigit = -1;
         this.confirm.emit(this.digits.reduce((acc, curr) => acc + String(curr), ''));
+    }
+
+    public onAltAction() {
+        this.altAction.emit();
     }
 }

@@ -1,6 +1,6 @@
 <div class="flex-container">
     <h1>{{title}}</h1>
-    <div class="error">{{errorMessage}}</div>
+    <div class="error">&nbsp;{{errorMessage}}</div>
     <div class="screen">
         <div class="hidden-digit" *ngFor="let d of digits; index as i"[@digit]="visibleDigit === i ? 'visible' : 'invisible'">
             <div *ngIf="visibleDigit === i" class="digit">{{d}}</div>
@@ -26,5 +26,9 @@
                 </button>
             </div>
         </div>
+    </div>
+    <div class="actions-container">
+        <a *ngIf="altActionName" (click)="onAltAction()">{{ altActionName }}</a>
+        &nbsp;
     </div>
 </div>

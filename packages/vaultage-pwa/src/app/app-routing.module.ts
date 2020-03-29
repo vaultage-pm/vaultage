@@ -4,6 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { UnlockScreenComponent } from './lock/unlock-screen.component';
 import { CreatePasswordComponent } from './manager/entry/create-password.component';
 import { EditPasswordComponent } from './manager/entry/edit-password.component';
+import { VaultEntryResolver } from './manager/entry/vault-entry-resolver.service';
 import { ViewPasswordComponent } from './manager/entry/view-password.component';
 import { HomeComponent } from './manager/home.component';
 import { ManagerComponent } from './manager/manager.component';
@@ -37,12 +38,17 @@ const routes: Routes = [
         path: 'create',
         component: CreatePasswordComponent
     }, {
-        // TODO: Pre-validate route and redirect if entry does not exist
         path: 'view/:id',
-        component: ViewPasswordComponent
+        component: ViewPasswordComponent,
+        resolve: {
+            entry: VaultEntryResolver
+        }
     }, {
         path: 'edit/:id',
-        component: EditPasswordComponent
+        component: EditPasswordComponent,
+        resolve: {
+            entry: VaultEntryResolver
+        }
     }]
 }];
 

@@ -7,6 +7,12 @@ import { BusyStateService } from './busy-state.service';
             <mat-spinner></mat-spinner>
         </div>`,
     styles: [`
+        :host {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+        }
         .overlay {
             position: absolute;
             background-color: #00000044;

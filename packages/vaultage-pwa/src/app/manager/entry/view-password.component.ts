@@ -1,8 +1,10 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'src/app/auth.service';
 import { IToolbarActionConfig } from 'src/app/platform/toolbar/toolbar.component';
+import { IVaultDBEntry } from 'vaultage-client';
 
 import { PasswordEntry } from '../domain/PasswordEntry';
 
@@ -11,46 +13,51 @@ import { PasswordEntry } from '../domain/PasswordEntry';
     templateUrl: 'view-password.component.html',
     styleUrls: [ 'view-password.component.scss' ]
 })
-export class ViewPasswordComponent {
+export class ViewPasswordComponent implements OnInit {
 
     public entry: PasswordEntry;
 
-    private passwordVisible = false;
+    public passwordVisible = false;
 
     public toolbarAction: IToolbarActionConfig = {
         icon: 'edit',
         action: () => this.onEdit()
     };
 
-    private readonly entryId: string;
-
     constructor(
+            private readonly snackBar: MatSnackBar,
             readonly authService: AuthService,
             private readonly clipboard: Clipboard,
             private readonly route: ActivatedRoute,
             private readonly router: Router) {
-        this.entryId = route.snapshot.paramMap.get('id') ?? '';
-        this.entry = authService.getVault().getEntry(this.entryId); // TODO: Is this supposed to throw when entry doesn't exist?
+        this.entry = this.route.snapshot.data.entry;
     }
 
-    public get printablePassword() {
-        return this.passwordVisible ? this.entry.password : '••••••••';
+    public ngOnInit() {
+        this.route.data.subscribe((data: { entry?: IVaultDBEntry }) => {
+            if (data.entry == null) {
+                throw new Error('Router did not provide mandatory "entry" parameter');
+            }
+            this.entry = data.entry;
+        });
     }
 
     public onEdit() {
-        this.router.navigate(['../../edit', this.entryId], { relativeTo: this.route });
+        this.router.navigate(['../../edit', this.entry.id], { relativeTo: this.route });
     }
 
     public onExit() {
         history.back();
     }
 
-    public togglePasswordVisibility() {
+    public togglePasswordVisibility(event: MouseEvent) {
+        event.stopPropagation();
         this.passwordVisible = !this.passwordVisible;
     }
 
     public copyToClipboard() {
         this.clipboard.copy(this.entry.password);
+        this.snackBar.open('Password copied to clipboard');
     }
 }
 

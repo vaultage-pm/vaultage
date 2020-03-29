@@ -1,8 +1,10 @@
 import { animate, group, query, state, style, transition, trigger } from '@angular/animations';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IPasswordListEntry } from './password-list.component';
+
 import { AuthService } from '../auth.service';
+import { PinLockService } from '../pin-lock.service';
+import { IPasswordListEntry } from './password-list.component';
 
 @Component({
     selector: 'app-home',
@@ -20,10 +22,11 @@ import { AuthService } from '../auth.service';
                     query('.main-search-container', animate('200ms ease-out', style({
                         paddingTop: '0'
                     }))),
-                    query(':leave', animate('200ms ease-out', style({
-                        opacity: 0,
-                        padding: '0'
-                    }))),
+                    // Disabled because buggy in firefox
+                    // query(':leave', [animate('200ms ease-out', style({
+                    //     opacity: 0,
+                    //     padding: '0'
+                    // }))]),
                     query(':enter', [
                         style({ top: '-100%' }),
                         animate('200ms ease-out')
@@ -49,8 +52,6 @@ import { AuthService } from '../auth.service';
 })
 export class HomeComponent implements OnInit {
 
-    public items: IPasswordListEntry[] = [];
-
     private _searchValue: string = '';
 
     private _viewMode: HomeViewMode = 'initial';
@@ -63,6 +64,7 @@ export class HomeComponent implements OnInit {
     @ViewChild('search') searchElement?: ElementRef<HTMLInputElement>;
 
     constructor(
+            private readonly pinLockService: PinLockService,
             private readonly authService: AuthService,
             private readonly route: ActivatedRoute,
             private readonly router: Router) { }
@@ -76,13 +78,17 @@ export class HomeComponent implements OnInit {
                 this.searchElement?.nativeElement.blur();
             }
         });
-
-        this.initListItems();
     }
 
     public get listItems(): IPasswordListEntry[] {
-        // TODO: Create a search service
-        return this.items.filter(d => d.title.toLocaleLowerCase().indexOf(this.searchValue.toLocaleLowerCase()) >= 0);
+        const vault = this.authService.getVault();
+        return vault.findEntries(this.searchValue).map(e => ({
+            host: this.getHost(e.url),
+            id: e.id,
+            title: e.title,
+            user: e.login,
+            password: e.password
+        }));
     }
 
     public get viewMode() {
@@ -91,12 +97,6 @@ export class HomeComponent implements OnInit {
 
     public doFocusIn() {
         this.setViewMode('search');
-    }
-
-    public doFocusOut() {
-        // if (this.searchValue.trim().length === 0) {
-        //     this.setViewMode('initial');
-        // }
     }
 
     public clearInput() {
@@ -110,11 +110,8 @@ export class HomeComponent implements OnInit {
     }
 
     public logOut() {
+        this.pinLockService.reset();
         this.authService.logOut();
-    }
-
-    public lock() {
-        this.authService.lock();
     }
 
     public get searchValue(): string {
@@ -142,17 +139,6 @@ export class HomeComponent implements OnInit {
                 this.router.navigate(['/manager'], {queryParams: { q: this.searchValue }});
             }
         }
-    }
-
-    private initListItems() {
-        const vault = this.authService.getVault();
-        this.items = vault.getAllEntries().map(e => ({
-            host: this.getHost(e.url),
-            id: e.id,
-            title: e.title,
-            user: e.login,
-            password: e.password
-        }));
     }
 
     private getHost(url: string): string {

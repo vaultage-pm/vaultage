@@ -1,5 +1,5 @@
 import { animate, group, query, stagger, state, style, transition, trigger } from '@angular/animations';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { LoginConfig } from '../auth.service';
 import { LocalStorageService } from '../platform/local-storage.service';
@@ -78,7 +78,7 @@ type PageState = 'init' | 'login';
         ]),
     ]
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
 
     public pageState: PageState = 'init';
 
@@ -93,7 +93,7 @@ export class LoginComponent {
         private readonly storageService: LocalStorageService,
         private readonly setupService: SetupService) {}
 
-    ngOnInit() {
+    public ngOnInit() {
         const item = this.storageService.getStorage().getItem('creds');
         if (item != null) {
             // TODO: sanitize input

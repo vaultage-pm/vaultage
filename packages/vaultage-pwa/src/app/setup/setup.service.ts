@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 
 import { AuthService, LoginConfig } from '../auth.service';
+import { PinLockService } from '../pin-lock.service';
 import { BusyStateService } from '../platform/busy-state.service';
 import { ErrorHandlingService } from '../platform/error-handling.service';
-import { PinLockService } from '../platform/pin-lock.service';
 
 
 @Injectable()
@@ -31,8 +31,13 @@ export class SetupService {
         const credentials = await this.getCredentials();
         const pin = await this.promptPin();
 
-        this.pinService.setSecret(pin, JSON.stringify(credentials));
-        this.authService.logIn(credentials, pin);
+        this.busyService.setBusy(true);
+        try {
+            this.pinService.setSecret(pin, JSON.stringify(credentials));
+            await this.authService.logIn(credentials, pin);
+        } finally {
+            this.busyService.setBusy(false);
+        }
     }
 
     private async getCredentials(): Promise<LoginConfig> {

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { LocalStorageService } from './local-storage.service';
+import { LocalStorageService } from './platform/local-storage.service';
 
 const STORAGE_KEY = 'vaultage_locked';
 

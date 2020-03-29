@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 
 import { AuthService } from '../../auth.service';
 import { BusyStateService } from '../../platform/busy-state.service';
@@ -14,9 +13,7 @@ export class CreatePasswordComponent {
 
     constructor(
         private readonly busy: BusyStateService,
-        private readonly authService: AuthService,
-        private readonly route: ActivatedRoute,
-        private readonly router: Router) {
+        private readonly authService: AuthService) {
     }
 
     public onExit() {

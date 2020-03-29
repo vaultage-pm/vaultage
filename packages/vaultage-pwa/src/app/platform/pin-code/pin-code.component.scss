@@ -17,16 +17,27 @@ h1 {
     height: 50px;
 }
 
+.actions-container {
+    margin-bottom: 5vh;
+    width: 90%;
+    max-width: 600px;
+    color: #fafafa;
+
+    a {
+        cursor: pointer;
+    }
+}
+
 .keypad-container {
     max-width: 45vh;
     width: 100vw;
-    margin-bottom: 5vh;
     position: relative;
 
+    // Css hack to preserve the aspect ratio
     &:after {
         content: "";
         display: block;
-        padding-bottom: 100%;
+        padding-bottom: 120%;
     }
 }
 
@@ -44,19 +55,21 @@ h1 {
     width: 33%;
     text-align: center;
     position: relative;
-
+    
     button {
-        // position: absolute;
-        // top: calc(50% - 30px);
-        // left: calc(50% - 30px);
-        padding: 12px 0;
-        border-radius: 30px;
+        font-size: 36px;
+        font-weight: 400;
+        // Size the buttons based on vh because the keypad is sized based on vh
+        // so the whole thing keeps nice proportions at all screen sizes
+        width: 10vh;
+        height: 10vh;
+        border-radius: 6vh;
     }
 }
 
 .hidden-digit {
     display: inline-block;
-    font-size: 35px;
+    font-size: 40px;
     padding: 0 5px;
     width: 10px;
     position: relative;
