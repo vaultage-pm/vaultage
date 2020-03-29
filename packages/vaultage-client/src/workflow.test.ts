@@ -1,8 +1,8 @@
 import { anyString, instance, mock, when } from 'omnimock';
 
-import { CryptoService } from '../src/crypto/crypto-service';
-import { PasswordStrength } from '../src/interface';
-import { VaultDB } from '../src/vault/VaultDB';
+import { CryptoService } from './crypto/crypto-service';
+import { PasswordStrength } from './interface';
+import { VaultDB } from './vault/VaultDB';
 import { PasswordsService } from './passwords/passwords-service';
 import { VaultDBService } from './vault/vaultdb-service';
 

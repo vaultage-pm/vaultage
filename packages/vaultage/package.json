@@ -26,15 +26,16 @@
     },
     "dependencies": {
         "body-parser": "^1.19.0",
-        "class-transformer": "^0.2.3",
-        "class-validator": "^0.11.0",
         "commander": "^4.1.1",
         "cors": "^2.8.5",
         "express": "^4.17.1",
         "reflect-metadata": "^0.1.13",
-        "routing-controllers": "^0.8.0",
+        "runtypes": "4.2.0",
+        "rest-ts-express": "0.6.1",
         "tslib": "^1.11.1",
-        "typedi": "^0.8.0"
+        "tsyringe": "4.1.0",
+        "vaultage-client": "0.0.0",
+        "vaultage-protocol": "0.0.0"
     },
     "files": [
         "dist/src",
@@ -47,6 +48,7 @@
         "@types/puppeteer": "2.0.1",
         "cross-env": "7.0.2",
         "jest": "25.1.0",
+        "omnimock": "0.7.0",
         "puppeteer": "2.1.1",
         "supertest": "4.0.2",
         "ts-jest": "25.2.1",
@@ -66,8 +68,7 @@
             "json"
         ],
         "coveragePathIgnorePatterns": [
-            "/node_modules/",
-            "/test/"
+            "/node_modules/"
         ],
         "coverageThreshold": {
             "global": {

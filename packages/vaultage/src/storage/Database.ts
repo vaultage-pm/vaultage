@@ -4,15 +4,12 @@ export interface ICredentials {
     password: string;
 }
 
-/**
- * A class that returns a DataRepository on successful auth
- */
-export abstract class DatabaseWithAuth {
+export interface DatabaseWithAuth {
 
     /**
-     * Tries to authenticate a user and returns their Database on success.
+     * Authenticate a user and return his Database on success.
      */
-    public abstract auth(creds: ICredentials): Promise<IDatabase>;
+    auth(creds: ICredentials): Promise<IDatabase>;
 }
 
 /**

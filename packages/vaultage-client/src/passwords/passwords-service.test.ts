@@ -1,5 +1,5 @@
-import { PasswordStrength } from 'src/interface';
-import { PasswordsService } from 'src/passwords/passwords-service';
+import { PasswordStrength } from '../interface';
+import { PasswordsService } from '../passwords/passwords-service';
 import { IRandomness } from './randomness-generator';
 
 describe('PasswordsService', () => {

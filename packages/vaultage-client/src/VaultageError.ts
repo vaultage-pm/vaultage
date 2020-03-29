@@ -26,7 +26,14 @@ export enum ERROR_CODE {
     /**
      * The server is in demo mode and is refusing "push" operations.
      */
-    DEMO_MODE
+    DEMO_MODE,
+
+
+    /**
+     * The message did not match the expected protocol.
+     * The client and server may be running incompatible versions, or the server is not running vaultage at all.
+     */
+    PROTOCOL_ERROR,
 }
 
 /**
