@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { AuthService } from '../../auth.service';
 import { BusyStateService } from '../../platform/busy-state.service';
@@ -12,6 +13,7 @@ import { PasswordEntry, toVaultageEntry } from '../domain/PasswordEntry';
 export class CreatePasswordComponent {
 
     constructor(
+        private readonly snackBar: MatSnackBar,
         private readonly busy: BusyStateService,
         private readonly authService: AuthService) {
     }
@@ -22,7 +24,9 @@ export class CreatePasswordComponent {
 
     public onSave(entry: PasswordEntry) {
         this.busy.setBusy(true);
-        this.doSave(entry).finally(() => this.busy.setBusy(false));
+        this.doSave(entry)
+                .finally(() => this.busy.setBusy(false))
+                .catch(e => this.snackBar.open(e));
     }
 
     private async doSave(entry: PasswordEntry) {

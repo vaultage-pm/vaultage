@@ -1,6 +1,5 @@
 import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable } from '@angular/core';
-import { fromEvent } from 'rxjs';
 
 import { AuthService } from './auth.service';
 
@@ -17,13 +16,14 @@ export class AutoLogoutService {
     public init() {
         if (this.started) {
             console.warn('AutoLogoutService has already been initialized');
+            return;
         }
         this.started = true;
 
         /*
          *   Automatically log user out when navigating away from the app.
          */
-        fromEvent(this.document, 'visibilitychange').subscribe(c => {
+        this.document.addEventListener('visibilitychange', () => {
             if (this.document.hidden) {
                 this.authService.logOut();
             }

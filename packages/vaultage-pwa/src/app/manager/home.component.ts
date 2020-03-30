@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { AuthService } from '../auth.service';
 import { PinLockService } from '../pin-lock.service';
+import { ErrorHandlingService } from '../platform/error-handling.service';
 import { IPasswordListEntry } from './password-list.component';
 
 @Component({
@@ -64,6 +65,7 @@ export class HomeComponent implements OnInit {
     @ViewChild('search') searchElement?: ElementRef<HTMLInputElement>;
 
     constructor(
+            private readonly errorHandlingService: ErrorHandlingService,
             private readonly pinLockService: PinLockService,
             private readonly authService: AuthService,
             private readonly route: ActivatedRoute,
@@ -120,7 +122,8 @@ export class HomeComponent implements OnInit {
 
     public set searchValue(v: string) {
         if (this.viewMode === 'search' && v !== this.searchValue) {
-            this.router.navigate(['/manager'], { replaceUrl: true, queryParams: { q: v } });
+            this.router.navigate(['/manager'], { replaceUrl: true, queryParams: { q: v } })
+                    .catch(err => this.errorHandlingService.onError(err));
         }
     }
 
@@ -132,11 +135,13 @@ export class HomeComponent implements OnInit {
                 if (this.hasVisitedInitState) {
                     history.back();
                 } else {
-                    this.router.navigate(['/manager'], { replaceUrl: true });
+                    this.router.navigate(['/manager'], { replaceUrl: true })
+                            .catch(err => this.errorHandlingService.onError(err));
                 }
             } else {
                 this.hasVisitedInitState = true;
-                this.router.navigate(['/manager'], {queryParams: { q: this.searchValue }});
+                this.router.navigate(['/manager'], {queryParams: { q: this.searchValue }})
+                        .catch(err => this.errorHandlingService.onError(err));
             }
         }
     }

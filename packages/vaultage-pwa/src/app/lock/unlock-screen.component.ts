@@ -52,7 +52,6 @@ export class UnlockScreenComponent {
         const data = this.pinLockService.getSecret(pin);
         if (data == null) {
             throw new Error('Invalid pin');
-            return;
         }
 
         const nextURL = this.route.snapshot.queryParamMap.get('next') ?? undefined;

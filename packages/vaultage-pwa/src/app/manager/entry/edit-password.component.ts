@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { BusyStateService } from 'src/app/platform/busy-state.service';
 import { IVaultDBEntry } from 'vaultage-client';
 
 import { AuthService } from '../../auth.service';
+import { BusyStateService } from '../../platform/busy-state.service';
 import { PasswordEntry, toVaultageEntry } from '../domain/PasswordEntry';
 
 @Component({

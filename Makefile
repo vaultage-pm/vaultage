@@ -31,6 +31,7 @@ test: build
 	$(MAKE) -C packages/vaultage-client test
 	$(MAKE) -C packages/vaultage-ui-webcli test
 	$(MAKE) -C packages/vaultage test
+	$(MAKE) -C packages/vaultage-pwa test
 
 integration-test:
 	./tools/integration-test.sh

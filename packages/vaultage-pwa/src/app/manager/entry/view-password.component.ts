@@ -2,10 +2,11 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from 'src/app/auth.service';
-import { IToolbarActionConfig } from 'src/app/platform/toolbar/toolbar.component';
 import { IVaultDBEntry } from 'vaultage-client';
 
+import { AuthService } from '../../auth.service';
+import { ErrorHandlingService } from '../../platform/error-handling.service';
+import { IToolbarActionConfig } from '../../platform/toolbar/toolbar.component';
 import { PasswordEntry } from '../domain/PasswordEntry';
 
 @Component({
@@ -29,6 +30,7 @@ export class ViewPasswordComponent implements OnInit {
             readonly authService: AuthService,
             private readonly clipboard: Clipboard,
             private readonly route: ActivatedRoute,
+            private readonly errorHandlingService: ErrorHandlingService,
             private readonly router: Router) {
         this.entry = this.route.snapshot.data.entry;
     }
@@ -43,7 +45,8 @@ export class ViewPasswordComponent implements OnInit {
     }
 
     public onEdit() {
-        this.router.navigate(['../../edit', this.entry.id], { relativeTo: this.route });
+        this.router.navigate(['../../edit', this.entry.id], { relativeTo: this.route })
+                .catch(err => this.errorHandlingService.onError(err));
     }
 
     public onExit() {

@@ -14,7 +14,7 @@
         </mat-form-field>
         <mat-form-field appearance="standard" class="reveal-field">
             <mat-label>Host</mat-label>
-            <input [(ngModel)]="url" matInput placeholder="https://your-vaultage-host">
+            <input [(ngModel)]="url" matInput placeholder="https://your-vaultage-host" autocorrect="off" autocapitalize="none">
         </mat-form-field>
         <mat-divider class="reveal-field"></mat-divider>
         <mat-checkbox class="basic-toggle reveal-field" [(ngModel)]="useBasic">Basic auth</mat-checkbox>

@@ -2,6 +2,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, Input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ErrorHandlingService } from '../platform/error-handling.service';
 
 @Component({
     selector: 'app-password-list',
@@ -14,13 +15,18 @@ export class PasswordListComponent {
     public items: IPasswordListEntry[] = [];
 
     constructor(
+        private readonly errorHandlingService: ErrorHandlingService,
         private readonly snackBar: MatSnackBar,
         private readonly clipboard: Clipboard,
         private readonly route: ActivatedRoute,
         private readonly router: Router) { }
 
     public onItemClick(itemId: string) {
-        this.router.navigate(['view/', itemId], { relativeTo: this.route });
+        this.router.navigate(['view/', itemId], { relativeTo: this.route })
+                .catch(err => {
+                    this.snackBar.open('Failed to open item');
+                    this.errorHandlingService.onError(err);
+                });
     }
 
     public usePassword(password: string) {

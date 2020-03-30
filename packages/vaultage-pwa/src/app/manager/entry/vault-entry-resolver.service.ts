@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot } from '@angular/router';
-import { AuthService } from 'src/app/auth.service';
 import { IVaultDBEntry } from 'vaultage-client';
+
+import { AuthService } from '../../auth.service';
 
 
 @Injectable()

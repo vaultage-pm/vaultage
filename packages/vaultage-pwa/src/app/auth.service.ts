@@ -39,7 +39,7 @@ export class AuthService {
         this.vaultSubject.next(await this.doLogin(data));
         this.pinLockService.setSecret(pin, JSON.stringify(data));
 
-        this.router.navigateByUrl(nextURL ?? '/manager', { replaceUrl: true });
+        await this.router.navigateByUrl(nextURL ?? '/manager', { replaceUrl: true });
     }
 
     /**

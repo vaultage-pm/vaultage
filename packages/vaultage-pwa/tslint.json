@@ -1,5 +1,5 @@
 {
-  "extends": "tslint:recommended",
+  "extends": ["../../tslint.json"],
   "rules": {
     "array-type": false,
     "arrow-parens": false,
@@ -67,7 +67,6 @@
       "as-needed"
     ],
     "object-literal-sort-keys": false,
-    "ordered-imports": [true],
     "quotemark": [
       true,
       "single"

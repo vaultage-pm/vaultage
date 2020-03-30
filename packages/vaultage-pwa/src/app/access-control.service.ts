@@ -1,9 +1,9 @@
-import { DOCUMENT } from '@angular/common';
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AuthService } from './auth.service';
 import { PinLockService } from './pin-lock.service';
+import { ErrorHandlingService } from './platform/error-handling.service';
 
 
 @Injectable()
@@ -12,10 +12,12 @@ export class AccessControlService {
     constructor(
             private readonly router: Router,
             private readonly pinLockService: PinLockService,
+            private readonly errorHandlingService: ErrorHandlingService,
             private readonly authService: AuthService) {
         this.authService.authStatusChange$.subscribe(authenticated => {
             if (authenticated === false) {
-                this.redirectOnAuthChange(this.router.routerState.snapshot.url);
+                this.redirectOnAuthChange(this.router.routerState.snapshot.url)
+                        .catch(e => this.errorHandlingService.onError(e));
             }
         });
     }
@@ -34,7 +36,8 @@ export class AccessControlService {
     public requestAccess(zone: AccessZone, currentUrl: string): boolean {
         const canAccess = this.canAccess(zone);
         if (!canAccess) {
-            this.redirectOnAuthChange(currentUrl);
+            this.redirectOnAuthChange(currentUrl)
+                    .catch(e => this.errorHandlingService.onError(e));
         }
         return canAccess;
     }

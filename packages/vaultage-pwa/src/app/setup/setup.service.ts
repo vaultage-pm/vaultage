@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 
 import { AuthService, LoginConfig } from '../auth.service';
 import { PinLockService } from '../pin-lock.service';
@@ -19,6 +20,7 @@ export class SetupService {
     private pinNotifier?: (pin: string) => void;
 
     constructor(
+            private readonly router: Router,
             private readonly snackBar: MatSnackBar,
             private readonly authService: AuthService,
             private readonly pinService: PinLockService,
@@ -29,7 +31,15 @@ export class SetupService {
         return this._step;
     }
 
-    public async doLogin() {
+    public doLogin() {
+        this._doLogin()
+            .catch(err => {
+                this.errorHandler.onError(err);
+                this.router.navigate(['/manager']).catch(err2 => this.errorHandler.onError(err2));
+            });
+    }
+
+    private async _doLogin() {
         const credentials = await this.getCredentials();
         const pin = await this.promptPin();
 
