@@ -1,10 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import vaultage, { Vault } from 'vaultage-client';
-
+import { Vault, Vaultage } from 'vaultage-client';
 import { PinLockService } from './pin-lock.service';
+import { VAULTAGE } from './platform/providers';
+
 
 /**
  * Manages application access rights.
@@ -17,7 +18,8 @@ export class AuthService {
 
     constructor(
             private readonly pinLockService: PinLockService,
-            private readonly router: Router) {
+            private readonly router: Router,
+            @Inject(VAULTAGE) private readonly vaultage: Vaultage) {
     }
 
     public get isAuthenticated(): boolean {
@@ -62,7 +64,7 @@ export class AuthService {
     }
 
     private doLogin(config: LoginConfig): Promise<Vault> {
-        return vaultage.login(config.url, config.username, config.password, {
+        return this.vaultage.login(config.url, config.username, config.password, {
             auth: config.basic
         });
     }

@@ -6,6 +6,7 @@ import { AuthService } from '../auth.service';
 import { PinLockService } from '../pin-lock.service';
 import { BusyStateService } from '../platform/busy-state.service';
 import { ErrorHandlingService } from '../platform/error-handling.service';
+import { RedirectService } from '../redirect.service';
 
 @Component({
     selector: 'app-unlock-screen',
@@ -26,6 +27,7 @@ export class UnlockScreenComponent {
             private readonly busy: BusyStateService,
             private readonly pinLockService: PinLockService,
             private readonly errorHandlingService: ErrorHandlingService,
+            private readonly redirectService: RedirectService,
             private readonly authService: AuthService) { }
 
     public onSubmit(pin: string) {
@@ -40,14 +42,12 @@ export class UnlockScreenComponent {
 
     public onLogOut() {
         this.pinLockService.reset();
-        this.accessControlService.redirectOnAuthChange(this.route.snapshot.url.join('/'))
-            .catch(e => this.errorHandlingService.onError(e));
+        this.redirectService.redirectToAuthZone(this.route.snapshot.url.join('/'));
     }
 
     private async _unlock(pin: string) {
         if (!this.pinLockService.hasSecret) {
-            this.accessControlService.redirectOnAuthChange(this.route.snapshot.url.join('/'))
-                .catch(e => this.errorHandlingService.onError(e));
+            this.redirectService.redirectToAuthZone(this.route.snapshot.url.join('/'));
         }
         const data = this.pinLockService.getSecret(pin);
         if (data == null) {

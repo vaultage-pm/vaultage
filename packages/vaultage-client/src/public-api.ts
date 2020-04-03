@@ -17,4 +17,7 @@ const vaultage = container.resolve(MainService);
 export default vaultage;
 
 // @public
+export type Vaultage = typeof vaultage;
+
+// @public
 export const passwords = container.resolve(PasswordsService);

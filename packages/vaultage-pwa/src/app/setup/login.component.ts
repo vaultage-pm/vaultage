@@ -1,8 +1,7 @@
 import { animate, group, query, stagger, state, style, transition, trigger } from '@angular/animations';
-import { Component, OnInit } from '@angular/core';
-
+import { Component, Inject, OnInit } from '@angular/core';
 import { LoginConfig } from '../auth.service';
-import { LocalStorageService } from '../platform/local-storage.service';
+import { LOCAL_STORAGE } from '../platform/providers';
 import { SetupService } from './setup.service';
 
 type PageState = 'init' | 'login';
@@ -90,11 +89,11 @@ export class LoginComponent implements OnInit {
     public basicPassword: string = '';
 
     constructor(
-        private readonly storageService: LocalStorageService,
+        @Inject(LOCAL_STORAGE) private readonly ls: Storage,
         private readonly setupService: SetupService) {}
 
     public ngOnInit() {
-        const item = this.storageService.getStorage().getItem('creds');
+        const item = this.ls.getItem('creds');
         if (item != null) {
             // TODO: sanitize input
             const parsed = JSON.parse(item);
@@ -109,7 +108,7 @@ export class LoginComponent implements OnInit {
 
     public onLogin() {
         const creds = this.makeLoginConfig();
-        this.storageService.getStorage().setItem('creds', JSON.stringify({ url: this.url, username: this.username }));
+        this.ls.setItem('creds', JSON.stringify({ url: this.url, username: this.username }));
         this.setupService.notifyCredentials(creds);
     }
 

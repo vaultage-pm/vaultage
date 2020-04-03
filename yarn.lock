@@ -6638,6 +6638,11 @@ omnimock@0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/omnimock/-/omnimock-0.7.0.tgz#fbfd2685d6c591111dccd33c731ae87ab5a37a31"
 
+omnimock@0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/omnimock/-/omnimock-0.8.0.tgz#1b0bd9bf46329a3dc6bf9cfc436b546bfbd0ada8"
+  integrity sha512-Syt2GNGAEXo9BJGuVp8/Z+PrBi1v7iQ7HNuKXxmBMdm9745xJtlccRa+knOdn5LJ0f32or4WJc0EaQwibtlHNw==
+
 on-finished@~2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/on-finished/-/on-finished-2.3.0.tgz#20f1336481b083cd75337992a16971aa2d906947"

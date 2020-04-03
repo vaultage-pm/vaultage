@@ -1,4 +1,4 @@
-import { InjectionToken } from '@angular/core';
+import { Inject, InjectionToken, Optional, Self, SkipSelf, ɵReflectionCapabilities as ReflectionCapabilities } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { instance, Mock, mock, verify } from 'omnimock';
 import { ConstructorType } from 'omnimock/dist/base-types';
@@ -8,76 +8,74 @@ import { ConstructorType } from 'omnimock/dist/base-types';
  * in angular with omnimock.
  */
 
+const _globalMocks: Map<ConstructorType<any> | InjectionToken<any>, Mock<any>> = new Map();
 
-const allMocks: Array<Mock<unknown>> = [];
-const allProviders: Array<any> = [];
+afterEach(() => {
+    const mocksToFlush = new Map(_globalMocks);
+    _globalMocks.clear();
+    for (const entry of mocksToFlush.values()) {
+        verify(entry);
+    }
+});
 
-export function mockService<T>(ctr: ConstructorType<T> | InjectionToken<T>, name?: string): Mock<T> {
-    const m = mock<T>(name ? name : ctr as any);
-    allMocks.push(m);
-    allProviders.push({ provide: ctr, useFactory: () => instance(m) });
+function createMockForToken<T>(token: ConstructorType<T> | InjectionToken<T>, type: ConstructorType<T> | string): Mock<T> {
+    const m = typeof type === 'string' ? mock<T>(type) : mock(type);
+    _globalMocks.set(token, m);
     return m;
 }
 
-export function createService<T extends ConstructorType<any>>(ctr: T): InstanceType<T> {
+export function getMock<T>(token: ConstructorType<T> | InjectionToken<T>): Mock<T> {
+    const m = _globalMocks.get(token);
+    if (m == null) {
+        return createMockForToken(token, token instanceof InjectionToken ? token.toString() : token);
+    }
+    return m as Mock<T>;
+}
+
+export function getService<T>(srv: ConstructorType<T>): T {
+    const ref = new ReflectionCapabilities();
+    const params = ref.parameters(srv);
+
+    for (const annotations of params) {
+        if (annotations == null) {
+            // tslint:disable-next-line: max-line-length
+            throw new Error(`Cannot find dependency injection data for service ${getMockName(srv)}. Make sure it is annotated with @Injectable().`);
+        }
+        const meta: any = {};
+        for (const annotation of annotations) {
+            if (annotation instanceof Optional || annotation === Optional) {
+                // skip
+            } else if (annotation instanceof SkipSelf || annotation === SkipSelf) {
+                // skip
+            } else if (annotation instanceof Self || annotation === Self) {
+                // skip
+            } else if (annotation instanceof Inject) {
+                meta.token = annotation.token;
+            } else {
+                meta.type = annotation;
+            }
+        }
+        const m = mock(meta.type || String(meta.token));
+        const p = meta.token || meta.type;
+        if (_globalMocks.has(p)) {
+            // This token is already mocked. Skip it.
+            continue;
+        }
+        _globalMocks.set(p, m);
+    }
+
+    const providers: any[] = [ srv ];
+    for (const [provide, m] of _globalMocks.entries()) {
+        providers.push({ provide, useFactory: () => instance(m) });
+    }
+
     TestBed.configureTestingModule({
-        providers: [ctr, ...allProviders]
+        providers
     });
 
-    return TestBed.inject(ctr);
+    return TestBed.inject(srv);
 }
 
-type EmptyConstructor<T> = new () => T;
-
-export function TestClass() {
-    return (ctr: EmptyConstructor<any>) => {
-        describe(ctr.name.replace(/Test$/, ''), () => {
-            let inst: InstanceType<typeof ctr>;
-            beforeEach(() => {
-                inst = new ctr();
-            });
-
-            afterEach(() => {
-                allMocks.forEach(m => verify(m));
-                allMocks.length = 0;
-                allProviders.length = 0;
-            });
-
-            const proto = Object.getOwnPropertyDescriptors(ctr.prototype);
-            for (const desc of (Object.keys(proto) as Array<keyof typeof proto>)) {
-                if (typeof desc !== 'string') {
-                    continue;
-                }
-                const whiteListMethods = { beforeEach, afterEach, beforeAll, afterAll };
-                if (/^test.+/.test(desc)) {
-                    console.log(desc);
-
-                    it(transformTestName(desc), () => {
-                        inst[desc]();
-                    });
-                } else if (desc in whiteListMethods) {
-                    whiteListMethods[desc as keyof typeof whiteListMethods](() => {
-                        inst[desc]();
-                    });
-                }
-            }
-        });
-    };
-}
-
-function transformTestName(name: string): string {
-    let ret = '';
-    for (let i = 4 ; i < name.length ; i++) {
-        const c = name.charAt(i);
-        if (isUpperCase(c)) {
-            ret += ' ' + c.toLocaleLowerCase();
-        } else {
-            ret += c;
-        }
-    }
-    return ret.trim();
-}
-
-function isUpperCase(c: string) {
-    return c.toUpperCase() === c;
+function getMockName(p: unknown) {
+    return typeof p === 'function' && 'name' in p ? p.name : p;
 }

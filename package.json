@@ -29,9 +29,10 @@
     "typescript": "~3.7.5"
   },
   "dependencies": {},
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [ "packages/*" ],
+    "nohoist": [ "**/@types/jasmine" ]
+  },
   "jest": {
     "transform": {
         ".(ts|tsx)": "ts-jest"

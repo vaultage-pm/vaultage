@@ -1,43 +1,35 @@
-import { Injectable } from '@angular/core';
-import { LocalStorageService } from './platform/local-storage.service';
+import { Inject, Injectable } from '@angular/core';
+import { LOCAL_STORAGE } from './platform/providers';
 
 const STORAGE_KEY = 'vaultage_locked';
 
 @Injectable()
 export class PinLockService {
 
-    // TODO: Encrypt with pin and persist
-    private get secret(): string | undefined {
-        return this.getStorage()?.data;
-    }
-
-    private get pin(): string | undefined {
-        return this.getStorage()?.pin;
-    }
-
-    constructor(private readonly ls: LocalStorageService) {
+    constructor(@Inject(LOCAL_STORAGE) private readonly ls: Storage) {
     }
 
     public get hasSecret(): boolean {
-        return this.pin != null;
+        return this.getStorage() != null;
     }
 
     public setSecret(pin: string, data: string): void {
-        this.ls.getStorage().setItem(STORAGE_KEY, JSON.stringify({pin, data}));
+        this.ls.setItem(STORAGE_KEY, JSON.stringify({pin, data}));
     }
 
-    public getSecret(pin: string): string | undefined {
-        if (this.pin != null && pin === this.pin) {
-            return this.secret;
+    public getSecret(userPin: string): string | undefined {
+        const storage = this.getStorage();
+        if (storage != null && storage.pin === userPin) {
+            return storage.data;
         }
     }
 
     public reset(): void {
-        this.ls.getStorage().removeItem(STORAGE_KEY);
+        this.ls.removeItem(STORAGE_KEY);
     }
 
     private getStorage(): PinStorage | undefined {
-        const data = this.ls.getStorage().getItem(STORAGE_KEY);
+        const data = this.ls.getItem(STORAGE_KEY);
         if (data === null) {
             return undefined;
         }

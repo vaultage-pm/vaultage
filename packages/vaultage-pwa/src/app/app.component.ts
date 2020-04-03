@@ -1,7 +1,6 @@
-import { animate, animateChild, group, query, style, transition, trigger } from '@angular/animations';
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { AutoLogoutService } from './auto-logout.service';
+import { AutoRedirectService } from './auto-redirect.service';
 
 @Component({
     selector: 'app-root',
@@ -11,9 +10,12 @@ import { AutoLogoutService } from './auto-logout.service';
 export class AppComponent implements OnInit {
     title = 'vaultage-pwa';
 
-    constructor(private readonly autoLogoutService: AutoLogoutService) { }
+    constructor(
+            private readonly autoLogoutService: AutoLogoutService,
+            private readonly autoRedirectService: AutoRedirectService) { }
 
     public ngOnInit() {
         this.autoLogoutService.init();
+        this.autoRedirectService.init();
     }
 }

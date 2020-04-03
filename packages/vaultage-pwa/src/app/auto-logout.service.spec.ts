@@ -1,45 +1,45 @@
 import { DOCUMENT } from '@angular/common';
-import { anyFunction, anyString, reset, verify, when } from 'omnimock';
-
+import { anyFunction, anyString, Mock, reset, verify, when } from 'omnimock';
 import { AuthService } from './auth.service';
 import { AutoLogoutService } from './auto-logout.service';
-import { createService, mockService, TestClass } from './test/angular-omnimock';
+import { getMock, getService } from './test/angular-omnimock';
 
+describe('AutoLogoutService', () => {
 
-@TestClass()
-export class AutoLogoutServiceTest {
+    let mockDocument: Mock<Document>;
+    let service: AutoLogoutService;
 
-    private readonly mockDocument = mockService(DOCUMENT, 'Document');
-    private readonly mockAuthService = mockService(AuthService);
-    private readonly service = createService(AutoLogoutService);
+    let callback: () => void;
 
-    private callback!: () => void;
+    beforeEach(() => {
+        mockDocument = getMock(DOCUMENT);
+        service = getService(AutoLogoutService);
 
-    beforeEach() {
-        when(this.mockDocument.addEventListener(anyString(), anyFunction())).call((evt, cb) => {
+        when(mockDocument.addEventListener(anyString(), anyFunction())).call((evt, cb) => {
             expect(evt).toBe('visibilitychange');
             expect(typeof cb).toBe('function');
-            this.callback = cb as () => void;
+            callback = cb as () => void;
         }).once();
-        this.service.init();
-        verify(this.mockDocument);
-        expect(this.callback).not.toBeUndefined();
-    }
+        service.init();
+        verify(mockDocument);
+        expect(callback).not.toBeUndefined();
+    });
 
-    public testLogsOutOnHidden() {
-        when(this.mockDocument.hidden).useValue(true);
-        when(this.mockAuthService.logOut()).return(undefined).once();
-        this.callback();
-    }
+    it('logs out on hidden', () => {
+        const mockAuthService = getMock(AuthService);
+        when(mockDocument.hidden).useValue(true);
+        when(mockAuthService.logOut()).return(undefined).once();
+        callback();
+    });
 
-    public testIgnoresWhenNotHidden() {
-        when(this.mockDocument.hidden).useValue(false);
-        when(this.mockAuthService.logOut()).return(undefined).never();
-        this.callback();
-    }
+    it('ignores when not hidden', () => {
+        when(mockDocument.hidden).useValue(false);
+        when(getMock(AuthService).logOut()).return(undefined).never();
+        callback();
+    });
 
-    public testDoesntReSubscribe() {
-        reset(this.mockDocument);
-        this.service.init();
-    }
-}
+    it('does not re-subscribe', () => {
+        reset(mockDocument);
+        service.init();
+    });
+});
