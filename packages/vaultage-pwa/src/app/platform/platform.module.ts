@@ -9,7 +9,7 @@ import { BusyStateComponent } from './busy-state.component';
 import { BusyStateService } from './busy-state.service';
 import { ErrorHandlingService } from './error-handling.service';
 import { PinCodeComponent } from './pin-code/pin-code.component';
-import { LOCAL_STORAGE, VAULTAGE } from './providers';
+import { LOCAL_STORAGE, VAULTAGE, WINDOW } from './providers';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
 
@@ -36,6 +36,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
         ErrorHandlingService,
         { provide: LOCAL_STORAGE, useValue: localStorage },
         { provide: VAULTAGE, useValue: vaultage },
+        { provide: WINDOW, useValue: window },
     ],
 })
 export class PlatformModule { }

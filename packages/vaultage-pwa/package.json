@@ -22,9 +22,9 @@
     "@angular/platform-browser-dynamic": "~9.0.7",
     "@angular/router": "~9.0.7",
     "@angular/service-worker": "~9.0.7",
-    "vaultage-client": "0.0.0",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
+    "vaultage-client": "0.0.0",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {
@@ -32,8 +32,8 @@
     "@angular/cli": "~9.0.7",
     "@angular/compiler-cli": "~9.0.7",
     "@angular/language-service": "~9.0.7",
-    "@types/node": "^12.11.1",
     "@types/jasmine": "2.8.7",
+    "@types/node": "^12.11.1",
     "codelyzer": "^5.1.2",
     "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~4.2.1",
@@ -44,6 +44,7 @@
     "karma-jasmine-html-reporter": "^1.4.2",
     "omnimock": "0.8.0",
     "protractor": "~5.4.3",
+    "shallow-render": "9.0.0",
     "ts-node": "~8.3.0",
     "tslint": "~5.18.0",
     "typescript": "~3.7.5"

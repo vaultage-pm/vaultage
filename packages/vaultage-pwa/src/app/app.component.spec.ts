@@ -1,36 +1,19 @@
-import { async, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { when } from 'omnimock';
 
 import { AppComponent } from './app.component';
+import { AppModule } from './app.module';
+import { AutoLogoutService } from './auto-logout.service';
+import { AutoRedirectService } from './auto-redirect.service';
+import { getMock, renderComponent } from './test/angular-omnimock';
 
-xdescribe('AppComponent', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        RouterTestingModule
-      ],
-      declarations: [
-        AppComponent
-      ],
-    }).compileComponents();
-  });
+describe('AppComponent', () => {
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
+    it('should initialize automation services', async () => {
+        when(getMock(AutoLogoutService).init()).return().once();
+        when(getMock(AutoRedirectService).init()).return().once();
 
-  it(`should have as title 'vaultage-pwa'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('vaultage-pwa');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('.content span').textContent).toContain('vaultage-pwa app is running!');
-  });
+        const { element } = await renderComponent(AppComponent, AppModule);
+        const app = element.componentInstance as AppComponent;
+        expect(app).toBeTruthy();
+    });
 });

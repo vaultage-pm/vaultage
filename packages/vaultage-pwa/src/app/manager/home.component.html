@@ -5,9 +5,9 @@
             <mat-icon aria-hidden="false" aria-label="back" inline (click)="exitSearchMode()">arrow_back</mat-icon>
         </div>
         <div class="main-search-pill" [class.active]="viewMode === 'search'">
-            <input #search matInput placeholder="Search passwords" (focusin)="doFocusIn()" [(ngModel)]="searchValue">
+            <input test-id="search-input" #search matInput placeholder="Search passwords" (focusin)="doFocusIn()" [(ngModel)]="searchValue">
             <mat-icon *ngIf="viewMode !== 'search'" class="affix" aria-hidden="false" aria-label="Search" inline>search</mat-icon>
-            <mat-icon *ngIf="viewMode === 'search'" class="affix interactive" aria-hidden="false" aria-label="Clear" inline (click)="clearInput()">clear</mat-icon>
+            <mat-icon test-id="clear-search-action" *ngIf="viewMode === 'search'" class="affix interactive" aria-hidden="false" aria-label="Clear" inline (click)="clearInput()">clear</mat-icon>
         </div>
     </div>
 

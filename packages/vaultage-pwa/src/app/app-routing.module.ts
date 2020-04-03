@@ -13,7 +13,6 @@ import { LockScreenGuard } from './routing/lock-screen.guard';
 import { UnauthGuard } from './routing/unauth.guard';
 import { SetupComponent } from './setup/setup.component';
 
-
 const routes: Routes = [
 {
     path: '',

@@ -6354,6 +6354,11 @@ neo-async@^2.5.0, neo-async@^2.6.1:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.1.tgz#ac27ada66167fa8849a6addd837f6b189ad2081c"
 
+ng-mocks@^9.0.0:
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/ng-mocks/-/ng-mocks-9.2.0.tgz#693fda98b8b6c59a92d95cb72422ddaf22f7e46d"
+  integrity sha512-k2/FoYDW2Izjsl7LKz3L9obfJUvLb7dG5B5p7Bgtqt6mM76lJ8wpPxC5GuINdoI6wGbDfcF+va5kE3clLlSVpA==
+
 nice-try@^1.0.4:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/nice-try/-/nice-try-1.0.5.tgz#a3378a7696ce7d223e88fc9b764bd7ef1089e366"
@@ -8249,6 +8254,13 @@ shallow-clone@^3.0.0:
   integrity sha512-/6KqX+GVUdqPuPPd2LxDDxzX6CAbjJehAAOKlNpqqUpAqPM6HeL8f+o3a+JsyGjn2lv0WY8UsTgUJjU9Ok55NA==
   dependencies:
     kind-of "^6.0.2"
+
+shallow-render@9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/shallow-render/-/shallow-render-9.0.0.tgz#0501d4b47f29f67de5290360da0c628217459c9b"
+  integrity sha512-CRnG51wJZgYO50pwGtV1AJxyyPcIyfOrwshHlxHMbfdqjnTWqyMmr1/n6LNlU8zsPIBAi1Euc9mN5fN1YWW2Cw==
+  dependencies:
+    ng-mocks "^9.0.0"
 
 shebang-command@^1.2.0:
   version "1.2.0"

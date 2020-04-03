@@ -1,10 +1,11 @@
 import { animate, group, query, state, style, transition, trigger } from '@angular/animations';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { AuthService } from '../auth.service';
 import { PinLockService } from '../pin-lock.service';
 import { ErrorHandlingService } from '../platform/error-handling.service';
+import { WINDOW } from '../platform/providers';
 import { IPasswordListEntry } from './password-list.component';
 
 @Component({
@@ -65,6 +66,7 @@ export class HomeComponent implements OnInit {
     @ViewChild('search') searchElement?: ElementRef<HTMLInputElement>;
 
     constructor(
+            @Inject(WINDOW) private readonly window: Window,
             private readonly errorHandlingService: ErrorHandlingService,
             private readonly pinLockService: PinLockService,
             private readonly authService: AuthService,
@@ -128,12 +130,12 @@ export class HomeComponent implements OnInit {
     }
 
     private setViewMode(mode: HomeViewMode) {
-        // Navigate such that the back button action makes sense
+        // Navigate in a way which makes sense of the back button
         if (mode !== this._viewMode) {
             this._viewMode = mode;
             if (mode === 'initial') {
                 if (this.hasVisitedInitState) {
-                    history.back();
+                    this.window.history.back();
                 } else {
                     this.router.navigate(['/manager'], { replaceUrl: true })
                             .catch(err => this.errorHandlingService.onError(err));

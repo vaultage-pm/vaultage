@@ -20,6 +20,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthService } from './auth.service';
 import { AutoLogoutService } from './auto-logout.service';
+import { AutoRedirectService } from './auto-redirect.service';
 import { UnlockScreenComponent } from './lock/unlock-screen.component';
 import { CreatePasswordComponent } from './manager/entry/create-password.component';
 import { EditPasswordComponent } from './manager/entry/edit-password.component';
@@ -38,6 +39,7 @@ import { LoginComponent } from './setup/login.component';
 import { PinSetupComponent } from './setup/pin-setup.component';
 import { SetupComponent } from './setup/setup.component';
 import { SetupService } from './setup/setup.service';
+import { RedirectService } from './redirect.service';
 
 @NgModule({
     declarations: [
@@ -75,11 +77,13 @@ import { SetupService } from './setup/setup.service';
     providers: [
         {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 2500}},
         AutoLogoutService,
+        AutoRedirectService,
         AccessControlService,
         AuthGuard,
         AuthService,
         LockScreenGuard,
         PinLockService,
+        RedirectService,
         SetupService,
         UnauthGuard,
         VaultEntryResolver,
