@@ -6,7 +6,7 @@ import { AutoLogoutService } from './auto-logout.service';
 import { AutoRedirectService } from './auto-redirect.service';
 import { getMock, renderComponent } from './test/angular-omnimock';
 
-describe('AppComponent', () => {
+fdescribe('AppComponent', () => {
 
     it('should initialize automation services', async () => {
         when(getMock(AutoLogoutService).init()).return().once();
