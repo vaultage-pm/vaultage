@@ -2,13 +2,14 @@ import {
     Inject,
     InjectionToken,
     ModuleWithProviders,
+    OnDestroy,
     Optional,
     Self,
     SkipSelf,
     Type,
     ɵReflectionCapabilities as ReflectionCapabilities,
 } from '@angular/core';
-import { TestBed, ComponentFixtureAutoDetect } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { instance, Mock, mock, verify } from 'omnimock';
 import { Shallow } from 'shallow-render';
@@ -29,8 +30,17 @@ afterEach(() => {
     }
 });
 
-function createMockForToken<T>(token: Type<T> | InjectionToken<T>, type: Type<T> | string): Mock<T> {
-    const m = typeof type === 'string' ? mock<T>(type) : mock(type);
+function createBacking<T>(overrides: Partial<T>): Partial<T> {
+    return {
+        ngOnDestroy: () => undefined,
+        ngOnInit: () => undefined,
+        ...overrides
+    };
+}
+
+function createMockForToken<T>(token: Type<T> | InjectionToken<T>, type: Type<T> | string, backing: Partial<T> = {}): Mock<T> {
+    (backing as unknown as OnDestroy)['ngOnDestroy'] = () => undefined;
+    const m = typeof type === 'string' ? mock<T>(type as any, backing) : mock(type, backing);
     _globalMocks.set(token, m);
     return m;
 }
@@ -66,7 +76,14 @@ function createMocks(target: Type<unknown>) {
         }
         _globalMocks.set(p, m);
     }
+}
 
+export function createMock<T>(token: Type<T> | InjectionToken<T>, backing?: Partial<T>) {
+    if (_globalMocks.has(token)) {
+        // tslint:disable-next-line: max-line-length
+        throw new Error('A mock for this token already exists. Make sure to call createMock at most once and before creating any service or component.');
+    }
+    return createMockForToken(token, token instanceof InjectionToken ? token.toString() : token, backing);
 }
 
 export function getMock<T>(token: Type<T> | InjectionToken<T>): Mock<T> {

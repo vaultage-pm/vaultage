@@ -27,11 +27,13 @@ import { EditPasswordComponent } from './manager/entry/edit-password.component';
 import { VaultEntryResolver } from './manager/entry/vault-entry-resolver.service';
 import { ViewPasswordComponent } from './manager/entry/view-password.component';
 import { PasswordFormComponent } from './manager/form/password-form.component';
+import { HomeNavigationService } from './manager/home-navigation.service';
 import { HomeComponent } from './manager/home.component';
 import { ManagerComponent } from './manager/manager.component';
 import { PasswordListComponent } from './manager/password-list.component';
 import { PinLockService } from './pin-lock.service';
 import { PlatformModule } from './platform/platform.module';
+import { RedirectService } from './redirect.service';
 import { AuthGuard } from './routing/auth.guard';
 import { LockScreenGuard } from './routing/lock-screen.guard';
 import { UnauthGuard } from './routing/unauth.guard';
@@ -39,7 +41,6 @@ import { LoginComponent } from './setup/login.component';
 import { PinSetupComponent } from './setup/pin-setup.component';
 import { SetupComponent } from './setup/setup.component';
 import { SetupService } from './setup/setup.service';
-import { RedirectService } from './redirect.service';
 
 @NgModule({
     declarations: [
@@ -81,6 +82,7 @@ import { RedirectService } from './redirect.service';
         AccessControlService,
         AuthGuard,
         AuthService,
+        HomeNavigationService,
         LockScreenGuard,
         PinLockService,
         RedirectService,

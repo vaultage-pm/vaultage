@@ -1,11 +1,11 @@
 import { animate, group, query, state, style, transition, trigger } from '@angular/animations';
-import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { AuthService } from '../auth.service';
 import { PinLockService } from '../pin-lock.service';
 import { ErrorHandlingService } from '../platform/error-handling.service';
-import { WINDOW } from '../platform/providers';
+import { HomeNavigationService } from './home-navigation.service';
 import { IPasswordListEntry } from './password-list.component';
 
 @Component({
@@ -52,37 +52,22 @@ import { IPasswordListEntry } from './password-list.component';
         ]),
     ]
 })
-export class HomeComponent implements OnInit {
-
-    private _searchValue: string = '';
-
-    private _viewMode: HomeViewMode = 'initial';
-
-    /**
-     * Hacky way to implement stack navigation
-     */
-    private hasVisitedInitState = false;
+export class HomeComponent {
 
     @ViewChild('search') searchElement?: ElementRef<HTMLInputElement>;
 
     constructor(
-            @Inject(WINDOW) private readonly window: Window,
-            private readonly errorHandlingService: ErrorHandlingService,
             private readonly pinLockService: PinLockService,
             private readonly authService: AuthService,
-            private readonly route: ActivatedRoute,
-            private readonly router: Router) { }
+            private readonly navigation: HomeNavigationService) { }
 
-    public ngOnInit() {
-        // This observable is automatically closed when the component is destroyed by the router
-        this.route.queryParamMap.subscribe(params => {
-            this._searchValue = params.get('q') ?? '';
-            this._viewMode = params.has('q') ? 'search' : 'initial';
-            if (this._viewMode === 'initial') {
-                this.searchElement?.nativeElement.blur();
-            }
-        });
-    }
+    // public ngOnInit() {
+    //     this.navigation.activate();
+    // }
+
+    // public ngOnDestroy() {
+    //     this.navigation.deactivate();
+    // }
 
     public get listItems(): IPasswordListEntry[] {
         const vault = this.authService.getVault();
@@ -96,56 +81,35 @@ export class HomeComponent implements OnInit {
     }
 
     public get viewMode() {
-        return this._viewMode;
+        return this.navigation.viewMode;
+    }
+
+    public get searchValue(): string {
+        return this.navigation.searchValue;
+    }
+
+    public set searchValue(v: string) {
+        this.navigation.searchValue = v;
     }
 
     public doFocusIn() {
-        this.setViewMode('search');
+        this.navigation.viewMode = 'search';
     }
 
     public clearInput() {
         this.searchValue = '';
-        this.searchElement?.nativeElement.focus();
+        // tslint:disable-next-line: no-non-null-assertion
+        this.searchElement!.nativeElement.focus();
     }
 
     public exitSearchMode() {
-        this.setViewMode('initial');
+        this.navigation.viewMode = 'initial';
         this.searchValue = '';
     }
 
     public logOut() {
         this.pinLockService.reset();
         this.authService.logOut();
-    }
-
-    public get searchValue(): string {
-        return this._searchValue;
-    }
-
-    public set searchValue(v: string) {
-        if (this.viewMode === 'search' && v !== this.searchValue) {
-            this.router.navigate(['/manager'], { replaceUrl: true, queryParams: { q: v } })
-                    .catch(err => this.errorHandlingService.onError(err));
-        }
-    }
-
-    private setViewMode(mode: HomeViewMode) {
-        // Navigate in a way which makes sense of the back button
-        if (mode !== this._viewMode) {
-            this._viewMode = mode;
-            if (mode === 'initial') {
-                if (this.hasVisitedInitState) {
-                    this.window.history.back();
-                } else {
-                    this.router.navigate(['/manager'], { replaceUrl: true })
-                            .catch(err => this.errorHandlingService.onError(err));
-                }
-            } else {
-                this.hasVisitedInitState = true;
-                this.router.navigate(['/manager'], {queryParams: { q: this.searchValue }})
-                        .catch(err => this.errorHandlingService.onError(err));
-            }
-        }
     }
 
     private getHost(url: string): string {
@@ -156,5 +120,3 @@ export class HomeComponent implements OnInit {
         return url;
     }
 }
-
-type HomeViewMode = 'initial' | 'search';

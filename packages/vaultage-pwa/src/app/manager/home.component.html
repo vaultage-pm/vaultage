@@ -2,7 +2,7 @@
 <div class="flex-container" [@viewMode]="viewMode">
     <div class="main-search-container" [@searchBar]="viewMode">
         <div class="main-search-bar" [class.active]="viewMode === 'search'">
-            <mat-icon aria-hidden="false" aria-label="back" inline (click)="exitSearchMode()">arrow_back</mat-icon>
+            <mat-icon test-id="exit-search-mode" aria-hidden="false" aria-label="back" inline (click)="exitSearchMode()">arrow_back</mat-icon>
         </div>
         <div class="main-search-pill" [class.active]="viewMode === 'search'">
             <input test-id="search-input" #search matInput placeholder="Search passwords" (focusin)="doFocusIn()" [(ngModel)]="searchValue">
