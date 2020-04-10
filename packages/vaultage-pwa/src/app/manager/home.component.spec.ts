@@ -1,5 +1,6 @@
 import { ComponentFixture } from '@angular/core/testing';
 import { ParamMap } from '@angular/router';
+import { createMock, getMock, renderComponent } from 'ng-vacuum';
 import { instance, mockInstance, when } from 'omnimock';
 import { Subject } from 'rxjs';
 import { Rendering } from 'shallow-render/dist/lib/models/rendering';
@@ -8,7 +9,6 @@ import { IVaultDBEntry, Vault } from 'vaultage-client';
 import { AppModule } from '../app.module';
 import { AuthService } from '../auth.service';
 import { PinLockService } from '../pin-lock.service';
-import { createMock, getMock, renderComponent } from '../test/angular-omnimock';
 import { HomeNavigationService, HomeViewMode } from './home-navigation.service';
 import { HomeComponent } from './home.component';
 import { PasswordListComponent } from './password-list.component';

@@ -44,7 +44,7 @@
         "@types/node": "13.9.2",
         "cross-env": "7.0.2",
         "jest": "25.1.0",
-        "omnimock": "0.7.0",
+        "omnimock": "0.8.0",
         "ts-jest": "25.2.1",
         "ts-loader": "6.2.1",
         "ts-node": "8.6.2",

@@ -48,7 +48,7 @@
         "@types/puppeteer": "2.0.1",
         "cross-env": "7.0.2",
         "jest": "25.1.0",
-        "omnimock": "0.7.0",
+        "omnimock": "0.8.0",
         "puppeteer": "2.1.1",
         "supertest": "4.0.2",
         "ts-jest": "25.2.1",

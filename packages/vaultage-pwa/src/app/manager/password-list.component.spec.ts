@@ -3,13 +3,13 @@ import { fakeAsync } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { getMock, getShallow } from 'ng-vacuum';
 import { instanceOf, mockInstance, when } from 'omnimock';
 import { Rendering } from 'shallow-render/dist/lib/models/rendering';
 
 import { AppModule } from '../app.module';
 import { ErrorHandlingService } from '../platform/error-handling.service';
 import { WINDOW } from '../platform/providers';
-import { getMock, getShallow } from '../test/angular-omnimock';
 import { IPasswordListEntry, PasswordListComponent } from './password-list.component';
 
 describe('PasswordListComponent', () => {

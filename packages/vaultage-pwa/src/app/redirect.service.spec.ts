@@ -1,11 +1,12 @@
 import { fakeAsync } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { getMock, getService } from 'ng-vacuum';
 import { anyString, anything, when } from 'omnimock';
+
 import { AuthService } from './auth.service';
 import { PinLockService } from './pin-lock.service';
 import { ErrorHandlingService } from './platform/error-handling.service';
 import { RedirectService } from './redirect.service';
-import { getMock, getService } from './test/angular-omnimock';
 
 describe('RedirectService', () => {
 

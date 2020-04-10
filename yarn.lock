@@ -6359,6 +6359,11 @@ ng-mocks@^9.0.0:
   resolved "https://registry.yarnpkg.com/ng-mocks/-/ng-mocks-9.2.0.tgz#693fda98b8b6c59a92d95cb72422ddaf22f7e46d"
   integrity sha512-k2/FoYDW2Izjsl7LKz3L9obfJUvLb7dG5B5p7Bgtqt6mM76lJ8wpPxC5GuINdoI6wGbDfcF+va5kE3clLlSVpA==
 
+ng-vacuum@0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/ng-vacuum/-/ng-vacuum-0.0.0.tgz#d63ccc97ccdb781373da32d7ef131f295ff85d00"
+  integrity sha512-34mN98OLgvFQNQD4z3hD0Lv8b6TWwGnPp9RUZEAWi33q+oErhSMAwm5PjLZ7kpXrO20wcROg3KNJlo+ke7nGkQ==
+
 nice-try@^1.0.4:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/nice-try/-/nice-try-1.0.5.tgz#a3378a7696ce7d223e88fc9b764bd7ef1089e366"
@@ -6638,10 +6643,6 @@ object.values@^1.1.0:
 obuf@^1.0.0, obuf@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.2.tgz#09bea3343d41859ebd446292d11c9d4db619084e"
-
-omnimock@0.7.0:
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/omnimock/-/omnimock-0.7.0.tgz#fbfd2685d6c591111dccd33c731ae87ab5a37a31"
 
 omnimock@0.8.0:
   version "0.8.0"
@@ -8255,10 +8256,10 @@ shallow-clone@^3.0.0:
   dependencies:
     kind-of "^6.0.2"
 
-shallow-render@9.0.0:
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/shallow-render/-/shallow-render-9.0.0.tgz#0501d4b47f29f67de5290360da0c628217459c9b"
-  integrity sha512-CRnG51wJZgYO50pwGtV1AJxyyPcIyfOrwshHlxHMbfdqjnTWqyMmr1/n6LNlU8zsPIBAi1Euc9mN5fN1YWW2Cw==
+shallow-render@9.0.3:
+  version "9.0.3"
+  resolved "https://registry.yarnpkg.com/shallow-render/-/shallow-render-9.0.3.tgz#e03e968dec23636cba98684d461ffa5c4e9452cb"
+  integrity sha512-kicsj4hYhWM2DzIqYh/fTchTg3W2xFNj7tWt9Wkznrq44cgW1HZ44k7i2Dq6AZhfePO17tYAA5rToJqCbSyf3w==
   dependencies:
     ng-mocks "^9.0.0"
 

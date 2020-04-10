@@ -1,10 +1,10 @@
+import { getMock, renderComponent } from 'ng-vacuum';
 import { when } from 'omnimock';
 
 import { AppComponent } from './app.component';
 import { AppModule } from './app.module';
 import { AutoLogoutService } from './auto-logout.service';
 import { AutoRedirectService } from './auto-redirect.service';
-import { getMock, renderComponent } from './test/angular-omnimock';
 
 describe('AppComponent', () => {
 

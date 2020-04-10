@@ -1,7 +1,8 @@
+import { getMock, getService } from 'ng-vacuum';
 import { anyString, Mock, reset, when } from 'omnimock';
+
 import { PinLockService } from './pin-lock.service';
 import { LOCAL_STORAGE } from './platform/providers';
-import { getMock, getService } from './test/angular-omnimock';
 
 
 describe('PinLockServiceTest', () => {

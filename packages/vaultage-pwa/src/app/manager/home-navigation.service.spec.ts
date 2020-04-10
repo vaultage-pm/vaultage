@@ -1,11 +1,11 @@
 import { fakeAsync } from '@angular/core/testing';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { getMock, getService } from 'ng-vacuum';
 import { reset, when } from 'omnimock';
 import { Subject } from 'rxjs';
 
 import { ErrorHandlingService } from '../platform/error-handling.service';
 import { WINDOW } from '../platform/providers';
-import { getMock, getService } from '../test/angular-omnimock';
 import { HomeNavigationService } from './home-navigation.service';
 
 describe('HomeNavigationService', () => {

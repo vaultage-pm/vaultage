@@ -1,9 +1,10 @@
+import { getMock, getService } from 'ng-vacuum';
 import { Mock, when } from 'omnimock';
+
 import { AccessControlService } from './access-control.service';
 import { AuthService } from './auth.service';
 import { PinLockService } from './pin-lock.service';
 import { RedirectService } from './redirect.service';
-import { getMock, getService } from './test/angular-omnimock';
 
 describe('AccessControlService', () => {
 

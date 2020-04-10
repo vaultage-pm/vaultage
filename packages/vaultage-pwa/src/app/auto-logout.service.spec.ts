@@ -1,8 +1,9 @@
 import { DOCUMENT } from '@angular/common';
+import { getMock, getService } from 'ng-vacuum';
 import { anyFunction, anyString, Mock, reset, verify, when } from 'omnimock';
+
 import { AuthService } from './auth.service';
 import { AutoLogoutService } from './auto-logout.service';
-import { getMock, getService } from './test/angular-omnimock';
 
 describe('AutoLogoutService', () => {
 

@@ -15,4 +15,5 @@ build:
 
 test:
 	npm run lint
-	npm run test -- --watch=false
+	npm run test -- --watch=false --browsers=ChromeHeadless
+

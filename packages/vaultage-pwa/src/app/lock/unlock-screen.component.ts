@@ -22,7 +22,6 @@ export class UnlockScreenComponent {
     public error: string | null = null;
 
     constructor(
-            private readonly accessControlService: AccessControlService,
             private readonly route: ActivatedRoute,
             private readonly busy: BusyStateService,
             private readonly pinLockService: PinLockService,
@@ -48,6 +47,7 @@ export class UnlockScreenComponent {
     private async _unlock(pin: string) {
         if (!this.pinLockService.hasSecret) {
             this.redirectService.redirectToAuthZone(this.route.snapshot.url.join('/'));
+            return;
         }
         const data = this.pinLockService.getSecret(pin);
         if (data == null) {

@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 import { AuthService, LoginConfig } from '../auth.service';
 import { PinLockService } from '../pin-lock.service';
@@ -16,8 +18,8 @@ export class SetupService {
 
     private _step: SetupStep = 'login';
 
-    private credentialsNotifier?: (creds: LoginConfig) => void;
-    private pinNotifier?: (pin: string) => void;
+    private credentialsNotifier = new Subject<LoginConfig>();
+    private pinNotifier = new Subject<string>();
 
     constructor(
             private readonly router: Router,
@@ -69,35 +71,21 @@ export class SetupService {
     }
 
     public notifyCredentials(credentials: LoginConfig) {
-        if (this.credentialsNotifier) {
-            this.credentialsNotifier(credentials);
-            this.credentialsNotifier = undefined;
-        } else {
-            this.errorHandler.onError('Not expected to receive credentials');
-        }
+        this.credentialsNotifier.next(credentials);
     }
 
     private async promptCredentials(): Promise<LoginConfig> {
         this._step = 'login';
-        return new Promise(resolve => {
-            this.credentialsNotifier = resolve;
-        });
+        return this.credentialsNotifier.pipe(first()).toPromise();
     }
 
     public notifyPin(pin: string) {
-        if (this.pinNotifier) {
-            this.pinNotifier(pin);
-            this.pinNotifier = undefined;
-        } else {
-            this.errorHandler.onError('Not expected to receive pin');
-        }
+        this.pinNotifier.next(pin);
     }
 
     private async promptPin(): Promise<string> {
         this._step = 'set-pin';
-        return new Promise(resolve => {
-            this.pinNotifier = resolve;
-        });
+        return this.pinNotifier.pipe(first()).toPromise();
     }
 }
 

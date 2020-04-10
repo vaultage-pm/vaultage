@@ -5,7 +5,7 @@ import { Subject } from 'rxjs';
 import { AuthService } from './auth.service';
 import { AutoRedirectService } from './auto-redirect.service';
 import { RedirectService } from './redirect.service';
-import { getMock, getService } from './test/angular-omnimock';
+import { getMock, getService } from 'ng-vacuum';
 
 describe('AutoRedirectService', () => {
 
