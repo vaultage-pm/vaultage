@@ -9,7 +9,8 @@
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
-  "private": true,
+  "private": false,
+  "main": "./dist/vaultage-pwa/index.js",
   "dependencies": {
     "@angular/animations": "~9.0.7",
     "@angular/cdk": "^9.1.3",

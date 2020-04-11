@@ -23,15 +23,15 @@ build: install
 	$(MAKE) -C packages/vaultage-protocol build
 	$(MAKE) -C packages/vaultage-client build
 	$(MAKE) -C packages/vaultage-ui-webcli build
-	$(MAKE) -C packages/vaultage build
 	$(MAKE) -C packages/vaultage-pwa build
+	$(MAKE) -C packages/vaultage build
 
 test: build
 	$(MAKE) -C packages/vaultage-protocol test
 	$(MAKE) -C packages/vaultage-client test
 	$(MAKE) -C packages/vaultage-ui-webcli test
-	$(MAKE) -C packages/vaultage test
 	$(MAKE) -C packages/vaultage-pwa test
+	$(MAKE) -C packages/vaultage test
 
 integration-test:
 	./tools/integration-test.sh

@@ -25,6 +25,7 @@
             "aot": true,
             "assets": [
               "src/favicon.ico",
+              "src/index.js",
               "src/assets",
               "src/manifest.webmanifest"
             ],
@@ -41,6 +42,7 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
+              "baseHref": "/pwa/",
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,

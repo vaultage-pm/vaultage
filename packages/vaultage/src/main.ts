@@ -69,6 +69,8 @@ async function boot(port: number, addr: string) {
     const pathToWebCliGUI = path.dirname(require.resolve('vaultage-ui-webcli'));
     const staticDirToServer = path.join(pathToWebCliGUI, 'public');
     server.use(express.static(staticDirToServer));
+    const pathToPWA = path.dirname(require.resolve('vaultage-pwa'));
+    server.use('/pwa', express.static(pathToPWA));
 
     // run application on port port
     server.listen(port, addr, () => {
