@@ -34,7 +34,6 @@
         "rest-ts-express": "0.6.1",
         "tslib": "^1.11.1",
         "tsyringe": "4.1.0",
-        "vaultage-client": "0.0.0",
         "vaultage-protocol": "0.0.0",
         "vaultage-ui-webcli": "0.0.0",
         "vaultage-pwa": "0.0.0"

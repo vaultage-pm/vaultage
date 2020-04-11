@@ -5,7 +5,6 @@ import { cd, exec } from 'shelljs';
 
 interface IPackageDefinition {
     name: string;
-    dist: string;
     dependencies: string[];
 }
 
@@ -15,7 +14,6 @@ type ReleaseType = 'prerelease' | 'patch' | 'minor' | 'major';
 const packages: IPackageDefinition[] = [
     {
         name: 'vaultage',
-        dist: 'vaultage',
         dependencies: [
             'vaultage-pwa',
             'vaultage-ui-webcli',
@@ -24,7 +22,6 @@ const packages: IPackageDefinition[] = [
     },
     {
         name: 'vaultage-ui-webcli',
-        dist: 'vaultage-ui-webcli',
         dependencies: [
             'vaultage-client',
             'vaultage-protocol'
@@ -32,22 +29,16 @@ const packages: IPackageDefinition[] = [
     },
     {
         name: 'vaultage-pwa',
-        dist: 'vaultage-pwa/dist/vaultage-pwa',
-        dependencies: [
-            'vaultage-client',
-            'vaultage-protocol'
-        ]
+        dependencies: [ ]
     },
     {
         name: 'vaultage-client',
-        dist: 'vaultage-client',
         dependencies: [
             'vaultage-protocol'
         ]
     },
     {
         name: 'vaultage-protocol',
-        dist: 'vaultage-protocol',
         dependencies: [ ]
     }
 ];
@@ -65,12 +56,12 @@ const packages: IPackageDefinition[] = [
         return;
     }
 
+    
+    // exec('make clean');
+    // exec('make build');
+    // exec('make test');
+    
     preparePackagesVersions(version);
-
-    exec('make clean');
-    exec('make build');
-    exec('make test');
-
     updatePackagesDependencies(version);
 
     // Tag 'latest' and 'next' channels in git
@@ -85,10 +76,10 @@ const packages: IPackageDefinition[] = [
 
 async function configure() {
 
-    const channel = 'latest';
-    const preRelease = false;
-    const message = '';
-    const releaseType: ReleaseType = 'patch'; // minor major
+    const channel = 'dev';
+    const preRelease = true;
+    const message = 'PWA prerelease';
+    const releaseType: ReleaseType = 'patch'; // minor major patch
 
     return { channel: channel as ReleaseChannel, preRelease, releaseType, message };
 }
@@ -123,7 +114,7 @@ function getVersion(releaseType: ReleaseType, channel: ReleaseChannel): string {
 
 function preparePackagesVersions(version: string) {
     for (const pkg of packages) {
-        const pkgJSONPath = path.join(__dirname, '../packages', pkg.dist, 'package.json');
+        const pkgJSONPath = path.join(__dirname, '../packages', pkg.name, 'package.json');
         const pkgJSON = require(pkgJSONPath);
         pkgJSON.version = version;
         fs.writeFileSync(pkgJSONPath, JSON.stringify(pkgJSON, null, 4), { encoding: 'utf-8' });
@@ -132,7 +123,7 @@ function preparePackagesVersions(version: string) {
 
 function updatePackagesDependencies(version: string) {
     for (const pkg of packages) {
-        const pkgJSONPath = path.join(__dirname, '../packages', pkg.dist, 'package.json');
+        const pkgJSONPath = path.join(__dirname, '../packages', pkg.name, 'package.json');
         const pkgJSON = require(pkgJSONPath);
         for (const dep of pkg.dependencies) {
             pkgJSON.dependencies[dep] = version;
@@ -143,7 +134,7 @@ function updatePackagesDependencies(version: string) {
 
 function restorePackages() {
     for (const pkg of packages) {
-        const pkgJSONPath = path.join(__dirname, '../packages', pkg.dist, 'package.json');
+        const pkgJSONPath = path.join(__dirname, '../packages', pkg.name, 'package.json');
         const pkgJSON = require(pkgJSONPath);
         pkgJSON.version = '0.0.0';
         // This might actually not be necessary if the package is cached we already get the original.
@@ -161,7 +152,7 @@ function createGitTag(message: string, version: string) {
 
 function doNpmRelease(channel: ReleaseChannel) {
     for (const pkg of packages) {
-        cd(path.join(__dirname, '../packages', pkg.dist));
+        cd(path.join(__dirname, '../packages', pkg.name));
         exec(`npm publish --tag=${channel}`);
     }
 }
