@@ -1,4 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Inject, Input } from '@angular/core';
+
+import { WINDOW } from '../providers';
 
 @Component({
     selector: 'app-toolbar',
@@ -13,8 +15,10 @@ export class ToolbarComponent {
     @Input()
     public action?: IToolbarActionConfig;
 
+    constructor(@Inject(WINDOW) private readonly window: Window) { }
+
     public onExit() {
-        history.back();
+        this.window.history.back();
     }
 }
 

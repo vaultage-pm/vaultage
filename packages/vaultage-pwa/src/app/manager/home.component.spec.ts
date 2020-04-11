@@ -9,17 +9,10 @@ import { IVaultDBEntry, Vault } from 'vaultage-client';
 import { AppModule } from '../app.module';
 import { AuthService } from '../auth.service';
 import { PinLockService } from '../pin-lock.service';
+import { typeValue } from '../test/test-utils';
 import { HomeNavigationService, HomeViewMode } from './home-navigation.service';
 import { HomeComponent } from './home.component';
 import { PasswordListComponent } from './password-list.component';
-
-function createNewEvent(eventName: string, bubbles = false, cancelable = false) {
-    const evt = document.createEvent('CustomEvent');
-    evt.initCustomEvent(eventName, bubbles, cancelable, null);
-    return evt;
-}
-
-// TODO: Move selectors into an object model
 
 describe('HomeComponent', () => {
 
@@ -81,8 +74,7 @@ describe('HomeComponent', () => {
 
     it('filters the list of results on input', async () => {
         when(getMock(Vault).findEntries('the quick brown fox')).return(fakeEntries());
-        page.input.value = 'the quick brown fox';
-        page.input.dispatchEvent(createNewEvent('input'));
+        typeValue(page.input, 'the quick brown fox');
         fixture.detectChanges();
         await fixture.whenStable();
         expect(searchValue).toBe('the quick brown fox');

@@ -37,7 +37,7 @@ export class SetupService {
         this._doLogin()
             .catch(err => {
                 this.errorHandler.onError(err);
-                this.router.navigate(['/manager']).catch(err2 => this.errorHandler.onError(err2));
+                this.router.navigate(['/manager']).catch(this.errorHandler.onError);
             });
     }
 
@@ -89,6 +89,4 @@ export class SetupService {
     }
 }
 
-type SetupStep = 'login' | 'set-pin';
-
-
+export type SetupStep = 'login' | 'set-pin';

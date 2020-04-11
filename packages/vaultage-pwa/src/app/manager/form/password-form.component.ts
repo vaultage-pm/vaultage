@@ -33,10 +33,6 @@ export class PasswordFormComponent {
         this.title = e.title;
     }
 
-    public onExit() {
-        history.back();
-    }
-
     public onSubmit() {
         this.confirm.emit({
             id: this.id,

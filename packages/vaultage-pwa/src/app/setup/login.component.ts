@@ -4,7 +4,7 @@ import { LoginConfig } from '../auth.service';
 import { LOCAL_STORAGE } from '../platform/providers';
 import { SetupService } from './setup.service';
 
-type PageState = 'init' | 'login';
+export type PageState = 'init' | 'login';
 
 @Component({
     selector: 'app-login',

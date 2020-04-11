@@ -4,13 +4,13 @@ import { RouterModule, Routes } from '@angular/router';
 import { UnlockScreenComponent } from './lock/unlock-screen.component';
 import { CreatePasswordComponent } from './manager/entry/create-password.component';
 import { EditPasswordComponent } from './manager/entry/edit-password.component';
-import { VaultEntryResolver } from './manager/entry/vault-entry-resolver.service';
 import { ViewPasswordComponent } from './manager/entry/view-password.component';
 import { HomeComponent } from './manager/home.component';
 import { ManagerComponent } from './manager/manager.component';
 import { AuthGuard } from './routing/auth.guard';
 import { LockScreenGuard } from './routing/lock-screen.guard';
 import { UnauthGuard } from './routing/unauth.guard';
+import { VaultEntryResolver } from './routing/vault-entry.resolver';
 import { SetupComponent } from './setup/setup.component';
 
 const routes: Routes = [

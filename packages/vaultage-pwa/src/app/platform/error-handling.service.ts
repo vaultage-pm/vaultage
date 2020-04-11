@@ -1,8 +1,11 @@
+import { Inject } from '@angular/core';
+import { WINDOW } from './providers';
 
 export class ErrorHandlingService {
 
-    /* istanbul ignore next */
-    public onError(e: unknown) {
-        console.error(e);
+    constructor(@Inject(WINDOW) private readonly window: Window) { }
+
+    public onError = (e: unknown) => {
+        this.window.console.error(e);
     }
 }

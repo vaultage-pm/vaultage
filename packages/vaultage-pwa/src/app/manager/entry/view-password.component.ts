@@ -2,6 +2,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
+import { tap } from 'rxjs/operators';
 import { IVaultDBEntry } from 'vaultage-client';
 
 import { AuthService } from '../../auth.service';
@@ -36,21 +37,30 @@ export class ViewPasswordComponent implements OnInit {
     }
 
     public ngOnInit() {
-        this.route.data.subscribe((data: { entry?: IVaultDBEntry }) => {
-            if (data.entry == null) {
-                throw new Error('Router did not provide mandatory "entry" parameter');
-            }
-            this.entry = data.entry;
+        this.subscribeToRouteData();
+    }
+
+    public subscribeToRouteData() {
+        this._subscribeToRouteData().catch((err) => {
+            this.errorHandlingService.onError(err);
+            this.subscribeToRouteData();
         });
+    }
+
+    public _subscribeToRouteData() {
+        return this.route.data.pipe(
+            tap((data: { entry?: IVaultDBEntry }) => {
+                if (data.entry == null) {
+                    throw new Error('Router did not provide mandatory "entry" parameter');
+                }
+                this.entry = data.entry;
+            })
+        ).toPromise();
     }
 
     public onEdit() {
         this.router.navigate(['../../edit', this.entry.id], { relativeTo: this.route })
                 .catch(err => this.errorHandlingService.onError(err));
-    }
-
-    public onExit() {
-        history.back();
     }
 
     public togglePasswordVisibility(event: MouseEvent) {
@@ -59,8 +69,11 @@ export class ViewPasswordComponent implements OnInit {
     }
 
     public copyToClipboard() {
-        this.clipboard.copy(this.entry.password);
-        this.snackBar.open('Password copied to clipboard');
+        if (this.clipboard.copy(this.entry.password)) {
+            this.snackBar.open('Password copied to clipboard');
+        } else {
+            this.errorHandlingService.onError(new Error('Failed to copy password'));
+        }
     }
 }
 

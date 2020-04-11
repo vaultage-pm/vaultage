@@ -1,10 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
+import { catchError, tap } from 'rxjs/operators';
 import { IVaultDBEntry } from 'vaultage-client';
 
 import { AuthService } from '../../auth.service';
 import { BusyStateService } from '../../platform/busy-state.service';
+import { ErrorHandlingService } from '../../platform/error-handling.service';
+import { WINDOW } from '../../platform/providers';
 import { PasswordEntry, toVaultageEntry } from '../domain/PasswordEntry';
 
 @Component({
@@ -17,24 +20,39 @@ export class EditPasswordComponent implements OnInit {
     public entry: PasswordEntry;
 
     constructor(
+            @Inject(WINDOW) private readonly window: Window,
+            private readonly errorHandlingService: ErrorHandlingService,
             private readonly busy: BusyStateService,
             private readonly authService: AuthService,
             private readonly snackBar: MatSnackBar,
-            readonly route: ActivatedRoute) {
+            private readonly route: ActivatedRoute) {
         this.entry = this.route.snapshot.data.entry;
     }
 
     public ngOnInit() {
-        this.route.data.subscribe((data: { entry?: IVaultDBEntry }) => {
-            if (data.entry == null) {
-                throw new Error('Router did not provide mandatory "entry" parameter');
-            }
-            this.entry = data.entry;
+       this.subscribeToRouteData();
+    }
+
+    public subscribeToRouteData() {
+        this._subscribeToRouteData().catch((err) => {
+            this.errorHandlingService.onError(err);
+            this.subscribeToRouteData();
         });
     }
 
+    public _subscribeToRouteData() {
+        return this.route.data.pipe(
+            tap((data: { entry?: IVaultDBEntry }) => {
+                if (data.entry == null) {
+                    throw new Error('Router did not provide mandatory "entry" parameter');
+                }
+                this.entry = data.entry;
+            })
+        ).toPromise();
+    }
+
     public onExit() {
-        history.back();
+        this.window.history.back();
     }
 
     public onSave(entry: PasswordEntry) {
