@@ -28,11 +28,11 @@ async function release() {
 
     console.log(`Last version on channel ${channel} is ${version}`);
 
-    exec(`sudo docker build --rm --no-cache --build-arg VAULTAGE_CHANNEL=${channel} --tag hmil/vaultage:${version} .`);
-    exec(`sudo docker tag hmil/vaultage:${version} hmil/vaultage:${channel}`);
+    exec(`docker build --rm --no-cache --build-arg VAULTAGE_CHANNEL=${channel} --tag hmil/vaultage:${version} .`);
+    exec(`docker tag hmil/vaultage:${version} hmil/vaultage:${channel}`);
 
-    exec(`sudo docker push hmil/vaultage:${channel}`);
-    exec(`sudo docker push hmil/vaultage:${version}`);
+    exec(`docker push hmil/vaultage:${channel}`);
+    exec(`docker push hmil/vaultage:${version}`);
 }
 
 release();
