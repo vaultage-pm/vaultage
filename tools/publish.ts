@@ -15,6 +15,7 @@ const packages: IPackageDefinition[] = [
     {
         name: 'vaultage',
         dependencies: [
+            'vaultage-pwa',
             'vaultage-ui-webcli',
             'vaultage-protocol'
         ]
@@ -25,6 +26,10 @@ const packages: IPackageDefinition[] = [
             'vaultage-client',
             'vaultage-protocol'
         ]
+    },
+    {
+        name: 'vaultage-pwa',
+        dependencies: [ ]
     },
     {
         name: 'vaultage-client',
@@ -51,12 +56,12 @@ const packages: IPackageDefinition[] = [
         return;
     }
 
+    
+    // exec('make clean');
+    // exec('make build');
+    // exec('make test');
+    
     preparePackagesVersions(version);
-
-    exec('make clean');
-    exec('make build');
-    exec('make test');
-
     updatePackagesDependencies(version);
 
     // Tag 'latest' and 'next' channels in git
@@ -71,10 +76,10 @@ const packages: IPackageDefinition[] = [
 
 async function configure() {
 
-    const channel = 'latest';
-    const preRelease = false;
-    const message = '';
-    const releaseType: ReleaseType = 'patch'; // minor major
+    const channel = 'dev';
+    const preRelease = true;
+    const message = 'PWA prerelease';
+    const releaseType: ReleaseType = 'patch'; // minor major patch
 
     return { channel: channel as ReleaseChannel, preRelease, releaseType, message };
 }

@@ -1,0 +1,31 @@
+
+<div class="flex-container" [@viewMode]="viewMode">
+    <div class="main-search-container" [@searchBar]="viewMode">
+        <div class="main-search-bar" [class.active]="viewMode === 'search'">
+            <mat-icon test-id="exit-search-mode" aria-hidden="false" aria-label="back" inline (click)="exitSearchMode()">arrow_back</mat-icon>
+        </div>
+        <div class="main-search-pill" [class.active]="viewMode === 'search'">
+            <input test-id="search-input" #search matInput placeholder="Search passwords" (focusin)="doFocusIn()" [(ngModel)]="searchValue">
+            <mat-icon *ngIf="viewMode !== 'search'" class="affix" aria-hidden="false" aria-label="Search" inline>search</mat-icon>
+            <mat-icon test-id="clear-search-action" *ngIf="viewMode === 'search'" class="affix interactive" aria-hidden="false" aria-label="Clear" inline (click)="clearInput()">clear</mat-icon>
+        </div>
+    </div>
+
+    <div *ngIf="viewMode === 'initial'" class="add-item-pill">
+        <button mat-flat-button color="primary" class="pill-button" routerLink="/manager/create">
+            <div class="btn-layout">
+                <mat-icon aria-hidden="false" aria-label="Add" inline>add</mat-icon> <div>New password</div>
+            </div>
+        </button>
+    </div>
+
+    <div *ngIf="viewMode === 'initial'" class="bottom-actions">
+        <a class="simple-link" (click)="logOut()">
+            Log out
+        </a>
+    </div>
+
+    <div *ngIf="viewMode === 'search'" class="search-results">
+        <app-password-list [items]="listItems"></app-password-list>
+    </div>
+</div>

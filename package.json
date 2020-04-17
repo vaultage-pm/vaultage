@@ -26,12 +26,13 @@
     "shelljs": "^0.8.3",
     "ts-node": "^8.6.2",
     "tslint": "6.0.0",
-    "typescript": "3.8.3"
+    "typescript": "~3.7.5"
   },
   "dependencies": {},
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [ "packages/*" ],
+    "nohoist": [ "**/@types/jasmine" ]
+  },
   "jest": {
     "transform": {
         ".(ts|tsx)": "ts-jest"

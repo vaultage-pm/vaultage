@@ -1,0 +1,2 @@
+<app-pin-code test-id="setup-pin-code" *ngIf="step === 'compose'" (confirm)="onCompose($event)" [errorMessage]="errorMessage" title="Choose a new pin"></app-pin-code>
+<app-pin-code test-id="setup-pin-code" *ngIf="step === 'confirm'" (confirm)="onConfirm($event)" title="Confirm new pin"></app-pin-code>

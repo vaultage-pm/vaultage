@@ -14,11 +14,12 @@ export const VaultageConfig = Record({
         local_key_salt: String,
         remote_key_salt: String
     }),
+}).And(Partial({
     /*
      * Whether this instance is running in demo mode.
      */
     demo: Boolean
-});
+}));
 
 /**
  * Describes the body of a POST request to the cipher API (implemented in CipherController).

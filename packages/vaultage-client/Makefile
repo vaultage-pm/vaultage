@@ -1,6 +1,6 @@
 WEBPACK_FLAGS = --output-library Vaultage
 
-BIN=bundle/vaultage-sjcl.js
+BIN=dist/vaultage.js
 
 .PHONY: all build clean cleanall test integration-test node_upgrade
 
