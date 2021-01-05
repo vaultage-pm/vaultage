@@ -32,7 +32,7 @@
     },
     "homepage": "https://github.com/vaultage-pm/vaultage#readme",
     "dependencies": {
-        "axios": "0.19.2",
+        "axios": "0.21.1",
         "tsyringe": "4.1.0",
         "reflect-metadata": "0.1.13",
         "rest-ts-axios": "0.6.1",
