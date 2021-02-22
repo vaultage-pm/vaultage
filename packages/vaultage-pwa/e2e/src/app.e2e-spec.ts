@@ -11,7 +11,8 @@ describe('workspace-project App', () => {
 
   it('should display welcome message', async () => {
     await page.navigateTo();
-    expect(page.getTitleText()).toEqual('vaultage-pwa app is running!');
+    const obtainedMessage = await page.getTitleText();
+    expect(obtainedMessage).toEqual('vaultage-pwa app is running!');
   });
 
   afterEach(async () => {

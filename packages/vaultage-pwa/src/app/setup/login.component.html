@@ -14,10 +14,10 @@
         </mat-form-field>
         <mat-form-field appearance="standard" class="reveal-field">
             <mat-label>Host</mat-label>
-            <input test-id="login-host" [(ngModel)]="url" matInput placeholder="https://your-vaultage-host" autocorrect="off" autocapitalize="none">
+            <input [disabled]="hostLocked" test-id="login-host" [(ngModel)]="url" matInput placeholder="https://your-vaultage-host" autocorrect="off" autocapitalize="none">
         </mat-form-field>
         <mat-divider class="reveal-field"></mat-divider>
-        <mat-checkbox test-id="login-basic-toggle" class="basic-toggle reveal-field" [(ngModel)]="useBasic">Basic auth</mat-checkbox>
+        <mat-checkbox [disabled]="basicLocked" test-id="login-basic-toggle" class="basic-toggle reveal-field" [(ngModel)]="useBasic">Basic auth</mat-checkbox>
         <div *ngIf="useBasic" class="basic-fields">
             <mat-form-field appearance="standard">
                 <mat-label>Username</mat-label>

@@ -71,7 +71,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "vaultage-pwa:build"
+            "browserTarget": "vaultage-pwa:build",
+            "proxyConfig": "dev-proxy.json"
           },
           "configurations": {
             "production": {
