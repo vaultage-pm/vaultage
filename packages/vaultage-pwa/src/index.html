@@ -94,6 +94,15 @@
       }
     }
 </style>
+<script type="text/javascript">
+  const href = document.location.href;
+  if(href && href.indexOf('self_contained=true') > -1) {
+      window.__self_contained=true;
+  }
+  if(href && href.indexOf('use_basic=true') > -1) {
+      window.__use_basic=true;
+  }
+</script>
 </head>
 <body class="mat-typography">
   <app-root>

@@ -1,0 +1,10 @@
+{
+    "/config": {
+        "target": "http://localhost:8080",
+        "secure": false
+    },
+    "/teste/*": {
+        "target": "http://localhost:8080",
+        "secure": false
+    }
+}

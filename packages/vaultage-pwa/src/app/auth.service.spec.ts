@@ -33,7 +33,7 @@ describe('AuthService', () => {
 
     it('testCredentials logs in to test the credentials', async () => {
         const config = fakeLoginConfig();
-        when(getMock(VAULTAGE).login('http://pulp.fiction', 'John', 'Tr4v0lt4', { auth: { username: 'Quentin', password: 'Tarantino'}}))
+        when(getMock(VAULTAGE).control.login('http://pulp.fiction', 'John', 'Tr4v0lt4', { auth: { username: 'Quentin', password: 'Tarantino'}}))
                 .resolve(mockInstance('vault'))
                 .once();
         await service.testCredentials(config);
@@ -57,7 +57,7 @@ describe('AuthService', () => {
     it('logIn logs in and redirects, logOut logs out', async () => {
         const config = fakeLoginConfig();
         const fakeVault = mockInstance<Vault>('vault');
-        when(getMock(VAULTAGE).login('http://pulp.fiction', 'John', 'Tr4v0lt4', { auth: { username: 'Quentin', password: 'Tarantino'}}))
+        when(getMock(VAULTAGE).control.login('http://pulp.fiction', 'John', 'Tr4v0lt4', { auth: { username: 'Quentin', password: 'Tarantino'}}))
             .resolve(fakeVault);
         when(getMock(PinLockService).setSecret('1234', anyString()))
             .call((pin, secret) => {
@@ -83,7 +83,8 @@ describe('AuthService', () => {
     it('logIn redirects to next URL', async () => {
         const config = fakeLoginConfig();
         const fakeVault = mockInstance<Vault>('vault');
-        when(getMock(VAULTAGE).login('http://pulp.fiction', 'John', 'Tr4v0lt4', { auth: { username: 'Quentin', password: 'Tarantino'}}))
+        when(getMock(VAULTAGE).control.login('http://pulp.fiction', 'John', 'Tr4v0lt4',
+        { auth: { username: 'Quentin', password: 'Tarantino'}}))
             .resolve(fakeVault);
         when(getMock(PinLockService).setSecret('1234', anyString())).return().once();
         when(getMock(Router).navigateByUrl(anyString(), { replaceUrl: true })).call(url => {

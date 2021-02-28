@@ -88,11 +88,28 @@ export class LoginComponent implements OnInit {
     public basicUsername: string = '';
     public basicPassword: string = '';
 
+    public hostLocked: boolean = false;
+    public basicLocked: boolean = false;
+
     constructor(
         @Inject(LOCAL_STORAGE) private readonly ls: Storage,
         private readonly setupService: SetupService) {}
 
+    private configureSelfContained() {
+        if((window as any).__self_contained || this.ls.getItem('self_contained') == 'true') {
+            this.hostLocked = true;
+            this.url = document.location.origin + '/';
+            this.ls.setItem('self_contained', 'true');
+        }
+        if((window as any).__use_basic || this.ls.getItem('use_basic') == 'true') {
+            this.basicLocked = true;
+            this.useBasic = true;
+            this.ls.setItem('use_basic', 'true');
+        }
+    }
+
     public ngOnInit() {
+        this.configureSelfContained();
         const item = this.ls.getItem('creds');
         if (item != null) {
             // TODO: sanitize input
