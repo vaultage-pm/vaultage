@@ -1,0 +1,22 @@
+{
+  "name": "Vaultage",
+  "short_name": "Vaultage",
+  "theme_color": "#1976d2",
+  "background_color": "#fafafa",
+  "display": "standalone",
+  "scope": "./",
+  "start_url": "./",
+  "prompt_message": "Add Vaultage to the home screen of your device",
+  "icons": [
+    {
+      "src": "assets/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
