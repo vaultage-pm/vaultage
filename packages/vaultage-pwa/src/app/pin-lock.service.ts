@@ -1,9 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import { LOCAL_STORAGE } from './platform/providers';
 
-import { sha384, sha512 } from 'js-sha512';
-import { ModeOfOperation, utils as AESUtil } from "aes-js";
-
 const STORAGE_KEY = 'vaultage_locked';
 
 @Injectable()
@@ -22,46 +19,29 @@ export class PinLockService {
     }
 
 
-    private encrypt(data: string, pin: string): string[] {
-        data = this.checkMultipleSize(data, 16);
-        const pinHash = sha384(pin);
-        const iv = AESUtil.hex.toBytes(pinHash.substr(0, 32));
-        const key = AESUtil.hex.toBytes(pinHash.substr(32, 64));
-        const crytoData = AESUtil.hex.fromBytes(new ModeOfOperation.cbc(key, iv).encrypt(
-            AESUtil.utf8.toBytes(data)));
-        const checksum = sha512(pinHash + data);
-        return [checksum,crytoData];
-    }
-    private checkMultipleSize(data: string, sizeMultiple: number): string {
-        while(data.length % sizeMultiple > 0) {
-            data += ' ';
-        }
-        return data;
+    private encrypt(data: string, pin: string): string {
+        return (window as any).sjcl.encrypt(pin, data);
     }
 
     public getSecret(userPin: string): string | undefined {
         const storage = this.getStorage();
 
         if (storage != null) {
-            const pinStorage = this.checkDecryption(storage, userPin);
+            let pinStorage;
+            try {
+                pinStorage = this.checkDecryption(storage, userPin);
+            } catch(e) {
+                return undefined;
+            }
             if(!pinStorage) {
                 return undefined;
             }
             return pinStorage.data;
         }
     }
-    private checkDecryption(storageAsString: string, userPin: string): PinStorage | undefined {
-        const storage: string[] = JSON.parse(storageAsString);
-        const pinHash = sha384(userPin);
-        const iv = AESUtil.hex.toBytes(pinHash.substr(0, 32));
-        const key = AESUtil.hex.toBytes(pinHash.substr(32, 64));
-        const data = AESUtil.utf8.fromBytes(new ModeOfOperation.cbc(key, iv).decrypt(
-            AESUtil.hex.toBytes(storage[1])));
-        const checksum = sha512(pinHash + data);
-        if(checksum == storage[0]) {
-            return JSON.parse(data);
-        }
-        return undefined;
+    private checkDecryption(storage: string, userPin: string): PinStorage {
+        const data = (window as any).sjcl.decrypt(userPin, storage);
+        return JSON.parse(data);
     }
 
     public reset(): void {
