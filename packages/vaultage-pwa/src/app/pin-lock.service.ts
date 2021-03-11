@@ -15,7 +15,7 @@ export class PinLockService {
 
     public setSecret(pin: string, data: string): void {
 
-        this.ls.setItem(STORAGE_KEY, JSON.stringify(this.encrypt(JSON.stringify({pin, data}), pin)));
+        this.ls.setItem(STORAGE_KEY, this.encrypt(JSON.stringify({pin, data}), pin));
     }
 
 
