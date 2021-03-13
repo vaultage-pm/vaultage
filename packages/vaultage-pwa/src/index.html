@@ -94,6 +94,13 @@
       }
     }
 </style>
+<script type="text/javascript">
+  // workaround for sjcl
+  function define(ignored, sjcl) {
+    window.sjcl = sjcl();
+  }
+</script>
+<script type="text/javascript" src="./assets/sjcl.js"></script>
 </head>
 <body class="mat-typography">
   <app-root>
