@@ -6427,10 +6427,10 @@ ng-mocks@^9.0.0:
   resolved "https://registry.yarnpkg.com/ng-mocks/-/ng-mocks-9.2.0.tgz#693fda98b8b6c59a92d95cb72422ddaf22f7e46d"
   integrity sha512-k2/FoYDW2Izjsl7LKz3L9obfJUvLb7dG5B5p7Bgtqt6mM76lJ8wpPxC5GuINdoI6wGbDfcF+va5kE3clLlSVpA==
 
-ng-vacuum@0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/ng-vacuum/-/ng-vacuum-0.0.0.tgz#d63ccc97ccdb781373da32d7ef131f295ff85d00"
-  integrity sha512-34mN98OLgvFQNQD4z3hD0Lv8b6TWwGnPp9RUZEAWi33q+oErhSMAwm5PjLZ7kpXrO20wcROg3KNJlo+ke7nGkQ==
+ng-vacuum@0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/ng-vacuum/-/ng-vacuum-0.3.1.tgz#310de109f9e6200da7bced7739bdc97f0af8e587"
+  integrity sha512-bn+W1NbFTb5xlj+Vj32ms98J/sx4/1+C7vKkJ0p6LX8bH+8EkKEns4DsbPDLPecUj70jLq5N6/8vhCH90MZ6Ng==
 
 nice-try@^1.0.4:
   version "1.0.5"
@@ -8658,9 +8658,9 @@ sshpk@^1.7.0:
     tweetnacl "~0.14.0"
 
 ssri@^6.0.0, ssri@^6.0.1:
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/ssri/-/ssri-6.0.1.tgz#2a3c41b28dd45b62b63676ecb74001265ae9edd8"
-  integrity sha512-3Wge10hNcT1Kur4PDFwEieXSCMCJs/7WvSACcrMYrNp+b8kDL1/0wJch5Ni2WrtwEa2IO8OsVfeKIciKCDx/QA==
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/ssri/-/ssri-6.0.2.tgz#157939134f20464e7301ddba3e90ffa8f7728ac5"
+  integrity sha512-cepbSq/neFK7xB6A50KHN0xHDotYzq58wWCa5LeWqnPrHG8GzfEjO/4O8kpmcGW+oaxkvhEJCWgbgNk4/ZV93Q==
   dependencies:
     figgy-pudding "^3.5.1"
 
