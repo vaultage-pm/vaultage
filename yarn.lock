@@ -6427,10 +6427,10 @@ ng-mocks@^9.0.0:
   resolved "https://registry.yarnpkg.com/ng-mocks/-/ng-mocks-9.2.0.tgz#693fda98b8b6c59a92d95cb72422ddaf22f7e46d"
   integrity sha512-k2/FoYDW2Izjsl7LKz3L9obfJUvLb7dG5B5p7Bgtqt6mM76lJ8wpPxC5GuINdoI6wGbDfcF+va5kE3clLlSVpA==
 
-ng-vacuum@0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/ng-vacuum/-/ng-vacuum-0.0.0.tgz#d63ccc97ccdb781373da32d7ef131f295ff85d00"
-  integrity sha512-34mN98OLgvFQNQD4z3hD0Lv8b6TWwGnPp9RUZEAWi33q+oErhSMAwm5PjLZ7kpXrO20wcROg3KNJlo+ke7nGkQ==
+ng-vacuum@0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/ng-vacuum/-/ng-vacuum-0.3.1.tgz#310de109f9e6200da7bced7739bdc97f0af8e587"
+  integrity sha512-bn+W1NbFTb5xlj+Vj32ms98J/sx4/1+C7vKkJ0p6LX8bH+8EkKEns4DsbPDLPecUj70jLq5N6/8vhCH90MZ6Ng==
 
 nice-try@^1.0.4:
   version "1.0.5"
@@ -8362,9 +8362,10 @@ shebang-regex@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-3.0.0.tgz#ae16f1644d873ecad843b0307b143362d4c42172"
 
-shelljs@0.8.3, shelljs@^0.8.3:
-  version "0.8.3"
-  resolved "https://registry.yarnpkg.com/shelljs/-/shelljs-0.8.3.tgz#a7f3319520ebf09ee81275b2368adb286659b097"
+shelljs@0.8.5, shelljs@^0.8.5:
+  version "0.8.5"
+  resolved "https://registry.yarnpkg.com/shelljs/-/shelljs-0.8.5.tgz#de055408d8361bed66c669d2f000538ced8ee20c"
+  integrity sha512-TiwcRcrkhHvbrZbnRcFYMLl30Dfov3HKqzp5tO5b4pt6G/SezKcYhmDg15zXVBswHmctSAQKznqNW2LO5tTDow==
   dependencies:
     glob "^7.0.0"
     interpret "^1.0.0"
