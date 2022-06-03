@@ -22,7 +22,7 @@
         "@angular/common": "~9.0.7",
         "@angular/compiler": "~9.0.7",
         "@angular/compiler-cli": "~9.0.7",
-        "@angular/core": "~9.0.7",
+        "@angular/core": "~11.0.5",
         "@angular/forms": "~9.0.7",
         "@angular/language-service": "~9.0.7",
         "@angular/material": "^9.1.3",
