@@ -6427,10 +6427,10 @@ ng-mocks@^9.0.0:
   resolved "https://registry.yarnpkg.com/ng-mocks/-/ng-mocks-9.2.0.tgz#693fda98b8b6c59a92d95cb72422ddaf22f7e46d"
   integrity sha512-k2/FoYDW2Izjsl7LKz3L9obfJUvLb7dG5B5p7Bgtqt6mM76lJ8wpPxC5GuINdoI6wGbDfcF+va5kE3clLlSVpA==
 
-ng-vacuum@0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/ng-vacuum/-/ng-vacuum-0.0.0.tgz#d63ccc97ccdb781373da32d7ef131f295ff85d00"
-  integrity sha512-34mN98OLgvFQNQD4z3hD0Lv8b6TWwGnPp9RUZEAWi33q+oErhSMAwm5PjLZ7kpXrO20wcROg3KNJlo+ke7nGkQ==
+ng-vacuum@0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/ng-vacuum/-/ng-vacuum-0.3.1.tgz#310de109f9e6200da7bced7739bdc97f0af8e587"
+  integrity sha512-bn+W1NbFTb5xlj+Vj32ms98J/sx4/1+C7vKkJ0p6LX8bH+8EkKEns4DsbPDLPecUj70jLq5N6/8vhCH90MZ6Ng==
 
 nice-try@^1.0.4:
   version "1.0.5"
@@ -7652,8 +7652,9 @@ qs@^6.5.1:
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.9.1.tgz#20082c65cb78223635ab1a9eaca8875a29bf8ec9"
 
 qs@~6.5.2:
-  version "6.5.2"
-  resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
+  version "6.5.3"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.3.tgz#3aeeffc91967ef6e35c0e488ef46fb296ab76aad"
+  integrity sha512-qxXIEh4pCGfHICj1mAJQ2/2XVZkjCDTcEgfoSQxc/fYivUZxTkk7L3bDBJSoNrEzXI17oUO5Dp07ktqE5KzczA==
 
 query-string@^4.1.0:
   version "4.3.4"
