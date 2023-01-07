@@ -5732,8 +5732,9 @@ json5@2.x, json5@^2.1.0:
     minimist "^1.2.5"
 
 json5@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/json5/-/json5-1.0.1.tgz#779fb0018604fa854eacbf6252180d83543e3dbe"
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/json5/-/json5-1.0.2.tgz#63d98d60f21b313b77c4d6da18bfa69d80e1d593"
+  integrity sha512-g1MWMLBiz8FKi1e4w0UyVL3w+iJceWAFBAaBnnGKOpNa5f8TLktkbre1+s6oICydWAm+HRUGTmI+//xv2hvXYA==
   dependencies:
     minimist "^1.2.0"
 
@@ -6255,9 +6256,9 @@ minimist@0.0.8:
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-0.0.8.tgz#857fcabfc3397d2625b8228262e86aa7a011b05d"
 
 minimist@^1.1.1, minimist@^1.2.0, minimist@^1.2.5:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.5.tgz#67d66014b66a6a8aaa0c083c5fd58df4e4e97602"
-  integrity sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==
+  version "1.2.7"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.7.tgz#daa1c4d91f507390437c6a8bc01078e7000c4d18"
+  integrity sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==
 
 minimist@~0.0.1:
   version "0.0.10"
@@ -6427,10 +6428,10 @@ ng-mocks@^9.0.0:
   resolved "https://registry.yarnpkg.com/ng-mocks/-/ng-mocks-9.2.0.tgz#693fda98b8b6c59a92d95cb72422ddaf22f7e46d"
   integrity sha512-k2/FoYDW2Izjsl7LKz3L9obfJUvLb7dG5B5p7Bgtqt6mM76lJ8wpPxC5GuINdoI6wGbDfcF+va5kE3clLlSVpA==
 
-ng-vacuum@0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/ng-vacuum/-/ng-vacuum-0.0.0.tgz#d63ccc97ccdb781373da32d7ef131f295ff85d00"
-  integrity sha512-34mN98OLgvFQNQD4z3hD0Lv8b6TWwGnPp9RUZEAWi33q+oErhSMAwm5PjLZ7kpXrO20wcROg3KNJlo+ke7nGkQ==
+ng-vacuum@0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/ng-vacuum/-/ng-vacuum-0.3.1.tgz#310de109f9e6200da7bced7739bdc97f0af8e587"
+  integrity sha512-bn+W1NbFTb5xlj+Vj32ms98J/sx4/1+C7vKkJ0p6LX8bH+8EkKEns4DsbPDLPecUj70jLq5N6/8vhCH90MZ6Ng==
 
 nice-try@^1.0.4:
   version "1.0.5"
